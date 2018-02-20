@@ -3,7 +3,7 @@ Welcome!
 
 TastyScript is a very basic language I originally created for rapid prototyping automated gaming on my Android phone, since my computer cannot run Nox. This version of TastyScript connects to your phone via ADB, and allows you to communicate touch locations, (some)hard buttons, and take screenshots. There are many more features I'd like to add so I make updates frequently!
 
-Check the documentation at the [Wiki](../../Wiki) to learn about the core concepts of the language, as well as full documentation on functionality.
+Check the documentation at the [Wiki](../../wiki) to learn about the core concepts of the language, as well as full documentation on functionality.
 
 # tl;dr Lets get started
 Either download the latest release here* or compile from the source. Also you need ADB from either [this link](https://developer.android.com/studio/releases/platform-tools.html) or from the Android SDK. The ADB server needs to be started or the driver will not connect.
