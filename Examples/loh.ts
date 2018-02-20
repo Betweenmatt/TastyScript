@@ -1,0 +1,39 @@
+@import Examples/tools.ts;
+@end
+override.Start(){
+	MainLoop().For(0);
+}
+function.MainLoop(){
+	Queue();
+	PickRandomHeroes();
+	BattleFinished();
+}
+
+function.Queue(){
+	Touch(1164,647);
+	Accept();
+}
+function.PickRandomHeroes(){
+	#kasel
+	Select(375,245);
+	#frey
+	Select(478,247);
+	#mirururu
+	Select(912,354);
+	#philop
+	Select(907,237);
+	#demia
+	Select(379,564);
+	#naila
+	Select(490,556);
+}
+function.BattleFinished(){
+	Touch(1206,596,500);
+	Touch(1206,596,500);
+	Touch(1206,596,500);
+}
+#this is the select button in pick/ban section
+function.Select(x,y){
+	Touch(x,y,500);
+	Touch(879,703,500);
+}
