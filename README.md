@@ -6,11 +6,14 @@ TastyScript is a very basic language I originally created for rapid prototyping 
 Check the documentation at the [Wiki](../../Wiki) to learn about the core concepts of the language, as well as full documentation on functionality.
 
 # tl;dr Lets get started
-Either download the latest release here* or compile from the source.
+Either download the latest release here* or compile from the source. Also you need ADB from either [this link](https://developer.android.com/studio/releases/platform-tools.html) or from the Android SDK. The ADB server needs to be started or the driver will not connect.
 
 Take a look at the [Examples](/Examples) folder for ideas/help etc on creating your own script. Note: the touch locations in the examples will most likely fail on your phone! You need to use the pixel locations that work for your phone's aspect ratio/resolution
 
-Enter `run 'script path'` in the TastyScript console and profit!
+In the TastyScript console:
+* Enter `devices` to see the current list of devices connected to your computer.
+* Enter `connect 'device'` to connect to the device.
+* Enter `run 'script path'` and profit!
 
 # Requirements
 Windows computer with .Net 4.5.2
