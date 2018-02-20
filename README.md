@@ -29,6 +29,17 @@ Android phone/emulator
 
 Both can be found as Nuget packages
 
+# ToDo List
+*Support*
+- [ ] IPhone Support
+- [ ] MacOS Support
+
+*Functionality*
+- [ ] Conditional evaluation
+- [ ] Nested scopes
+- [ ] Custom variable support
+- [ ] Basic math evaluation
+- [ ] Better error handling
 # Credits
 [AForge Image Processing](https://github.com/andrewkirillov/AForge.NET) for their amazing image processing framework!
 
