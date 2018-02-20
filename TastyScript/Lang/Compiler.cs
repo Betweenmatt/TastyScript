@@ -16,7 +16,6 @@ namespace TastyScript.Lang
         public static IExceptionListener ExceptionListener;
         public Compiler(string filename, string file, List<IBaseFunction> predefined)
         {
-            ExceptionListener = new ExceptionListener();
             Files = new Dictionary<string, string>();
             Files.Add(filename, file);
             _compileStack = GetScopes(file, predefined);
@@ -40,7 +39,7 @@ namespace TastyScript.Lang
                         //add functions first
                         temp.AddRange(GetScopes(fileContents, predefined));
                     }
-                    catch (Exception e)
+                    catch 
                     {
                         Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException, $"Error importing {file}."));
                     }

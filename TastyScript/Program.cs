@@ -7,6 +7,7 @@ using System.Linq;
 using TastyScript.Android;
 using TastyScript.Lang.Func;
 using TastyScript.Lang;
+using TastyScript.Lang.Exceptions;
 
 namespace TastyScript
 {
@@ -19,9 +20,10 @@ namespace TastyScript
         static void Main(string[] args)
         {
             Console.Title = Title;
-            //on load set predefined functions and extensions to reduce load from reflection
+            //on load set predefined functions and extensions to mitigate load from reflection
             predefinedFunctions = GetPredefinedFunctions();
             TokenParser.Extensions = GetExtensions();
+            Compiler.ExceptionListener = new ExceptionListener();
             //
             IO.Output.Print(WelcomeMessage());
             WaitForCommand();
@@ -39,37 +41,53 @@ namespace TastyScript
             IO.Output.Print('>', false);
             var r = IO.Input.ReadLine();
             var split = r.Split(' ');
-            if (split[0] == "run")
-            {
-                try
-                {
-                    TokenParser.SleepDefaultTime = 1200;
-                    QuickStop = new Thread(ListenForEsc);
-                    QuickStop.Start();
 
-                    TokenParser.Stop = false;
-                    path = split[1].Replace("\'", "").Replace("\"", "");
-                    file = System.IO.File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + split[1].Replace("\'", "").Replace("\"", ""));
-                    StartScript();
-                }
-                catch (Exception e)
-                {
-                    IO.Output.Print(e, ConsoleColor.DarkRed);
-                }
-            }
-            else if (split[0] == "devices")
+            switch (split[0])
             {
-                Driver.PrintAllDevices();
+                case ("run"):
+                    try
+                    {
+                        try
+                        {
+                            file = System.IO.File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + split[1].Replace("\'", "").Replace("\"", ""));
+                        }
+                        catch
+                        {
+                            Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException,
+                                $"Could not find path: {path}"));
+                            break;
+                        }
+                        TokenParser.SleepDefaultTime = 1200;
+                        QuickStop = new Thread(ListenForEsc);
+                        QuickStop.Start();
+                        path = split[1].Replace("\'", "").Replace("\"", "");
+                        TokenParser.Stop = false;
+                        StartScript();
+                    }
+                    catch (Exception e)
+                    {
+                        //need a better way to handle this lol
+                        IO.Output.Print(e, ConsoleColor.DarkRed);
+                    }
+                    break;
+                case ("devices"):
+                    Driver.PrintAllDevices();
+                    break;
+                case ("connect"):
+                    AndroidDriver = new Driver(split[1]);
+                    break;
+                case ("screenshot"):
+                    var ss = AndroidDriver.GetScreenshot();
+                    ss.Save(split[1], ImageFormat.Png);
+                    break;
+                case ("-h"):
+                    IO.Output.Print(HelpMessage());
+                    break;
+                default:
+                    IO.Output.Print("Type -h to get the list of commands!");
+                    break;
             }
-            else if (split[0] == "connect")
-            {
-                AndroidDriver = new Driver(split[1]);
-            }
-            else if (split[0] == "screenshot")
-            {
-                var ss = AndroidDriver.GetScreenshot();
-                ss.Save(split[1], ImageFormat.Png);
-            }
+            
             WaitForCommand();
         }
         private static string path;
@@ -136,6 +154,13 @@ namespace TastyScript
         {
             return $"Welcome to {Title}!\nCredits:\n@TastyGod\nAforge - www.aforge.net\nSharpADB - https://github.com/quamotion/madb \n\n" + 
                 $"Enter -h for a list of commands!\n";
+        }
+        private static string HelpMessage()
+        {
+            return $"Commands:\nrun 'path'\t\t|\tRuns the script at the given path\n"+
+                $"connect 'serial'\t|\tConnects to the given device\n"+
+                $"devices \t\t|\tLists all the devices connected to adb\n"+
+                $"screenshot 'path'\t|\tTakes a screenshot of the device and\n\t\t\t\t saves it to the given path\n";
         }
     }
 }
