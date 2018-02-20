@@ -1,7 +1,7 @@
 # TastyScript
 Welcome!
 
-TastyScript is a very basic language I originally created for rapid prototyping automation on my Android phone. This version of TastyScript connects to your phone via ADB, and allows you to communicate touch locations, (some)hard buttons, and take screenshots. There are many more features I'd like to add so I make updates frequently!
+TastyScript is a very basic language I originally created for rapid prototyping automated gaming on my Android phone, since my computer cannot run Nox. This version of TastyScript connects to your phone via ADB, and allows you to communicate touch locations, (some)hard buttons, and take screenshots. There are many more features I'd like to add so I make updates frequently!
 
 Check the documentation at the [Wiki](../../Wiki) to learn about the core concepts of the language, as well as full documentation on functionality.
 
