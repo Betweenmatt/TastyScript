@@ -16,7 +16,7 @@ namespace TastyScript
         public static Driver AndroidDriver;
         private static Thread QuickStop;
         private static List<IBaseFunction> predefinedFunctions;
-        public static string Title = $"TastyScript v{Assembly.GetExecutingAssembly().GetName().Version.ToString()}";
+        public static string Title = $"TastyScript v{Assembly.GetExecutingAssembly().GetName().Version.ToString()} Beta";
         static void Main(string[] args)
         {
             Console.Title = Title;
@@ -37,7 +37,7 @@ namespace TastyScript
                     QuickStop.Abort();
             }
             catch { }
-            IO.Output.Print("Set your game to correct screen and then type run 'file/directory'", ConsoleColor.Green);
+            IO.Output.Print("\nSet your game to correct screen and then type run 'file/directory'\n", ConsoleColor.Green);
             IO.Output.Print('>', false);
             var r = IO.Input.ReadLine();
             var split = r.Split(' ');
@@ -47,9 +47,10 @@ namespace TastyScript
                 case ("run"):
                     try
                     {
+                        path = split[1].Replace("\'", "").Replace("\"", "");
                         try
                         {
-                            file = System.IO.File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + split[1].Replace("\'", "").Replace("\"", ""));
+                            file = System.IO.File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + path);
                         }
                         catch
                         {
@@ -60,7 +61,6 @@ namespace TastyScript
                         TokenParser.SleepDefaultTime = 1200;
                         QuickStop = new Thread(ListenForEsc);
                         QuickStop.Start();
-                        path = split[1].Replace("\'", "").Replace("\"", "");
                         TokenParser.Stop = false;
                         StartScript();
                     }
@@ -116,7 +116,7 @@ namespace TastyScript
             IO.Output.Print("Press [ENTER KEY] to stop script execution");
             IO.Input.ReadLine();
             TokenParser.Stop = true;
-            IO.Output.Print("Script execution is halting. Please wait.", ConsoleColor.Yellow);
+            IO.Output.Print("\nScript execution is halting. Please wait.\n", ConsoleColor.Yellow);
             if (TokenParser.HaltFunction != null)
             {
                 TokenParser.HaltFunction.BlindExecute = true;
@@ -167,7 +167,8 @@ namespace TastyScript
         }
         private static string WelcomeMessage()
         {
-            return $"Welcome to {Title}!\nCredits:\n@TastyGod\nAforge - www.aforge.net\nSharpADB - https://github.com/quamotion/madb \n\n" + 
+            return $"Welcome to {Title}!\nCredits:\n@TastyGod - https://github.com/TastyGod " +
+                $"\nAforge - www.aforge.net\nSharpADB - https://github.com/quamotion/madb \n\n" + 
                 $"Enter -h for a list of commands!\n";
         }
         private static string HelpMessage()
