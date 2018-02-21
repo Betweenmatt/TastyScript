@@ -31,6 +31,7 @@ Both can be found as Nuget packages
 
 # ToDo List
 *Support*
+- [ ] Commands sent to an app instead of relying on ADB(wishful thinking!)
 - [ ] IPhone Support
 - [ ] MacOS Support
 
