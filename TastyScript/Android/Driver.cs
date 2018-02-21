@@ -22,9 +22,7 @@ namespace TastyScript.Android
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.DriverException, $"The device {input} could not be found. Make sure your adb client is loaded!\n Type the command 'devices' to see all the connected devices"));
                 return;
             }
-            Console.ForegroundColor = ConsoleColor.DarkGreen;
-            Console.WriteLine($"Device {input} has been connected");
-            Console.ResetColor();
+            IO.Output.Print($"Device {input} has been connected",ConsoleColor.DarkGreen);
             Console.Title = Program.Title + $" | Device {Device.Serial}";
         }
         public void Tap(int x, int y)
@@ -52,7 +50,7 @@ namespace TastyScript.Android
             var devices = AdbClient.Instance.GetDevices();
             foreach (var device in devices)
             {
-                Console.WriteLine(device.Serial);
+                IO.Output.Print(device.Serial);
             }
         }
     }

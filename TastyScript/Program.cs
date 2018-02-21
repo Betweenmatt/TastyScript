@@ -37,7 +37,7 @@ namespace TastyScript
                     QuickStop.Abort();
             }
             catch { }
-            IO.Output.Print("Set game to correct screen and then type run 'file/directory'", ConsoleColor.Green);
+            IO.Output.Print("Set your game to correct screen and then type run 'file/directory'", ConsoleColor.Green);
             IO.Output.Print('>', false);
             var r = IO.Input.ReadLine();
             var split = r.Split(' ');
@@ -66,25 +66,40 @@ namespace TastyScript
                     }
                     catch (Exception e)
                     {
-                        //need a better way to handle this lol
-                        IO.Output.Print(e, ConsoleColor.DarkRed);
+                        if (!(e is CompilerControledException))
+                        {
+                            //need a better way to handle this lol
+                            IO.Output.Print(e, ConsoleColor.DarkRed);
+                        }
                     }
                     break;
                 case ("devices"):
                     Driver.PrintAllDevices();
                     break;
                 case ("connect"):
-                    AndroidDriver = new Driver(split[1]);
+                    try
+                    {
+                        AndroidDriver = new Driver(split[1]);
+                    }catch(Exception e){if (!(e is CompilerControledException)){IO.Output.Print(e, ConsoleColor.DarkRed);}}
                     break;
                 case ("screenshot"):
-                    var ss = AndroidDriver.GetScreenshot();
-                    ss.Save(split[1], ImageFormat.Png);
+                    try { 
+                        if (AndroidDriver != null)
+                        {
+                            var ss = AndroidDriver.GetScreenshot();
+                            ss.Save(split[1], ImageFormat.Png);
+                        }else
+                        {
+                            Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.DriverException, "Device must be defined"));
+                        }
+                    }
+                    catch (Exception e) { if (!(e is CompilerControledException)) { IO.Output.Print(e, ConsoleColor.DarkRed); } }
                     break;
                 case ("-h"):
                     IO.Output.Print(HelpMessage());
                     break;
                 default:
-                    IO.Output.Print("Type -h to get the list of commands!");
+                    IO.Output.Print("Enter -h for a list of commands!");
                     break;
             }
             

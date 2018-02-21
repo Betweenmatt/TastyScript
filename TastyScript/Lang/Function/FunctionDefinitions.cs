@@ -283,7 +283,7 @@ namespace TastyScript.Lang.Func
             Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"Cannot call 'For' on {this.Name}.", LineValue));
         }
     }
-    [Function("If", new string[] { "bool" })]
+    [Function("If", new string[] { "bool" }, FunctionObsolete:true)]
     public class FunctionIf : FunctionDefinitions<object>
     {
         public override object Parse(TParameter args)
