@@ -6,7 +6,7 @@ TastyScript is a very basic language I originally created for rapid prototyping 
 Check the documentation at the [Wiki](../../wiki) to learn about the core concepts of the language, as well as full documentation on functionality.
 
 # How to install
-* First, download the [latest release]() or compile from the source.
+* First, download the [latest release](https://github.com/TastyGod/TastyScript/releases) or compile from the source.
 * [Download the ADB server](https://developer.android.com/studio/releases/platform-tools.html)
 * Turn on USB debugging on your device. Go to `Settings->Developer Options` and you will find a toggle for `USB Debugging`. If you don't have Developer Options menu in your settings google your device model and "Developer Options" and you will find out how to enable it.
 * Connect your phone to your computer via usb cable and start the ADB server. If you wish to use ADB over wifi, [read this post.](https://stackoverflow.com/a/28084202/3496006)
