@@ -79,12 +79,12 @@ namespace TastyScript
                         }
                     }
                     break;
-                case ("adb"):
+                case ("shell"):
                     try
                     {
                         if (AndroidDriver != null)
                         {
-                            IO.Output.Print($"Result: {AndroidDriver.SendShellCommand(r.Replace("adb ",""))}");
+                            IO.Output.Print($"Result: {AndroidDriver.SendShellCommand(r.Replace("shell ",""))}");
                         }
                         else
                         {
