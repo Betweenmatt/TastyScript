@@ -5,6 +5,8 @@ TastyScript is a very basic language I originally created for rapid prototyping 
 
 Check the documentation at the [Wiki](../../wiki) to learn about the core concepts of the language, as well as full documentation on functionality.
 
+On a side note, this was my very first language. It does not use any complex parsing frameworks, only regex and and some string manipulation. I plan on replacing my work with ANTLR in the future, when I have time to sit down and learn how to use it!
+
 # How to install
 * First, download the [latest release](https://github.com/TastyGod/TastyScript/releases) or compile from the source.
 * [Download the ADB server](https://developer.android.com/studio/releases/platform-tools.html)
