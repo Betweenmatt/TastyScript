@@ -1,6 +1,8 @@
 @import Examples/tools.ts;
 @end
 override.Start(){
+	# set this loop to a large number, or the number of times the buy/grind loop
+	# can be run before you run out of raid points (currentRaidPoints / (buyLoopIterations * 450))
 	Loop("RaidScreen").For(1000);
 }
 function.RaidScreen(i){
@@ -42,5 +44,5 @@ function.BuyLoop(i){
 	#touch buy button
 	Touch(1008, 648);
 	#confirm buy button
-	Touch(631, 531);
+	#Touch(631, 531);
 }
