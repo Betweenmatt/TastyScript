@@ -5,15 +5,17 @@ TastyScript is a very basic language I originally created for rapid prototyping 
 
 Check the documentation at the [Wiki](../../wiki) to learn about the core concepts of the language, as well as full documentation on functionality.
 
-# tl;dr Lets get started
-Either download the latest release here* or compile from the source. Also you need ADB from either [this link](https://developer.android.com/studio/releases/platform-tools.html) or from the Android SDK. The ADB server needs to be started or the driver will not connect.
+# How to install
+* First, download the [latest release]() or compile from the source.
+* [Download the ADB server](https://developer.android.com/studio/releases/platform-tools.html)
+* Turn on USB debugging on your device. Go to `Settings->Developer Options` and you will find a toggle for `USB Debugging`. If you don't have Developer Options menu in your settings google your device model and "Developer Options" and you will find out how to enable it.
+* Connect your phone to your computer via usb cable and start the ADB server. If you wish to use ADB over wifi, [read this post.](https://stackoverflow.com/a/28084202/3496006)
+* Run the TastyScript.exe file you downloaded first
 
-Take a look at the [Examples](/Examples) folder for ideas/help etc on creating your own script. Note: the touch locations in the examples will most likely fail on your phone! You need to use the pixel locations that work for your phone's aspect ratio/resolution
+Now you're good to run any scripts you choose! Take a look at the [Examples](/Examples) folder for ideas/help etc on creating your own script. Note: the touch locations in the examples will most likely fail on your phone! You need to use the pixel locations that work for your phone's aspect ratio/resolution
 
-In the TastyScript console:
-* Enter `devices` to see the current list of devices connected to your computer.
-* Enter `connect 'device'` to connect to the device.
-* Enter `run 'script path'` and profit!
+For a list of console commands check out the [Wiki](../../wiki/Console-Commands).
+
 
 # Requirements
 Windows computer with .Net 4.5.2
@@ -31,15 +33,18 @@ Both can be found as Nuget packages
 
 # ToDo List
 *Support*
+- [ ] Commands sent to an app instead of relying on ADB(wishful thinking!)
 - [ ] IPhone Support
 - [ ] MacOS Support
 
 *Functionality*
+- [ ] Remote control
 - [ ] Conditional evaluation
 - [ ] Nested scopes
 - [ ] Custom variable support
 - [ ] Basic math evaluation
 - [ ] Better error handling
+
 # Credits
 [AForge Image Processing](https://github.com/andrewkirillov/AForge.NET) for their amazing image processing framework!
 
