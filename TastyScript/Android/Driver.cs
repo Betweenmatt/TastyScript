@@ -14,6 +14,8 @@ namespace TastyScript.Android
     public class Driver
     {
         public DeviceData Device { get; private set; }
+        private string _appPackage = "";
+        public string AppPackage { get { return _appPackage; } }
         public Driver(string input)
         {
             Device = AdbClient.Instance.GetDevices().FirstOrDefault(f => f.Serial == input);
@@ -25,9 +27,18 @@ namespace TastyScript.Android
             IO.Output.Print($"Device {input} has been connected",ConsoleColor.DarkGreen);
             Console.Title = Program.Title + $" | Device {Device.Serial}";
         }
+        public void SetAppPackage(string appPackage)
+        {
+            _appPackage = appPackage;
+            IO.Output.Print($"App Package set to {appPackage}",ConsoleColor.DarkGreen);
+        }
         public void Tap(int x, int y)
         {
+            //halt software while app isnt in focus
+            while (!CheckFocusedApp()) { Thread.Sleep(5000); }
             ShellCommand($"input tap {x} {y}");
+            //trying to prevent event bursts, especailly on load
+            Thread.Sleep(300);
         }
         public void KeyEvent(AndroidKeyCode code)
         {
@@ -51,6 +62,26 @@ namespace TastyScript.Android
             foreach (var device in devices)
             {
                 IO.Output.Print(device.Serial);
+            }
+        }
+        private bool CheckFocusedApp()
+        {
+            if (AppPackage == "")
+            {
+                Compiler.ExceptionListener.ThrowSilent(new ExceptionHandler(ExceptionType.DriverException,
+                    $"Warning! There is no app package set, events will not be paused when app loses focus. Check documentation for more info."),once:true);
+                return true;
+            }
+            else
+            {
+                string command = $"dumpsys window windows | grep -E 'mCurrentFocus'";
+                var receiver = new ConsoleOutputReceiver();
+                AdbClient.Instance.ExecuteRemoteCommand(command, Device, receiver);
+                var echo = receiver.ToString();
+                if (echo.Contains(AppPackage))
+                    return true;
+                else
+                    return false;
             }
         }
     }

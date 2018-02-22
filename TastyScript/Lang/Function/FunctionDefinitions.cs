@@ -22,29 +22,11 @@ namespace TastyScript.Lang.Func
         }
         public static void AndroidTouch(int x, int y)
         {
-            try
-            {
-                Program.AndroidDriver.Tap(x, y);
-            }
-            catch
-            {
-                Compiler.ExceptionListener.ThrowSilent(new ExceptionHandler(ExceptionType.DriverException, $"ADB returned null input. Sleeping 5 seconds and trying again"));
-                Sleep(5000);
-                AndroidTouch(x, y);
-            }
+            Program.AndroidDriver.Tap(x, y);
         }
         public static void AndroidBack()
         {
-            try
-            {
-                Program.AndroidDriver.KeyEvent(Android.AndroidKeyCode.KEYCODE_BACK);
-            }
-            catch
-            {
-                Compiler.ExceptionListener.ThrowSilent(new ExceptionHandler(ExceptionType.DriverException, $"ADB returned null input. Sleeping 5 seconds and trying again"));
-                Sleep(5000);
-                AndroidBack();
-            }
+            Program.AndroidDriver.KeyEvent(Android.AndroidKeyCode.KEYCODE_BACK);
         }
         public static void AndroidCheckScreen(string succPath, IBaseFunction succFunc, IBaseFunction failFunc, int thresh = 90)
         {
@@ -143,6 +125,26 @@ namespace TastyScript.Lang.Func
         }
     }
 
+    [Function("AppPackage", new string[] { "app" })]
+    public class FunctionAppPackage : FunctionDefinitions<object>
+    {
+        public override object Parse(TParameter args)
+        {
+            return CallBase(args);
+        }
+        public new object CallBase(TParameter args)
+        {
+            var print = "";
+            var argsList = ProvidedArgs.FirstOrDefault(f => f.Name == "app");
+            if (argsList != null)
+                print = argsList.ToString();
+            if (Program.AndroidDriver == null)
+                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.DriverException,
+                    $"Cannot set the app package without having a device connected. Please connect to a device first.", LineValue));
+            Program.AndroidDriver.SetAppPackage(print);
+            return args;
+        }
+    }
     [Function("TakeScreenshot", new string[] { "path" })]
     public class FunctionTakeScreenshot : FunctionDefinitions<object>
     {

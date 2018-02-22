@@ -8,6 +8,10 @@ using TastyScript.Android;
 using TastyScript.Lang.Func;
 using TastyScript.Lang;
 using TastyScript.Lang.Exceptions;
+using System.Net;
+using System.Net.Sockets;
+using Owin;
+using Microsoft.Owin.Hosting;
 
 namespace TastyScript
 {
@@ -17,8 +21,10 @@ namespace TastyScript
         private static Thread QuickStop;
         private static List<IBaseFunction> predefinedFunctions;
         public static string Title = $"TastyScript v{Assembly.GetExecutingAssembly().GetName().Version.ToString()} Beta";
+        public static string LogLevel;
         static void Main(string[] args)
         {
+            LogLevel = Properties.Settings.Default.loglevel;
             Console.Title = Title;
             //on load set predefined functions and extensions to mitigate load from reflection
             predefinedFunctions = GetPredefinedFunctions();
@@ -80,20 +86,58 @@ namespace TastyScript
                     try
                     {
                         AndroidDriver = new Driver(split[1]);
-                    }catch(Exception e){if (!(e is CompilerControledException)){IO.Output.Print(e, ConsoleColor.DarkRed);}}
+                    }
+                    catch (Exception e) { if (!(e is CompilerControledException)) { IO.Output.Print(e, ConsoleColor.DarkRed); } }
                     break;
                 case ("screenshot"):
-                    try { 
+                    try
+                    {
                         if (AndroidDriver != null)
                         {
                             var ss = AndroidDriver.GetScreenshot();
                             ss.Save(split[1], ImageFormat.Png);
-                        }else
+                        }
+                        else
                         {
                             Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.DriverException, "Device must be defined"));
                         }
                     }
                     catch (Exception e) { if (!(e is CompilerControledException)) { IO.Output.Print(e, ConsoleColor.DarkRed); } }
+                    break;
+                case ("app"):
+                    try
+                    {
+                        if (AndroidDriver != null)
+                        {
+                            AndroidDriver.SetAppPackage(split[1]);
+                        }
+                        else
+                        {
+                            Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.DriverException, "Device must be defined"));
+                        }
+                    }
+                    catch (Exception e) { if (!(e is CompilerControledException)) { IO.Output.Print(e, ConsoleColor.DarkRed); } }
+                    break;
+                //this is not fully functional yet
+                case ("remote"):
+                    //TcpListen();
+                    break;
+                case ("loglevel"):
+                    try
+                    {
+                        if (split[1] == "warn" || split[1] == "error" || split[1] == "none")
+                        {
+                            LogLevel = split[1];
+                            Properties.Settings.Default.loglevel = split[1];
+                        }
+                        else
+                        {
+                            IO.Output.Print($"{split[1]} is not a valid entry. Must be warn, error, or none");
+                        }
+                    }catch
+                    {
+                        IO.Output.Print($"this is not a valid entry. Must be warn, error, or none");
+                    }
                     break;
                 case ("-h"):
                     IO.Output.Print(HelpMessage());
@@ -176,7 +220,73 @@ namespace TastyScript
             return $"Commands:\nrun 'path'\t\t|\tRuns the script at the given path\n"+
                 $"connect 'serial'\t|\tConnects to the given device\n"+
                 $"devices \t\t|\tLists all the devices connected to adb\n"+
-                $"screenshot 'path'\t|\tTakes a screenshot of the device and\n\t\t\t\t saves it to the given path\n";
+                $"screenshot 'path'\t|\tTakes a screenshot of the device and\n\t\t\t\t saves it to the given path\n"+
+                $"loglevel 'type'\t\t|\tSets the logging level to warn, error, or none"+
+                $"app 'appPackage'\t\t|\tSets the current app package.";
         }
+        /*
+        public static void TcpListen()
+        {
+            const string Url = "http://localhost:8080/";
+            using (WebApp.Start(Url, ConfigureApplication))
+            {
+                Console.WriteLine("Listening at {0}", Url);
+                Console.WriteLine("Press [Enter] to close the Tcp Listener");
+                Console.ReadLine();
+            }
+        }
+        
+        //this is not fully funcitonal yet
+        private static void ConfigureApplication(IAppBuilder app)
+        {
+            app.Use((ctx, next) =>
+            {
+                //Console.WriteLine("Request \"{0}\" from: {1}:{2}",ctx.Request.Path,ctx.Request.RemoteIpAddress,ctx.Request.RemotePort);
+                var split = ctx.Request.Path.ToString().Split('/');
+                switch (split[1])
+                {
+                    case ("run"):
+                        try
+                        {
+                            path = split[2].Replace("\'", "").Replace("\"", "").Replace("-","/");
+                            try
+                            {
+                                file = System.IO.File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + path);
+                            }
+                            catch
+                            {
+                                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException,
+                                    $"Could not find path: {path}"));
+                                break;
+                            }
+                            TokenParser.SleepDefaultTime = 1200;
+                            QuickStop = new Thread(ListenForEsc);
+                            QuickStop.Start();
+                            TokenParser.Stop = false;
+                            StartScript();
+                        }
+                        catch (Exception e)
+                        {
+                            if (!(e is CompilerControledException))
+                            {
+                                //need a better way to handle this lol
+                                IO.Output.Print(e, ConsoleColor.DarkRed);
+                            }
+                        }
+                        break;
+                    case ("stop"):
+                        TokenParser.Stop = true;
+                        IO.Output.Print("\nScript execution is halting. Please wait.\n", ConsoleColor.Yellow);
+                        if (TokenParser.HaltFunction != null)
+                        {
+                            TokenParser.HaltFunction.BlindExecute = true;
+                            TokenParser.HaltFunction.TryParse(null);
+                        }
+                        break;
+                }
+                return next();
+            });
+        }
+        */
     }
 }
