@@ -56,6 +56,12 @@ namespace TastyScript.Android
             //AdbClient.Instance.ExecuteRemoteCommand(command, Device, receiver);
             await AdbClient.Instance.ExecuteRemoteCommandAsync(command, Device, receiver, CancellationToken.None, 10);
         }
+        public string SendShellCommand(string c)
+        {
+            var receiver = new ConsoleOutputReceiver();
+            AdbClient.Instance.ExecuteRemoteCommand(c, Device, receiver);
+            return receiver.ToString();
+        }
         public static void PrintAllDevices()
         {
             var devices = AdbClient.Instance.GetDevices();

@@ -79,6 +79,20 @@ namespace TastyScript
                         }
                     }
                     break;
+                case ("adb"):
+                    try
+                    {
+                        if (AndroidDriver != null)
+                        {
+                            IO.Output.Print($"Result: {AndroidDriver.SendShellCommand(r.Replace("adb ",""))}");
+                        }
+                        else
+                        {
+                            Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.DriverException, "Device must be defined"));
+                        }
+                    }
+                    catch (Exception e) { if (!(e is CompilerControledException)) { IO.Output.Print(e, ConsoleColor.DarkRed); } }
+                    break;
                 case ("devices"):
                     Driver.PrintAllDevices();
                     break;
