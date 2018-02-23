@@ -50,6 +50,7 @@ namespace TastyScript
 
             switch (split[0])
             {
+                case ("-r"):
                 case ("run"):
                     try
                     {
@@ -79,12 +80,13 @@ namespace TastyScript
                         }
                     }
                     break;
+                case ("-sh"):
                 case ("shell"):
                     try
                     {
                         if (AndroidDriver != null)
                         {
-                            IO.Output.Print($"Result: {AndroidDriver.SendShellCommand(r.Replace("shell ",""))}");
+                            IO.Output.Print($"Result: {AndroidDriver.SendShellCommand(r.Replace("shell ", "").Replace("-sh ",""))}");
                         }
                         else
                         {
@@ -93,9 +95,11 @@ namespace TastyScript
                     }
                     catch (Exception e) { if (!(e is CompilerControledException)) { IO.Output.Print(e, ConsoleColor.DarkRed); } }
                     break;
+                case ("-d"):
                 case ("devices"):
                     Driver.PrintAllDevices();
                     break;
+                case ("-c"):
                 case ("connect"):
                     try
                     {
@@ -103,6 +107,7 @@ namespace TastyScript
                     }
                     catch (Exception e) { if (!(e is CompilerControledException)) { IO.Output.Print(e, ConsoleColor.DarkRed); } }
                     break;
+                case ("-ss"):
                 case ("screenshot"):
                     try
                     {
@@ -136,28 +141,44 @@ namespace TastyScript
                 case ("remote"):
                     //TcpListen();
                     break;
+                case ("-ll"):
                 case ("loglevel"):
                     try
                     {
-                        if (split[1] == "warn" || split[1] == "error" || split[1] == "none")
+                        if (split[1] == "warn" || split[1] == "error" || split[1] == "none" || split[1] == "throw")
                         {
                             LogLevel = split[1];
                             Properties.Settings.Default.loglevel = split[1];
                         }
                         else
                         {
-                            IO.Output.Print($"{split[1]} is not a valid entry. Must be warn, error, or none");
+                            IO.Output.Print($"{split[1]} is not a valid entry. Must be warn, error, throw, or none");
                         }
-                    }catch
+                    }
+                    catch
                     {
-                        IO.Output.Print($"this is not a valid entry. Must be warn, error, or none");
+                        IO.Output.Print($"this is not a valid entry. Must be warn, error, throw, or none");
                     }
                     break;
+                case ("-e"):
+                case ("exec"):
+                    try
+                    {
+                            var cmd = r.Replace("exec ", "").Replace("-e ","");
+                            file = "override.Start(){\n" + cmd + "}";
+                            path = "AnonExecCommand.ts";
+                            TokenParser.SleepDefaultTime = 1200;
+                            TokenParser.Stop = false;
+                            StartScript();
+                    }
+                    catch (Exception e) { if (!(e is CompilerControledException)) { IO.Output.Print(e, ConsoleColor.DarkRed); } }
+                    break;
                 case ("-h"):
+                case ("help"):
                     IO.Output.Print(HelpMessage());
                     break;
                 default:
-                    IO.Output.Print("Enter -h for a list of commands!");
+                    IO.Output.Print("Enter '-h' for a list of commands!");
                     break;
             }
             

@@ -47,6 +47,7 @@ namespace TastyScript.Android
             while (!checkFocus) { Thread.Sleep(5000); checkFocus = CheckFocusedApp(); }
             if (!test)
             {
+                //reup the cancelation token if it was canceled
                 _cancelationToken = new CancellationTokenSource();
             }
             

@@ -167,23 +167,26 @@ namespace TastyScript.Lang.Func
             else if (words.Length > 1)
             {
                 var stripws = words[0].Replace(" ", "");
-                var obj = TokenParser.FunctionList.FirstOrDefault(f => f.Name == stripws);
-                if (obj == null)
+                if (stripws != "" && stripws != " ")//??
                 {
-                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException, $"Function {stripws} cannot be found.", val));
-                    return temp;
+                    var obj = TokenParser.FunctionList.FirstOrDefault(f => f.Name == stripws);
+                    if (obj == null)
+                    {
+                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException, $"Function {stripws} cannot be found.", val));
+                        return temp;
+                    }
+                    var argsname = words[1].Replace(" ", "");
+                    var args = reference.GeneratedTokens.FirstOrDefault(f => f.Name == argsname);
+                    if (args == null)
+                    {
+                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException, $"Arguments cannot be found.", val));
+                        return temp;
+                    }
+                    var func = new TFunction(obj.Name, obj);
+                    func.Arguments = args as TParameter;
+                    func.Extensions = EvaluateExtensions(value, reference);
+                    temp.Add(func);
                 }
-                var argsname = words[1].Replace(" ", "");
-                var args = reference.GeneratedTokens.FirstOrDefault(f => f.Name == argsname);
-                if (args == null)
-                {
-                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException, $"Arguments cannot be found.", val));
-                    return temp;
-                }
-                var func = new TFunction(obj.Name, obj);
-                func.Arguments = args as TParameter;
-                func.Extensions = EvaluateExtensions(value, reference);
-                temp.Add(func);
             }
             return temp;
         }
