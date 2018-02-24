@@ -455,26 +455,26 @@ namespace TastyScript.Lang.Func
             return args;
         }
     }
-    [Function("PrintLine", new string[] { "s", "color" })]
+    [Function("PrintLine", new string[] { "s" })]
     public class FunctionPrintLine : FunctionDefinitions<string>
     {
         public override string Parse(TParameter args)
         {
-            AddParams();
+            Concat();
             return CallBase(args);
         }
-        private List<string> addParamsStrings = new List<string>();
-        private void AddParams()
+        private List<string> concatStrings = new List<string>();
+        private void Concat()
         {
-            var findAddParams = Extensions.FirstOrDefault(f => f.Name == "AddParams") as ExtensionAddParams;
-            if (findAddParams != null)
+            var findConcat = Extensions.FirstOrDefault(f => f.Name == "Concat") as ExtensionConcat;
+            if (findConcat != null)
             {
-                var addParamsList = Extensions.Where(f => f.Name == "AddParams");
-                foreach (var x in addParamsList)
+                var concatList = Extensions.Where(f => f.Name == "Concat");
+                foreach (var x in concatList)
                 {
-                    var param = x as ExtensionAddParams;
+                    var param = x as ExtensionConcat;
                     TParameter ext = param.Extend();
-                    addParamsStrings.Add(ext.Value.Value[0].ToString());
+                    concatStrings.Add(ext.Value.Value[0].ToString());
                 }
             }
         }
@@ -495,10 +495,10 @@ namespace TastyScript.Lang.Func
                 if (nofail)
                     color = newcol;
             }
-            IO.Output.Print(print + String.Join("", addParamsStrings),color);
+            IO.Output.Print(print + String.Join("", concatStrings),color);
 
             //clear extensions after done
-            addParamsStrings = new List<string>();
+            concatStrings = new List<string>();
             Extensions = new List<IExtension>();
             return print;
         }
@@ -508,21 +508,21 @@ namespace TastyScript.Lang.Func
     {
         public override string Parse(TParameter args)
         {
-            AddParams();
+            Concat();
             return CallBase(args);
         }
-        private List<string> addParamsStrings = new List<string>();
-        private void AddParams()
+        private List<string> concatStrings = new List<string>();
+        private void Concat()
         {
-            var findAddParams = Extensions.FirstOrDefault(f => f.Name == "AddParams") as ExtensionAddParams;
-            if (findAddParams != null)
+            var findConcat = Extensions.FirstOrDefault(f => f.Name == "Concat") as ExtensionConcat;
+            if (findConcat != null)
             {
-                var addParamsList = Extensions.Where(f => f.Name == "AddParams");
-                foreach (var x in addParamsList)
+                var concatList = Extensions.Where(f => f.Name == "Concat");
+                foreach (var x in concatList)
                 {
-                    var param = x as ExtensionAddParams;
+                    var param = x as ExtensionConcat;
                     TParameter ext = param.Extend();
-                    addParamsStrings.Add(ext.Value.Value[0].ToString());
+                    concatStrings.Add(ext.Value.Value[0].ToString());
                 }
             }
         }
@@ -532,7 +532,6 @@ namespace TastyScript.Lang.Func
             var argsList = ProvidedArgs.FirstOrDefault(f => f.Name == "s");
             if (argsList != null)
                 print = argsList.ToString();
-
             //color extension check
             var color = ConsoleColor.Gray;
             var findColorExt = Extensions.FirstOrDefault(f => f.Name == "Color") as ExtensionColor;
@@ -544,11 +543,10 @@ namespace TastyScript.Lang.Func
                 if (nofail)
                     color = newcol;
             }
-
-            IO.Output.Print(print + String.Join("", addParamsStrings),color,false);
+            IO.Output.Print(print + String.Join("", concatStrings), color, false);
 
             //clear extensions after done
-            addParamsStrings = new List<string>();
+            concatStrings = new List<string>();
             Extensions = new List<IExtension>();
             return print;
         }

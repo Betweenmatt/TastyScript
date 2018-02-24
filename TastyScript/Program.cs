@@ -73,7 +73,9 @@ namespace TastyScript
                     }
                     catch (Exception e)
                     {
-                        if (!(e is CompilerControledException))
+                        //if loglevel is throw, then compilerControledException gets printed as well
+                        //only for debugging srs issues
+                        if (!(e is CompilerControledException || LogLevel == "throw"))
                         {
                             //need a better way to handle this lol
                             IO.Output.Print(e, ConsoleColor.DarkRed);
@@ -93,7 +95,7 @@ namespace TastyScript
                             Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.DriverException, "Device must be defined"));
                         }
                     }
-                    catch (Exception e) { if (!(e is CompilerControledException)) { IO.Output.Print(e, ConsoleColor.DarkRed); } }
+                    catch (Exception e) { if (!(e is CompilerControledException || LogLevel == "throw")) { IO.Output.Print(e, ConsoleColor.DarkRed); } }
                     break;
                 case ("-d"):
                 case ("devices"):
@@ -105,7 +107,7 @@ namespace TastyScript
                     {
                         AndroidDriver = new Driver(split[1]);
                     }
-                    catch (Exception e) { if (!(e is CompilerControledException)) { IO.Output.Print(e, ConsoleColor.DarkRed); } }
+                    catch (Exception e) { if (!(e is CompilerControledException || LogLevel == "throw")) { IO.Output.Print(e, ConsoleColor.DarkRed); } }
                     break;
                 case ("-ss"):
                 case ("screenshot"):
@@ -121,7 +123,7 @@ namespace TastyScript
                             Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.DriverException, "Device must be defined"));
                         }
                     }
-                    catch (Exception e) { if (!(e is CompilerControledException)) { IO.Output.Print(e, ConsoleColor.DarkRed); } }
+                    catch (Exception e) { if (!(e is CompilerControledException || LogLevel == "throw")) { IO.Output.Print(e, ConsoleColor.DarkRed); } }
                     break;
                 case ("app"):
                     try
@@ -135,7 +137,7 @@ namespace TastyScript
                             Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.DriverException, "Device must be defined"));
                         }
                     }
-                    catch (Exception e) { if (!(e is CompilerControledException)) { IO.Output.Print(e, ConsoleColor.DarkRed); } }
+                    catch (Exception e) { if (!(e is CompilerControledException || LogLevel == "throw")) { IO.Output.Print(e, ConsoleColor.DarkRed); } }
                     break;
                 //this is not fully functional yet
                 case ("remote"):
@@ -145,6 +147,11 @@ namespace TastyScript
                 case ("loglevel"):
                     try
                     {
+                        if (split.Length == 1)
+                        {
+                            IO.Output.Print($"LogLevel: {LogLevel}");
+                            break;
+                        }
                         if (split[1] == "warn" || split[1] == "error" || split[1] == "none" || split[1] == "throw")
                         {
                             LogLevel = split[1];
@@ -171,7 +178,17 @@ namespace TastyScript
                             TokenParser.Stop = false;
                             StartScript();
                     }
-                    catch (Exception e) { if (!(e is CompilerControledException)) { IO.Output.Print(e, ConsoleColor.DarkRed); } }
+                    catch (Exception e) { if (!(e is CompilerControledException || LogLevel == "throw")) { IO.Output.Print(e, ConsoleColor.DarkRed); } }
+                    break;
+                case ("adb"):
+                    try
+                    {
+                        var cmd = r.Replace("adb ", "");
+                        Driver.Test(cmd);
+                    }catch(Exception e)
+                    {
+                        Console.WriteLine(e);
+                    }
                     break;
                 case ("-h"):
                 case ("help"):
