@@ -21,7 +21,7 @@ For a list of console commands check out the [Wiki](../../wiki/Console-Commands)
 
 
 # Requirements
-Windows computer with .Net 4.5.2
+Windows computer with .Net 4.5
 
 [Android ADB which can be found here](https://developer.android.com/studio/releases/platform-tools.html)
 
