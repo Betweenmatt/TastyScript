@@ -27,6 +27,8 @@ Windows computer with .Net 4.5.2
 
 Android phone/emulator
 
+[Notepad++](https://notepad-plus-plus.org/) if you want to use the [Notepad++ Extensions](https://github.com/TastyGod/TastyScript/tree/master/Notepad-%20Extensions)
+
 # Source code requirements
 [AForge Image Processing](https://github.com/andrewkirillov/AForge.NET)
 
