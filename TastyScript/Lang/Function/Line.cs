@@ -105,9 +105,9 @@ namespace TastyScript.Lang.Func
                 value = value.Replace(x.ToString(), tokenname);
             }
             //if line is variable assignment
-            if (value.Contains("var"))
+            if (value.Contains("var "))
             {
-                var strip = value.Replace("var", "");
+                var strip = value.Replace("var ", "");
                 var assign = strip.Split('=');
                 if (assign.Length != 2)
                 {
@@ -230,7 +230,7 @@ namespace TastyScript.Lang.Func
                     }
 
                     //clone the extension because it was breaking
-                    var clone = DeepCopy<BaseExtension<TParameter>>(findExt as BaseExtension<TParameter>);
+                    var clone = DeepCopy<BaseExtension>(findExt as BaseExtension);
                     clone.Arguments = extArgs as TParameter;
                     extensions.Add(clone as IExtension);
                 }

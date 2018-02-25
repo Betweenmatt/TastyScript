@@ -24,9 +24,10 @@ namespace TastyScript.Lang.Func
         {
             Program.AndroidDriver.Tap(x, y);
         }
+        [Obsolete]
         public static void AndroidBack()
         {
-            Program.AndroidDriver.KeyEvent(Android.AndroidKeyCode.KEYCODE_BACK);
+            Program.AndroidDriver.KeyEvent(Android.AndroidKeyCode.Back);
         }
         public static void AndroidCheckScreen(string succPath, IBaseFunction succFunc, IBaseFunction failFunc, int thresh = 90)
         {
@@ -420,6 +421,11 @@ namespace TastyScript.Lang.Func
         {
             var x = (ProvidedArgs.FirstOrDefault(f => f.Name == "intX") as TVariable);
             var y = (ProvidedArgs.FirstOrDefault(f => f.Name == "intY") as TVariable);
+            if (x == null || y == null)
+            {
+                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.NullReferenceException,
+                    $"The function [{this.Name}] requires [{ExpectedArgs.Length}] TNumber arguments", LineValue));
+            }
             double intX = double.Parse(x.Value.Value.ToString());
             double intY = double.Parse(y.Value.Value.ToString());
             if (Program.AndroidDriver == null)
@@ -435,6 +441,130 @@ namespace TastyScript.Lang.Func
             return args;
         }
     }
+    [Function("LongTouch", new string[] { "intX", "intY", "duration", "sleep" })]
+    public class FunctionLongTouch : FunctionDefinitions<object>
+    {
+        public override object Parse(TParameter args)
+        {
+            return CallBase(args);
+        }
+        public new object CallBase(TParameter args)
+        {
+            var x = (ProvidedArgs.FirstOrDefault(f => f.Name == "intX") as TVariable);
+            var y = (ProvidedArgs.FirstOrDefault(f => f.Name == "intY") as TVariable);
+            var dur = (ProvidedArgs.FirstOrDefault(f => f.Name == "duration") as TVariable);
+            if(x == null || y == null || dur == null)
+            {
+                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.NullReferenceException,
+                    $"The function [{this.Name}] requires [{ExpectedArgs.Length}] TNumber arguments", LineValue));
+            }
+            double intX = double.Parse(x.Value.Value.ToString());
+            double intY = double.Parse(y.Value.Value.ToString());
+            double duration = double.Parse(dur.Value.Value.ToString());
+            if (Program.AndroidDriver == null)
+                IO.Output.Print($"[DRIVERLESS] LongTouch x:{intX} y:{intY} duration:{duration}");
+            else
+                Program.AndroidDriver.LongPress((int)intX, (int)intY, (int)duration);
+            double sleep = TokenParser.SleepDefaultTime;
+            if (args.Value.Value.Count > 3)
+            {
+                sleep = double.Parse((ProvidedArgs.FirstOrDefault(f => f.Name == "sleep") as TVariable).Value.Value.ToString());
+            }
+            FunctionHelpers.Sleep(sleep);
+            return args;
+        }
+    }
+    [Function("Swipe", new string[] { "intX1", "intY1", "intX2", "intY2", "duration", "sleep" })]
+    public class FunctionSwipe : FunctionDefinitions<object>
+    {
+        public override object Parse(TParameter args)
+        {
+            return CallBase(args);
+        }
+        public new object CallBase(TParameter args)
+        {
+            var x1 = (ProvidedArgs.FirstOrDefault(f => f.Name == "intX1") as TVariable);
+            var y1 = (ProvidedArgs.FirstOrDefault(f => f.Name == "intY1") as TVariable);
+            var x2 = (ProvidedArgs.FirstOrDefault(f => f.Name == "intX2") as TVariable);
+            var y2 = (ProvidedArgs.FirstOrDefault(f => f.Name == "intY2") as TVariable);
+            var dur = (ProvidedArgs.FirstOrDefault(f => f.Name == "duration") as TVariable);
+            if (x1 == null || y1 == null || x2 == null || y2 == null || dur == null)
+            {
+                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.NullReferenceException,
+                    $"The function [{this.Name}] requires [{ExpectedArgs.Length}] TNumber arguments", LineValue));
+            }
+            double intX1 = double.Parse(x1.Value.Value.ToString());
+            double intY1 = double.Parse(y1.Value.Value.ToString());
+            double intX2 = double.Parse(x2.Value.Value.ToString());
+            double intY2 = double.Parse(y2.Value.Value.ToString());
+            double duration = double.Parse(dur.Value.Value.ToString());
+            if (Program.AndroidDriver == null)
+                IO.Output.Print($"[DRIVERLESS] LongTouch x1:{intX1} y1:{intY1} x2:{intX2} y2:{intY2} duration:{duration}");
+            else
+                Program.AndroidDriver.Swipe((int)intX1, (int)intY1, (int)intX2, (int)intY2, (int)duration);
+            double sleep = TokenParser.SleepDefaultTime;
+            if (args.Value.Value.Count > 5)
+            {
+                sleep = double.Parse((ProvidedArgs.FirstOrDefault(f => f.Name == "sleep") as TVariable).Value.Value.ToString());
+            }
+            FunctionHelpers.Sleep(sleep);
+            return args;
+        }
+    }
+    [Function("KeyEvent",new string[] { "keyevent" })]
+    public class FunctionKeyEvent : FunctionDefinitions<object>
+    {
+        public override object Parse(TParameter args)
+        {
+            return CallBase(args);
+        }
+        public new object CallBase(TParameter args)
+        {
+            var argsList = ProvidedArgs.FirstOrDefault(f => f.Name == "keyevent");
+            if (argsList == null)
+                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.NullReferenceException, "Arguments cannot be null.", LineValue));
+
+            if (Program.AndroidDriver != null)
+            {
+                //FunctionHelpers.AndroidBack();
+                AndroidKeyCode newcol = AndroidKeyCode.A;
+                var nofail = Enum.TryParse<AndroidKeyCode>(argsList.ToString(), out newcol);
+                if (!nofail)
+                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException,
+                        $"The Key Event {argsList.ToString()} could not be found.", LineValue));
+                Program.AndroidDriver.KeyEvent(newcol);
+            }
+            else
+            {
+                IO.Output.Print($"[DRIVERLESS] Keyevent {argsList.ToString()}");
+            }
+            return args;
+        }
+    }
+    [Function("SendText", new string[] { "s" })]
+    public class FunctionSendText : FunctionDefinitions<object>
+    {
+        public override object Parse(TParameter args)
+        {
+            return CallBase(args);
+        }
+        public new object CallBase(TParameter args)
+        {
+            var argsList = ProvidedArgs.FirstOrDefault(f => f.Name == "s");
+            if (argsList == null)
+                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.NullReferenceException, "Arguments cannot be null.", LineValue));
+
+            if (Program.AndroidDriver != null)
+            {
+                Program.AndroidDriver.SendText(argsList.ToString());
+            }
+            else
+            {
+                IO.Output.Print($"[DRIVERLESS] text {argsList.ToString()}");
+            }
+            return args;
+        }
+    }
     [Function("Back")]
     public class FunctionBack : FunctionDefinitions<object>
     {
@@ -444,7 +574,9 @@ namespace TastyScript.Lang.Func
         }
         public new object CallBase(TParameter args)
         {
-            if (Program.AndroidDriver != null)
+            Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException,
+                $"The function 'Back()' is depricated. Please use the command 'KeyEvent()' instead. Check out the documentation to learn more.",LineValue));
+            /*if (Program.AndroidDriver != null)
             {
                 FunctionHelpers.AndroidBack();
             }
@@ -452,6 +584,7 @@ namespace TastyScript.Lang.Func
             {
                 IO.Output.Print($"[DRIVERLESS] Back Button Keyevent");
             }
+            */
             return args;
         }
     }
