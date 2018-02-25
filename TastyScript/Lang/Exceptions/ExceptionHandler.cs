@@ -44,20 +44,23 @@ namespace TastyScript.Lang.Exceptions
         }
         private void SetLine(string line)
         {
-            foreach (var file in Compiler.Files)
+            if (line != null)
             {
-                var sp = file.Value.Split('\r');
-                var index = 0;
-                foreach (var x in sp)
+                foreach (var file in Compiler.Files)
                 {
-                    index++;
-                    if (x.Contains(line))
+                    var sp = file.Value.Split('\r');
+                    var index = 0;
+                    foreach (var x in sp)
+                    {
+                        index++;
+                        if (x.Contains(line))
+                            break;
+                    }
+                    if (index != sp.Length)
+                    {
+                        _line = $"{file.Key} {index}:0";
                         break;
-                }
-                if (index != sp.Length)
-                {
-                    _line = $"{file.Key} {index}:0";
-                    break;
+                    }
                 }
             }
         }
