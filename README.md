@@ -10,10 +10,12 @@ On a side note, this was my very first language. It does not use any complex par
 * First, download the [latest release](https://github.com/TastyGod/TastyScript/releases) or compile from the source.
 * [Download the ADB server](https://developer.android.com/studio/releases/platform-tools.html)
 * Turn on USB debugging on your device. Go to `Settings->Developer Options` and you will find a toggle for `USB Debugging`. If you don't have Developer Options menu in your settings google your device model and "Developer Options" and you will find out how to enable it.
-* Connect your phone to your computer via usb cable and start the ADB server. If you wish to use ADB over wifi, [read this post.](https://stackoverflow.com/a/28084202/3496006)
+* Connect your phone to your computer via usb cable, start the ADB serverc and connect your device. [Read this documentation to learn how to use ADB, or to learn how to connect to ADB via Wifi](https://developer.android.com/studio/command-line/adb.html)
 * Run the TastyScript.exe file you downloaded first
 
-Now you're good to run any scripts you choose! Take a look at the [Examples](/Examples) folder for ideas/help etc on creating your own script. Note: the touch locations in the examples will most likely fail on your phone! You need to use the pixel locations that work for your phone's aspect ratio/resolution
+**Note:** ADB must be started and your device connected for TastyScript to work! If you restart your computer, or close the ADB process you will need to start it again.
+
+Now you're good to run any scripts you choose! Take a look at the [Examples](/Examples) folder or the [How To tutorial](https://github.com/TastyGod/TastyScript/wiki/Tutorial:-How-To-Create-a-Functional-Script) for ideas/help etc on creating your own script. Note: the touch locations in the examples will most likely fail on your phone! You need to use the pixel locations that work for your phone's aspect ratio/resolution
 
 For a list of console commands check out the [Wiki](../../wiki/Console-Commands).
 
