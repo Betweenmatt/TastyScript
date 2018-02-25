@@ -8,10 +8,6 @@ using TastyScript.Android;
 using TastyScript.Lang.Func;
 using TastyScript.Lang;
 using TastyScript.Lang.Exceptions;
-using System.Net;
-using System.Net.Sockets;
-using Owin;
-using Microsoft.Owin.Hosting;
 
 namespace TastyScript
 {
@@ -32,126 +28,237 @@ namespace TastyScript
             Compiler.ExceptionListener = new ExceptionListener();
             //
             IO.Output.Print(WelcomeMessage());
-            WaitForCommand();
+            //WaitForCommand();
+            NewWaitForCommand();
         }
-        public static void WaitForCommand()
+        public static void NewWaitForCommand()
+        {
+            while (true)
+            {
+                try
+                {
+                    //kill the quickstop thread if it wasn't killed already
+                    if (QuickStop != null)
+                        QuickStop.Abort();
+                }
+                catch { }
+                IO.Output.Print("\nSet your game to correct screen and then type run 'file/directory'\n", ConsoleColor.Green);
+                IO.Output.Print('>', false);
+                var r = IO.Input.ReadLine();
+                var split = r.Split(' ');
+                var userInput = "";
+                if (split.Length > 1)
+                    userInput = r.Replace(split[0] + " ", "");
+                switch (split[0])
+                {
+                    case ("adb"):
+                        CommandADB(userInput);
+                        break;
+                    case ("app"):
+                        CommandApp(userInput);
+                        break;
+                    case ("-c"):
+                    case ("connect"):
+                        CommandConnect(userInput);
+                        break;
+                    case ("-d"):
+                    case ("devices"):
+                        CommandDevices(userInput);
+                        break;
+                    case ("-e"):
+                    case ("exec"):
+                        CommandExec(userInput);
+                        break;
+                    case ("-h"):
+                    case ("help"):
+                        CommandHelp(userInput);
+                        break;
+                    case ("-ll"):
+                    case ("loglevel"):
+                        CommandLogLevel(userInput);
+                        break;
+                    case ("remote"):
+                        CommandRemote(userInput);
+                        break;
+                    case ("-r"):
+                    case ("run"):
+                        CommandRun(userInput);
+                        break;
+                    case ("-ss"):
+                    case ("screenshot"):
+                        CommandScreenshot(userInput);
+                        break;
+                    case ("-sh"):
+                    case ("shell"):
+                        CommandShell(userInput);
+                        break;
+                    default:
+                        IO.Output.Print("Enter '-h' for a list of commands!");
+                        break;
+                }
+            }
+        }
+
+        private static void CommandADB(string r)
         {
             try
             {
-                //kill the quickstop thread if it wasn't killed already
-                if (QuickStop != null)
-                    QuickStop.Abort();
+                var cmd = r.Replace("adb ", "");
+                //Driver.Test(cmd);
+                IO.Output.Print("This command does not currently work as expected.");
             }
-            catch { }
-            IO.Output.Print("\nSet your game to correct screen and then type run 'file/directory'\n", ConsoleColor.Green);
-            IO.Output.Print('>', false);
-            var r = IO.Input.ReadLine();
-            var split = r.Split(' ');
-
-            switch (split[0])
+            catch (Exception e)
             {
-                case ("run"):
-                    try
-                    {
-                        path = split[1].Replace("\'", "").Replace("\"", "");
-                        try
-                        {
-                            file = System.IO.File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + path);
-                        }
-                        catch
-                        {
-                            Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException,
-                                $"Could not find path: {path}"));
-                            break;
-                        }
-                        TokenParser.SleepDefaultTime = 1200;
-                        QuickStop = new Thread(ListenForEsc);
-                        QuickStop.Start();
-                        TokenParser.Stop = false;
-                        StartScript();
-                    }
-                    catch (Exception e)
-                    {
-                        if (!(e is CompilerControledException))
-                        {
-                            //need a better way to handle this lol
-                            IO.Output.Print(e, ConsoleColor.DarkRed);
-                        }
-                    }
-                    break;
-                case ("devices"):
-                    Driver.PrintAllDevices();
-                    break;
-                case ("connect"):
-                    try
-                    {
-                        AndroidDriver = new Driver(split[1]);
-                    }
-                    catch (Exception e) { if (!(e is CompilerControledException)) { IO.Output.Print(e, ConsoleColor.DarkRed); } }
-                    break;
-                case ("screenshot"):
-                    try
-                    {
-                        if (AndroidDriver != null)
-                        {
-                            var ss = AndroidDriver.GetScreenshot();
-                            ss.Save(split[1], ImageFormat.Png);
-                        }
-                        else
-                        {
-                            Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.DriverException, "Device must be defined"));
-                        }
-                    }
-                    catch (Exception e) { if (!(e is CompilerControledException)) { IO.Output.Print(e, ConsoleColor.DarkRed); } }
-                    break;
-                case ("app"):
-                    try
-                    {
-                        if (AndroidDriver != null)
-                        {
-                            AndroidDriver.SetAppPackage(split[1]);
-                        }
-                        else
-                        {
-                            Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.DriverException, "Device must be defined"));
-                        }
-                    }
-                    catch (Exception e) { if (!(e is CompilerControledException)) { IO.Output.Print(e, ConsoleColor.DarkRed); } }
-                    break;
-                //this is not fully functional yet
-                case ("remote"):
-                    //TcpListen();
-                    break;
-                case ("loglevel"):
-                    try
-                    {
-                        if (split[1] == "warn" || split[1] == "error" || split[1] == "none")
-                        {
-                            LogLevel = split[1];
-                            Properties.Settings.Default.loglevel = split[1];
-                        }
-                        else
-                        {
-                            IO.Output.Print($"{split[1]} is not a valid entry. Must be warn, error, or none");
-                        }
-                    }catch
-                    {
-                        IO.Output.Print($"this is not a valid entry. Must be warn, error, or none");
-                    }
-                    break;
-                case ("-h"):
-                    IO.Output.Print(HelpMessage());
-                    break;
-                default:
-                    IO.Output.Print("Enter -h for a list of commands!");
-                    break;
+                Console.WriteLine(e);
             }
-            
-            WaitForCommand();
         }
-        private static string path;
-        private static string file;
-        private static void StartScript()
+        private static void CommandApp(string r)
+        {
+            try
+            {
+                if (AndroidDriver != null)
+                {
+                    AndroidDriver.SetAppPackage(r);
+                }
+                else
+                {
+                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.DriverException, "Device must be defined"));
+                }
+            }
+            catch (Exception e) { if (!(e is CompilerControledException || LogLevel == "throw")) { IO.Output.Print(e, ConsoleColor.DarkRed); } }
+        }
+        private static void CommandConnect(string r)
+        {
+            try
+            {
+                AndroidDriver = new Driver(r);
+            }
+            catch (Exception e) { if (!(e is CompilerControledException || LogLevel == "throw")) { IO.Output.Print(e, ConsoleColor.DarkRed); } }
+        }
+        private static void CommandDevices(string r)
+        {
+            Driver.PrintAllDevices();
+        }
+        private static void CommandExec(string r)
+        {
+            try
+            {
+                var cmd = r.Replace("exec ", "").Replace("-e ", "");
+                var file = "override.Start(){\n" + cmd + "}";
+                var path = "AnonExecCommand.ts";
+                TokenParser.SleepDefaultTime = 1200;
+                TokenParser.Stop = false;
+                StartScript(path, file);
+            }
+            catch (Exception e) { if (!(e is CompilerControledException || LogLevel == "throw")) { IO.Output.Print(e, ConsoleColor.DarkRed); } }
+
+        }
+        private static void CommandHelp(string r)
+        {
+            string output = $"Commands:\nrun 'path'\t\t|\tRuns the script at the given path\n" +
+                $"connect 'serial'\t|\tConnects to the given device\n" +
+                $"devices \t\t|\tLists all the devices connected to adb\n" +
+                $"screenshot 'path'\t|\tTakes a screenshot of the device and\n\t\t\t\t saves it to the given path\n" +
+                $"loglevel 'type'\t\t|\tSets the logging level to warn, error, or none" +
+                $"app 'appPackage'\t\t|\tSets the current app package.";
+            IO.Output.Print(output);
+        }
+        private static void CommandLogLevel(string r)
+        {
+            try
+            {
+                if (r == "")
+                {
+                    IO.Output.Print($"LogLevel: {LogLevel}");
+                    return;
+                }
+                if (r == "warn" || r == "error" || r == "none" || r == "throw")
+                {
+                    LogLevel = r;
+                    Properties.Settings.Default.loglevel = r;
+                }
+                else
+                {
+                    IO.Output.Print($"{r} is not a valid entry. Must be warn, error, throw, or none");
+                }
+            }
+            catch
+            {
+                IO.Output.Print($"this is not a valid entry. Must be warn, error, throw, or none");
+            }
+        }
+        private static void CommandRemote(string r)
+        {
+            //TcpListen();
+            IO.Output.Print("This command does not currently work as expected.");
+        }
+        private static void CommandRun(string r)
+        {
+            try
+            {
+                var path = r.Replace("\'", "").Replace("\"", "");
+                var file = "";
+                try
+                {
+                    file = System.IO.File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + path);
+                }
+                catch
+                {
+                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException,
+                        $"Could not find path: {path}"));
+                    return;
+                }
+                TokenParser.SleepDefaultTime = 1200;
+                QuickStop = new Thread(ListenForEsc);
+                QuickStop.Start();
+                TokenParser.Stop = false;
+                StartScript(path, file);
+            }
+            catch (Exception e)
+            {
+                //if loglevel is throw, then compilerControledException gets printed as well
+                //only for debugging srs issues
+                if (!(e is CompilerControledException || LogLevel == "throw"))
+                {
+                    //need a better way to handle this lol
+                    IO.Output.Print(e, ConsoleColor.DarkRed);
+                }
+            }
+        }
+        private static void CommandScreenshot(string r)
+        {
+            try
+            {
+                if (AndroidDriver != null)
+                {
+                    var ss = AndroidDriver.GetScreenshot();
+                    ss.Save(r, ImageFormat.Png);
+                }
+                else
+                {
+                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.DriverException, "Device must be defined"));
+                }
+            }
+            catch (Exception e) { if (!(e is CompilerControledException || LogLevel == "throw")) { IO.Output.Print(e, ConsoleColor.DarkRed); } }
+        }
+        private static void CommandShell(string r)
+        {
+            try
+            {
+                if (AndroidDriver != null)
+                {
+                    IO.Output.Print($"Result: {AndroidDriver.SendShellCommand(r.Replace("shell ", "").Replace("-sh ", ""))}");
+                }
+                else
+                {
+                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.DriverException, "Device must be defined"));
+                }
+            }
+            catch (Exception e) { if (!(e is CompilerControledException || LogLevel == "throw")) { IO.Output.Print(e, ConsoleColor.DarkRed); } }
+        }
+
+        
+        private static void StartScript(string path, string file)
         {
             Compiler c = new Compiler(path, file, predefinedFunctions);
         }
@@ -209,20 +316,12 @@ namespace TastyScript
                         }
             return temp;
         }
+
         private static string WelcomeMessage()
         {
             return $"Welcome to {Title}!\nCredits:\n@TastyGod - https://github.com/TastyGod " +
                 $"\nAforge - www.aforge.net\nSharpADB - https://github.com/quamotion/madb \n\n" + 
                 $"Enter -h for a list of commands!\n";
-        }
-        private static string HelpMessage()
-        {
-            return $"Commands:\nrun 'path'\t\t|\tRuns the script at the given path\n"+
-                $"connect 'serial'\t|\tConnects to the given device\n"+
-                $"devices \t\t|\tLists all the devices connected to adb\n"+
-                $"screenshot 'path'\t|\tTakes a screenshot of the device and\n\t\t\t\t saves it to the given path\n"+
-                $"loglevel 'type'\t\t|\tSets the logging level to warn, error, or none"+
-                $"app 'appPackage'\t\t|\tSets the current app package.";
         }
         /*
         public static void TcpListen()

@@ -11,15 +11,15 @@ namespace TastyScript.Lang.Func
         void SetProperties(string name, string[] args);
     }
     [Serializable]
-    public class BaseExtension<T> : IExtension
+    public class BaseExtension : IExtension
     {
         public string Name { get; protected set; }
         public string[] ExpectedArgs { get; protected set; }
         public TParameter ProvidedArgs { get; protected set; }
         public TParameter Arguments { get; set; }
-        public virtual T Extend()
+        public virtual TParameter Extend()
         {
-            return default(T);
+            return Arguments;
         }
         public void SetProperties(string name, string[] args)
         {
@@ -28,86 +28,44 @@ namespace TastyScript.Lang.Func
         }
     }
 
+    [Extension("Concat", new string[] { "string" })]
+    [Serializable]
+    public class ExtensionConcat : BaseExtension
+    {
+    }
     [Extension("Threshold", new string[] { "int" })]
     [Serializable]
-    public class ExtensionThreshold : BaseExtension<TParameter>
+    public class ExtensionThreshold : BaseExtension
     {
-        public override TParameter Extend()
-        {
-            base.Extend();
-            return Arguments;
-        }
-        public ExtensionFor Clone()
-        {
-            return new ExtensionFor();
-        }
     }
     [Extension("Color", new string[] { "color" })]
     [Serializable]
-    public class ExtensionColor : BaseExtension<TParameter>
+    public class ExtensionColor : BaseExtension
     {
-        public override TParameter Extend()
-        {
-            base.Extend();
-            return Arguments;
-        }
-        public ExtensionFor Clone()
-        {
-            return new ExtensionFor();
-        }
     }
     [Extension("For", new string[] { "enumerator" })]
     [Serializable]
-    public class ExtensionFor : BaseExtension<TParameter>
+    public class ExtensionFor : BaseExtension
     {
-        public override TParameter Extend()
-        {
-            base.Extend();
-            return Arguments;
-        }
-        public ExtensionFor Clone()
-        {
-            return new ExtensionFor();
-        }
     }
     [Extension("Then", new string[] { "condition" })]
     [Serializable]
-    public class ExtensionThen : BaseExtension<TParameter>
+    public class ExtensionThen : BaseExtension
     {
-        public override TParameter Extend()
-        {
-            base.Extend();
-            return Arguments;
-        }
     }
     [Extension("Else", new string[] { "condition" })]
     [Serializable]
-    public class ExtensionElse : BaseExtension<TParameter>
+    public class ExtensionElse : BaseExtension
     {
-        public override TParameter Extend()
-        {
-            base.Extend();
-            return Arguments;
-        }
     }
     [Extension("AddParams", new string[] { "e" })]
     [Serializable]
-    public class ExtensionAddParams : BaseExtension<TParameter>
+    public class ExtensionAddParams : BaseExtension
     {
-        public override TParameter Extend()
-        {
-            base.Extend();
-            return Arguments;
-        }
     }
     [Extension("Add", new string[] { "string" })]
     [Serializable]
-    public class ExtensionAdd : BaseExtension<TParameter>
+    public class ExtensionAdd : BaseExtension
     {
-        public override TParameter Extend()
-        {
-            base.Extend();
-            return Arguments;
-        }
     }
 }
