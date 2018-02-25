@@ -8,10 +8,6 @@ using TastyScript.Android;
 using TastyScript.Lang.Func;
 using TastyScript.Lang;
 using TastyScript.Lang.Exceptions;
-using System.Net;
-using System.Net.Sockets;
-using Owin;
-using Microsoft.Owin.Hosting;
 
 namespace TastyScript
 {
@@ -34,6 +30,7 @@ namespace TastyScript
             IO.Output.Print(WelcomeMessage());
             WaitForCommand();
         }
+        //this has gotten so messy. i need to clean it up when i get the chance.
         public static void WaitForCommand()
         {
             try
@@ -142,6 +139,7 @@ namespace TastyScript
                 //this is not fully functional yet
                 case ("remote"):
                     //TcpListen();
+                    IO.Output.Print("This command does not currently work as expected.");
                     break;
                 case ("-ll"):
                 case ("loglevel"):
@@ -184,7 +182,8 @@ namespace TastyScript
                     try
                     {
                         var cmd = r.Replace("adb ", "");
-                        Driver.Test(cmd);
+                        //Driver.Test(cmd);
+                        IO.Output.Print("This command does not currently work as expected.");
                     }catch(Exception e)
                     {
                         Console.WriteLine(e);
