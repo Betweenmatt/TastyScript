@@ -23,13 +23,14 @@ namespace TastyScript
         public static string Title = $"TastyScript v{Assembly.GetExecutingAssembly().GetName().Version.ToString()} Beta";
         public static string LogLevel;
         private static CancellationTokenSource _cancelSource;
+        private static string _quickDirectory;
         private static string _consoleCommand = "";
 
         static void Main(string[] args)
         {
             Thread remote = new Thread(TcpListen);
             remote.Start();
-
+            _quickDirectory = Properties.Settings.Default.dir;
             LogLevel = Properties.Settings.Default.loglevel;
             Console.Title = Title;
             //on load set predefined functions and extensions to mitigate load from reflection
@@ -86,6 +87,9 @@ namespace TastyScript
                     case ("-d"):
                     case ("devices"):
                         CommandDevices(userInput);
+                        break;
+                    case ("dir"):
+                        CommandDir(userInput);
                         break;
                     case ("-e"):
                     case ("exec"):
@@ -161,6 +165,16 @@ namespace TastyScript
         {
             Driver.PrintAllDevices();
         }
+        private static void CommandDir(string r)
+        {
+            if (r != "")
+            {
+                _quickDirectory = r;
+                Properties.Settings.Default.dir = _quickDirectory;
+                Properties.Settings.Default.Save();
+            }
+            IO.Output.Print("Directory: " + _quickDirectory);
+        }
         private static void CommandExec(string r)
         {
             try
@@ -198,6 +212,7 @@ namespace TastyScript
                 {
                     LogLevel = r;
                     Properties.Settings.Default.loglevel = r;
+                    Properties.Settings.Default.Save();
                 }
                 else
                 {
@@ -220,10 +235,19 @@ namespace TastyScript
             {
                 var path = r.Replace("\'", "").Replace("\"", "");
                 var file = "";
-                if (File.Exists(path))//check if its a full path
+                //check if its a full path
+                if (File.Exists(path))
                     file = System.IO.File.ReadAllText(path);
-                else if (File.Exists(AppDomain.CurrentDomain.BaseDirectory + path))//check if the path is local to the app directory
+                //check if the path is local to the app directory
+                else if (File.Exists(AppDomain.CurrentDomain.BaseDirectory + path))
                     file = System.IO.File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + path);
+                //check for quick directory
+                else if (File.Exists(_quickDirectory + "/" + path))
+                    file = System.IO.File.ReadAllText(_quickDirectory + "/" + path);
+                //check for quick directory
+                else if (File.Exists(AppDomain.CurrentDomain.BaseDirectory + "/" + _quickDirectory + "/" + path))
+                    file = System.IO.File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "/" + _quickDirectory + "/" + path);
+                //or fail
                 else
                 {
                     Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException, $"Could not find path: {path}"));

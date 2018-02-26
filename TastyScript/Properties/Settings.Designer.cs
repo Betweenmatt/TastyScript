@@ -34,5 +34,17 @@ namespace TastyScript.Properties {
                 this["loglevel"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string dir {
+            get {
+                return ((string)(this["dir"]));
+            }
+            set {
+                this["dir"] = value;
+            }
+        }
     }
 }
