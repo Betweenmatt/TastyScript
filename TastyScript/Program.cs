@@ -8,18 +8,28 @@ using TastyScript.Android;
 using TastyScript.Lang.Func;
 using TastyScript.Lang;
 using TastyScript.Lang.Exceptions;
+using System.Threading.Tasks;
+using Microsoft.Owin.Hosting;
+using Owin;
+using System.IO;
+using System.Runtime.InteropServices;
 
 namespace TastyScript
 {
     class Program
     {
         public static Driver AndroidDriver;
-        private static Thread QuickStop;
         private static List<IBaseFunction> predefinedFunctions;
         public static string Title = $"TastyScript v{Assembly.GetExecutingAssembly().GetName().Version.ToString()} Beta";
         public static string LogLevel;
+        private static CancellationTokenSource _cancelSource;
+        private static string _consoleCommand = "";
+
         static void Main(string[] args)
         {
+            Thread remote = new Thread(TcpListen);
+            remote.Start();
+
             LogLevel = Properties.Settings.Default.loglevel;
             Console.Title = Title;
             //on load set predefined functions and extensions to mitigate load from reflection
@@ -35,16 +45,28 @@ namespace TastyScript
         {
             while (true)
             {
-                try
-                {
-                    //kill the quickstop thread if it wasn't killed already
-                    if (QuickStop != null)
-                        QuickStop.Abort();
-                }
-                catch { }
+                _consoleCommand = "";
                 IO.Output.Print("\nSet your game to correct screen and then type run 'file/directory'\n", ConsoleColor.Green);
                 IO.Output.Print('>', false);
-                var r = IO.Input.ReadLine();
+
+                //var r = IO.Input.ReadLine();
+                var r = "";
+                try
+                {
+                    _cancelSource = new CancellationTokenSource();
+                    r = Reader.ReadLine(_cancelSource.Token);
+                }
+                catch (OperationCanceledException e)
+                {
+                    Console.WriteLine("thread has been poked");
+                }
+                catch(Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+                if (_consoleCommand != "")
+                    r = _consoleCommand;
+
                 var split = r.Split(' ');
                 var userInput = "";
                 if (split.Length > 1)
@@ -198,20 +220,19 @@ namespace TastyScript
             {
                 var path = r.Replace("\'", "").Replace("\"", "");
                 var file = "";
-                try
-                {
+                if (File.Exists(path))//check if its a full path
+                    file = System.IO.File.ReadAllText(path);
+                else if (File.Exists(AppDomain.CurrentDomain.BaseDirectory + path))//check if the path is local to the app directory
                     file = System.IO.File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + path);
-                }
-                catch
+                else
                 {
-                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException,
-                        $"Could not find path: {path}"));
+                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException, $"Could not find path: {path}"));
                     return;
                 }
                 TokenParser.SleepDefaultTime = 1200;
-                QuickStop = new Thread(ListenForEsc);
-                QuickStop.Start();
                 TokenParser.Stop = false;
+                Thread esc = new Thread(ListenForEscape);
+                esc.Start();
                 StartScript(path, file);
             }
             catch (Exception e)
@@ -257,15 +278,23 @@ namespace TastyScript
             catch (Exception e) { if (!(e is CompilerControledException || LogLevel == "throw")) { IO.Output.Print(e, ConsoleColor.DarkRed); } }
         }
 
-        
-        private static void StartScript(string path, string file)
+        private static void ListenForEscape()
         {
-            Compiler c = new Compiler(path, file, predefinedFunctions);
+            IO.Output.Print("Press ENTER to stop");
+            while (Console.ReadKey(true).Key != ConsoleKey.Enter)
+            {
+                if (TokenParser.Stop)
+                    break;
+            }
+            if (!TokenParser.Stop)
+            {
+                SendStopScript();   
+            }
         }
-        private static void ListenForEsc()
+        //stops the script, announces the halting and executes Halt() function if it exist
+        private static void SendStopScript()
         {
-            IO.Output.Print("Press [ENTER KEY] to stop script execution");
-            IO.Input.ReadLine();
+            //halt the script
             TokenParser.Stop = true;
             IO.Output.Print("\nScript execution is halting. Please wait.\n", ConsoleColor.Yellow);
             if (TokenParser.HaltFunction != null)
@@ -273,6 +302,12 @@ namespace TastyScript
                 TokenParser.HaltFunction.BlindExecute = true;
                 TokenParser.HaltFunction.TryParse(null);
             }
+        }
+        private static bool StartScript(string path, string file)
+        {
+            Compiler c = new Compiler(path, file, predefinedFunctions);
+            TokenParser.Stop = true;
+            return true;
         }
 
         //uses reflection to get all the IBaseFunction classes with the attribute [Function]
@@ -323,69 +358,42 @@ namespace TastyScript
                 $"\nAforge - www.aforge.net\nSharpADB - https://github.com/quamotion/madb \n\n" + 
                 $"Enter -h for a list of commands!\n";
         }
-        /*
+        // /*
         public static void TcpListen()
         {
             const string Url = "http://localhost:8080/";
+            Console.WriteLine("Listening at {0}", Url);
             using (WebApp.Start(Url, ConfigureApplication))
             {
-                Console.WriteLine("Listening at {0}", Url);
-                Console.WriteLine("Press [Enter] to close the Tcp Listener");
-                Console.ReadLine();
+                //Console.WriteLine("Press [Esc] to close the Tcp Listener");
+                //while(Console.ReadKey(true).Key != ConsoleKey.Escape) { }
+                while (true) { };
             }
         }
-        
         //this is not fully funcitonal yet
         private static void ConfigureApplication(IAppBuilder app)
         {
             app.Use((ctx, next) =>
             {
-                //Console.WriteLine("Request \"{0}\" from: {1}:{2}",ctx.Request.Path,ctx.Request.RemoteIpAddress,ctx.Request.RemotePort);
+                //remove pretext
                 var split = ctx.Request.Path.ToString().Split('/');
-                switch (split[1])
+                //get command from data
+                var cmd = split[1].Split('=');
+                //get data from data while keeping slashes
+                var r = ctx.Request.Path.ToString().Replace(split[0] + cmd[0] + "=","");
+                switch (cmd[0])
                 {
                     case ("run"):
-                        try
-                        {
-                            path = split[2].Replace("\'", "").Replace("\"", "").Replace("-","/");
-                            try
-                            {
-                                file = System.IO.File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + path);
-                            }
-                            catch
-                            {
-                                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException,
-                                    $"Could not find path: {path}"));
-                                break;
-                            }
-                            TokenParser.SleepDefaultTime = 1200;
-                            QuickStop = new Thread(ListenForEsc);
-                            QuickStop.Start();
-                            TokenParser.Stop = false;
-                            StartScript();
-                        }
-                        catch (Exception e)
-                        {
-                            if (!(e is CompilerControledException))
-                            {
-                                //need a better way to handle this lol
-                                IO.Output.Print(e, ConsoleColor.DarkRed);
-                            }
-                        }
+                        _consoleCommand = $"run {r}";
+                        _cancelSource.Cancel();
                         break;
                     case ("stop"):
-                        TokenParser.Stop = true;
-                        IO.Output.Print("\nScript execution is halting. Please wait.\n", ConsoleColor.Yellow);
-                        if (TokenParser.HaltFunction != null)
-                        {
-                            TokenParser.HaltFunction.BlindExecute = true;
-                            TokenParser.HaltFunction.TryParse(null);
-                        }
+                        SendStopScript();
                         break;
                 }
                 return next();
             });
         }
-        */
+        //*/
     }
 }

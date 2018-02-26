@@ -1,6 +1,10 @@
 ﻿# ChangeLog
 
-## v1.2.1.16 - 2/24/18
+## v1.2.2
+* Fixed script exit thread issue by rewriting how the exit thread/menu listener was written.
+* Added remote functionality - now the TCPListener is opened when the program is open, and can listen for the run/stop commands on localhost:8080.
+
+## v1.2.1
 * More refactoring. Reduced clutter in ExtensionDefinitions.cs by removing unneccessary lines of code.
 * Added `exec`, `shell` command.
 * Added new functions `Swipe()`, `LongTouch()`, `SendText()`, `KeyEvent()`, `AddPackage()` and new extension `.Concat()`, Deprecated `Back()` function, `.AddParams()` extension.
@@ -12,7 +16,7 @@
 * Fixed an error that was being caused by a null `line` in ExceptionHandler
 * Cleaned up the switch/case command format for better readability
 
-## v1.2.0.0 - 2/19/18
+## v1.2.0
 * Major refactoring, reorganizing documents and removing packages that weren't being used.
 * Added Threshold extension for CheckScreen function.
 * Added Color extension for Print and PrintLine functions.
