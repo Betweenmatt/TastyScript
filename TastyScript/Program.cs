@@ -25,13 +25,15 @@ namespace TastyScript
         private static CancellationTokenSource _cancelSource;
         private static string _quickDirectory;
         private static string _consoleCommand = "";
+        private static bool _remoteActive;
 
         static void Main(string[] args)
         {
-            Thread remote = new Thread(TcpListen);
-            remote.Start();
             _quickDirectory = Properties.Settings.Default.dir;
             LogLevel = Properties.Settings.Default.loglevel;
+            _remoteActive = Properties.Settings.Default.remote;
+            if(_remoteActive)
+                StartRemote();
             Console.Title = Title;
             //on load set predefined functions and extensions to mitigate load from reflection
             predefinedFunctions = GetPredefinedFunctions();
@@ -41,6 +43,12 @@ namespace TastyScript
             IO.Output.Print(WelcomeMessage());
             //WaitForCommand();
             NewWaitForCommand();
+        }
+        private static void StartRemote()
+        {
+            IO.Output.Print("Starting remote listener.");
+            Thread remote = new Thread(TcpListen);
+            remote.Start();
         }
         public static void NewWaitForCommand()
         {
@@ -226,8 +234,18 @@ namespace TastyScript
         }
         private static void CommandRemote(string r)
         {
-            //TcpListen();
-            IO.Output.Print("This command does not currently work as expected.");
+            if (r != "")
+            {
+                var set = Properties.Settings.Default.remote = (r == "True" || r == "true") ? true : false;
+                Properties.Settings.Default.Save();
+                //check if remote was off before starting again
+                if(!_remoteActive && set)
+                {
+                    StartRemote();
+                }
+                _remoteActive = set;
+            }
+            IO.Output.Print("Remote Active: " + _remoteActive);
         }
         private static void CommandRun(string r)
         {
@@ -327,6 +345,7 @@ namespace TastyScript
                 TokenParser.HaltFunction.TryParse(null);
             }
         }
+
         private static bool StartScript(string path, string file)
         {
             Compiler c = new Compiler(path, file, predefinedFunctions);
@@ -386,12 +405,11 @@ namespace TastyScript
         public static void TcpListen()
         {
             const string Url = "http://localhost:8080/";
-            Console.WriteLine("Listening at {0}", Url);
             using (WebApp.Start(Url, ConfigureApplication))
             {
                 //Console.WriteLine("Press [Esc] to close the Tcp Listener");
                 //while(Console.ReadKey(true).Key != ConsoleKey.Escape) { }
-                while (true) { };
+                while (_remoteActive) { };
             }
         }
         //this is not fully funcitonal yet
@@ -399,23 +417,27 @@ namespace TastyScript
         {
             app.Use((ctx, next) =>
             {
-                //remove pretext
-                var split = ctx.Request.Path.ToString().Split('/');
-                //get command from data
-                var cmd = split[1].Split('=');
-                //get data from data while keeping slashes
-                var r = ctx.Request.Path.ToString().Replace(split[0] + cmd[0] + "=","");
-                switch (cmd[0])
+                if (_remoteActive)
                 {
-                    case ("run"):
-                        _consoleCommand = $"run {r}";
-                        _cancelSource.Cancel();
-                        break;
-                    case ("stop"):
-                        SendStopScript();
-                        break;
+                    //remove pretext
+                    var split = ctx.Request.Path.ToString().Split('/');
+                    //get command from data
+                    var cmd = split[1].Split('=');
+                    //get data from data while keeping slashes
+                    var r = ctx.Request.Path.ToString().Replace(split[0] + cmd[0] + "=", "");
+                    switch (cmd[0])
+                    {
+                        case ("run"):
+                            _consoleCommand = $"run {r}";
+                            _cancelSource.Cancel();
+                            break;
+                        case ("stop"):
+                            SendStopScript();
+                            break;
+                    }
                 }
                 return next();
+                
             });
         }
         //*/

@@ -1,6 +1,7 @@
 ﻿# ChangeLog
 
 ## v1.2.2
+* Added a toggle for Remote functionality via the `remote` console command. Accepts true/false input.
 * Added `dir` console command, which sets the directory to call from. can either be a full path, or local path.
 * Fixed an issue where Properties.Settings werent being saved on change.
 * Fixed script exit thread issue by rewriting how the exit thread/menu listener was written.

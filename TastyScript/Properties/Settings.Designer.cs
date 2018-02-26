@@ -46,5 +46,17 @@ namespace TastyScript.Properties {
                 this["dir"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool remote {
+            get {
+                return ((bool)(this["remote"]));
+            }
+            set {
+                this["remote"] = value;
+            }
+        }
     }
 }
