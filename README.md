@@ -48,7 +48,7 @@ Both can be found as Nuget packages
 - [ ] Nested scopes
 - [ ] Custom variable support
 - [ ] Basic math evaluation
-- [ ] Better error handling
+- [ ] Better error handling 
 
 # Credits
 [AForge Image Processing](https://github.com/andrewkirillov/AForge.NET) for their amazing image processing framework!
