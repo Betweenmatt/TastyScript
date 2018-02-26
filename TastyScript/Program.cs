@@ -27,7 +27,7 @@ namespace TastyScript
         private static string _consoleCommand = "";
         private static bool _remoteActive;
 
-        static void Main(string[] args)
+        static void Main(string[] args) 
         {
             _quickDirectory = Properties.Settings.Default.dir;
             LogLevel = Properties.Settings.Default.loglevel;
