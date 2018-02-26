@@ -25,7 +25,7 @@ namespace TastyScript
         private static CancellationTokenSource _cancelSource;
         private static string _quickDirectory;
         private static string _consoleCommand = "";
-        private static bool _remoteActive;
+        private static bool _remoteActive; 
 
         static void Main(string[] args)
         {
