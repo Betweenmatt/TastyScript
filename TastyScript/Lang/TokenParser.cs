@@ -14,12 +14,7 @@ namespace TastyScript.Lang
         /// The default sleep timer for android commands in milliseconds
         /// </summary>
         public static double SleepDefaultTime;
-        public static List<IBaseToken> GlobalVariables = new List<IBaseToken>()
-        {
-            new TString("DateTime",()=>{return DateTime.Now.ToString(); }),
-            new TString("Date",()=>{return DateTime.Now.ToShortDateString(); }),
-            new TString("Time",()=>{return DateTime.Now.ToShortTimeString(); })
-        };
+        public static List<IBaseToken> GlobalVariables;
         //saving the halt function for later calling
         public static IBaseFunction HaltFunction;
         public static List<IExtension> Extensions = new List<IExtension>();
@@ -28,6 +23,12 @@ namespace TastyScript.Lang
         public TokenParser(List<IBaseFunction> functionList)
         {
             FunctionList = functionList;
+            GlobalVariables = new List<IBaseToken>()
+        {
+            new TString("DateTime",()=>{return DateTime.Now.ToString(); }),
+            new TString("Date",()=>{return DateTime.Now.ToShortDateString(); }),
+            new TString("Time",()=>{return DateTime.Now.ToShortTimeString(); })
+        };
             StartParse();
         }
 

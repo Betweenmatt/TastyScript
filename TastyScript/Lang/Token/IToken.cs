@@ -49,22 +49,6 @@ namespace TastyScript.Lang.Token
             _name = name;
             _action = action;
         }
-        [Obsolete]
-        private void ApplyExtensions()
-        {
-            var extensionAdd = Extensions.FirstOrDefault(f => f.Name == "Add") as ExtensionAddParams;
-            if (extensionAdd != null)
-            {
-                TParameter test = extensionAdd.Extend();
-                string output = _value.Value;
-                foreach (var x in test.Value.Value)
-                {
-                    var asstring = x as TString;
-                    output += asstring.Value.Value;
-                }
-                _value.SetValue(output);
-            }
-        }
     }
     [Serializable]
     public class TNumber : Token<double>
@@ -85,6 +69,10 @@ namespace TastyScript.Lang.Token
         public TVariable(string name, IBaseToken value)
         {
             _name = name;
+            _value = new BaseValue<IBaseToken>(value);
+        }
+        public void SetValue(IBaseToken value)
+        {
             _value = new BaseValue<IBaseToken>(value);
         }
     }
@@ -129,6 +117,7 @@ namespace TastyScript.Lang.Token
         }
     }
     public interface IBaseToken { string Name { get; } TParameter Arguments { get; set; } System.Type GetMemberType(); List<IExtension> Extensions { get; set; } }
+
     public interface IToken<T> : IBaseToken
     {
         BaseValue<T> Value { get; }

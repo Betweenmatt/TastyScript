@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -28,6 +29,7 @@ namespace TastyScript.Lang.Func
                 return temp;
             if (value.Contains('#'))
                 value = value.Split('#')[0];
+            //
             //string parsing(look for quotes)
             var stringTokenRegex = new Regex("\"([^\"\"]*)\"");
             var strings = stringTokenRegex.Matches(value);
@@ -39,6 +41,24 @@ namespace TastyScript.Lang.Func
 
                 reference.GeneratedTokens.Add(tstring);
             }
+            
+            //
+            //do math expressions(look for brackets)
+            var mathexpRegex = new Regex(@"\[([^\[\]]*)\]");
+            var mathexp = mathexpRegex.Matches(value);
+            foreach (var x in mathexp)
+            {
+                var input = x.ToString().Replace("[", "").Replace("]", "").Replace(" ", "");
+                if (input != null && input != "")
+                {
+                    string tokenname = " {AnonGeneratedToken" + reference.GeneratedTokensIndex + "} ";
+                    double exp = MathExpression(input, reference, val);
+                    reference.GeneratedTokens.Add(new TNumber(tokenname.Replace(" ", ""), exp));
+                    value = value.Replace(x.ToString(), tokenname);
+                }
+            }
+
+            //
             //number parsing
             var numberTokenRegex = new Regex(@"\b-*[0-9\.]+\b");
             var numbers = numberTokenRegex.Matches(value);
@@ -46,115 +66,43 @@ namespace TastyScript.Lang.Func
             {
                 string tokenname = " {AnonGeneratedToken" + reference.GeneratedTokensIndex + "} ";
                 reference.GeneratedTokens.Add(new TNumber(tokenname.Replace(" ", ""), double.Parse(x.ToString())));
-                //do this regex instead of a blind replace to fix the above issue. NOTE this fix may break decimal use!!!!
+                //do this regex instead of a blind replace to fix the above issue. NOTE this fix may break decimal use in some situations!!!!
                 var indvRegex = (@"\b-*" + x + @"\b");
                 var regex = new Regex(indvRegex);
                 value = regex.Replace(value, tokenname);
             }
 
 
-            //parameters parsing
+            //
+            //parameters parsing(look for parentheses)
             var paramTokenRegex = new Regex(@"\(([^()]*)\)");
             var paramss = paramTokenRegex.Matches(value);
             foreach (var x in paramss)
             {
                 string tokenname = " {AnonGeneratedToken" + reference.GeneratedTokensIndex + "} ";
-                var splode = x.ToString().Replace("(", "").Replace(")", "").Split(',');
                 List<IBaseToken> paramlist = new List<IBaseToken>();
-                foreach (var p in splode)
+                var compCheck = ComparisonCheck(x.ToString(),reference,val);
+                if (compCheck != "")
                 {
-                    var stripws = p.Replace(" ", "");
-                    if (p.Contains("{AnonGeneratedToken"))
-                    {
-                        var obj = reference.GeneratedTokens.FirstOrDefault(f => f.Name == stripws);
-                        if (obj == null)
-                        {
-                            Compiler.ExceptionListener.Throw(new ExceptionHandler($"Generated Token {stripws} could not be found.", val));
-                            return temp;
-                        }
-                        paramlist.Add(obj);
-                    }
-                    else
-                    {
-                        var tryglob = TokenParser.GlobalVariables.FirstOrDefault(f => f.Name == stripws);
-                        if (tryglob != null)
-                        {
-                            paramlist.Add(tryglob);
-                        }
-                        var tryvar = reference.VariableTokens.FirstOrDefault(f => f.Name == stripws);
-                        if (tryvar != null)
-                        {
-                            paramlist.Add(tryvar);
-                        }
-                        if (reference.ProvidedArgs != null)
-                        {
-                            var trypar = reference.ProvidedArgs.FirstOrDefault(f => f.Name == stripws);
-                            if (trypar != null)
-                            {
-                                paramlist.Add(trypar);
-                            }
-                        }
-                        var tryfunc = TokenParser.FunctionList.FirstOrDefault(f => f.Name == stripws);
-                        if (tryfunc != null)
-                        {
-                            paramlist.Add(tryfunc);
-                        }
-                    }
+                    paramlist.Add(new TString("bool", compCheck));
+                }
+                else
+                {
+                    var splode = x.ToString().Replace("(", "").Replace(")", "").Split(',');
+                    paramlist = GetTokens(splode, reference, val);
                 }
                 reference.GeneratedTokens.Add(new TParameter(tokenname.Replace(" ", ""), paramlist));
                 value = value.Replace(x.ToString(), tokenname);
             }
+            //
             //if line is variable assignment
             if (value.Contains("var "))
             {
-                var strip = value.Replace("var ", "");
-                var assign = strip.Split('=');
-                if (assign.Length != 2)
-                {
-                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException, $"Unknown error with assignment.", val));
-                    return temp;
-                }
-
-                var rightHandAssignment = assign[1].Split(' ');
-                var leftHandAssignment = assign[0].Replace("var", "").Replace(" ", "");
-                if (rightHandAssignment.Length == 0)
-                {
-                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException, $"Unknown error with assignment.", val));
-                    return temp;
-                }
-                else if (rightHandAssignment.Length == 1)
-                {
-                    var stripws = rightHandAssignment[0].Replace(" ", "");
-                    var obj = reference.GeneratedTokens.FirstOrDefault(f => f.Name == stripws);
-                    if (obj == null)
-                    {
-                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException, $"Unknown error with assignment.", val));
-                        return temp;
-                    }
-                    reference.VariableTokens.Add(new TVariable(leftHandAssignment, obj));
-                }
-                else if (rightHandAssignment.Length == 2)
-                {
-                    var stripws = rightHandAssignment[0].Replace(" ", "");
-                    var obj = TokenParser.FunctionList.FirstOrDefault(f => f.Name == stripws);
-                    if (obj == null)
-                    {
-                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException, $"Unknown error with assignment.", val));
-                        return temp;
-                    }
-                    var argsname = rightHandAssignment[1].Replace(" ", "");
-                    var args = reference.GeneratedTokens.FirstOrDefault(f => f.Name == argsname);
-                    if (args == null)
-                    {
-                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException, $"Unknown error with assignment.", val));
-                        return temp;
-                    }
-                    obj.Arguments = args as TParameter;
-                    reference.VariableTokens.Add(new TVariable(leftHandAssignment, obj));
-                }//need to add extension check
+                CheckForVar(value, reference, val);
                 return temp;
             }
-
+            //
+            //lastly do functions and extensions
             var words = value.Split(' ');
             if (words.Length == 1)
                 if (words[0] == "")
@@ -238,6 +186,89 @@ namespace TastyScript.Lang.Func
             return extensions;
         }
 
+        private void CheckForVar(string value, IBaseFunction reference, string lineRef)
+        {
+            if(value.Contains("$var "))
+            {
+                var strip = value.Replace("$var ", "");
+                var assign = strip.Split('=');
+                if (assign.Length != 2)
+                {
+                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException, $"Unknown error with assignment.", lineRef));
+                }
+                var rightHandAssignment = assign[1].Replace(" ", "");
+                var leftHandAssignment = assign[0].Replace(" ", "");
+                if (rightHandAssignment == null || rightHandAssignment == "" || rightHandAssignment == " ")
+                {
+                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException, $"Unknown error with assignemnt.", lineRef));
+                }
+                else
+                {
+                    var stripws = rightHandAssignment.Replace(" ", "");
+                    var varRef = TokenParser.GlobalVariables.FirstOrDefault(f => f.Name == leftHandAssignment);
+                    if (stripws == "null")
+                    {
+                        if (varRef != null)
+                        {
+                            TokenParser.GlobalVariables.Remove(varRef);
+                        }
+                        return;
+                    }
+                    var obj = reference.GeneratedTokens.FirstOrDefault(f => f.Name == stripws);
+                    if (obj == null)
+                    {
+                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException, $"Unknown error with assignment.", lineRef));
+                    }
+                    if (varRef != null)
+                    {
+                        var varAsT = varRef as TVariable;
+                        varAsT.SetValue(obj);
+                    }
+                    else
+                        TokenParser.GlobalVariables.Add(new TVariable(leftHandAssignment, obj));
+                }
+                return;
+            }else if (value.Contains("var "))
+            {
+                var strip = value.Replace("var ", "");
+                var assign = strip.Split('=');
+                if (assign.Length != 2)
+                {
+                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException, $"Unknown error with assignment.", lineRef));
+                }
+                var rightHandAssignment = assign[1].Replace(" ", "");
+                var leftHandAssignment = assign[0].Replace(" ", "");
+                if (rightHandAssignment == null || rightHandAssignment == "" || rightHandAssignment == " ")
+                {
+                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException, $"Unknown error with assignemnt.", lineRef));
+                }
+                else
+                {
+                    var stripws = rightHandAssignment.Replace(" ", "");
+                    var varRef = reference.VariableTokens.FirstOrDefault(f => f.Name == leftHandAssignment);
+                    if (stripws == "null")
+                    {
+                        if (varRef != null)
+                            reference.VariableTokens.Remove(varRef);
+                        return;
+                    }
+                    var obj = reference.GeneratedTokens.FirstOrDefault(f => f.Name == stripws);
+                    if (obj == null)
+                    {
+                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException, $"Unknown error with assignment.", lineRef));
+                    }
+                    if (varRef != null)
+                    {
+                        var varAsT = varRef as TVariable;
+                        varAsT.SetValue(obj);
+                    }
+                    else
+                        reference.VariableTokens.Add(new TVariable(leftHandAssignment, obj));
+                }
+                return;
+            }
+            Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException, $"Unknown error with assignment.", lineRef));
+        }
         public static T DeepCopy<T>(T obj)
         {
             if (!typeof(T).IsSerializable)
@@ -260,6 +291,188 @@ namespace TastyScript.Lang.Func
             }
             return result;
 
+        }
+
+        //evaluates a mathematical expression written in string format
+        private double MathExpression(string expression, IBaseFunction reference, string lineReference)
+        {
+            try
+            {
+                DataTable table = new DataTable();
+                table.Columns.Add("expression", typeof(string), expression);
+                DataRow row = table.NewRow();
+                table.Rows.Add(row);
+                return double.Parse((string)row["expression"]);
+            }
+            catch (Exception e)
+            {
+                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
+                    $"Unexpected error with mathematical expression:\n{e.Message}",
+                    lineReference));
+            }
+            return 0;
+        }
+        #region Comparison
+        /// <summary>
+        /// Check for comparison operators
+        /// </summary>
+        /// <param name="line"></param>
+        /// <param name="reference"></param>
+        /// <param name="lineReference"></param>
+        /// <returns></returns>
+        enum Operator { EQ, NOTEQ, GT, LT, GTEQ, LTEQ }
+        private string ComparisonCheck(string line, IBaseFunction reference, string lineReference)
+        {
+            string output = "";
+            if (line.Contains("=="))
+                output = FindOperation(Operator.EQ, line, lineReference, reference);
+            else if (line.Contains("!="))
+                output = FindOperation(Operator.NOTEQ, line, lineReference, reference);
+            else if (line.Contains(">="))
+                output = FindOperation(Operator.GTEQ, line, lineReference, reference);
+            else if (line.Contains("<="))
+                output = FindOperation(Operator.LTEQ, line, lineReference, reference);
+            else if (line.Contains(">"))
+                output = FindOperation(Operator.GT, line, lineReference, reference);
+            else if (line.Contains("<"))
+                output = FindOperation(Operator.LT, line, lineReference, reference);
+            return output;
+        }
+        //the heavy lifting for comparison check
+        private string FindOperation(Operator op, string line, string lineRef, IBaseFunction reference)
+        {
+            string output = "";
+            string opString = "";
+            switch (op)
+            {
+                case (Operator.EQ):
+                    opString = "==";
+                    break;
+                case (Operator.NOTEQ):
+                    opString = "!=";
+                    break;
+                case (Operator.GT):
+                    opString = ">";
+                    break;
+                case (Operator.LT):
+                    opString = "<";
+                    break;
+                case (Operator.GTEQ):
+                    opString = ">=";
+                    break;
+                case (Operator.LTEQ):
+                    opString = "<=";
+                    break;
+            }
+            var splitop = line.Split(new string[] { opString }, StringSplitOptions.None);
+            if (splitop.Length != 2)
+                CompareFail(lineRef);
+            var lr = GetTokens(new string[] { splitop[0], splitop[1] }, reference, lineRef);
+            try
+            {
+                switch (op)
+                {
+                    case (Operator.EQ):
+                        output = (lr[0].ToString() == lr[1].ToString()) 
+                            ? "True" : "False";
+                        break;
+                    case (Operator.NOTEQ):
+                        output = (lr[0].ToString() != lr[1].ToString()) 
+                            ? "True" : "False";
+                        break;
+                    case (Operator.GT):
+                        output = (double.Parse(lr[0].ToString()) > double.Parse(lr[1].ToString()))
+                            ? "True" : "False";
+                        break;
+                    case (Operator.LT):
+                        output = (double.Parse(lr[0].ToString()) < double.Parse(lr[1].ToString()))
+                            ? "True" : "False";
+                        break;
+                    case (Operator.GTEQ):
+                        output = (double.Parse(lr[0].ToString()) >= double.Parse(lr[1].ToString()))
+                            ? "True" : "False";
+                        break;
+                    case (Operator.LTEQ):
+                        output = (double.Parse(lr[0].ToString()) <= double.Parse(lr[1].ToString()))
+                            ? "True" : "False";
+                        break;
+                }
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e);
+                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException, $"Unexpected input: {line}", lineRef));
+            }
+
+            return output;
+        }
+        //this rips off the comparison check, since the concept is the same.
+        
+        private void CompareFail(string line)
+        {
+            Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException, $"Can not compare more or less than 2 values", line));
+        }
+        #endregion
+
+        /// <summary>
+        /// takes parameters() and gets all the tokens inside it and returns a list
+        /// </summary>
+        /// <param name="arr"></param>
+        /// <param name="reference"></param>
+        /// <param name="val"></param>
+        /// <returns></returns>
+        private List<IBaseToken> GetTokens(string[] arr, IBaseFunction reference, string val)
+        {
+            var temp = new List<IBaseToken>();
+            foreach (var p in arr)
+            {
+                IBaseToken tempvar = null;
+                var stripws = p.Replace(" ", "").Replace("(", "").Replace(")", "");
+                if (p.Contains("{AnonGeneratedToken"))
+                {
+                    var obj = reference.GeneratedTokens.FirstOrDefault(f => f.Name == stripws);
+                    if (obj == null)
+                    {
+                        Compiler.ExceptionListener.Throw(new ExceptionHandler($"Generated Token {stripws} could not be found.", val));
+                        return temp;
+                    }
+                    tempvar = obj;
+                }
+                else
+                {
+                    var tryglob = TokenParser.GlobalVariables.FirstOrDefault(f => f.Name == stripws);
+                    if (tryglob != null)
+                    {
+                        var globval = tryglob.ToString();
+                        tempvar = (new TString(tryglob.Name, globval));
+                    }
+                    var tryvar = reference.VariableTokens.FirstOrDefault(f => f.Name == stripws);
+                    if (tryvar != null)
+                    {
+                        var varval = tryvar.ToString();
+                        tempvar = (new TString(tryvar.Name, varval));
+                    }
+                    if (reference.ProvidedArgs != null)
+                    {
+                        var trypar = reference.ProvidedArgs.FirstOrDefault(f => f.Name == stripws);
+                        if (trypar != null)
+                        {
+                            var parval = trypar.ToString();
+                            tempvar = (new TString(trypar.Name, parval));
+                        }
+                    }
+                    var tryfunc = TokenParser.FunctionList.FirstOrDefault(f => f.Name == stripws);
+                    if (tryfunc != null)
+                    {
+                        tempvar = (tryfunc);
+                    }
+                }
+                if (tempvar == null)
+                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException,
+                        $"Unknown variable [{stripws}] found.", val));
+                temp.Add(tempvar);
+            }
+            return temp;
         }
     }
 }

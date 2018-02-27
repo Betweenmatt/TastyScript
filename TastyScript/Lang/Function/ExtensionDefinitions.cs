@@ -30,42 +30,32 @@ namespace TastyScript.Lang.Func
 
     [Extension("Concat", new string[] { "string" })]
     [Serializable]
-    public class ExtensionConcat : BaseExtension
-    {
-    }
+    public class ExtensionConcat : BaseExtension { }
     [Extension("Threshold", new string[] { "int" })]
     [Serializable]
-    public class ExtensionThreshold : BaseExtension
-    {
-    }
+    public class ExtensionThreshold : BaseExtension { }
     [Extension("Color", new string[] { "color" })]
     [Serializable]
-    public class ExtensionColor : BaseExtension
-    {
-    }
+    public class ExtensionColor : BaseExtension { }
     [Extension("For", new string[] { "enumerator" })]
     [Serializable]
-    public class ExtensionFor : BaseExtension
-    {
-    }
-    [Extension("Then", new string[] { "condition" })]
+    public class ExtensionFor : BaseExtension { }
+    [Extension("Then", new string[] { "invoke" })]
     [Serializable]
-    public class ExtensionThen : BaseExtension
-    {
-    }
-    [Extension("Else", new string[] { "condition" })]
+    public class ExtensionThen : BaseExtension { }
+    [Extension("Or", new string[] { "condition" })]
     [Serializable]
-    public class ExtensionElse : BaseExtension
-    {
-    }
-    [Extension("AddParams", new string[] { "e" })]
+    public class ExtensionOr : BaseExtension { }
+    [Extension("And", new string[] { "condition" })]
     [Serializable]
-    public class ExtensionAddParams : BaseExtension
-    {
-    }
-    [Extension("Add", new string[] { "string" })]
+    public class ExtensionAnd : BaseExtension { }
+    [Extension("Else", new string[] { "invoke" })]
     [Serializable]
-    public class ExtensionAdd : BaseExtension
-    {
-    }
+    public class ExtensionElse : BaseExtension { }
+    [Extension("AddParams", new string[] { "e" }, FunctionObsolete: true)]
+    [Serializable]
+    public class ExtensionAddParams : BaseExtension { }
+    [Extension("Add", new string[] { "string" }, FunctionObsolete: true)]
+    [Serializable]
+    public class ExtensionAdd : BaseExtension { }
 }

@@ -1,6 +1,11 @@
 ﻿# ChangeLog
 
 ## v1.2.2
+* Fixed a numer of misc issues that were hindering performance; as well as readability.
+* Added the extensions `.Then()`, `.Else()`, `.And()`, `.Or()`. The first two require invoked functions via string; the second two require conditional evaluations that return "True" or "False" `.Then()` is the only required extension for `If()`;
+* Added support for Conditional evaluations using the `If()` function. Currently, `==`, `!=`, `>`, `<`, `>=`, `<=` operators are allowed to compare two objects. `If()` comes with a number of extensions listed above.
+* Added mathematical expression support by using `[]`. Wrap any basic math expressions like this `[1 + 1 * (99)]` and it will return the result. Variables can be inside the expression, and the expression can be set as a variable.
+* Added local and global variable assignment support for multiple types, including mathematical expressions with `[]`(read above note). 
 * Added a toggle for Remote functionality via the `remote` console command. Accepts true/false input.
 * Added `dir` console command, which sets the directory to call from. can either be a full path, or local path.
 * Fixed an issue where Properties.Settings werent being saved on change.
