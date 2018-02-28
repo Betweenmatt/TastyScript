@@ -32,7 +32,7 @@ The example above can be run and would print:
 
 And then complete.
 
-A list of all the functions available to you can be found [Here](../Functions).
+A list of all the functions available to you can be found [Here](/Wiki/Functions.md).
 
 Custom *Functions* can also have parameters to make reusing code much easier!
 
@@ -50,7 +50,7 @@ As you see in the above example, the custom function required an *x* and a *y* p
 
 # Extensions
 
-Extensions are a very basic way to add optional functionality to some predefined *Functions* You can find the list of Extensions [Here](../Extensions). Extensions are prepended with a period\(.\) and always require arguments.
+Extensions are a very basic way to add optional functionality to some predefined *Functions* You can find the list of Extensions [Here](/Wiki/Extensions.md). Extensions are prepended with a period\(.\) and always require arguments.
 
 ```
 override.Start(){
