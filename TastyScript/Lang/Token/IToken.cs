@@ -6,8 +6,6 @@ using TastyScript.Lang.Func;
 
 namespace TastyScript.Lang.Token
 {
-    public enum Type { String, Number, Member, Extension, Parameters, Variable }
-    public enum SubType { Single, Array }
     [Serializable]
     public class TFunction : Token<IBaseFunction>
     {
@@ -20,12 +18,12 @@ namespace TastyScript.Lang.Token
         }
     }
     [Serializable]
-    public class TString : Token<string>
+    public class TObject : Token<object>
     {
         protected override string _name { get; set; }
-        protected override BaseValue<string> _value { get; set; }
+        protected override BaseValue<object> _value { get; set; }
         //override value to use action if it is not null
-        public override BaseValue<string> Value
+        public override BaseValue<object> Value
         {
             get
             {
@@ -35,58 +33,26 @@ namespace TastyScript.Lang.Token
                 }
                 else
                 {
-                    return new BaseValue<string>(_action());
+                    return new BaseValue<object>(_action());
                 }
             }
         }
-        private Func<string> _action;
-        public TString(string name, string val, bool locked = false)
+        private Func<object> _action;
+        public TObject(string name, object val, bool locked = false)
         {
             Locked = locked;
             _name = name;
-            _value = new BaseValue<string>(val);
+            _value = new BaseValue<object>(val);
         }
-        public TString(string name, Func<string> action, bool locked = false)
+        public TObject(string name, Func<object> action, bool locked = false)
         {
             Locked = locked;
             _name = name;
             _action = action;
         }
-    }
-    [Serializable]
-    public class TNumber : Token<double>
-    {
-        protected override string _name { get; set; }
-        protected override BaseValue<double> _value { get; set; }
-        public TNumber(string name, double val)
+        public void SetValue(string val)
         {
-            _name = name;
-            _value = new BaseValue<double>(val);
-        }
-    }
-    [Serializable]
-    public class TVariable : Token<IBaseToken>
-    {
-        protected override string _name { get; set; }
-        protected override BaseValue<IBaseToken> _value { get; set; }
-        public TVariable(string name, IBaseToken value)
-        {
-            _name = name;
-            _value = new BaseValue<IBaseToken>(value);
-        }
-        public void SetValue(IBaseToken value)
-        {
-            _value = new BaseValue<IBaseToken>(value);
-        }
-    }
-    [Serializable]
-    public class TAction : Token<string>
-    {
-        protected override string _name { get; set; }
-        protected override BaseValue<string> _value { get; set; }
-        public TAction(string name, Func<string> value)
-        {
-
+            _value = new BaseValue<object>(val);
         }
     }
     [Serializable]

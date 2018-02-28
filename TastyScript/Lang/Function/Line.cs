@@ -38,7 +38,7 @@ namespace TastyScript.Lang.Func
             foreach (var x in strings)
             {
                 string tokenname = " {AnonGeneratedToken" + reference.GeneratedTokensIndex + "} ";
-                var tstring = new TString(tokenname.Replace(" ", ""), Regex.Replace(x.ToString(), "\"", ""));
+                var tstring = new TObject(tokenname.Replace(" ", ""), Regex.Replace(x.ToString(), "\"", ""));
                 value = value.Replace(x.ToString(), tokenname);
 
                 reference.GeneratedTokens.Add(tstring);
@@ -55,7 +55,7 @@ namespace TastyScript.Lang.Func
                 {
                     string tokenname = " {AnonGeneratedToken" + reference.GeneratedTokensIndex + "} ";
                     double exp = MathExpression(input, reference, val);
-                    reference.GeneratedTokens.Add(new TNumber(tokenname.Replace(" ", ""), exp));
+                    reference.GeneratedTokens.Add(new TObject(tokenname.Replace(" ", ""), exp));
                     value = value.Replace(x.ToString(), tokenname);
                 }
             }
@@ -70,7 +70,7 @@ namespace TastyScript.Lang.Func
                 double output = 0;
                 var nofail = double.TryParse(x.ToString(), out output);
                 if (nofail) {
-                    reference.GeneratedTokens.Add(new TNumber(tokenname.Replace(" ", ""), output));
+                    reference.GeneratedTokens.Add(new TObject(tokenname.Replace(" ", ""), output));
 
                     //do this regex instead of a blind replace to fix the above issue. NOTE this fix may break decimal use in some situations!!!!
                     var indvRegex = (@"\b-*" + x + @"\b");
@@ -91,7 +91,7 @@ namespace TastyScript.Lang.Func
                 var compCheck = ComparisonCheck(x.ToString(),reference,val);
                 if (compCheck != "")
                 {
-                    paramlist.Add(new TString("bool", compCheck));
+                    paramlist.Add(new TObject("bool", compCheck));
                 }
                 else
                 {
@@ -289,15 +289,15 @@ namespace TastyScript.Lang.Func
                     {
                         if (!varRef.Locked)
                         {
-                            var varAsT = varRef as TVariable;
-                            varAsT.SetValue(obj);
+                            var varAsT = varRef as TObject;
+                            varAsT.SetValue(obj.ToString());
                         }
                         else
                             Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException,
                                     $"Cannot re-assign locked variable: {stripws}", lineRef));
                     }
                     else
-                        TokenParser.GlobalVariables.Add(new TVariable(leftHandAssignment, obj));
+                        TokenParser.GlobalVariables.Add(new TObject(leftHandAssignment, obj.ToString()));
                 }
                 return "";
             }
@@ -356,15 +356,15 @@ namespace TastyScript.Lang.Func
                         {
                             if (!varRef.Locked)
                             {
-                                var varAsT = varRef as TVariable;
-                                varAsT.SetValue(obj);
+                                var varAsT = varRef as TObject;
+                                varAsT.SetValue(obj.ToString());
                             }
                             else
                                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException,
                                     $"Cannot re-assign locked variable: {stripws}", lineRef));
                         }
                         else
-                            reference.VariableTokens.Add(new TVariable(leftHandAssignment, obj));
+                            reference.VariableTokens.Add(new TObject(leftHandAssignment, obj.ToString()));
                     }
                     return "";
                 }
@@ -561,7 +561,7 @@ namespace TastyScript.Lang.Func
                 var stripws = p.Replace("(", "").Replace(")", "").Replace("\n","").Replace("\r","").Replace("\t","");
                 if (stripws.Contains("var "))
                 {
-                    tempvar = new TString(stripws.Replace("var ", "").Replace(" ", ""), "0");
+                    tempvar = new TObject(stripws.Replace("var ", "").Replace(" ", ""), "0");
                 }
                 else
                 {
@@ -584,13 +584,13 @@ namespace TastyScript.Lang.Func
                         if (tryglob != null)
                         {
                             var globval = tryglob.ToString();
-                            tempvar = (new TString(tryglob.Name, globval));
+                            tempvar = (new TObject(tryglob.Name, globval));
                         }
                         var tryvar = reference.VariableTokens.FirstOrDefault(f => f.Name == stripws);
                         if (tryvar != null)
                         {
                             var varval = tryvar.ToString();
-                            tempvar = (new TString(tryvar.Name, varval));
+                            tempvar = (new TObject(tryvar.Name, varval));
                         }
                         if (reference.ProvidedArgs != null)
                         {
@@ -598,14 +598,16 @@ namespace TastyScript.Lang.Func
                             if (trypar != null)
                             {
                                 var parval = trypar.ToString();
-                                tempvar = (new TString(trypar.Name, parval));
+                                tempvar = (new TObject(trypar.Name, parval));
                             }
                         }
+                        /*
                         var tryfunc = TokenParser.FunctionList.FirstOrDefault(f => f.Name == stripws);
                         if (tryfunc != null)
                         {
                             tempvar = (tryfunc);
                         }
+                        */
                     }
                 }
                 if (tempvar == null && !failsafe)

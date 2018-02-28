@@ -167,7 +167,7 @@ namespace TastyScript.Lang.Func
                 for (var i = 0; i < args.Value.Value.Count; i++)
                 {
                     var exp = ExpectedArgs[i].Replace("var ", "").Replace(" ", "");
-                    ProvidedArgs.Add(new TVariable(exp, args.Value.Value[i]));
+                    ProvidedArgs.Add(new TObject(exp, args.Value.Value[i]));
                 }
             }
             var guts = Value.Split('{')[1].Split('}');
@@ -187,7 +187,7 @@ namespace TastyScript.Lang.Func
                 for (var i = 0; i < args.Value.Value.Count; i++)
                 {
                     var exp = ExpectedArgs[i].Replace("var ", "").Replace(" ", "");
-                    ProvidedArgs.Add(new TVariable(exp, args.Value.Value[i]));
+                    ProvidedArgs.Add(new TObject(exp, args.Value.Value[i]));
                 }
             }
             var guts = Value.Split('{')[1].Split('}');
@@ -217,7 +217,7 @@ namespace TastyScript.Lang.Func
         {
             if (t.Name.Contains("{AnonGeneratedToken"))
             {
-                var trystring = t as TString;
+                var trystring = t as TObject;
                 //check for anonymous function alone
                 if(trystring != null)
                 {
