@@ -44,8 +44,9 @@ namespace TastyScript.Lang
                 {
                     try
                     {
-                        var fileContents = System.IO.File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + file.Replace("\'", "").Replace("\"", ""));
-                        Files.Add(file.Replace("\'", "").Replace("\"", ""), fileContents);
+                        var path = file.Replace("\'", "").Replace("\"", "");
+                        var fileContents = Program.GetFileFromPath(path);
+                        Files.Add(path, fileContents);
                         //add functions first
                         temp.AddRange(GetScopes(fileContents, predefined));
                     }

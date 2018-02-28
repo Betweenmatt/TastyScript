@@ -3,6 +3,8 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using AForge.Imaging;
 using AForge.Imaging.Filters;
+using TastyScript.Lang;
+using TastyScript.Lang.Exceptions;
 
 namespace TastyScript.Android
 {
@@ -14,33 +16,31 @@ namespace TastyScript.Android
             try
             {
                 var ss = Program.AndroidDriver.GetScreenshot();
-                //var filePath = AppDomain.CurrentDomain.BaseDirectory + "/temp.png";
-                //ss.Save(filePath, ImageFormat.Png);
-                //_screen = (Bitmap)Bitmap.FromFile(filePath);
                 _screen = (Bitmap)ss;
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
-                Console.ReadLine();
+                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException,
+                    $"Unexpected error saving screenshot: {e.Message}"));
             }
         }
         public void Analyze(string success, Action successAction, Action failureAction, int thresh)
         {
-            if (CheckScreen((Bitmap)Bitmap.FromFile(AppDomain.CurrentDomain.BaseDirectory + success), thresh))
+            if (CheckScreen(Program.GetImageFromPath(success), thresh))
                 successAction();
             else
                 failureAction();
         }
         public void Analyze(string success, string failure, Action successAction, Action failureAction, int thresh)
         {
-            if (CheckScreen((Bitmap)Bitmap.FromFile(AppDomain.CurrentDomain.BaseDirectory + success), thresh))
+            if (CheckScreen(Program.GetImageFromPath(success), thresh))
                 successAction();
-            else if (CheckScreen((Bitmap)Bitmap.FromFile(AppDomain.CurrentDomain.BaseDirectory + failure), thresh))
+            else if (CheckScreen(Program.GetImageFromPath(failure), thresh))
                 failureAction();
             else
             {
-                throw new Exception("Image recognition error");
+                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException,
+                    $"Image Recognition error."));
             }
         }
         public void Analyze(Bitmap success, Action successAction, Action failureAction, int thresh)
@@ -58,7 +58,8 @@ namespace TastyScript.Android
                 failureAction();
             else
             {
-                throw new Exception("Image recognition error");
+                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException,
+                    $"Image Recognition error."));
             }
         }
         private bool CheckScreen(Bitmap temp, int thresh)
@@ -84,7 +85,7 @@ namespace TastyScript.Android
             {
                 return true;
             }
-            Console.WriteLine($"[IMG RECOGNITION]More than one match found: {matchings.Length}");
+            Compiler.ExceptionListener.ThrowSilent(new ExceptionHandler($"[IMG RECOGNITION] More than one match found: {matchings.Length}"));
             return false;
         }
     }
