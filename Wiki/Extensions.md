@@ -13,7 +13,7 @@
  .AddParams(*Input*) | |  | |
 :---:|:---:|:---:|:---:
 *Expected Arguments* | *Input*(string,number) | 
-*Functions* | [Print()](Functions#print), [PrintLine()](Functions#printline) | 
+*Functions* | [Print()](/Wiki/Functions.md#print), [PrintLine()](/Wiki/Functions.md#printline) | 
 *Pass to Base()* | true | 
 *Allow Multiple* | true | 
 #### Description
@@ -29,7 +29,7 @@ Adds the *Input* to the Print() or PrintLine() output.
  .Color(*Color*) | |  | |
 :---:|:---:|:---:|:---:
 *Expected Arguments* | *Color*(string) | 
-*Functions* | [Print()](Functions#print), [PrintLine()](Functions#printline) | 
+*Functions* | [Print()](/Wiki/Functions.md#print), [PrintLine()](/Wiki/Functions.md#printline) | 
 *Pass to Base()* | true | 
 *Allow Multiple* | false | 
 #### Description
@@ -45,7 +45,7 @@ Colors available: Red, Green, Blue, Yellow, Magenta, White, Gray, Black, DarkRed
  .Concat(*Input*) | |  | |
 :---:|:---:|:---:|:---:
 *Expected Arguments* | *Input*(string,number) | 
-*Functions* | [Print()](Functions#print), [PrintLine()](Functions#printline) | 
+*Functions* | [Print()](/Wiki/Functions.md#print), [PrintLine()](/Wiki/Functions.md#printline) | 
 *Pass to Base()* | true | 
 *Allow Multiple* | true | 
 #### Description
@@ -68,7 +68,7 @@ function.LoopTest(i){
  .For(*Iterations*) | |  | |
 :---:|:---:|:---:|:---:
 *Expected Arguments* | *Iterations*(number) | 
-*Functions* | [All](Functions) | 
+*Functions* | [All](/Wiki/Functions.md) | 
 #### Description
 Loops the attached function. *Iterations* is required, but using the value `0` will result in an infinite loop.
 #### Examples
@@ -89,7 +89,7 @@ function.EndlessLoop(){
  .Threshold(*Input*) | |  | |
 :---:|:---:|:---:|:---:
 *Expected Arguments* | *Input*(number) | 
-*Functions* | [CheckScreen()](Functions#checkscreen) | 
+*Functions* | [CheckScreen()](/Wiki/Functions.md#checkscreen) | 
 *Pass to Base()* | true | 
 *Allow Multiple* | false | 
 #### Description
