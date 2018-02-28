@@ -10,6 +10,8 @@ function.MainLoop(){
 	ReturnFromBattle();
 }
 function.StartBattle(){
+	#manually adjust sleep here to make sure enough time is given
+	#for the popup to load
 	Touch(1132,623,1200);
 	Accept();
 	Touch(945,167);
