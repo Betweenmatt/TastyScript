@@ -27,7 +27,7 @@ override.Start(){
 
 Now when you run the script, you will see a dark green prompt saying `Device xxx has been connected`
 
-[[https://github.com/TastyGod/TastyScript/blob/master/Images/connectdevice.png|alt=Connect Device]]
+![Connect Device](/Images/connectdevice.png)
 
 # Adding functions to your script
 Now that we got the creation out of the way, how about we create a new function in your `example.ts`! Add this block of code after the `Start()` function you already added:
@@ -67,13 +67,13 @@ Hopefully you learned enough so far to continue! I'm going to be adding pictures
 
 So first, open up your TastyScript console. Then open up Kings Raid and create a new dragon room, lets say BD70. Now on your TastyScript console type the command `connect 'DEVICE SERIAL'` where `'DEVICE SERIAL'` is the serial of your device. The console should prompt you in dark green of your success. Then type in the command `screenshot DragonRoom.png` and press enter and wait for it to finish. Once it finishes, you will find the image `DragonRoom.png` in your TastyScript directory!
 
-[[https://github.com/TastyGod/TastyScript/blob/master/Images/console_dragonroom.png|alt=Console taking screenshot]]
+![Console taking screenshot](/Images/console_dragonroom.png)
 
 Now right click the image, and click `open with` and select Paint. *Note: You don't need to use paint, you can use any image software that gives pixel locations(I think photoshop does this); or you could just use the Android developers option "Show Touches". I prefer using images though, because I can very easily see if touches will interact with different buttons on other screens*
 
 Now put your mouse over the "Start Battle" button, and look to the bottom left-hand side of the Paint window; You will see something similar `1056,645px`. That number is the location of that pixel!
 
-[[https://github.com/TastyGod/TastyScript/blob/master/Images/dragonroom.png|alt=Showing location]]
+![Showing location](/Images/dragonroom.png)
 
 Now in your `example.ts` file, create a new function called `StartBattle()`:
 ```
@@ -119,7 +119,7 @@ override.Start(){
 ```
 While you're at it, lets add a `ConnectDevice()` function and a `AppPackage()` function. To get the `DEVICE NAME` type `devices` in the console, and pick your device. To get the `PACKAGE NAME`, If you're playing Kings Raid, then just use `com.vespainteractive.KingsRaid` or if you're playing a different game you have to open the game or app on your phone and make sure its in focus, then type in the TastyScript console `shell dumpsys window windows | grep -E 'mCurrentFocus'` and press enter. You will see an output similar to the following image:
 
-[[https://github.com/TastyGod/TastyScript/blob/master/Images/shell_getpackage.png|alt=shell get focus example]]
+![shell get focus example](/Images/shell_getpackage.png)
 
 Find the app package where it says `com.xxx.xxx` followed by a slash and another `com.xxx.xxx`; the section before the slash is the App Package. As you can see in the image above, `com.vespainteractive.KingsRaid` is before the slash, because that is the app I had opened when I took the picture. ***Note:*** You can opt-out of using an App Package name, but I *highly* suggest that you don't. If you don't use one, the bot will continue to run, touch, press buttons no matter what is the current focus; even if you get a phone call, or your boss walks in and you press the home button really fast - the bot will keep going. With setting the correct App Package, the bot checks before it makes any action to see if its on the right focus. Occasionally a touch will get through when dropping focus due to lag between ADB and the device, but with v1.2.1 its pretty rare.
 
