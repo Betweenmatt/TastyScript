@@ -38,7 +38,7 @@ Sets the current App Package. When an App Package has been set, the Driver comma
  Back() | | | |
 :---:|:---:|:---:|:---:
 *Expected Arguments* |  | 
-*Extensions* | [.For()](Extensions#for) | 
+*Extensions* | [.For()](/Wiki/Extensions.md#for) | 
 *Override* | true | 
 #### Description
 Touches the Android Back button. ***Pending obsolete:** will soon be replaced with a single KeyEvent function that requires a key as the argument*.
@@ -54,7 +54,7 @@ CheckScreen(*SuccessPath*, *SuccessFunction*, *FailFunction* ) | CheckScreen(*Su
 :---:|:---:|:---:|:---:|:---:
 *Expected Arguments* | *SuccessPath*(string) | *SuccessFunction*(string) | *FailFunction*(string) |
 *Overload*| *SuccessPath*(string) | *FailPath*(string) | *SuccessFunction*(string) | *FailFunction*(string)
-*Extensions* | [.For()](Extensions#for) | [.Threshold()](Extensions#threshold) | |
+*Extensions* | [.For()](/Wiki/Extensions.md#for) | [.Threshold()](/Wiki/Extensions.md#threshold) | |
 *Override* | true | | |
 
 #### Description
@@ -96,7 +96,7 @@ Connects to the first device found with the given *SerialNumber*.
  KeyEvent(*Key*) |  |  | |
 :---:|:---:|:---:|:---:
 *Expected Arguments* | *Key*(string) |  | 
-*Extensions* | [.For()](Extensions#for) | 
+*Extensions* | [.For()](/Wiki/Extensions.md#for) | 
 *Override* | true | 
 #### Description
 Sends the given key event to the currently connected device. Key Events are case sensitive, must be as a string, and must be one of the following:
@@ -114,7 +114,7 @@ Menu, SoftRight, Home, Back, Call, EndCall, Zero, One, Two, Three, Four, Five, S
 Loop(*Function*) | | | |
 :---:|:---:|:---:|:---:
 *Expected Arguments* | *Function*(string) |  |
-*Extensions* | [.For()](Extensions#for) |  | 
+*Extensions* | [.For()](/Wiki/Extensions.md#for) |  | 
 *Override* | false | |
 #### Description
 Loops the invoked *Function*. For extension is required. The invoked function *must* have at least one parameter to use this function!
@@ -137,7 +137,7 @@ function.LoopFunction(i){
 :---:|:---:|:---:|:---:|:---:
 *Expected Arguments* | *XPos*(number) | *YPos*(number) | *Duration*|
 *Overload* | *XPos*(number) | *YPos*(number) | *Duration* | *Sleep*(number)
-*Extensions* | [.For()](Extensions#for) | 
+*Extensions* | [.For()](/Wiki/Extensions.md#for) | 
 *Override* | true | 
 #### Description
 Touches the currently connected device at the given location for *Duration* amount of time. Overload the function with a 3rd argument *Sleep* to bypass the DefaultSleep timer. *Note: The DefaultSleepTimer is defaulted at 1200ms. Also every ADB command currently executes asynchronously, but has a 300ms sleep timer in between commands to prevent event bursting due to user error or lag spikes. The DefaultSleepTimer can be changed, but the 300ms command sleep can not.*
@@ -152,12 +152,12 @@ Touches the currently connected device at the given location for *Duration* amou
 Print(*Input*) | | | |
 :---:|:---:|:---:|:---:
 *Expected Arguments* | *Input*(string, number) |  |
-*Extensions* | [.For()](Extensions#for) | [.Concat()](Extensions#concat) | [.Color()](Extensions#color)
+*Extensions* | [.For()](/Wiki/Extensions.md#for) | [.Concat()](/Wiki/Extensions.md#concat) | [.Color()](/Wiki/Extensions.md#color)
 *Override* | true | |
 #### Description
 Prints the given argument in the console.
 
-*Edit:* The extension `.AddParams()` is deprecated from use with this function. Please use `.Concat()` instead [.Concat()](Extensions#concat)
+*Edit:* The extension `.AddParams()` is deprecated from use with this function. Please use `.Concat()` instead [.Concat()](/Wiki/Extensions.md#concat)
 #### Examples
 `Print("Hello,");`
 
@@ -169,12 +169,12 @@ Prints the given argument in the console.
  PrintLine(*Input*) |  |  | |
 :---:|:---:|:---:|:---:
 *Expected Arguments* | *Input*(string, number) |  |
-*Extensions* | [.For()](Extensions#for) | [.Concat()](Extensions#concat) | [.Color()](Extensions#color)
+*Extensions* | [.For()](/Wiki/Extensions.md#for) | [.Concat()](/Wiki/Extensions.md#concat) | [.Color()](/Wiki/Extensions.md#color)
 *Override* | true | |
 #### Description
 Prints the given argument in the console followed by a new line.
 
-*Edit:* The extension `.AddParams()` is deprecated from use with this function. Please use `.Concat()` instead [.Concat()](Extensions#concat)
+*Edit:* The extension `.AddParams()` is deprecated from use with this function. Please use `.Concat()` instead [.Concat()](/Wiki/Extensions.md#concat)
 #### Examples
 `PrintLine("Hello, World!");`
 
@@ -186,7 +186,7 @@ Prints the given argument in the console followed by a new line.
  SendText(*Text*) |  |  | |
 :---:|:---:|:---:|:---:
 *Expected Arguments* | *Text*(string) |  | 
-*Extensions* | [.For()](Extensions#for) | 
+*Extensions* | [.For()](/Wiki/Extensions.md#for) | 
 *Override* | true | 
 #### Description
 Sends the given text string to the connected device which will be typed into any Android Text Box. 
@@ -213,7 +213,7 @@ Sets the default sleep timer to the number (in milliseconds) provided *Sleep*. S
 Sleep(*Sleep*) | | | |
 :---:|:---:|:---:|:---:
 *Expected Arguments* | *Sleep*(number) |  |
-*Extensions* | [.For()](Extensions#for) |  | 
+*Extensions* | [.For()](/Wiki/Extensions.md#for) |  | 
 *Override* | true | |
 #### Description
 Sleeps for the number of miliseconds provided in *Sleep*. Defaults to **SetDefaultSleep**.
@@ -229,7 +229,7 @@ Sleeps for the number of miliseconds provided in *Sleep*. Defaults to **SetDefau
 |:---:|:---:|:---:|:---:|:---:|:---:|:---:|
 |*Expected Arguments* | *XPos1*(number) | *YPos1*(number) | *XPos2*(number) | *YPos2*(number) | *Duration* | |
 |*Overload* | *XPos1*(number) | *YPos1*(number) | *XPos2*(number) | *YPos2*(number) | *Duration* | *Sleep*(number) |
-|*Extensions* | [.For()](Extensions#for) | | | | | |
+|*Extensions* | [.For()](/Wiki/Extensions.md#for) | | | | | |
 |*Override* | true | | | | | |
 
 #### Description
@@ -243,7 +243,7 @@ Swipes the currently connected device at the given location for *Duration* amoun
  TakeScreenshot(*Path*) |  |  | |
 :---:|:---:|:---:|:---:
 *Expected Arguments* | *Path*(string) |
-*Extensions* | [.For()](Extensions#for) | 
+*Extensions* | [.For()](/Wiki/Extensions.md#for) | 
 *Override* | true | 
 #### Description
 Takes a screenshot of the connected device, and saves it to the path provided. *Path given must use the file extension '.png'*
@@ -257,7 +257,7 @@ Takes a screenshot of the connected device, and saves it to the path provided. *
 :---:|:---:|:---:|:---:
 *Expected Arguments* | *XPos*(number) | *YPos*(number)
 *Overload* | *XPos*(number) | *YPos*(number) | *Sleep*(number)
-*Extensions* | [.For()](Extensions#for) | 
+*Extensions* | [.For()](/Wiki/Extensions.md#for) | 
 *Override* | true | 
 #### Description
 Touches the currently connected device at the given location. Overload the function with a 3rd argument *Sleep* to bypass the DefaultSleep timer. *Note: The DefaultSleepTimer is defaulted at 1200ms. Also every ADB command currently executes asynchronously, but has a 300ms sleep timer in between commands to prevent event bursting due to user error or lag spikes. The DefaultSleepTimer can be changed, but the 300ms command sleep can not.*
