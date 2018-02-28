@@ -268,7 +268,8 @@ namespace TastyScript
                 //or fail
                 else
                 {
-                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException, $"Could not find path: {path}"));
+                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException,
+                        $"Could not find path: {path}"));
                     return;
                 }
                 TokenParser.SleepDefaultTime = 1200;

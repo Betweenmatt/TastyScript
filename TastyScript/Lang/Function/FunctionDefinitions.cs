@@ -235,25 +235,17 @@ namespace TastyScript.Lang.Func
             {
                 if (_watch != null)
                 {
-                    string printType = "Print";
-                    TParameter param = tryPrint.Extend() as TParameter;
-                    if (param.Value.Value.ElementAtOrDefault(0) != null && param.Value.Value.ElementAtOrDefault(0).ToString() != "")
-                        printType = param.Value.Value[0].ToString();
                     var elapsedMs = _watch.ElapsedMilliseconds;
-                    var printCommand = TokenParser.FunctionList.FirstOrDefault(f => f.Name == printType);
-                    if (printCommand == null)
-                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException,
-                            $"[244]Unexpected input: {printType}", LineValue));
                     var color = ConsoleColor.Gray;
                     if (tryColor != null)
                     {
                         var colorParam = tryColor.Extend();
                         ConsoleColor newcol = ConsoleColor.Gray;
-                        var nofail = Enum.TryParse<ConsoleColor>(param.Value.Value[0].ToString(), out newcol);
+                        var nofail = Enum.TryParse<ConsoleColor>(colorParam.Value.Value[0].ToString(), out newcol);
                         if (nofail)
                             color = newcol;
                     }
-                    IO.Output.Print(elapsedMs, color);
+                    IO.Output.Print(elapsedMs, color, false);
                 }
             }
             if (tryStop != null)
@@ -403,7 +395,8 @@ namespace TastyScript.Lang.Func
         {
             var prov = ProvidedArgs.FirstOrDefault(f => f.Name == "bool");
             if (prov == null)
-                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"Arguments cannot be null.", LineValue));
+                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException,
+                    $"Arguments cannot be null.", LineValue));
             bool flag = (prov.ToString() == "True") ? true : false;
             var andFlag = Extensions.FirstOrDefault(f => f.Name == "And");
             var orFlag = Extensions.FirstOrDefault(f => f.Name == "Or");
@@ -449,12 +442,14 @@ namespace TastyScript.Lang.Func
                     TParameter thenFunc = findThen.Extend();
                     var func = TokenParser.FunctionList.FirstOrDefault(f => f.Name == thenFunc.Value.Value[0].ToString());
                     if (func == null)
-                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"Cannot find the invoked function.", LineValue));
+                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException,
+                            $"Cannot find the invoked function.", LineValue));
                     //pass in invoke properties. shouldnt break with null
                     func.TryParse(findThen.GetInvokeProperties());
                 }else
                 {
-                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"If function must have a Then Extension", LineValue));
+                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, 
+                        $"[460]If function must have a Then Extension", LineValue));
                 }
             }
             else
@@ -466,7 +461,8 @@ namespace TastyScript.Lang.Func
                     TParameter elseFunc = findElse.Extend();
                     var func = TokenParser.FunctionList.FirstOrDefault(f => f.Name == elseFunc.Value.Value[0].ToString());
                     if (func == null)
-                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"Cannot find the invoked function.", LineValue));
+                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException,
+                            $"Cannot find the invoked function.", LineValue));
                     func.TryParse(findElse.GetInvokeProperties());
                 }
             }

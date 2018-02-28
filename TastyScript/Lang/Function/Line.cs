@@ -115,7 +115,8 @@ namespace TastyScript.Lang.Func
                     return temp;
                 else
                 {
-                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException, $"[113]Functions cannot be called without supplying arguments.", val));
+                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
+                        $"[113]Unknown token [{words[0]}]", val));
                     return temp;
                 }
             else if (words.Length > 1)
@@ -126,14 +127,16 @@ namespace TastyScript.Lang.Func
                     var obj = TokenParser.FunctionList.FirstOrDefault(f => f.Name == stripws);
                     if (obj == null)
                     {
-                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException, $"[124]Function [{stripws}] cannot be found.", val));
+                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
+                            $"[124]Function: [{stripws}] cannot be found.", val));
                         return temp;
                     }
                     var argsname = words[1].Replace(" ", "");
                     var args = reference.GeneratedTokens.FirstOrDefault(f => f.Name == argsname);
                     if (args == null)
                     {
-                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException, $"[131]Arguments cannot be found.", val));
+                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
+                            $"[131]Arguments cannot be found.", val));
                         return temp;
                     }
                     var func = new TFunction(obj.Name, obj);
@@ -232,13 +235,15 @@ namespace TastyScript.Lang.Func
                 var assign = strip.Split('=');
                 if (assign.Length != 2)
                 {
-                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException, $"Unknown error with assignment.", lineRef));
+                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
+                        $"Unknown error with assignment.", lineRef));
                 }
                 var rightHandAssignment = assign[1].Replace(" ", "");
                 var leftHandAssignment = assign[0].Replace(" ", "");
                 if (rightHandAssignment == null || rightHandAssignment == "" || rightHandAssignment == " ")
                 {
-                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException, $"Unknown error with assignemnt.", lineRef));
+                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
+                        $"Unknown error with assignemnt.", lineRef));
                 }
                 else
                 {
@@ -255,7 +260,8 @@ namespace TastyScript.Lang.Func
                     var obj = reference.GeneratedTokens.FirstOrDefault(f => f.Name == stripws);
                     if (obj == null)
                     {
-                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException, $"Unknown error with assignment.", lineRef));
+                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
+                            $"Unknown error with assignment.", lineRef));
                     }
                     if (varRef != null)
                     {
@@ -275,13 +281,15 @@ namespace TastyScript.Lang.Func
                     var assign = strip.Split('=');
                     if (assign.Length != 2)
                     {
-                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException, $"Unknown error with assignment.", lineRef));
+                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
+                            $"Unknown error with assignment.", lineRef));
                     }
                     var rightHandAssignment = assign[1].Replace(" ", "");
                     var leftHandAssignment = assign[0].Replace(" ", "");
                     if (rightHandAssignment == null || rightHandAssignment == "" || rightHandAssignment == " ")
                     {
-                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException, $"Unknown error with assignemnt.", lineRef));
+                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
+                            $"Unknown error with assignemnt.", lineRef));
                     }
                     else
                     {
@@ -296,7 +304,8 @@ namespace TastyScript.Lang.Func
                         var obj = reference.GeneratedTokens.FirstOrDefault(f => f.Name == stripws);
                         if (obj == null)
                         {
-                            Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException, $"Unknown error with assignment.", lineRef));
+                            Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
+                                $"Unknown error with assignment.", lineRef));
                         }
                         if (varRef != null)
                         {
@@ -309,7 +318,8 @@ namespace TastyScript.Lang.Func
                     return "";
                 }
             }
-            Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException, $"Unknown error with assignment.", lineRef));
+            Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
+                $"Unknown error with assignment.", lineRef));
             return "";
         }
         public static T DeepCopy<T>(T obj)

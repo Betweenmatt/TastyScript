@@ -143,8 +143,10 @@ namespace TastyScript.Lang.Func
             if (b == null)
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"Unexpected error. Function failed to override: {Name}.", value));
             if (b.Sealed == true)
+            {
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException,
                     $"Invalid Operation. Cannot override Sealed function: {Name}.", value));
+            }
             Base = b;
         }
         public virtual void TryParse(TParameter args, string lineval = "{0}")

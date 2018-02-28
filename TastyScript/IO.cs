@@ -11,17 +11,17 @@ namespace TastyScript
             public static void Print(object o, bool line = true)
             {
                 if (line)
-                    Console.WriteLine(o);
+                    Console.WriteLine(System.Text.RegularExpressions.Regex.Unescape(o.ToString()));
                 else
-                    Console.Write(o);
+                    Console.Write(System.Text.RegularExpressions.Regex.Unescape(o.ToString()));
             }
             public static void Print(object o, ConsoleColor color, bool line = true)
             {
                 Console.ForegroundColor = color;
                 if (line)
-                    Console.WriteLine(o);
+                    Console.WriteLine(System.Text.RegularExpressions.Regex.Unescape(o.ToString()));
                 else
-                    Console.Write(o);
+                    Console.Write(System.Text.RegularExpressions.Regex.Unescape(o.ToString()));
                 Console.ResetColor();
             }
         }
