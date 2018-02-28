@@ -1,6 +1,9 @@
 ﻿# ChangeLog
 
 ## v1.2.2
+* Fixed an issue where variables couldnt be set as other variables. 
+* Fixed some performance issues with `CheckScreen()`.
+* Fixed a breaking issue with `CheckScreen()` that was setting `.Threshold()` to 0 no matter what
 * Added the `Timer()` function, as well as the `.Start()`,`.Stop()`,and `.Print()` extensions to utilize it.
 * Added a sealed flag to certain functions, to prevent them from being overridden.
 * Full support for nested anonymous functions including with passed parameters. 

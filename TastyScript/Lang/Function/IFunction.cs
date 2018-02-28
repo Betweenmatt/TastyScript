@@ -39,6 +39,7 @@ namespace TastyScript.Lang.Func
         public string Name { get; protected set; }
         public string Value { get; private set; }
         public string[] ExpectedArgs { get; set; }
+        public bool Locked { get; protected set; }
         public List<IBaseToken> ProvidedArgs { get; set; }
         public List<IBaseToken> GeneratedTokens { get; set; }
         public TParameter Arguments { get; set; }

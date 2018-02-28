@@ -33,7 +33,7 @@ namespace TastyScript.Lang.Func
             //    value = value.Split('#')[0];
             //
             //string parsing(look for quotes)
-            var stringTokenRegex = new Regex("\"([^\"\"]*)\"");
+            var stringTokenRegex = new Regex("\"([^\"\"]*)\"",RegexOptions.Multiline);
             var strings = stringTokenRegex.Matches(value);
             foreach (var x in strings)
             {
@@ -46,7 +46,7 @@ namespace TastyScript.Lang.Func
             
             //
             //do math expressions(look for brackets)
-            var mathexpRegex = new Regex(@"\[([^\[\]]*)\]");
+            var mathexpRegex = new Regex(@"\[([^\[\]]*)\]", RegexOptions.Multiline);
             var mathexp = mathexpRegex.Matches(value);
             foreach (var x in mathexp)
             {
@@ -59,25 +59,30 @@ namespace TastyScript.Lang.Func
                     value = value.Replace(x.ToString(), tokenname);
                 }
             }
-
+            
             //
             //number parsing
-            var numberTokenRegex = new Regex(@"\b-*[0-9\.]+\b");
+            var numberTokenRegex = new Regex(@"\b-*[0-9\.]+\b", RegexOptions.Multiline);
             var numbers = numberTokenRegex.Matches(value);
             foreach (var x in numbers)
             {
                 string tokenname = " {AnonGeneratedToken" + reference.GeneratedTokensIndex + "} ";
-                reference.GeneratedTokens.Add(new TNumber(tokenname.Replace(" ", ""), double.Parse(x.ToString())));
-                //do this regex instead of a blind replace to fix the above issue. NOTE this fix may break decimal use in some situations!!!!
-                var indvRegex = (@"\b-*" + x + @"\b");
-                var regex = new Regex(indvRegex);
-                value = regex.Replace(value, tokenname);
+                double output = 0;
+                var nofail = double.TryParse(x.ToString(), out output);
+                if (nofail) {
+                    reference.GeneratedTokens.Add(new TNumber(tokenname.Replace(" ", ""), output));
+
+                    //do this regex instead of a blind replace to fix the above issue. NOTE this fix may break decimal use in some situations!!!!
+                    var indvRegex = (@"\b-*" + x + @"\b");
+                    var regex = new Regex(indvRegex);
+                    value = regex.Replace(value, tokenname);
+                }
             }
 
             
             //
             //parameters parsing(look for parentheses)
-            var paramTokenRegex = new Regex(@"\(([^()]*)\)");
+            var paramTokenRegex = new Regex(@"\(([^()]*)\)", RegexOptions.Multiline);
             var paramss = paramTokenRegex.Matches(value);
             foreach (var x in paramss)
             {
@@ -236,14 +241,14 @@ namespace TastyScript.Lang.Func
                 if (assign.Length != 2)
                 {
                     Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
-                        $"Unknown error with assignment.", lineRef));
+                        $"[244]Unknown error with assignment.", lineRef));
                 }
                 var rightHandAssignment = assign[1].Replace(" ", "");
                 var leftHandAssignment = assign[0].Replace(" ", "");
                 if (rightHandAssignment == null || rightHandAssignment == "" || rightHandAssignment == " ")
                 {
                     Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
-                        $"Unknown error with assignemnt.", lineRef));
+                        $"[251]Unknown error with assignemnt.", lineRef));
                 }
                 else
                 {
@@ -257,16 +262,39 @@ namespace TastyScript.Lang.Func
                         }
                         return "";
                     }
-                    var obj = reference.GeneratedTokens.FirstOrDefault(f => f.Name == stripws);
+                    IBaseToken obj = null;
+
+                    var tryGlobal = TokenParser.GlobalVariables.FirstOrDefault(f => f.Name == stripws);
+                    if (tryGlobal != null)
+                        obj = tryGlobal;
+                    var tryLocal = reference.VariableTokens.FirstOrDefault(f => f.Name == stripws);
+                    if (tryLocal != null)
+                        obj = tryLocal;
+                    if (reference.ProvidedArgs != null)
+                    {
+                        var tryParam = reference.ProvidedArgs.FirstOrDefault(f => f.Name == stripws);
+                        if (tryParam != null)
+                            obj = tryParam;
+                    }
+                    var tryAnon = reference.GeneratedTokens.FirstOrDefault(f => f.Name == stripws);
+                    if (tryAnon != null)
+                        obj = tryAnon;
+
                     if (obj == null)
                     {
                         Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
-                            $"Unknown error with assignment.", lineRef));
+                            $"[269]Unknown error with assignment.", lineRef));
                     }
                     if (varRef != null)
                     {
-                        var varAsT = varRef as TVariable;
-                        varAsT.SetValue(obj);
+                        if (!varRef.Locked)
+                        {
+                            var varAsT = varRef as TVariable;
+                            varAsT.SetValue(obj);
+                        }
+                        else
+                            Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException,
+                                    $"Cannot re-assign locked variable: {stripws}", lineRef));
                     }
                     else
                         TokenParser.GlobalVariables.Add(new TVariable(leftHandAssignment, obj));
@@ -282,14 +310,14 @@ namespace TastyScript.Lang.Func
                     if (assign.Length != 2)
                     {
                         Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
-                            $"Unknown error with assignment.", lineRef));
+                            $"[290]Unknown error with assignment.", lineRef));
                     }
                     var rightHandAssignment = assign[1].Replace(" ", "");
                     var leftHandAssignment = assign[0].Replace(" ", "");
                     if (rightHandAssignment == null || rightHandAssignment == "" || rightHandAssignment == " ")
                     {
                         Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
-                            $"Unknown error with assignemnt.", lineRef));
+                            $"[297]Unknown error with assignemnt.", lineRef));
                     }
                     else
                     {
@@ -301,16 +329,39 @@ namespace TastyScript.Lang.Func
                                 reference.VariableTokens.Remove(varRef);
                             return "";
                         }
-                        var obj = reference.GeneratedTokens.FirstOrDefault(f => f.Name == stripws);
+                        IBaseToken obj = null;
+
+                        var tryGlobal = TokenParser.GlobalVariables.FirstOrDefault(f => f.Name == stripws);
+                        if (tryGlobal != null)
+                            obj = tryGlobal;
+                        var tryLocal = reference.VariableTokens.FirstOrDefault(f => f.Name == stripws);
+                        if (tryLocal != null)
+                            obj = tryLocal;
+                        if (reference.ProvidedArgs != null)
+                        {
+                            var tryParam = reference.ProvidedArgs.FirstOrDefault(f => f.Name == stripws);
+                            if (tryParam != null)
+                                obj = tryParam;
+                        }
+                        var tryAnon = reference.GeneratedTokens.FirstOrDefault(f => f.Name == stripws);
+                        if (tryAnon != null)
+                            obj = tryAnon;
+
                         if (obj == null)
                         {
                             Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
-                                $"Unknown error with assignment.", lineRef));
+                                $"[313]Unknown error with assignment.", lineRef));
                         }
                         if (varRef != null)
                         {
-                            var varAsT = varRef as TVariable;
-                            varAsT.SetValue(obj);
+                            if (!varRef.Locked)
+                            {
+                                var varAsT = varRef as TVariable;
+                                varAsT.SetValue(obj);
+                            }
+                            else
+                                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException,
+                                    $"Cannot re-assign locked variable: {stripws}", lineRef));
                         }
                         else
                             reference.VariableTokens.Add(new TVariable(leftHandAssignment, obj));
@@ -319,7 +370,7 @@ namespace TastyScript.Lang.Func
                 }
             }
             Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
-                $"Unknown error with assignment.", lineRef));
+                $"[327]Unknown error with assignment.", lineRef));
             return "";
         }
         public static T DeepCopy<T>(T obj)

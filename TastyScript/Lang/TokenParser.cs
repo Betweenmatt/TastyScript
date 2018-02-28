@@ -25,9 +25,10 @@ namespace TastyScript.Lang
             FunctionList.AddRange(functionList);
             GlobalVariables = new List<IBaseToken>()
             {
-            new TString("DateTime",()=>{return DateTime.Now.ToString(); }),
-            new TString("Date",()=>{return DateTime.Now.ToShortDateString(); }),
-            new TString("Time",()=>{return DateTime.Now.ToShortTimeString(); })
+            new TString("DateTime",()=>{return DateTime.Now.ToString(); }, locked:true),
+            new TString("Date",()=>{return DateTime.Now.ToShortDateString(); }, locked:true),
+            new TString("Time",()=>{return DateTime.Now.ToShortTimeString(); }, locked:true),
+            new TString("null","null", locked:true)
             };
             StartParse();
         }

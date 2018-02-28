@@ -32,22 +32,41 @@ namespace TastyScript.Lang.Func
         }
         public static void AndroidCheckScreen(string succPath, IBaseFunction succFunc, IBaseFunction failFunc, int thresh = 90)
         {
-            AnalyzeScreen ascreen = new AnalyzeScreen();
-            ascreen.Analyze(succPath,
-                () => { succFunc.TryParse(null); },
-                () => { failFunc.TryParse(null); },
-                thresh
-            );
+            try
+            {
+                AnalyzeScreen ascreen = new AnalyzeScreen();
+                ascreen.Analyze(succPath,
+                    () => { succFunc.TryParse(null); },
+                    () => { failFunc.TryParse(null); },
+                    thresh
+                );
+            }catch(Exception e)
+            {
+                if(e is System.IO.FileNotFoundException)
+                {
+                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.DriverException,
+                        $"File could not be found: {succPath}"));
+                }
+                Console.WriteLine(e);
+                Compiler.ExceptionListener.Throw(new ExceptionHandler(""));
+            }
         }
         public static void AndroidCheckScreen(string succPath, string failPath, IBaseFunction succFunc, IBaseFunction failFunc, int thresh = 90)
         {
-            AnalyzeScreen ascreen = new AnalyzeScreen();
-            ascreen.Analyze(succPath, failPath,
-                () => { succFunc.TryParse(null); },
-                () => { failFunc.TryParse(null); },
-                thresh
-            );
-        }
+            try
+            {
+                AnalyzeScreen ascreen = new AnalyzeScreen();
+                ascreen.Analyze(succPath, failPath,
+                    () => { succFunc.TryParse(null); },
+                    () => { failFunc.TryParse(null); },
+                    thresh
+                );
+            }catch(Exception e)
+            {
+                Console.WriteLine(e);
+                Compiler.ExceptionListener.Throw(new ExceptionHandler(""));
+            }
+}
     }
     public class FunctionDefinitions<T> : AnonymousFunction<T>, IOverride<T>
     {
@@ -183,14 +202,13 @@ namespace TastyScript.Lang.Func
             if (succFunc == null || failFunc == null || succPath == null)
             {
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.NullReferenceException, $"Invoke function cannot be null.", LineValue));
-                return null;
             }
             var sf = TokenParser.FunctionList.FirstOrDefault(f => f.Name == succFunc.ToString());
             var ff = TokenParser.FunctionList.FirstOrDefault(f => f.Name == failFunc.ToString());
             if (sf == null || ff == null)
             {
-                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"Invoke function cannot be found.", LineValue));
-                return null;
+                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException,
+                    $"[198]Invoke function cannot be found.", LineValue));
             }
             //check for threshold extension
             var threshExt = Extensions.FirstOrDefault(f => f.Name == "Threshold") as ExtensionThreshold;
@@ -769,7 +787,18 @@ namespace TastyScript.Lang.Func
                 if (nofail)
                     color = newcol;
             }
-            IO.Output.Print(print + String.Join("", concatStrings),color);
+            //try to escape, and if escaping fails fallback on the original string
+            string output = print + String.Join("", concatStrings);
+            try
+            {
+                output = System.Text.RegularExpressions.Regex.Unescape(print + String.Join("", concatStrings));
+            }
+            catch (Exception e)
+            {
+                if (!(e is ArgumentException) || !(e is ArgumentNullException))
+                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"Unexpected input: {output}", LineValue));
+            }
+            IO.Output.Print(output,color);
 
             //clear extensions after done
             concatStrings = new List<string>();
@@ -817,7 +846,19 @@ namespace TastyScript.Lang.Func
                 if (nofail)
                     color = newcol;
             }
-            IO.Output.Print(print + String.Join("", concatStrings), color, false);
+            //try to escape, and if escaping fails fallback on the original string
+            string output = print + String.Join("", concatStrings);
+            try
+            {
+                output = System.Text.RegularExpressions.Regex.Unescape(print + String.Join("", concatStrings));
+            }
+            catch (Exception e)
+            {
+                if (!(e is ArgumentException) || !(e is ArgumentNullException))
+                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"Unexpected input: {output}", LineValue));
+            }
+            IO.Output.Print(output, color,false);
+
 
             //clear extensions after done
             concatStrings = new List<string>();

@@ -40,13 +40,15 @@ namespace TastyScript.Lang.Token
             }
         }
         private Func<string> _action;
-        public TString(string name, string val)
+        public TString(string name, string val, bool locked = false)
         {
+            Locked = locked;
             _name = name;
             _value = new BaseValue<string>(val);
         }
-        public TString(string name, Func<string> action)
+        public TString(string name, Func<string> action, bool locked = false)
         {
+            Locked = locked;
             _name = name;
             _action = action;
         }
@@ -108,6 +110,7 @@ namespace TastyScript.Lang.Token
         public virtual BaseValue<T> Value { get { return _value; } }
         public TParameter Arguments { get; set; }
         public List<IExtension> Extensions { get; set; }
+        public bool Locked { get; protected set; }
         public override string ToString()
         {
             return Value.ToString();
@@ -117,7 +120,7 @@ namespace TastyScript.Lang.Token
             return typeof(T);
         }
     }
-    public interface IBaseToken { string Name { get; } TParameter Arguments { get; set; } System.Type GetMemberType(); List<IExtension> Extensions { get; set; } }
+    public interface IBaseToken { bool Locked { get; } string Name { get; } TParameter Arguments { get; set; } System.Type GetMemberType(); List<IExtension> Extensions { get; set; } }
 
     public interface IToken<T> : IBaseToken
     {

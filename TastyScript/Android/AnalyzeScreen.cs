@@ -14,9 +14,10 @@ namespace TastyScript.Android
             try
             {
                 var ss = Program.AndroidDriver.GetScreenshot();
-                var filePath = AppDomain.CurrentDomain.BaseDirectory + "/temp.png";
-                ss.Save(filePath, ImageFormat.Png);
-                _screen = (Bitmap)Bitmap.FromFile(filePath);
+                //var filePath = AppDomain.CurrentDomain.BaseDirectory + "/temp.png";
+                //ss.Save(filePath, ImageFormat.Png);
+                //_screen = (Bitmap)Bitmap.FromFile(filePath);
+                _screen = (Bitmap)ss;
             }
             catch (Exception e)
             {
@@ -62,12 +63,12 @@ namespace TastyScript.Android
         }
         private bool CheckScreen(Bitmap temp, int thresh)
         {
-            float threshold = thresh / 100;
+            float threshold = thresh / 100f;
             System.Drawing.Bitmap sourceImage = AForge.Imaging.Image.Clone(_screen, PixelFormat.Format24bppRgb);
             System.Drawing.Bitmap template = AForge.Imaging.Image.Clone(temp, PixelFormat.Format24bppRgb);
             // create template matching algorithm's instance
             //strip sizes down for speed
-            double reductionAmount = 0.2;
+            double reductionAmount = .2;
             sourceImage = new ResizeBicubic((int)(sourceImage.Width * reductionAmount), (int)(sourceImage.Height * reductionAmount)).Apply(sourceImage);
             template = new ResizeBicubic((int)(template.Width * reductionAmount), (int)(template.Height * reductionAmount)).Apply(template);
             // (set similarity threshold to 92.1%)
