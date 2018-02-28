@@ -18,7 +18,7 @@ namespace TastyScript.Lang.Func
         public static void Sleep(double ms)
         {
             var func = new TFunction("Sleep", TokenParser.FunctionList.FirstOrDefault(f => f.Name == "Sleep"));
-            var newArgs = new TParameter("sleep", new List<IBaseToken>() { new TNumber("sleep", ms) });
+            var newArgs = new TParameter("sleep", new List<IBaseToken>() { new TObject("sleep", ms) });
             func.Value.Value.TryParse(newArgs);
         }
         public static void AndroidTouch(int x, int y)
@@ -83,27 +83,27 @@ namespace TastyScript.Lang.Func
             }
             if (args != null)
             {
-                var arg = args.Value.Value.FirstOrDefault(f => f.Name.Contains("[]")) as TVariable;
+                var arg = args.Value.Value.FirstOrDefault(f => f.Name.Contains("[]")) as TObject;
                 var argarr = args.Value.Value.FirstOrDefault(f => f.Name.Contains("[]")) as TParameter;
                 if (argarr != null)//if arg array is multi element
                 {
                     ProvidedArgs = new List<IBaseToken>();
                     for (var i = 0; i < argarr.Value.Value.Count; i++)
                     {
-                        ProvidedArgs.Add(new TVariable(ExpectedArgs[i], argarr.Value.Value[i]));
+                        ProvidedArgs.Add(new TObject(ExpectedArgs[i], argarr.Value.Value[i]));
                     }
                 }
                 else if (arg != null)//if arg array is a single element 
                 {
                     ProvidedArgs = new List<IBaseToken>();
-                    ProvidedArgs.Add(new TVariable(ExpectedArgs[0], arg.Value.Value));
+                    ProvidedArgs.Add(new TObject(ExpectedArgs[0], arg.Value.Value));
                 }
                 else
                 {
                     ProvidedArgs = new List<IBaseToken>();
                     for (var i = 0; i < args.Value.Value.Count; i++)
                     {
-                        ProvidedArgs.Add(new TVariable(ExpectedArgs[i], args.Value.Value[i]));
+                        ProvidedArgs.Add(new TObject(ExpectedArgs[i], args.Value.Value[i]));
                     }
                 }
             }
@@ -114,27 +114,27 @@ namespace TastyScript.Lang.Func
             LineValue = lineval;
             if (args != null)
             {
-                var arg = args.Value.Value.FirstOrDefault(f => f.Name.Contains("[]")) as TVariable;
+                var arg = args.Value.Value.FirstOrDefault(f => f.Name.Contains("[]")) as TObject;
                 var argarr = args.Value.Value.FirstOrDefault(f => f.Name.Contains("[]")) as TParameter;
                 if (argarr != null)//if arg array is multi element
                 {
                     ProvidedArgs = new List<IBaseToken>();
                     for (var i = 0; i < argarr.Value.Value.Count; i++)
                     {
-                        ProvidedArgs.Add(new TVariable(ExpectedArgs[i], argarr.Value.Value[i]));
+                        ProvidedArgs.Add(new TObject(ExpectedArgs[i], argarr.Value.Value[i]));
                     }
                 }
                 else if (arg != null)//if arg array is a single element 
                 {
                     ProvidedArgs = new List<IBaseToken>();
-                    ProvidedArgs.Add(new TVariable(ExpectedArgs[0], arg.Value.Value));
+                    ProvidedArgs.Add(new TObject(ExpectedArgs[0], arg.Value.Value));
                 }
                 else
                 {
                     ProvidedArgs = new List<IBaseToken>();
                     for (var i = 0; i < args.Value.Value.Count; i++)
                     {
-                        ProvidedArgs.Add(new TVariable(ExpectedArgs[i], args.Value.Value[i]));
+                        ProvidedArgs.Add(new TObject(ExpectedArgs[i], args.Value.Value[i]));
                     }
                 }
             }
@@ -331,12 +331,12 @@ namespace TastyScript.Lang.Func
                             var getFirstElement = passed.Value.Value.ElementAtOrDefault(0);
                             if (getFirstElement != null)
                             {
-                                passed.Value.Value[0] = new TString(passed.Value.Value[0].Name, x.ToString());
+                                passed.Value.Value[0] = new TObject(passed.Value.Value[0].Name, x.ToString());
                             }
                         }
                         else
                         {
-                            passed = new TParameter("Loop", new List<IBaseToken>() { new TString("enumerator", x.ToString()) });
+                            passed = new TParameter("Loop", new List<IBaseToken>() { new TObject("enumerator", x.ToString()) });
                         }
                         func.TryParse(passed);
                     }
@@ -359,12 +359,12 @@ namespace TastyScript.Lang.Func
                             var getFirstElement = passed.Value.Value.ElementAtOrDefault(0);
                             if (getFirstElement != null)
                             {
-                                passed.Value.Value[0] = new TString(passed.Value.Value[0].Name, x.ToString());
+                                passed.Value.Value[0] = new TObject(passed.Value.Value[0].Name, x.ToString());
                             }
                         }
                         else
                         {
-                            passed = new TParameter("Loop", new List<IBaseToken>() { new TString("enumerator", x.ToString()) });
+                            passed = new TParameter("Loop", new List<IBaseToken>() { new TObject("enumerator", x.ToString()) });
                         }
                         func.TryParse(passed);
                         x++;
@@ -392,8 +392,8 @@ namespace TastyScript.Lang.Func
         }
         public new object CallBase(TParameter args)
         {
-            var sleep = (ProvidedArgs.FirstOrDefault(f => f.Name == "sleep") as TVariable).Value.Value as TNumber;
-            double sleepnum = sleep.Value.Value;
+            var sleep = (ProvidedArgs.FirstOrDefault(f => f.Name == "sleep") as TObject);
+            double sleepnum = double.Parse(sleep.ToString());
             TokenParser.SleepDefaultTime = sleepnum;
             return args;
         }
@@ -564,7 +564,7 @@ namespace TastyScript.Lang.Func
         }
         public new object CallBase(TParameter args)
         {
-            var time = double.Parse((ProvidedArgs.FirstOrDefault(f => f.Name == "time") as TVariable).Value.Value.ToString());
+            var time = double.Parse((ProvidedArgs.FirstOrDefault(f => f.Name == "time") as TObject).Value.Value.ToString());
             Thread.Sleep((int)Math.Ceiling(time));
             return args;
         }
@@ -578,8 +578,8 @@ namespace TastyScript.Lang.Func
         }
         public new object CallBase(TParameter args)
         {
-            var x = (ProvidedArgs.FirstOrDefault(f => f.Name == "intX") as TVariable);
-            var y = (ProvidedArgs.FirstOrDefault(f => f.Name == "intY") as TVariable);
+            var x = (ProvidedArgs.FirstOrDefault(f => f.Name == "intX") as TObject);
+            var y = (ProvidedArgs.FirstOrDefault(f => f.Name == "intY") as TObject);
             if (x == null || y == null)
             {
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.NullReferenceException,
@@ -594,7 +594,7 @@ namespace TastyScript.Lang.Func
             double sleep = TokenParser.SleepDefaultTime;
             if (args.Value.Value.Count > 2)
             {
-                sleep = double.Parse((ProvidedArgs.FirstOrDefault(f => f.Name == "sleep") as TVariable).Value.Value.ToString());
+                sleep = double.Parse((ProvidedArgs.FirstOrDefault(f => f.Name == "sleep") as TObject).Value.Value.ToString());
             }
             FunctionHelpers.Sleep(sleep);
             return args;
@@ -609,9 +609,9 @@ namespace TastyScript.Lang.Func
         }
         public new object CallBase(TParameter args)
         {
-            var x = (ProvidedArgs.FirstOrDefault(f => f.Name == "intX") as TVariable);
-            var y = (ProvidedArgs.FirstOrDefault(f => f.Name == "intY") as TVariable);
-            var dur = (ProvidedArgs.FirstOrDefault(f => f.Name == "duration") as TVariable);
+            var x = (ProvidedArgs.FirstOrDefault(f => f.Name == "intX") as TObject);
+            var y = (ProvidedArgs.FirstOrDefault(f => f.Name == "intY") as TObject);
+            var dur = (ProvidedArgs.FirstOrDefault(f => f.Name == "duration") as TObject);
             if(x == null || y == null || dur == null)
             {
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.NullReferenceException,
@@ -627,7 +627,7 @@ namespace TastyScript.Lang.Func
             double sleep = TokenParser.SleepDefaultTime;
             if (args.Value.Value.Count > 3)
             {
-                sleep = double.Parse((ProvidedArgs.FirstOrDefault(f => f.Name == "sleep") as TVariable).Value.Value.ToString());
+                sleep = double.Parse((ProvidedArgs.FirstOrDefault(f => f.Name == "sleep") as TObject).Value.Value.ToString());
             }
             FunctionHelpers.Sleep(sleep);
             return args;
@@ -642,11 +642,11 @@ namespace TastyScript.Lang.Func
         }
         public new object CallBase(TParameter args)
         {
-            var x1 = (ProvidedArgs.FirstOrDefault(f => f.Name == "intX1") as TVariable);
-            var y1 = (ProvidedArgs.FirstOrDefault(f => f.Name == "intY1") as TVariable);
-            var x2 = (ProvidedArgs.FirstOrDefault(f => f.Name == "intX2") as TVariable);
-            var y2 = (ProvidedArgs.FirstOrDefault(f => f.Name == "intY2") as TVariable);
-            var dur = (ProvidedArgs.FirstOrDefault(f => f.Name == "duration") as TVariable);
+            var x1 = (ProvidedArgs.FirstOrDefault(f => f.Name == "intX1") as TObject);
+            var y1 = (ProvidedArgs.FirstOrDefault(f => f.Name == "intY1") as TObject);
+            var x2 = (ProvidedArgs.FirstOrDefault(f => f.Name == "intX2") as TObject);
+            var y2 = (ProvidedArgs.FirstOrDefault(f => f.Name == "intY2") as TObject);
+            var dur = (ProvidedArgs.FirstOrDefault(f => f.Name == "duration") as TObject);
             if (x1 == null || y1 == null || x2 == null || y2 == null || dur == null)
             {
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.NullReferenceException,
@@ -664,7 +664,7 @@ namespace TastyScript.Lang.Func
             double sleep = TokenParser.SleepDefaultTime;
             if (args.Value.Value.Count > 5)
             {
-                sleep = double.Parse((ProvidedArgs.FirstOrDefault(f => f.Name == "sleep") as TVariable).Value.Value.ToString());
+                sleep = double.Parse((ProvidedArgs.FirstOrDefault(f => f.Name == "sleep") as TObject).Value.Value.ToString());
             }
             FunctionHelpers.Sleep(sleep);
             return args;

@@ -1,6 +1,11 @@
 ﻿# ChangeLog
 
 ## v1.2.2
+
+	### TypeFix-patch
+	* Fixed the issue where objects such as DateTime were having their instance referenced, instead of their return data.
+	* Reduced typeing to objects, functions, and parameters instead of string/number/variable etc.
+
 * Fixed an issue where variables couldnt be set as other variables. 
 * Fixed some performance issues with `CheckScreen()`.
 * Fixed a breaking issue with `CheckScreen()` that was setting `.Threshold()` to 0 no matter what
