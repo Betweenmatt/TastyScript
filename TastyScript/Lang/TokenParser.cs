@@ -9,7 +9,7 @@ namespace TastyScript.Lang
 {
     public class TokenParser
     {
-        public static List<IBaseFunction> FunctionList = new List<IBaseFunction>();
+        public static List<IBaseFunction> FunctionList;
         /// <summary>
         /// The default sleep timer for android commands in milliseconds
         /// </summary>
@@ -22,13 +22,13 @@ namespace TastyScript.Lang
 
         public TokenParser(List<IBaseFunction> functionList)
         {
-            FunctionList = functionList;
+            FunctionList.AddRange(functionList);
             GlobalVariables = new List<IBaseToken>()
-        {
+            {
             new TString("DateTime",()=>{return DateTime.Now.ToString(); }),
             new TString("Date",()=>{return DateTime.Now.ToShortDateString(); }),
             new TString("Time",()=>{return DateTime.Now.ToShortTimeString(); })
-        };
+            };
             StartParse();
         }
 

@@ -368,9 +368,32 @@ namespace TastyScript
                             var func = System.Type.GetType(type.ToString());
                             var inst = Activator.CreateInstance(func) as IBaseFunction;
                             var attt = type.GetCustomAttribute(typeof(Function), true) as Function;
-                            inst.SetProperties(attt.Name, attt.ExpectedArgs);
+                            inst.SetProperties(attt.Name, attt.ExpectedArgs,attt.Invoking,attt.Sealed);
                             if (!attt.Obsolete)
                                 temp.Add(inst);
+                        }
+            return temp;
+        }
+        //i guess a quick way to essentially deep clone base functions on demand.
+        //idk how much this will kill performance but i cant think of another way
+        public static IBaseFunction CopyFunctionReference(string funcName)
+        {
+            IBaseFunction temp = null;
+            string definedIn = typeof(Function).Assembly.GetName().Name;
+            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+                if ((!assembly.GlobalAssemblyCache) && ((assembly.GetName().Name == definedIn) || assembly.GetReferencedAssemblies().Any(a => a.Name == definedIn)))
+                    foreach (System.Type type in assembly.GetTypes())
+                        if (type.GetCustomAttributes(typeof(Function), true).Length > 0)
+                        {
+                            var attt = type.GetCustomAttribute(typeof(Function), true) as Function;
+                            if (attt.Name == funcName)
+                            {
+                                var func = System.Type.GetType(type.ToString());
+                                var inst = Activator.CreateInstance(func) as IBaseFunction;
+                                inst.SetProperties(attt.Name, attt.ExpectedArgs, attt.Invoking, attt.Sealed);
+                                if (!attt.Obsolete)
+                                    temp = (inst);
+                            }
                         }
             return temp;
         }
@@ -388,7 +411,7 @@ namespace TastyScript
                             var func = System.Type.GetType(type.ToString());
                             var inst = Activator.CreateInstance(func) as IExtension;
                             var attt = type.GetCustomAttribute(typeof(Extension), true) as Extension;
-                            inst.SetProperties(attt.Name, attt.ExpectedArgs);
+                            inst.SetProperties(attt.Name, attt.ExpectedArgs,attt.Invoking);
                             if (!attt.Obsolete)
                                 temp.Add(inst);
                         }

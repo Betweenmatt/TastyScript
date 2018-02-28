@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using TastyScript.Lang.Func;
 
 namespace TastyScript.Lang.Token

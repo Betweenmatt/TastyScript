@@ -8,26 +8,46 @@ namespace TastyScript.Lang.Func
     {
         string Name { get; }
         TParameter Arguments { get; set; }
-        void SetProperties(string name, string[] args);
+        bool Invoking { get; }
+        void SetProperties(string name, string[] args, bool invoking = false);
+        void SetInvokeProperties(TParameter args);
+        TParameter GetInvokeProperties();
     }
     [Serializable]
     public class BaseExtension : IExtension
     {
         public string Name { get; protected set; }
         public string[] ExpectedArgs { get; protected set; }
-        public TParameter ProvidedArgs { get; protected set; }
+        //public TParameter ProvidedArgs { get; protected set; }
         public TParameter Arguments { get; set; }
+        public bool Invoking { get; protected set; }
+        private TParameter invokeProperties;
         public virtual TParameter Extend()
         {
             return Arguments;
         }
-        public void SetProperties(string name, string[] args)
+        public void SetProperties(string name, string[] args, bool invoking = false)
         {
             Name = name;
             ExpectedArgs = args;
+            Invoking = invoking;
+        }
+        public void SetInvokeProperties(TParameter args)
+        {
+            invokeProperties = args;
+        }
+        public TParameter GetInvokeProperties()
+        {
+            return invokeProperties;
         }
     }
 
+    [Extension("Print", new string[] { "type" }),Serializable]
+    public class ExtensionPrint : BaseExtension { }
+    [Extension("Stop"),Serializable]
+    public class ExtensionStop : BaseExtension { }
+    [Extension("Start"),Serializable]
+    public class ExtensionStart : BaseExtension { }
     [Extension("Concat", new string[] { "string" })]
     [Serializable]
     public class ExtensionConcat : BaseExtension { }
@@ -40,7 +60,7 @@ namespace TastyScript.Lang.Func
     [Extension("For", new string[] { "enumerator" })]
     [Serializable]
     public class ExtensionFor : BaseExtension { }
-    [Extension("Then", new string[] { "invoke" })]
+    [Extension("Then", new string[] { "invoke" }, invoking:true)]
     [Serializable]
     public class ExtensionThen : BaseExtension { }
     [Extension("Or", new string[] { "condition" })]
@@ -49,7 +69,7 @@ namespace TastyScript.Lang.Func
     [Extension("And", new string[] { "condition" })]
     [Serializable]
     public class ExtensionAnd : BaseExtension { }
-    [Extension("Else", new string[] { "invoke" })]
+    [Extension("Else", new string[] { "invoke" }, invoking: true)]
     [Serializable]
     public class ExtensionElse : BaseExtension { }
     [Extension("AddParams", new string[] { "e" }, FunctionObsolete: true)]

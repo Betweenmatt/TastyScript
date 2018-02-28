@@ -14,8 +14,18 @@ namespace TastyScript.Lang
         private List<IBaseFunction> _compileStack;
         public static Dictionary<string, string> Files;
         public static IExceptionListener ExceptionListener;
+        private static int _anonymousFunctionIndex = -1;
+        public static int AnonymousFunctionIndex
+        {
+            get
+            {
+                _anonymousFunctionIndex++;
+                return _anonymousFunctionIndex;
+            }
+        }
         public Compiler(string filename, string file, List<IBaseFunction> predefined)
         {
+            TokenParser.FunctionList = new List<IBaseFunction>();//clear this every run
             Files = new Dictionary<string, string>();
             Files.Add(filename, file);
             _compileStack = GetScopes(file, predefined);
@@ -50,8 +60,13 @@ namespace TastyScript.Lang
         private List<IBaseFunction> GetScopes(string file, List<IBaseFunction> predefined)
         {
             var temp = new List<IBaseFunction>();
+            //remove all comments
+            var commRegex = new Regex(@"#([^\n]+)$",RegexOptions.Multiline);
+            file = commRegex.Replace(file, "");
+
             //add functions first
-            var scopeRegex = new Regex(@"\bfunction\.\b([^}]*)\}");
+            var scopeRegex = new Regex(ScopeRegex(@"\bfunction\.\b"),RegexOptions.IgnorePatternWhitespace);
+            //var scopeRegex = new Regex(@"\bfunction\.\b([^}]*)\}");
             var scopes = scopeRegex.Matches(file);
             foreach (var s in scopes)
             {
@@ -59,7 +74,8 @@ namespace TastyScript.Lang
             }
             //add inherits second
             var _inheritStack = new List<IBaseFunction>();
-            var inheritRegex = new Regex(@"\boverride\.\b([^}]*)\}");
+            var inheritRegex = new Regex(ScopeRegex(@"\boverride\.\b"), RegexOptions.IgnorePatternWhitespace);
+            //var inheritRegex = new Regex(@"\boverride\.\b([^}]*)\}");
             var inherits = inheritRegex.Matches(file);
             foreach (var i in inherits)
             {
@@ -78,7 +94,12 @@ namespace TastyScript.Lang
             temp.AddRange(imports);
             return temp;
         }
-
+        //=>
+        //\boverride\.\b
+        public static string ScopeRegex(string s)
+        {
+            return @"("+s+@"([^{}]*){)([^{}]+|(?<Level>\{)| (?<-Level>\}))+(?(Level)(?!))\}";
+        }
         private void StartScope(List<IBaseFunction> list)
         {
             TokenParser p = new TokenParser(list);

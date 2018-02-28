@@ -1,6 +1,9 @@
 ﻿# ChangeLog
 
 ## v1.2.2
+* Added the `Timer()` function, as well as the `.Start()`,`.Stop()`,and `.Print()` extensions to utilize it.
+* Added a sealed flag to certain functions, to prevent them from being overridden.
+* Full support for nested anonymous functions including with passed parameters. 
 * Fixed a numer of misc issues that were hindering performance; as well as readability.
 * Added the extensions `.Then()`, `.Else()`, `.And()`, `.Or()`. The first two require invoked functions via string; the second two require conditional evaluations that return "True" or "False" `.Then()` is the only required extension for `If()`;
 * Added support for Conditional evaluations using the `If()` function. Currently, `==`, `!=`, `>`, `<`, `>=`, `<=` operators are allowed to compare two objects. `If()` comes with a number of extensions listed above.

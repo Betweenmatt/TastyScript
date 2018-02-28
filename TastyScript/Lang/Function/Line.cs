@@ -16,6 +16,8 @@ namespace TastyScript.Lang.Func
         public string Value { get; private set; }
         public Line(string value, IBaseFunction reference)
         {
+            //performance check on a line by line basis
+            //Console.WriteLine($"\t{DateTime.Now.ToString("HH:mm:ss.fff")}:\t{value}");
             Value = value;
             Tokens = Parse(value, reference);
         }
@@ -27,8 +29,8 @@ namespace TastyScript.Lang.Func
             var wscheckk = wscheck.IsMatch(value);
             if (wscheckk)
                 return temp;
-            if (value.Contains('#'))
-                value = value.Split('#')[0];
+            //if (value.Contains('#'))
+            //    value = value.Split('#')[0];
             //
             //string parsing(look for quotes)
             var stringTokenRegex = new Regex("\"([^\"\"]*)\"");
@@ -72,7 +74,7 @@ namespace TastyScript.Lang.Func
                 value = regex.Replace(value, tokenname);
             }
 
-
+            
             //
             //parameters parsing(look for parentheses)
             var paramTokenRegex = new Regex(@"\(([^()]*)\)");
@@ -94,13 +96,17 @@ namespace TastyScript.Lang.Func
                 reference.GeneratedTokens.Add(new TParameter(tokenname.Replace(" ", ""), paramlist));
                 value = value.Replace(x.ToString(), tokenname);
             }
+
             //
             //if line is variable assignment
             if (value.Contains("var "))
             {
-                CheckForVar(value, reference, val);
-                return temp;
+                value = CheckForVar(value, reference, val);
+                if (value == "")
+                    return temp;
             }
+
+
             //
             //lastly do functions and extensions
             var words = value.Split(' ');
@@ -109,7 +115,7 @@ namespace TastyScript.Lang.Func
                     return temp;
                 else
                 {
-                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException, $"Functions cannot be called without supplying arguments.", val));
+                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException, $"[113]Functions cannot be called without supplying arguments.", val));
                     return temp;
                 }
             else if (words.Length > 1)
@@ -120,17 +126,39 @@ namespace TastyScript.Lang.Func
                     var obj = TokenParser.FunctionList.FirstOrDefault(f => f.Name == stripws);
                     if (obj == null)
                     {
-                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException, $"Function {stripws} cannot be found.", val));
+                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException, $"[124]Function [{stripws}] cannot be found.", val));
                         return temp;
                     }
                     var argsname = words[1].Replace(" ", "");
                     var args = reference.GeneratedTokens.FirstOrDefault(f => f.Name == argsname);
                     if (args == null)
                     {
-                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException, $"Arguments cannot be found.", val));
+                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException, $"[131]Arguments cannot be found.", val));
                         return temp;
                     }
                     var func = new TFunction(obj.Name, obj);
+                    IBaseFunction clone = null;
+                    if (obj.Invoking)
+                    {
+                        clone = Program.CopyFunctionReference(obj.Name);
+                        var asT = args as TParameter;
+                        if (asT != null)
+                        {
+                            var invokeFuncName = asT.Value.Value[0].ToString();
+                            if (invokeFuncName.Contains("AnonymousFunction"))
+                            {
+                                var functionToInvoke = TokenParser.FunctionList.FirstOrDefault(f => f.Name == invokeFuncName);
+                                if (functionToInvoke != null)
+                                {
+                                    var argss = new TParameter("args", GetTokens(functionToInvoke.ExpectedArgs, reference, value));
+                                    clone.SetInvokeProperties(argss);
+                                    func = new TFunction(obj.Name, clone);//replace the old func with the clone
+                                }
+                            }
+                        }
+                        
+                    }
+                    
                     func.Arguments = args as TParameter;
                     func.Extensions = EvaluateExtensions(value, reference);
                     temp.Add(func);
@@ -142,12 +170,6 @@ namespace TastyScript.Lang.Func
         private List<IExtension> EvaluateExtensions(string value, IBaseFunction reference, IBaseToken homeToken = null)
         {
             string[] ext = value.Split('.');
-            if (homeToken != null)
-            {
-                var findhome = value.Split(new string[] { homeToken.Name }, StringSplitOptions.None);
-                ext = findhome[1].Split('.');
-            }
-
 
             var extensions = new List<IExtension>();
             if (ext.Length > 1)
@@ -159,7 +181,7 @@ namespace TastyScript.Lang.Func
                     var seperate = ext[x].Split(' ');
                     if (seperate.Length < 2)
                     {
-                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException, $"Extension arguments must be present.", value));
+                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException, $"[157]Extension arguments must be present.", value));
                         return extensions;
                     }
                     var extName = seperate[0].Replace(" ", "");
@@ -167,18 +189,34 @@ namespace TastyScript.Lang.Func
                     var extArgs = reference.GeneratedTokens.FirstOrDefault(f => f.Name == argsName);
                     if (extArgs == null)
                     {
-                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException, $"Unexpected error getting arguments for extension.", value));
-                        return extensions;
+                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException, $"[170]Unexpected error getting arguments for extension.", value));
                     }
                     var findExt = TokenParser.Extensions.FirstOrDefault(f => f.Name == extName);
                     if (findExt == null)
                     {
-                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException, $"Unexpected error getting arguments for extension.", value));
-                        return extensions;
+                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException, $"[176]Unexpected error getting arguments for extension.", value));
                     }
-
+                    
                     //clone the extension because it was breaking
                     var clone = DeepCopy<BaseExtension>(findExt as BaseExtension);
+                    if (clone.Invoking)
+                    {
+                        var asT = extArgs as TParameter;
+                        if (asT != null)
+                        {
+                            var invokeFuncName = asT.Value.Value[0].ToString();
+                            if (invokeFuncName.Contains("AnonymousFunction"))
+                            {
+                                var functionToInvoke = TokenParser.FunctionList.FirstOrDefault(f => f.Name == invokeFuncName);
+                                if (functionToInvoke != null)
+                                {
+                                    var args = new TParameter("args", GetTokens(functionToInvoke.ExpectedArgs, reference, value));
+                                    clone.SetInvokeProperties(args);
+                                }
+                            }
+
+                        }
+                    }
                     clone.Arguments = extArgs as TParameter;
                     extensions.Add(clone as IExtension);
                 }
@@ -186,9 +224,9 @@ namespace TastyScript.Lang.Func
             return extensions;
         }
 
-        private void CheckForVar(string value, IBaseFunction reference, string lineRef)
+        private string CheckForVar(string value, IBaseFunction reference, string lineRef)
         {
-            if(value.Contains("$var "))
+            if (value.Contains("$var "))
             {
                 var strip = value.Replace("$var ", "");
                 var assign = strip.Split('=');
@@ -212,7 +250,7 @@ namespace TastyScript.Lang.Func
                         {
                             TokenParser.GlobalVariables.Remove(varRef);
                         }
-                        return;
+                        return "";
                     }
                     var obj = reference.GeneratedTokens.FirstOrDefault(f => f.Name == stripws);
                     if (obj == null)
@@ -227,47 +265,52 @@ namespace TastyScript.Lang.Func
                     else
                         TokenParser.GlobalVariables.Add(new TVariable(leftHandAssignment, obj));
                 }
-                return;
-            }else if (value.Contains("var "))
+                return "";
+            }
+            else if (value.Contains("var "))
             {
-                var strip = value.Replace("var ", "");
-                var assign = strip.Split('=');
-                if (assign.Length != 2)
+                if (value.Contains('='))
                 {
-                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException, $"Unknown error with assignment.", lineRef));
-                }
-                var rightHandAssignment = assign[1].Replace(" ", "");
-                var leftHandAssignment = assign[0].Replace(" ", "");
-                if (rightHandAssignment == null || rightHandAssignment == "" || rightHandAssignment == " ")
-                {
-                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException, $"Unknown error with assignemnt.", lineRef));
-                }
-                else
-                {
-                    var stripws = rightHandAssignment.Replace(" ", "");
-                    var varRef = reference.VariableTokens.FirstOrDefault(f => f.Name == leftHandAssignment);
-                    if (stripws == "null")
-                    {
-                        if (varRef != null)
-                            reference.VariableTokens.Remove(varRef);
-                        return;
-                    }
-                    var obj = reference.GeneratedTokens.FirstOrDefault(f => f.Name == stripws);
-                    if (obj == null)
+                    var strip = value.Replace("var ", "");
+                    var assign = strip.Split('=');
+                    if (assign.Length != 2)
                     {
                         Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException, $"Unknown error with assignment.", lineRef));
                     }
-                    if (varRef != null)
+                    var rightHandAssignment = assign[1].Replace(" ", "");
+                    var leftHandAssignment = assign[0].Replace(" ", "");
+                    if (rightHandAssignment == null || rightHandAssignment == "" || rightHandAssignment == " ")
                     {
-                        var varAsT = varRef as TVariable;
-                        varAsT.SetValue(obj);
+                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException, $"Unknown error with assignemnt.", lineRef));
                     }
                     else
-                        reference.VariableTokens.Add(new TVariable(leftHandAssignment, obj));
+                    {
+                        var stripws = rightHandAssignment.Replace(" ", "");
+                        var varRef = reference.VariableTokens.FirstOrDefault(f => f.Name == leftHandAssignment);
+                        if (stripws == "null")
+                        {
+                            if (varRef != null)
+                                reference.VariableTokens.Remove(varRef);
+                            return "";
+                        }
+                        var obj = reference.GeneratedTokens.FirstOrDefault(f => f.Name == stripws);
+                        if (obj == null)
+                        {
+                            Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException, $"Unknown error with assignment.", lineRef));
+                        }
+                        if (varRef != null)
+                        {
+                            var varAsT = varRef as TVariable;
+                            varAsT.SetValue(obj);
+                        }
+                        else
+                            reference.VariableTokens.Add(new TVariable(leftHandAssignment, obj));
+                    }
+                    return "";
                 }
-                return;
             }
             Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException, $"Unknown error with assignment.", lineRef));
+            return "";
         }
         public static T DeepCopy<T>(T obj)
         {
@@ -296,10 +339,37 @@ namespace TastyScript.Lang.Func
         //evaluates a mathematical expression written in string format
         private double MathExpression(string expression, IBaseFunction reference, string lineReference)
         {
+            string exp = expression;
+            //get vars and params out of the expression
+            //idk if i should be checking for anon tokens, so im gunna leave this here for a while just in case
+            var tokenRegex = new Regex(@"\{AnonymousGeneratedToken*\d*\}");
+            var tokenRegexMatches = tokenRegex.Matches(exp);
+            foreach(var x in tokenRegexMatches)
+            {
+                var tok = GetTokens(new string[] { x.ToString() }, reference, lineReference);
+                var tokfirst = tok.FirstOrDefault(f => f != null);
+                if (tokfirst != null)
+                {
+                    exp = exp.Replace(x.ToString(), tokfirst.ToString());
+                }
+            }
+            var varRegex = new Regex(@"\w[A-Za-z]*\d*");
+            var varRegexMatches = varRegex.Matches(exp);
+            foreach(var x in varRegexMatches)
+            {
+                var tok = GetTokens(new string[] { x.ToString() }, reference, lineReference, true);
+                
+                var tokfirst = tok.FirstOrDefault(f => f != null);
+                if (tokfirst != null)
+                {
+                    exp = exp.Replace(x.ToString(), tokfirst.ToString());
+                }
+            }
+
             try
             {
                 DataTable table = new DataTable();
-                table.Columns.Add("expression", typeof(string), expression);
+                table.Columns.Add("expression", typeof(string), exp);
                 DataRow row = table.NewRow();
                 table.Rows.Add(row);
                 return double.Parse((string)row["expression"]);
@@ -307,7 +377,7 @@ namespace TastyScript.Lang.Func
             catch (Exception e)
             {
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
-                    $"Unexpected error with mathematical expression:\n{e.Message}",
+                    $"[331]Unexpected error with mathematical expression:\n{e.Message}",
                     lineReference));
             }
             return 0;
@@ -421,55 +491,65 @@ namespace TastyScript.Lang.Func
         /// <param name="reference"></param>
         /// <param name="val"></param>
         /// <returns></returns>
-        private List<IBaseToken> GetTokens(string[] arr, IBaseFunction reference, string val)
+        private List<IBaseToken> GetTokens(string[] arr, IBaseFunction reference, string val, bool failsafe = false)
         {
             var temp = new List<IBaseToken>();
             foreach (var p in arr)
             {
                 IBaseToken tempvar = null;
-                var stripws = p.Replace(" ", "").Replace("(", "").Replace(")", "");
-                if (p.Contains("{AnonGeneratedToken"))
+                var stripws = p.Replace("(", "").Replace(")", "").Replace("\n","").Replace("\r","").Replace("\t","");
+                if (stripws.Contains("var "))
                 {
-                    var obj = reference.GeneratedTokens.FirstOrDefault(f => f.Name == stripws);
-                    if (obj == null)
-                    {
-                        Compiler.ExceptionListener.Throw(new ExceptionHandler($"Generated Token {stripws} could not be found.", val));
-                        return temp;
-                    }
-                    tempvar = obj;
+                    tempvar = new TString(stripws.Replace("var ", "").Replace(" ", ""), "0");
                 }
                 else
                 {
-                    var tryglob = TokenParser.GlobalVariables.FirstOrDefault(f => f.Name == stripws);
-                    if (tryglob != null)
+                    stripws = stripws.Replace(" ", "");//wait till after var declaration to strip spaces
+                    if (stripws == "" || stripws == " ")
+                        continue;
+                    if (p.Contains("{AnonGeneratedToken"))
                     {
-                        var globval = tryglob.ToString();
-                        tempvar = (new TString(tryglob.Name, globval));
-                    }
-                    var tryvar = reference.VariableTokens.FirstOrDefault(f => f.Name == stripws);
-                    if (tryvar != null)
-                    {
-                        var varval = tryvar.ToString();
-                        tempvar = (new TString(tryvar.Name, varval));
-                    }
-                    if (reference.ProvidedArgs != null)
-                    {
-                        var trypar = reference.ProvidedArgs.FirstOrDefault(f => f.Name == stripws);
-                        if (trypar != null)
+                        var obj = reference.GeneratedTokens.FirstOrDefault(f => f.Name == stripws);
+                        if (obj == null)
                         {
-                            var parval = trypar.ToString();
-                            tempvar = (new TString(trypar.Name, parval));
+                            Compiler.ExceptionListener.Throw(new ExceptionHandler($"Generated Token {stripws} could not be found.", val));
+                            return temp;
+                        }
+                        tempvar = obj;
+                    }
+                    else
+                    {
+                        var tryglob = TokenParser.GlobalVariables.FirstOrDefault(f => f.Name == stripws);
+                        if (tryglob != null)
+                        {
+                            var globval = tryglob.ToString();
+                            tempvar = (new TString(tryglob.Name, globval));
+                        }
+                        var tryvar = reference.VariableTokens.FirstOrDefault(f => f.Name == stripws);
+                        if (tryvar != null)
+                        {
+                            var varval = tryvar.ToString();
+                            tempvar = (new TString(tryvar.Name, varval));
+                        }
+                        if (reference.ProvidedArgs != null)
+                        {
+                            var trypar = reference.ProvidedArgs.FirstOrDefault(f => f.Name == stripws);
+                            if (trypar != null)
+                            {
+                                var parval = trypar.ToString();
+                                tempvar = (new TString(trypar.Name, parval));
+                            }
+                        }
+                        var tryfunc = TokenParser.FunctionList.FirstOrDefault(f => f.Name == stripws);
+                        if (tryfunc != null)
+                        {
+                            tempvar = (tryfunc);
                         }
                     }
-                    var tryfunc = TokenParser.FunctionList.FirstOrDefault(f => f.Name == stripws);
-                    if (tryfunc != null)
-                    {
-                        tempvar = (tryfunc);
-                    }
                 }
-                if (tempvar == null)
+                if (tempvar == null && !failsafe)
                     Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException,
-                        $"Unknown variable [{stripws}] found.", val));
+                        $"[503]Unknown variable [{stripws}] found.", val));
                 temp.Add(tempvar);
             }
             return temp;
