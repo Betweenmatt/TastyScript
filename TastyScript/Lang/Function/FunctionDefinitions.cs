@@ -261,7 +261,11 @@ namespace TastyScript.Lang.Func
     public class FunctionTimer : FunctionDefinitions<object>
     {
         private static Stopwatch _watch;
-        
+        public static void TimerStop()
+        {
+            if (_watch != null)
+                _watch.Stop();
+        }
         public override object CallBase(TParameter args)
         {
             //find extensions
@@ -566,6 +570,16 @@ namespace TastyScript.Lang.Func
         protected override void ForExtension(TParameter args, ExtensionFor findFor, string lineval)
         {
             Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"Cannot call 'For' on {this.Name}.", LineValue));
+        }
+    }
+    [Function("GuaranteedHalt",isSealed:true)]
+    public class FunctionGuaranteedHalt : FunctionDefinitions<object>
+    {
+        public override object CallBase(TParameter args)
+        {
+            FunctionTimer.TimerStop();
+
+            return args;
         }
     }
     [Function("Halt")]

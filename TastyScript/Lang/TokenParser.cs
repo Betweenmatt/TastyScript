@@ -17,6 +17,7 @@ namespace TastyScript.Lang
         public static List<IBaseToken> GlobalVariables;
         //saving the halt function for later calling
         public static IBaseFunction HaltFunction;
+        public static IBaseFunction GuaranteedHaltFunction;
         public static List<IExtension> Extensions = new List<IExtension>();
         public static bool Stop;
 
@@ -39,6 +40,7 @@ namespace TastyScript.Lang
             var startScope = FunctionList.FirstOrDefault(f => f.Name == "Start");
             var awakeScope = FunctionList.FirstOrDefault(f => f.Name == "Awake");
             HaltFunction = FunctionList.FirstOrDefault(f => f.Name == "Halt");
+            GuaranteedHaltFunction = FunctionList.FirstOrDefault(f => f.Name == "GuaranteedHalt");
 
             if (awakeScope != null)
             {

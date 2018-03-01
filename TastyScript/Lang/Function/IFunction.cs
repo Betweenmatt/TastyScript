@@ -99,6 +99,13 @@ namespace TastyScript.Lang.Func
             //
             Value = value;
             Name = value.Split('.')[1].Split('(')[0];
+            var b = Compiler.PredefinedList.FirstOrDefault(f => f.Name == Name);
+            if (b != null)
+                if (b.Sealed == true)
+                {
+                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException,
+                        $"Invalid Operation. Cannot create a new instance of a Sealed function: {Name}.", value));
+                }
             ExpectedArgs = value.Split('(')[1].Split(')')[0].Split(',');
         }
         //this constructor is when function is anonomysly named

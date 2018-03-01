@@ -327,6 +327,8 @@ namespace TastyScript
             {
                 TokenParser.HaltFunction.BlindExecute = true;
                 TokenParser.HaltFunction.TryParse(null,null);
+                TokenParser.GuaranteedHaltFunction.BlindExecute = true;
+                TokenParser.GuaranteedHaltFunction.TryParse(null, null);
             }
         }
 

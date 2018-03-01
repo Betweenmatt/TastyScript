@@ -14,6 +14,7 @@ namespace TastyScript.Lang
         private List<IBaseFunction> _compileStack;
         public static Dictionary<string, string> Files;
         public static IExceptionListener ExceptionListener;
+        public static List<IBaseFunction> PredefinedList;
         public static List<LoopTracer> LoopTracerList;
         private static int _anonymousFunctionIndex = -1;
         public static int AnonymousFunctionIndex
@@ -32,7 +33,7 @@ namespace TastyScript.Lang
             Files.Add(filename, file);
             _compileStack = GetScopes(file, predefined);
             _compileStack.AddRange(predefined);
-
+            PredefinedList = predefined;
             StartScope(_compileStack);
         }
 
