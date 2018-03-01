@@ -6,6 +6,10 @@
 * Fixed the issue where objects such as DateTime were having their instance referenced, instead of their return data.
 * Reduced typeing to objects, functions, and parameters instead of string/number/variable etc.
 
+* Added a sealed, un-callable function `GuaranteedHalt()` which will be used to dispose of some memory leaking objects that may be created by the user. `GuaranteedHalt()` is called after `Halt()` completes.
+* Fixed an issue where functions inside `Halt()` were not being passed a blind execute flag, and as a result were not being parsed.
+* `CheckScreen()` is now done on another thread, but will still block the main thread until complete or timed out(30 seconds)
+* Fixed an issue where `Sleep()` was not being cancelled when halting the script.
 * Added support for absolute/relative paths in @imports and ImageChecks, as well as pre-set directories.
 * Fixed an issue where variables couldnt be set as other variables. 
 * Fixed some performance issues with `CheckScreen()`.

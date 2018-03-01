@@ -75,8 +75,11 @@ namespace TastyScript.Lang.Func
         public virtual T CallBase(TParameter args) { return default(T); }
         public override void TryParse(TParameter args, IBaseFunction caller, string lineval = "{0}")
         {
-            if(caller != null)
+            if (caller != null)
+            {
+                BlindExecute = caller.BlindExecute;
                 Tracer = caller.Tracer;
+            }
             LineValue = lineval;
             var findFor = Extensions.FirstOrDefault(f => f.Name == "For") as ExtensionFor;
             if (findFor != null)
@@ -116,7 +119,10 @@ namespace TastyScript.Lang.Func
         public override void TryParse(TParameter args, bool forFlag, IBaseFunction caller, string lineval = "{0}")
         {
             if (caller != null)
+            {
+                BlindExecute = caller.BlindExecute;
                 Tracer = caller.Tracer;
+            }
             LineValue = lineval;
             if (args != null)
             {
@@ -156,7 +162,9 @@ namespace TastyScript.Lang.Func
 
             }
             else if (TokenParser.Stop && BlindExecute)
+            {
                 return CallBase(args);
+            }
             
             return default(T);
 
@@ -229,7 +237,25 @@ namespace TastyScript.Lang.Func
             }
             if (failPath != null)
             {
-                FunctionHelpers.AndroidCheckScreen(succPath.ToString(), failPath.ToString(), sf, ff,thresh);
+                try
+                {
+                    AnalyzeScreen ascreen = new AnalyzeScreen();
+                    ascreen.Analyze(succPath.ToString(), failPath.ToString(),
+                        () => { sf.TryParse(null, this); },
+                        () => { ff.TryParse(null, this); },
+                        thresh
+                    );
+                }
+                catch (Exception e)
+                {
+                    if (e is System.IO.FileNotFoundException)
+                    {
+                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.DriverException,
+                            $"File could not be found: {succPath.ToString()}, {failPath.ToString()}"));
+                    }
+                    Console.WriteLine(e);
+                    Compiler.ExceptionListener.Throw(new ExceptionHandler(""));
+                }
             }
             else
             {
@@ -326,7 +352,7 @@ namespace TastyScript.Lang.Func
     {
         public override object CallBase(TParameter args)
         {
-            var tracer = Compiler.LoopTracerList.LastOrDefault();
+            var tracer = Compiler.LoopTracerStack.LastOrDefault();
             if (tracer != null)
                 tracer.SetContinue(true);
             else
@@ -339,7 +365,7 @@ namespace TastyScript.Lang.Func
     {
         public override object CallBase(TParameter args)
         {
-            var tracer = Compiler.LoopTracerList.LastOrDefault();
+            var tracer = Compiler.LoopTracerStack.LastOrDefault();
             if (tracer != null)
                 tracer.SetBreak(true);
             else
@@ -368,7 +394,7 @@ namespace TastyScript.Lang.Func
                 if (forNumberAsNumber == 0)
                     forNumberAsNumber = int.MaxValue;
                 LoopTracer tracer = new LoopTracer();
-                Compiler.LoopTracerList.Add(tracer);
+                Compiler.LoopTracerStack.Add(tracer);
                 Tracer = tracer;
                 for (var x = 0; x <= forNumberAsNumber; x++)
                 {
@@ -397,19 +423,19 @@ namespace TastyScript.Lang.Func
                         {
                             passed = new TParameter("Loop", new List<IBaseToken>() { new TObject("enumerator", x.ToString()) });
                         }
-                        func.TryParse(passed,this);
+                        func.TryParse(passed,this,LineValue);
                     }
                     else
                     {
                         break;
                     }
                 }
-                Compiler.LoopTracerList.Remove(tracer);
+                Compiler.LoopTracerStack.Remove(tracer);
                 tracer = null;
             }else
             {
                 LoopTracer tracer = new LoopTracer();
-                Compiler.LoopTracerList.Add(tracer);
+                Compiler.LoopTracerStack.Add(tracer);
                 Tracer = tracer;
                 var x = 0;
                 while (true)
@@ -439,7 +465,7 @@ namespace TastyScript.Lang.Func
                         {
                             passed = new TParameter("Loop", new List<IBaseToken>() { new TObject("enumerator", x.ToString()) });
                         }
-                        func.TryParse(passed, this);
+                        func.TryParse(passed, this, LineValue);
                         x++;
                     }
                     else
@@ -447,7 +473,7 @@ namespace TastyScript.Lang.Func
                         break;
                     }
                 }
-                Compiler.LoopTracerList.Remove(tracer);
+                Compiler.LoopTracerStack.Remove(tracer);
                 tracer = null;
             }
             return args;
@@ -578,7 +604,6 @@ namespace TastyScript.Lang.Func
         public override object CallBase(TParameter args)
         {
             FunctionTimer.TimerStop();
-
             return args;
         }
     }
@@ -587,16 +612,16 @@ namespace TastyScript.Lang.Func
     {
         public override void TryParse(TParameter args, IBaseFunction caller, string lineval = "{0}")
         {
-            Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"{this.Name} can only be called by internal functions.", LineValue));
+            //Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"{this.Name} can only be called by internal functions.", LineValue));
         }
         public override object CallBase(TParameter args)
         {
-            Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"{this.Name} can only be called by internal functions.", LineValue));
+            //Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"{this.Name} can only be called by internal functions.", LineValue));
             return null;
         }
         protected override void ForExtension(TParameter args, ExtensionFor findFor, string lineval)
         {
-            Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"Cannot call 'For' on {this.Name}.", LineValue));
+            //Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"Cannot call 'For' on {this.Name}.", LineValue));
         }
     }
     [Function("Awake", FunctionObsolete: true)]
@@ -635,11 +660,11 @@ namespace TastyScript.Lang.Func
     [Function("Sleep", new string[] { "time" })]
     public class FunctionSleep : FunctionDefinitions<object>
     {
-        
         public override object CallBase(TParameter args)
         {
             var time = double.Parse((ProvidedArgs.FirstOrDefault(f => f.Name == "time") as TObject).Value.Value.ToString());
-            Thread.Sleep((int)Math.Ceiling(time));
+            //changed to utilities sleep for cancelation
+            Utilities.Sleep((int)Math.Ceiling(time));
             return args;
         }
     }

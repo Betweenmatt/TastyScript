@@ -38,6 +38,7 @@ namespace TastyScript
             Console.Title = Title;
             //on load set predefined functions and extensions to mitigate load from reflection
             predefinedFunctions = GetPredefinedFunctions();
+            Compiler.PredefinedList = predefinedFunctions;
             TokenParser.Extensions = GetExtensions();
             Compiler.ExceptionListener = new ExceptionListener();
             //
@@ -260,6 +261,7 @@ namespace TastyScript
                 Thread esc = new Thread(ListenForEscape);
                 esc.Start();
                 StartScript(path, file);
+                
             }
             catch (Exception e)
             {
@@ -327,15 +329,20 @@ namespace TastyScript
             {
                 TokenParser.HaltFunction.BlindExecute = true;
                 TokenParser.HaltFunction.TryParse(null,null);
+            }
+            if(TokenParser.GuaranteedHaltFunction != null)
+            {
                 TokenParser.GuaranteedHaltFunction.BlindExecute = true;
                 TokenParser.GuaranteedHaltFunction.TryParse(null, null);
             }
+
         }
 
         private static bool StartScript(string path, string file)
         {
             Compiler c = new Compiler(path, file, predefinedFunctions);
             TokenParser.Stop = true;
+            Thread.Sleep(2000);//sleep for 2 seconds after finishing the script
             return true;
         }
 

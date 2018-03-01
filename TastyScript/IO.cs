@@ -4,6 +4,10 @@ using TastyScript;
 
 namespace TastyScript
 {
+    /// <summary>
+    /// This is a wrapper for Console.Write/ReadLine. I changed all input to this
+    /// in case i wanted to use a different output than console.writeline later on down the road
+    /// </summary>
     public class IO
     {
         public class Output

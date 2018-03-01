@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using TastyScript.Lang.Exceptions;
 using TastyScript.Lang.Func;
 using TastyScript.Lang.Token;
@@ -16,13 +17,27 @@ namespace TastyScript.Lang
         public static double SleepDefaultTime;
         public static List<IBaseToken> GlobalVariables;
         //saving the halt function for later calling
-        public static IBaseFunction HaltFunction;
-        public static IBaseFunction GuaranteedHaltFunction;
+        public static IBaseFunction HaltFunction { get; private set; }
+        public static IBaseFunction GuaranteedHaltFunction { get; private set; }
         public static List<IExtension> Extensions = new List<IExtension>();
-        public static bool Stop;
+        private static bool _stop;
+        public static bool Stop {
+            get
+            {
+                return _stop;
+            }
+            set
+            {
+                if (value && CancellationTokenSource != null && !CancellationTokenSource.IsCancellationRequested)
+                    CancellationTokenSource.Cancel();
+                _stop = value;
+            }
+        }
+        public static CancellationTokenSource CancellationTokenSource { get; private set; }
 
         public TokenParser(List<IBaseFunction> functionList)
         {
+            CancellationTokenSource = new CancellationTokenSource();
             FunctionList.AddRange(functionList);
             GlobalVariables = new List<IBaseToken>()
             {
@@ -60,6 +75,10 @@ namespace TastyScript.Lang
             //remove the start override from the stack
             var startIndex = FunctionList.IndexOf(startScope);
             FunctionList.RemoveAt(startIndex);
+
+            //foreach (var x in FunctionList)
+            //    Console.WriteLine(x.Name);
+            //Stop = true;
 
             startScope.TryParse(null, null);
         }

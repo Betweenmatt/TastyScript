@@ -162,7 +162,10 @@ namespace TastyScript.Lang.Func
         public virtual void TryParse(TParameter args, IBaseFunction caller, string lineval = "{0}")
         {
             if (caller != null)
+            {
+                BlindExecute = caller.BlindExecute;
                 Tracer = caller.Tracer;
+            }
             LineValue = lineval;
             var findFor = Extensions.FirstOrDefault(f => f.Name == "For") as ExtensionFor;
             if (findFor != null)
@@ -192,7 +195,10 @@ namespace TastyScript.Lang.Func
         public virtual void TryParse(TParameter args, bool forFlag, IBaseFunction caller, string lineval = "{0}")
         {
             if (caller != null)
+            {
+                BlindExecute = caller.BlindExecute;
                 Tracer = caller.Tracer;
+            }
             LineValue = lineval;
             if (args != null)
             {
@@ -224,7 +230,10 @@ namespace TastyScript.Lang.Func
                             TryParseMember(token, line.Value);
                     }
                     else if (TokenParser.Stop && BlindExecute)
+                    {
+                        //Console.WriteLine($"\t{DateTime.Now.ToString("HH:mm:ss.fff")}:\t{token.Name}");
                         TryParseMember(token, line.Value);
+                    }
                 }
             }
             return default(T);
@@ -285,13 +294,15 @@ namespace TastyScript.Lang.Func
         protected virtual void ForExtension(TParameter args, ExtensionFor findFor, string lineval)
         {
             TParameter forNumber = findFor.Extend();
-           int forNumberAsNumber = int.Parse(forNumber.Value.Value[0].ToString());
+            int forNumberAsNumber = int.Parse(forNumber.Value.Value[0].ToString());
             LoopTracer tracer = new LoopTracer();
-            Compiler.LoopTracerList.Add(tracer);
+            Compiler.LoopTracerStack.Add(tracer);
             Tracer = tracer;
-            if (forNumberAsNumber != 0)
+            if (forNumberAsNumber <= 0)
+                forNumberAsNumber = int.MaxValue;
+            for (var x = 0; x < forNumberAsNumber; x++)
             {
-                for (var x = 0; x < forNumberAsNumber; x++)
+                if (!TokenParser.Stop)
                 {
                     if (tracer.Break)
                     {
@@ -302,27 +313,15 @@ namespace TastyScript.Lang.Func
                         tracer.SetContinue(false);//reset continue
                         continue;
                     }
-                    if (!TokenParser.Stop)
-                        TryParse(args, true, this, lineval);
-                }
-            }
-            else
-            {
-                while (!TokenParser.Stop)
-                {
-                    if (tracer.Break)
-                    {
-                        break;
-                    }
-                    if (tracer.Continue)
-                    {
-                        tracer.SetContinue(false);//reset continue
-                        continue;
-                    }
+
                     TryParse(args, true, this, lineval);
                 }
+                else
+                {
+                    break;
+                }
             }
-            Compiler.LoopTracerList.Remove(tracer);
+            Compiler.LoopTracerStack.Remove(tracer);
             tracer = null;
         }
         public string ValueToString()
