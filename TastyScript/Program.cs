@@ -26,7 +26,7 @@ namespace TastyScript
         private static CancellationTokenSource _cancelSource;
         private static string _quickDirectory;
         private static string _consoleCommand = "";
-        private static bool _remoteActive;
+        private static bool _remoteActive; 
 
         static void Main(string[] args) 
         {
@@ -43,7 +43,6 @@ namespace TastyScript
             Compiler.ExceptionListener = new ExceptionListener();
             //
             IO.Output.Print(WelcomeMessage());
-            //WaitForCommand();
             NewWaitForCommand();
         }
         private static void StartRemote()
@@ -462,7 +461,7 @@ namespace TastyScript
                 $"\nAforge - www.aforge.net\nSharpADB - https://github.com/quamotion/madb \n\n" + 
                 $"Enter -h for a list of commands!\n";
         }
-        // /*
+        
         public static void TcpListen()
         {
             const string Url = "http://localhost:8080/";
@@ -473,7 +472,6 @@ namespace TastyScript
                 while (_remoteActive) { };
             }
         }
-        //this is not fully funcitonal yet
         private static void ConfigureApplication(IAppBuilder app)
         {
             app.Use((ctx, next) =>
@@ -501,6 +499,5 @@ namespace TastyScript
                 
             });
         }
-        //*/
     }
 }
