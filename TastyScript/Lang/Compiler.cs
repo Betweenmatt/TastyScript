@@ -44,17 +44,24 @@ namespace TastyScript.Lang
                 var file = x.Split(';')[0];
                 if (file != "")
                 {
-                    try
+                    var path = file.Replace("\'", "").Replace("\"", "");
+                    if (!Files.ContainsKey(path))
                     {
-                        var path = file.Replace("\'", "").Replace("\"", "");
-                        var fileContents = Program.GetFileFromPath(path);
-                        Files.Add(path, fileContents);
-                        //add functions first
-                        temp.AddRange(GetScopes(fileContents, predefined));
-                    }
-                    catch 
+                        try
+                        {
+                            var fileContents = Program.GetFileFromPath(path);
+                            Files.Add(path, fileContents);
+                            //add functions first
+                            temp.AddRange(GetScopes(fileContents, predefined));
+                        }
+                        catch
+                        {
+                            Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException, $"Error importing {file}."));
+                        }
+                    }else
                     {
-                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException, $"Error importing {file}."));
+                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException,
+                            $"Cannot import file: {path} because it has already been imported", file));
                     }
                 }
             }
