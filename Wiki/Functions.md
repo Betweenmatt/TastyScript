@@ -1,9 +1,9 @@
 # Table of Contents
 * [AppPackage](#apppackage)
-* [Back (deprecated v1.2.1)](#back)
 * [CheckScreen](#checkscreen)
 * [ConnectDevice](#connectdevice)
 * [KeyEvent](#keyevent)
+* [If](#if)
 * [Loop](#loop)
 * [LongTouch](#longtouch)
 * [Print](#print)
@@ -22,7 +22,7 @@
 :---:|:---:|:---:|:---:
 *Expected Arguments* | *PackageName*(string) | 
 *Extensions* |  | 
-*Override* | true | 
+*Override* | sealed | 
 #### Description
 Sets the current App Package. When an App Package has been set, the Driver commands will not be sent if the App Package is not the current focus. This must be called after the `ConnectDevice()` function.
 
@@ -32,30 +32,13 @@ Sets the current App Package. When an App Package has been set, the Driver comma
 
 ---
 
-## Back
-***Deprecated in v1.2.1***
-
- Back() | | | |
-:---:|:---:|:---:|:---:
-*Expected Arguments* |  | 
-*Extensions* | [.For()](/Wiki/Extensions.md#for) | 
-*Override* | true | 
-#### Description
-Touches the Android Back button. ***Pending obsolete:** will soon be replaced with a single KeyEvent function that requires a key as the argument*.
-
-*Edit*: This is replaced with `KeyEvent()` in v1.2.1
-#### Examples
-`Back();`
-
----
-
 ## CheckScreen
-CheckScreen(*SuccessPath*, *SuccessFunction*, *FailFunction* ) | CheckScreen(*SuccessPath*, *SuccessPath*, *SuccessFunction*, *FailFunction* ) | | | |
+CheckScreen( *SuccessFunction*, *FailFunction*,*SuccessPath* ) | CheckScreen(*SuccessFunction*, *FailFunction*,*SuccessPath*, *SuccessPath* ) | | | |
 :---:|:---:|:---:|:---:|:---:
-*Expected Arguments* | *SuccessPath*(string) | *SuccessFunction*(string) | *FailFunction*(string) |
-*Overload*| *SuccessPath*(string) | *FailPath*(string) | *SuccessFunction*(string) | *FailFunction*(string)
+*Expected Arguments* | *SuccessFunction*(string) | *FailFunction*(string) | *SuccessPath*(string) |
+*Overload* | *SuccessFunction*(string) | *FailFunction*(string) | *SuccessPath*(string) | *FailPath*(string) 
 *Extensions* | [.For()](/Wiki/Extensions.md#for) | [.Threshold()](/Wiki/Extensions.md#threshold) | |
-*Override* | true | | |
+*Override* | sealed | | |
 
 #### Description
 Takes a screenshot of the current device, and compares it to the image at the *SuccessPath*. If the screenshot passes the threshold, Invoke *SuccessFunction*; else Invoke *FailFunction*.
@@ -64,7 +47,7 @@ Use the overload to include a fail-check image to compare against. If the image 
 #### Examples
 ```
 function.Example(){
-    CheckScreen("img/test1.png", "SuccessFunction", "FailFunction");
+    CheckScreen("SuccessFunction", "FailFunction", "img/test1.png");
 }
 function.SuccessFunction(){
     PrintLine("Succeeded!");
@@ -72,6 +55,16 @@ function.SuccessFunction(){
 function.FailFunction(){
     PrintLine("Failed!");
 }
+
+#lambda expression example
+function.Example(){
+    CheckScreen(=>(){
+            PrintLine("Succeeded!");
+        },=>(){
+            PrintLine("Failed!");
+        }, "img/test1.png");
+}
+
 ```
 
 ---
@@ -81,12 +74,60 @@ ConnectDevice(*SerialNumber*) | | | |
 :---:|:---:|:---:|:---:
 *Expected Arguments* | *SerialNumber*(string) |  |
 *Extensions* |  |  | 
-*Override* | true | |
+*Override* | sealed | |
 #### Description
 Connects to the first device found with the given *SerialNumber*.
 #### Examples
 `ConnectDevice("DEVICE");`
 
+
+---
+
+## If
+If(*Conditional*) | | | | |
+:---:|:---:|:---:|:---:|:---:
+*Expected Arguments* | *Conditional*(string) |  | |
+*Extensions* | [.And()](/Wiki/Extensions.md#and) | [.Or()](/Wiki/Extensions.md#or) | [.Then()](/Wiki/Extensions.md#then) | [.Else()](/Wiki/Extensions.md#else)  |
+*Override* | sealed | |
+#### Description
+Evaluates the conditional statement, and chooses the invoking extension `.Then()` or `.Else()` based on the result. `.Then()` is the only required extension for this function.
+
+You can use the extensions `.And()` and `.Or()` to narrow down your conditional.
+
+The conditional statement evaluates an expression based on the operator, and results in a bool `True` or `False`, which are represented to the compiler as a string. If you wish to create an always passing conditional, pass `"True"` or `"False"` as your conditional. The currently allowed operators are `==` `!=` `>=` `<=` `<` `>`
+#### Examples
+```
+override.Start(){
+    Loop(=>(var i){
+        var even = [i % 2];
+        If(even == 0)
+            .Then(=>(){
+                PrintLine("This iteration is even");
+            });     
+    });
+
+    Loop(=>(var i){
+        var even = [i % 2];
+        If(even != 0).And(i > 100)
+            .Then(=>(){
+                PrintLine("This iteration is odd");
+                PrintLine("And the iteration is above 100");
+            });     
+    });
+
+    Loop(=>(var i){
+        var even = [i % 2];
+        If(even != 0).Or(i < 9)
+            .Then(=>(){
+                PrintLine("This iteration is odd");
+                PrintLine("Or the iteration is less than 9");
+            }).Else(=>(){
+                PrintLine("This iteration is even");
+                PrintLine("Or the iteration is greater than 9");
+            });     
+    });
+}
+```
 
 ---
 
@@ -115,9 +156,12 @@ Loop(*Function*) | | | |
 :---:|:---:|:---:|:---:
 *Expected Arguments* | *Function*(string) |  |
 *Extensions* | [.For()](/Wiki/Extensions.md#for) |  | 
-*Override* | false | |
+*Override* | sealed | |
 #### Description
 Loops the invoked *Function*. For extension is required. The invoked function *must* have at least one parameter to use this function!
+
+**NEW:** in 1.2.2, you can use the functions `Break()` to break away from the current loop, or `Continue()` to skip the rest of the current iteration; moving on to the next.
+
 #### Examples
 ```
 function.Example(){
@@ -125,6 +169,18 @@ function.Example(){
 }
 function.LoopFunction(i){
     PrintLine("Iteration: ").Concat(i);
+}
+
+#lambda example
+function.Example(){
+    Loop(=>(var i){
+        PrintLine("Iteration: ").Concat(i);
+        If(i > 10)
+            .Then(=>(){
+                #breaks the loop on the 11th iteration
+                Break();
+            });
+    });
 }
 ```
 
@@ -201,7 +257,7 @@ SetDefaultSleep(*Sleep*) | | | |
 :---:|:---:|:---:|:---:
 *Expected Arguments* | *Sleep*(number) |  |
 *Extensions* |  |  | 
-*Override* | false | |
+*Override* | true | |
 #### Description
 Sets the default sleep timer to the number (in milliseconds) provided *Sleep*. Script default is set at 1200.
 #### Examples
@@ -244,7 +300,7 @@ Swipes the currently connected device at the given location for *Duration* amoun
 :---:|:---:|:---:|:---:
 *Expected Arguments* | *Path*(string) |
 *Extensions* | [.For()](/Wiki/Extensions.md#for) | 
-*Override* | true | 
+*Override* | sealed | 
 #### Description
 Takes a screenshot of the connected device, and saves it to the path provided. *Path given must use the file extension '.png'*
 #### Examples
