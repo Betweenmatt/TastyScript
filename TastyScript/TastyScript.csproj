@@ -112,6 +112,7 @@
     <Compile Include="Lang\Function\Line.cs" />
     <Compile Include="Lang\TokenParser.cs" />
     <Compile Include="Lang\Token\IToken.cs" />
+    <Compile Include="Lang\Utilities.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Settings.Designer.cs">

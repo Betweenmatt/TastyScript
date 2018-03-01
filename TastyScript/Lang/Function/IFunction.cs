@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using TastyScript.Lang.Exceptions;
 using TastyScript.Lang.Token;
 
@@ -15,8 +17,13 @@ namespace TastyScript.Lang.Func
         IBaseFunction Base { get; }
         string LineValue { get; }
         bool BlindExecute { get; set; }
-        void TryParse(TParameter args, string lineval = "{0}");
-        void SetProperties(string name, string[] args);
+        LoopTracer Tracer { get; }
+        bool Invoking { get; }
+        TParameter GetInvokeProperties();
+        void SetInvokeProperties(TParameter args);
+        void TryParse(TParameter args, IBaseFunction caller, string lineval = "{0}");
+        void SetProperties(string name, string[] args, bool invoking, bool isSealed);
+        bool Sealed { get; }
     }
     public interface IFunction<T> : IBaseFunction
     {
@@ -25,7 +32,7 @@ namespace TastyScript.Lang.Func
     }
     public interface IOverride<T> : IFunction<T>
     {
-        IFunction<T> CallBase(TParameter args);
+        T CallBase(TParameter args);
         void TryCallBase(TParameter args);
     }
     public class AnonymousFunction<T> : IFunction<T>
@@ -33,6 +40,7 @@ namespace TastyScript.Lang.Func
         public string Name { get; protected set; }
         public string Value { get; private set; }
         public string[] ExpectedArgs { get; set; }
+        public bool Locked { get; protected set; }
         public List<IBaseToken> ProvidedArgs { get; set; }
         public List<IBaseToken> GeneratedTokens { get; set; }
         public TParameter Arguments { get; set; }
@@ -43,7 +51,11 @@ namespace TastyScript.Lang.Func
         public string LineValue { get; protected set; }
         public IBaseFunction Base { get; protected set; }
         public bool BlindExecute { get; set; }
+        protected TParameter invokeProperties;
+        public LoopTracer Tracer { get; protected set; }
         private int _generatedTokensIndex = -1;
+        public bool Invoking { get; protected set; }
+        public bool Sealed { get; private set; }
         public int GeneratedTokensIndex
         {
             get
@@ -52,37 +64,108 @@ namespace TastyScript.Lang.Func
                 return _generatedTokensIndex;
             }
         }
-        public void SetProperties(string name, string[] args)
+        public void SetInvokeProperties(TParameter args)
+        {
+            invokeProperties = args;
+        }
+        public TParameter GetInvokeProperties()
+        {
+            return invokeProperties;
+        }
+        public void SetProperties(string name, string[] args, bool invoking, bool isSealed)
         {
             Name = name;
             ExpectedArgs = args;
+            Invoking = invoking;
+            Sealed = isSealed;
         }
         public AnonymousFunction() { }
+        //standard constructor
         public AnonymousFunction(string value)
         {
             GeneratedTokens = new List<IBaseToken>();
             VariableTokens = new List<IBaseToken>();
             ProvidedArgs = new List<IBaseToken>();
+
+            //get top level anonymous functions before everything else
+            var anonRegex = new Regex(Compiler.ScopeRegex(@"=>"), RegexOptions.IgnorePatternWhitespace);
+            var anonRegexMatches = anonRegex.Matches(value);
+            foreach(var a in anonRegexMatches)
+            {
+                var func = new AnonymousFunction<object>(a.ToString(), true);
+                TokenParser.FunctionList.Add(func);
+                value = value.Replace(a.ToString(), $"\"{func.Name}\"");
+            }
+            //
             Value = value;
             Name = value.Split('.')[1].Split('(')[0];
+            var b = Compiler.PredefinedList.FirstOrDefault(f => f.Name == Name);
+            if (b != null)
+                if (b.Sealed == true)
+                {
+                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException,
+                        $"Invalid Operation. Cannot create a new instance of a Sealed function: {Name}.", value));
+                }
             ExpectedArgs = value.Split('(')[1].Split(')')[0].Split(',');
+        }
+        //this constructor is when function is anonomysly named
+        public AnonymousFunction(string value, bool anon)
+        {
+            GeneratedTokens = new List<IBaseToken>();
+            VariableTokens = new List<IBaseToken>();
+            ProvidedArgs = new List<IBaseToken>();
+
+            //get top level anonymous functions before everything else
+            value = value.Substring(1);
+            var anonRegex = new Regex(Compiler.ScopeRegex(@"=>"), RegexOptions.IgnorePatternWhitespace);
+            var anonRegexMatches = anonRegex.Matches(value);
+            foreach (var a in anonRegexMatches)
+            {
+                var func = new AnonymousFunction<object>(a.ToString(), true);
+                TokenParser.FunctionList.Add(func);
+                value = value.Replace(a.ToString(), $"\"{func.Name}\"");
+            }
+            Value = value;
+            Name = "AnonymousFunction"+Compiler.AnonymousFunctionIndex;
+            ExpectedArgs = value.Split('(')[1].Split(')')[0].Split(',');
+            //Name = value.Split('.')[1].Split('(')[0];
         }
         //this is the constructor used when function is an override
         public AnonymousFunction(string value, List<IBaseFunction> predefined)
         {
             GeneratedTokens = new List<IBaseToken>();
             VariableTokens = new List<IBaseToken>();
+
+            //get top level anonymous functions before everything else
+            var anonRegex = new Regex(Compiler.ScopeRegex(@"=>"), RegexOptions.IgnorePatternWhitespace);
+            var anonRegexMatches = anonRegex.Matches(value);
+            foreach (var a in anonRegexMatches)
+            {
+                var func = new AnonymousFunction<object>(a.ToString(), true);
+                TokenParser.FunctionList.Add(func);
+                value = value.Replace(a.ToString(), $"\"{func.Name}\"");
+            }
+            //
             Value = value;
             Name = value.Split('.')[1].Split('(')[0];
             ExpectedArgs = value.Split('(')[1].Split(')')[0].Split(',');
             var b = predefined.FirstOrDefault(f => f.Name == Name);
             if (b == null)
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"Unexpected error. Function failed to override: {Name}.", value));
-         
+            if (b.Sealed == true)
+            {
+                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException,
+                    $"Invalid Operation. Cannot override Sealed function: {Name}.", value));
+            }
             Base = b;
         }
-        public virtual void TryParse(TParameter args, string lineval = "{0}")
+        public virtual void TryParse(TParameter args, IBaseFunction caller, string lineval = "{0}")
         {
+            if (caller != null)
+            {
+                BlindExecute = caller.BlindExecute;
+                Tracer = caller.Tracer;
+            }
             LineValue = lineval;
             var findFor = Extensions.FirstOrDefault(f => f.Name == "For") as ExtensionFor;
             if (findFor != null)
@@ -97,29 +180,33 @@ namespace TastyScript.Lang.Func
                 ProvidedArgs = new List<IBaseToken>();
                 for (var i = 0; i < args.Value.Value.Count; i++)
                 {
-                    ProvidedArgs.Add(new TVariable(ExpectedArgs[i], args.Value.Value[i]));
+                    var exp = ExpectedArgs[i].Replace("var ", "").Replace(" ", "");
+                    ProvidedArgs.Add(new TObject(exp, args.Value.Value[i]));
                 }
             }
             var guts = Value.Split('{')[1].Split('}');
-
-            var addScolons = guts[0].Replace("\r", ";").Replace("\n", ";");
-            addScolons = addScolons.Replace(";;;", ";").Replace(";;", ";");
-            var lines = addScolons.Split(';');
+            var lines = guts[0].Split(';');
             Lines = new List<Line>();
             foreach (var l in lines)
                 Lines.Add(new Line(l, this));
             Parse(args);
         }
         //this override is when the function is called with the for extension
-        public virtual void TryParse(TParameter args, bool forFlag, string lineval = "{0}")
+        public virtual void TryParse(TParameter args, bool forFlag, IBaseFunction caller, string lineval = "{0}")
         {
+            if (caller != null)
+            {
+                BlindExecute = caller.BlindExecute;
+                Tracer = caller.Tracer;
+            }
             LineValue = lineval;
             if (args != null)
             {
                 ProvidedArgs = new List<IBaseToken>();
                 for (var i = 0; i < args.Value.Value.Count; i++)
                 {
-                    ProvidedArgs.Add(new TVariable(ExpectedArgs[i], args.Value.Value[i]));
+                    var exp = ExpectedArgs[i].Replace("var ", "").Replace(" ", "");
+                    ProvidedArgs.Add(new TObject(exp, args.Value.Value[i]));
                 }
             }
             var guts = Value.Split('{')[1].Split('}');
@@ -138,9 +225,15 @@ namespace TastyScript.Lang.Func
                 foreach (var token in line.Tokens)
                 {
                     if (!TokenParser.Stop)
-                        TryParseMember(token, line.Value);
+                    {
+                        if (Tracer == null || (!Tracer.Continue && !Tracer.Break))
+                            TryParseMember(token, line.Value);
+                    }
                     else if (TokenParser.Stop && BlindExecute)
+                    {
+                        //Console.WriteLine($"\t{DateTime.Now.ToString("HH:mm:ss.fff")}:\t{token.Name}");
                         TryParseMember(token, line.Value);
+                    }
                 }
             }
             return default(T);
@@ -148,8 +241,20 @@ namespace TastyScript.Lang.Func
         private void TryParseMember(IBaseToken t, string lineval)
         {
             if (t.Name.Contains("{AnonGeneratedToken"))
+            {
+                var trystring = t as TObject;
+                //check for anonymous function alone
+                if(trystring != null)
+                {
+                    var tryobj = TokenParser.FunctionList.FirstOrDefault(f => f.Name == trystring.ToString());
+                    if(tryobj != null)
+                    {
+                        tryobj.TryParse(null,this,lineval);
+                        return;
+                    }
+                }
                 return;
-
+            }
             if (t.Name == "Base")
             {
                 var b = Base;
@@ -163,13 +268,13 @@ namespace TastyScript.Lang.Func
                 {
                     foreach (var x in Extensions)
                     {
-                        if (x.Name == "AddParams" ||
+                        if (x.Name == "Concat" ||
                             x.Name == "Color" ||
                             x.Name == "Threshold")
                             b.Extensions.Add(x);
                     }
                 }
-                b.TryParse(t.Arguments, lineval);
+                b.TryParse(t.Arguments, this, lineval);
                 return;
             }
             var z = t as TFunction;
@@ -177,7 +282,7 @@ namespace TastyScript.Lang.Func
             {
                 z.Value.Value.Extensions = t.Extensions;
             }
-            z.Value.Value.TryParse(t.Arguments, lineval);
+            z.Value.Value.TryParse(t.Arguments, this, lineval);
             return;
         }
         /// <summary>
@@ -190,21 +295,34 @@ namespace TastyScript.Lang.Func
         {
             TParameter forNumber = findFor.Extend();
             int forNumberAsNumber = int.Parse(forNumber.Value.Value[0].ToString());
-            if (forNumberAsNumber != 0)
+            LoopTracer tracer = new LoopTracer();
+            Compiler.LoopTracerStack.Add(tracer);
+            Tracer = tracer;
+            if (forNumberAsNumber <= 0)
+                forNumberAsNumber = int.MaxValue;
+            for (var x = 0; x < forNumberAsNumber; x++)
             {
-                for (var x = 0; x < forNumberAsNumber; x++)
+                if (!TokenParser.Stop)
                 {
-                    if (!TokenParser.Stop)
-                        TryParse(args, true, lineval);
+                    if (tracer.Break)
+                    {
+                        break;
+                    }
+                    if (tracer.Continue)
+                    {
+                        tracer.SetContinue(false);//reset continue
+                        continue;
+                    }
+
+                    TryParse(args, true, this, lineval);
+                }
+                else
+                {
+                    break;
                 }
             }
-            else
-            {
-                while (!TokenParser.Stop)
-                {
-                    TryParse(args, true, lineval);
-                }
-            }
+            Compiler.LoopTracerStack.Remove(tracer);
+            tracer = null;
         }
         public string ValueToString()
         {

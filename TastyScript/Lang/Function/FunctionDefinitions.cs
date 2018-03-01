@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
@@ -17,8 +18,8 @@ namespace TastyScript.Lang.Func
         public static void Sleep(double ms)
         {
             var func = new TFunction("Sleep", TokenParser.FunctionList.FirstOrDefault(f => f.Name == "Sleep"));
-            var newArgs = new TParameter("sleep", new List<IBaseToken>() { new TNumber("sleep", ms) });
-            func.Value.Value.TryParse(newArgs);
+            var newArgs = new TParameter("sleep", new List<IBaseToken>() { new TObject("sleep", ms) });
+            func.Value.Value.TryParse(newArgs,null);
         }
         public static void AndroidTouch(int x, int y)
         {
@@ -29,30 +30,56 @@ namespace TastyScript.Lang.Func
         {
             Program.AndroidDriver.KeyEvent(Android.AndroidKeyCode.Back);
         }
+        [Obsolete]
         public static void AndroidCheckScreen(string succPath, IBaseFunction succFunc, IBaseFunction failFunc, int thresh = 90)
         {
-            AnalyzeScreen ascreen = new AnalyzeScreen();
-            ascreen.Analyze(succPath,
-                () => { succFunc.TryParse(null); },
-                () => { failFunc.TryParse(null); },
-                thresh
-            );
+            try
+            {
+                AnalyzeScreen ascreen = new AnalyzeScreen();
+                ascreen.Analyze(succPath,
+                    () => { succFunc.TryParse(null, null); },
+                    () => { failFunc.TryParse(null, null); },
+                    thresh
+                );
+            }catch(Exception e)
+            {
+                if(e is System.IO.FileNotFoundException)
+                {
+                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.DriverException,
+                        $"File could not be found: {succPath}"));
+                }
+                Console.WriteLine(e);
+                Compiler.ExceptionListener.Throw(new ExceptionHandler(""));
+            }
         }
+        [Obsolete]
         public static void AndroidCheckScreen(string succPath, string failPath, IBaseFunction succFunc, IBaseFunction failFunc, int thresh = 90)
         {
-            AnalyzeScreen ascreen = new AnalyzeScreen();
-            ascreen.Analyze(succPath, failPath,
-                () => { succFunc.TryParse(null); },
-                () => { failFunc.TryParse(null); },
-                thresh
-            );
-        }
+            try
+            {
+                AnalyzeScreen ascreen = new AnalyzeScreen();
+                ascreen.Analyze(succPath, failPath,
+                    () => { succFunc.TryParse(null, null); },
+                    () => { failFunc.TryParse(null, null); },
+                    thresh
+                );
+            }catch(Exception e)
+            {
+                Console.WriteLine(e);
+                Compiler.ExceptionListener.Throw(new ExceptionHandler(""));
+            }
+}
     }
     public class FunctionDefinitions<T> : AnonymousFunction<T>, IOverride<T>
     {
-        public virtual IFunction<T> CallBase(TParameter args) { return default(IFunction<T>); }
-        public override void TryParse(TParameter args, string lineval = "{0}")
+        public virtual T CallBase(TParameter args) { return default(T); }
+        public override void TryParse(TParameter args, IBaseFunction caller, string lineval = "{0}")
         {
+            if (caller != null)
+            {
+                BlindExecute = caller.BlindExecute;
+                Tracer = caller.Tracer;
+            }
             LineValue = lineval;
             var findFor = Extensions.FirstOrDefault(f => f.Name == "For") as ExtensionFor;
             if (findFor != null)
@@ -63,62 +90,84 @@ namespace TastyScript.Lang.Func
             }
             if (args != null)
             {
-                var arg = args.Value.Value.FirstOrDefault(f => f.Name.Contains("[]")) as TVariable;
+                var arg = args.Value.Value.FirstOrDefault(f => f.Name.Contains("[]")) as TObject;
                 var argarr = args.Value.Value.FirstOrDefault(f => f.Name.Contains("[]")) as TParameter;
                 if (argarr != null)//if arg array is multi element
                 {
                     ProvidedArgs = new List<IBaseToken>();
                     for (var i = 0; i < argarr.Value.Value.Count; i++)
                     {
-                        ProvidedArgs.Add(new TVariable(ExpectedArgs[i], argarr.Value.Value[i]));
+                        ProvidedArgs.Add(new TObject(ExpectedArgs[i], argarr.Value.Value[i]));
                     }
                 }
                 else if (arg != null)//if arg array is a single element 
                 {
                     ProvidedArgs = new List<IBaseToken>();
-                    ProvidedArgs.Add(new TVariable(ExpectedArgs[0], arg.Value.Value));
+                    ProvidedArgs.Add(new TObject(ExpectedArgs[0], arg.Value.Value));
                 }
                 else
                 {
                     ProvidedArgs = new List<IBaseToken>();
                     for (var i = 0; i < args.Value.Value.Count; i++)
                     {
-                        ProvidedArgs.Add(new TVariable(ExpectedArgs[i], args.Value.Value[i]));
+                        ProvidedArgs.Add(new TObject(ExpectedArgs[i], args.Value.Value[i]));
                     }
                 }
             }
             Parse(args);
         }
-        public override void TryParse(TParameter args, bool forFlag, string lineval = "{0}")
+        public override void TryParse(TParameter args, bool forFlag, IBaseFunction caller, string lineval = "{0}")
         {
+            if (caller != null)
+            {
+                BlindExecute = caller.BlindExecute;
+                Tracer = caller.Tracer;
+            }
             LineValue = lineval;
             if (args != null)
             {
-                var arg = args.Value.Value.FirstOrDefault(f => f.Name.Contains("[]")) as TVariable;
+                var arg = args.Value.Value.FirstOrDefault(f => f.Name.Contains("[]")) as TObject;
                 var argarr = args.Value.Value.FirstOrDefault(f => f.Name.Contains("[]")) as TParameter;
                 if (argarr != null)//if arg array is multi element
                 {
                     ProvidedArgs = new List<IBaseToken>();
                     for (var i = 0; i < argarr.Value.Value.Count; i++)
                     {
-                        ProvidedArgs.Add(new TVariable(ExpectedArgs[i], argarr.Value.Value[i]));
+                        ProvidedArgs.Add(new TObject(ExpectedArgs[i], argarr.Value.Value[i]));
                     }
                 }
                 else if (arg != null)//if arg array is a single element 
                 {
                     ProvidedArgs = new List<IBaseToken>();
-                    ProvidedArgs.Add(new TVariable(ExpectedArgs[0], arg.Value.Value));
+                    ProvidedArgs.Add(new TObject(ExpectedArgs[0], arg.Value.Value));
                 }
                 else
                 {
                     ProvidedArgs = new List<IBaseToken>();
                     for (var i = 0; i < args.Value.Value.Count; i++)
                     {
-                        ProvidedArgs.Add(new TVariable(ExpectedArgs[i], args.Value.Value[i]));
+                        ProvidedArgs.Add(new TObject(ExpectedArgs[i], args.Value.Value[i]));
                     }
                 }
             }
             Parse(args);
+        }
+
+        public override T Parse(TParameter args)
+        {
+            if (!TokenParser.Stop)
+            {
+                if (Tracer == null || (!Tracer.Continue && !Tracer.Break))
+                    return CallBase(args);
+
+            }
+            else if (TokenParser.Stop && BlindExecute)
+            {
+                return CallBase(args);
+            }
+            
+            return default(T);
+
         }
         [Obsolete("this feels too redundant",true)]
         public virtual void TryCallBase(TParameter args)
@@ -126,14 +175,10 @@ namespace TastyScript.Lang.Func
         }
     }
 
-    [Function("AppPackage", new string[] { "app" })]
+    [Function("AppPackage", new string[] { "app" }, isSealed: true)]
     public class FunctionAppPackage : FunctionDefinitions<object>
     {
-        public override object Parse(TParameter args)
-        {
-            return CallBase(args);
-        }
-        public new object CallBase(TParameter args)
+        public override object CallBase(TParameter args)
         {
             var print = "";
             var argsList = ProvidedArgs.FirstOrDefault(f => f.Name == "app");
@@ -146,14 +191,10 @@ namespace TastyScript.Lang.Func
             return args;
         }
     }
-    [Function("TakeScreenshot", new string[] { "path" })]
+    [Function("TakeScreenshot", new string[] { "path" }, isSealed: true)]
     public class FunctionTakeScreenshot : FunctionDefinitions<object>
     {
-        public override object Parse(TParameter args)
-        {
-            return CallBase(args);
-        }
-        public new object CallBase(TParameter args)
+        public override object CallBase(TParameter args)
         {
             var path = ProvidedArgs.FirstOrDefault(f => f.Name == "path");
             if (path == null)
@@ -166,14 +207,10 @@ namespace TastyScript.Lang.Func
             return args;
         }
     }
-    [Function("CheckScreen", new string[] { "succFunc", "failFunc", "succPath", "failPath" })]
+    [Function("CheckScreen", new string[] { "succFunc", "failFunc", "succPath", "failPath" }, isSealed: true)]
     public class FunctionCheckScreen : FunctionDefinitions<object>
     {
-        public override object Parse(TParameter args)
-        {
-            return CallBase(args);
-        }
-        public new object CallBase(TParameter args)
+        public override object CallBase(TParameter args)
         {
             var succFunc = ProvidedArgs.FirstOrDefault(f => f.Name == "succFunc");
             var failFunc = ProvidedArgs.FirstOrDefault(f => f.Name == "failFunc");
@@ -182,14 +219,13 @@ namespace TastyScript.Lang.Func
             if (succFunc == null || failFunc == null || succPath == null)
             {
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.NullReferenceException, $"Invoke function cannot be null.", LineValue));
-                return null;
             }
             var sf = TokenParser.FunctionList.FirstOrDefault(f => f.Name == succFunc.ToString());
             var ff = TokenParser.FunctionList.FirstOrDefault(f => f.Name == failFunc.ToString());
             if (sf == null || ff == null)
             {
-                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"Invoke function cannot be found.", LineValue));
-                return null;
+                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException,
+                    $"[198]Invoke function cannot be found.", LineValue));
             }
             //check for threshold extension
             var threshExt = Extensions.FirstOrDefault(f => f.Name == "Threshold") as ExtensionThreshold;
@@ -201,24 +237,102 @@ namespace TastyScript.Lang.Func
             }
             if (failPath != null)
             {
-                FunctionHelpers.AndroidCheckScreen(succPath.ToString(), failPath.ToString(), sf, ff,thresh);
+                try
+                {
+                    AnalyzeScreen ascreen = new AnalyzeScreen();
+                    ascreen.Analyze(succPath.ToString(), failPath.ToString(),
+                        () => { sf.TryParse(null, this); },
+                        () => { ff.TryParse(null, this); },
+                        thresh
+                    );
+                }
+                catch (Exception e)
+                {
+                    if (e is System.IO.FileNotFoundException)
+                    {
+                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.DriverException,
+                            $"File could not be found: {succPath.ToString()}, {failPath.ToString()}"));
+                    }
+                    Console.WriteLine(e);
+                    Compiler.ExceptionListener.Throw(new ExceptionHandler(""));
+                }
             }
             else
             {
-                FunctionHelpers.AndroidCheckScreen(succPath.ToString(), sf, ff,thresh);
+                try
+                {
+                    AnalyzeScreen ascreen = new AnalyzeScreen();
+                    ascreen.Analyze(succPath.ToString(),
+                        () => { sf.TryParse(null, this); },
+                        () => { ff.TryParse(null, this); },
+                        thresh
+                    );
+                }
+                catch (Exception e)
+                {
+                    if (e is System.IO.FileNotFoundException)
+                    {
+                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.DriverException,
+                            $"File could not be found: {succPath.ToString()}"));
+                    }
+                    Console.WriteLine(e);
+                    Compiler.ExceptionListener.Throw(new ExceptionHandler(""));
+                }
             }
 
             return args;
         }
     }
-    [Function("ConnectDevice", new string[] { "serial" })]
+    [Function("Timer",isSealed:true)]
+    public class FunctionTimer : FunctionDefinitions<object>
+    {
+        private static Stopwatch _watch;
+        public static void TimerStop()
+        {
+            if (_watch != null)
+                _watch.Stop();
+        }
+        public override object CallBase(TParameter args)
+        {
+            //find extensions
+            var tryStart = Extensions.FirstOrDefault(f => f.Name == "Start") as ExtensionStart;
+            var tryPrint = Extensions.FirstOrDefault(f => f.Name == "Print") as ExtensionPrint;
+            var tryColor = Extensions.FirstOrDefault(f => f.Name == "Color") as ExtensionColor;
+            var tryStop = Extensions.FirstOrDefault(f => f.Name == "Stop") as ExtensionStop;
+            if (tryStart != null)
+            {
+                _watch = Stopwatch.StartNew();
+            }
+            if (tryPrint != null)
+            {
+                if (_watch != null)
+                {
+                    var elapsedMs = _watch.ElapsedMilliseconds;
+                    var color = ConsoleColor.Gray;
+                    if (tryColor != null)
+                    {
+                        var colorParam = tryColor.Extend();
+                        ConsoleColor newcol = ConsoleColor.Gray;
+                        var nofail = Enum.TryParse<ConsoleColor>(colorParam.Value.Value[0].ToString(), out newcol);
+                        if (nofail)
+                            color = newcol;
+                    }
+                    IO.Output.Print(elapsedMs, color, false);
+                }
+            }
+            if (tryStop != null)
+            {
+                if(_watch != null)
+                    _watch.Stop();
+            }
+            return args;
+        }
+    }
+    [Function("ConnectDevice", new string[] { "serial" }, isSealed: true)]
     public class FunctionConnectDevice : FunctionDefinitions<object>
     {
-        public override object Parse(TParameter args)
-        {
-            return CallBase(args);
-        }
-        public new object CallBase(TParameter args)
+        
+        public override object CallBase(TParameter args)
         {
             var print = "";
             var argsList = ProvidedArgs.FirstOrDefault(f => f.Name == "serial");
@@ -233,51 +347,150 @@ namespace TastyScript.Lang.Func
             Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"Cannot call 'For' on {this.Name}.", LineValue));
         }
     }
-    [Function("Loop", new string[] { "invoke" })]
+    [Function("Continue",isSealed:true)]
+    public class FunctionContinue : FunctionDefinitions<object>
+    {
+        public override object CallBase(TParameter args)
+        {
+            var tracer = Compiler.LoopTracerStack.LastOrDefault();
+            if (tracer != null)
+                tracer.SetContinue(true);
+            else
+                Compiler.ExceptionListener.ThrowSilent(new ExceptionHandler($"Unexpected `Continue()` without a loop to trigger.", LineValue));
+            return args;
+        }
+    }
+    [Function("Break", isSealed: true)]
+    public class FunctionBreak : FunctionDefinitions<object>
+    {
+        public override object CallBase(TParameter args)
+        {
+            var tracer = Compiler.LoopTracerStack.LastOrDefault();
+            if (tracer != null)
+                tracer.SetBreak(true);
+            else
+                Compiler.ExceptionListener.ThrowSilent(new ExceptionHandler($"Unexpected `Break()` without a loop to trigger.", LineValue));
+            return args;
+        }
+    }
+    [Function("Loop", new string[] { "invoke" }, isSealed: true, invoking:true)]
     public class FunctionLoop : FunctionDefinitions<object>
     {
-        public override object Parse(TParameter args)
-        {
-            return CallBase(args);
-        }
-        public new object CallBase(TParameter args)
+        public override object CallBase(TParameter args)
         {
             var prov = ProvidedArgs.FirstOrDefault(f => f.Name == "invoke");
             if (prov == null)
-                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"Invoke function cannot be null.", LineValue));
+                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"[247]Invoke function cannot be null.", LineValue));
             var func = TokenParser.FunctionList.FirstOrDefault(f => f.Name == prov.ToString());
             if (func == null)
-                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"Invoke function cannot be null.", LineValue));
-            var findFor = Extensions.FirstOrDefault(f => f.Name == "For") as ExtensionFor;
-            if (findFor == null)
-                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"Infinite loops are not supported.", LineValue));
-            TParameter forNumber = findFor.Extend();
-            int forNumberAsNumber = int.Parse(forNumber.Value.Value[0].ToString());
-            for (var x = 0; x <= forNumberAsNumber; x++)
             {
-                //gave a string as the parameter because number was causing srs problems
-                if (!TokenParser.Stop)
-                    func.TryParse(new TParameter("Loop", new List<IBaseToken>() { new TString("Enumerator", x.ToString()) }));
+                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"[250]Invoke function cannot be null.", LineValue));
+            }
+            var findFor = Extensions.FirstOrDefault(f => f.Name == "For") as ExtensionFor;
+            if (findFor != null)
+            {
+                TParameter forNumber = findFor.Extend();
+                int forNumberAsNumber = int.Parse(forNumber.Value.Value[0].ToString());
+                if (forNumberAsNumber == 0)
+                    forNumberAsNumber = int.MaxValue;
+                LoopTracer tracer = new LoopTracer();
+                Compiler.LoopTracerStack.Add(tracer);
+                Tracer = tracer;
+                for (var x = 0; x <= forNumberAsNumber; x++)
+                {
+                    //gave a string as the parameter because number was causing srs problems
+                    if (!TokenParser.Stop)
+                    {
+                        if (tracer.Break)
+                        {
+                            break;
+                        }
+                        if (tracer.Continue)
+                        {
+                            tracer.SetContinue(false);//reset continue
+                            continue;
+                        }
+                        var passed = this.GetInvokeProperties();
+                        if (passed != null)
+                        {
+                            var getFirstElement = passed.Value.Value.ElementAtOrDefault(0);
+                            if (getFirstElement != null)
+                            {
+                                passed.Value.Value[0] = new TObject(passed.Value.Value[0].Name, x.ToString());
+                            }
+                        }
+                        else
+                        {
+                            passed = new TParameter("Loop", new List<IBaseToken>() { new TObject("enumerator", x.ToString()) });
+                        }
+                        func.TryParse(passed,this,LineValue);
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                Compiler.LoopTracerStack.Remove(tracer);
+                tracer = null;
+            }else
+            {
+                LoopTracer tracer = new LoopTracer();
+                Compiler.LoopTracerStack.Add(tracer);
+                Tracer = tracer;
+                var x = 0;
+                while (true)
+                {
+                    //gave a string as the parameter because number was causing srs problems
+                    if (!TokenParser.Stop)
+                    {
+                        if (tracer.Break)
+                        {
+                            break;
+                        }
+                        if (tracer.Continue)
+                        {
+                            tracer.SetContinue(false);//reset continue
+                            continue;
+                        }
+                        var passed = this.GetInvokeProperties();
+                        if (passed != null)
+                        {
+                            var getFirstElement = passed.Value.Value.ElementAtOrDefault(0);
+                            if (getFirstElement != null)
+                            {
+                                passed.Value.Value[0] = new TObject(passed.Value.Value[0].Name, x.ToString());
+                            }
+                        }
+                        else
+                        {
+                            passed = new TParameter("Loop", new List<IBaseToken>() { new TObject("enumerator", x.ToString()) });
+                        }
+                        func.TryParse(passed, this, LineValue);
+                        x++;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                Compiler.LoopTracerStack.Remove(tracer);
+                tracer = null;
             }
             return args;
         }
         //stop the base for looping extension from overriding this custom looping function
         protected override void ForExtension(TParameter args, ExtensionFor findFor, string lineval)
         {
-            TryParse(args, false, lineval);
+            TryParse(args, false, this, lineval);
         }
     }
     [Function("SetDefaultSleep", new string[] { "sleep" })]
     public class FunctionSetDefaultSleep : FunctionDefinitions<object>
     {
-        public override object Parse(TParameter args)
+        public override object CallBase(TParameter args)
         {
-            return CallBase(args);
-        }
-        public new object CallBase(TParameter args)
-        {
-            var sleep = (ProvidedArgs.FirstOrDefault(f => f.Name == "sleep") as TVariable).Value.Value as TNumber;
-            double sleepnum = sleep.Value.Value;
+            var sleep = (ProvidedArgs.FirstOrDefault(f => f.Name == "sleep") as TObject);
+            double sleepnum = double.Parse(sleep.ToString());
             TokenParser.SleepDefaultTime = sleepnum;
             return args;
         }
@@ -286,30 +499,68 @@ namespace TastyScript.Lang.Func
             Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"Cannot call 'For' on {this.Name}.", LineValue));
         }
     }
-    [Function("If", new string[] { "bool" }, FunctionObsolete:true)]
+    [Function("If", new string[] { "bool" }, isSealed: true)]
     public class FunctionIf : FunctionDefinitions<object>
     {
-        public override object Parse(TParameter args)
-        {
-            return CallBase(args);
-        }
-        public new object CallBase(TParameter args)
+        public override object CallBase(TParameter args)
         {
             var prov = ProvidedArgs.FirstOrDefault(f => f.Name == "bool");
             if (prov == null)
-                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"Arguments cannot be null.", LineValue));
-            if (prov.ToString() == "True")
+                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException,
+                    $"Arguments cannot be null.", LineValue));
+            bool flag = (prov.ToString() == "True") ? true : false;
+            var andFlag = Extensions.FirstOrDefault(f => f.Name == "And");
+            var orFlag = Extensions.FirstOrDefault(f => f.Name == "Or");
+            
+            if (orFlag != null)
+            {
+                var orExtensions = Extensions.Where(w => w.Name == "Or");
+                foreach (var o in orExtensions)
+                {
+                    var or = o as ExtensionOr;
+                    TParameter param = or.Extend();
+                    bool paramFlag = (param.Value.Value[0].ToString() == "True") ? true : false;
+                    if (paramFlag)
+                    {
+                        flag = true;
+                        break;
+                    }
+                }
+            }
+            if (andFlag != null)
+            {
+                var andExtensions = Extensions.Where(w => w.Name == "And");
+                foreach (var a in andExtensions)
+                {
+                    var and = a as ExtensionAnd;
+                    TParameter param = and.Extend();
+                    //Console.WriteLine(param.Value.Value[0].ToString());
+                    bool paramFlag = (param.Value.Value[0].ToString() == "True") ? true : false;
+                    if (!paramFlag)
+                    {
+                        flag = false;
+                        break;
+                    }
+                }
+            }
+
+            if (flag)
             {
                 //find then extension and call it
-                var test = JsonConvert.SerializeObject(Extensions);
                 var findThen = Extensions.FirstOrDefault(f => f.Name == "Then") as ExtensionThen;
                 if (findThen != null)
                 {
                     TParameter thenFunc = findThen.Extend();
                     var func = TokenParser.FunctionList.FirstOrDefault(f => f.Name == thenFunc.Value.Value[0].ToString());
                     if (func == null)
-                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"Cannot find the invoked function.", LineValue));
-                    func.TryParse(null);
+                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException,
+                            $"Cannot find the invoked function.", LineValue));
+                    //pass in invoke properties. shouldnt break with null
+                    func.TryParse(findThen.GetInvokeProperties(), this);
+                }else
+                {
+                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, 
+                        $"[460]If function must have a Then Extension", LineValue));
                 }
             }
             else
@@ -321,8 +572,9 @@ namespace TastyScript.Lang.Func
                     TParameter elseFunc = findElse.Extend();
                     var func = TokenParser.FunctionList.FirstOrDefault(f => f.Name == elseFunc.Value.Value[0].ToString());
                     if (func == null)
-                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"Cannot find the invoked function.", LineValue));
-                    func.TryParse(null);
+                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException,
+                            $"Cannot find the invoked function.", LineValue));
+                    func.TryParse(findElse.GetInvokeProperties(), this);
                 }
             }
             return args;
@@ -331,12 +583,12 @@ namespace TastyScript.Lang.Func
     [Function("Start")]
     public class FunctionStart : FunctionDefinitions<object>
     {
-        public override void TryParse(TParameter args, string lineval = "{0}")
+        public override void TryParse(TParameter args, IBaseFunction caller, string lineval = "{0}")
         {
             Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"{this.Name} can only be called by internal functions.", LineValue));
       
         }
-        public new object CallBase(TParameter args)
+        public override object CallBase(TParameter args)
         {
             Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"{this.Name} can only be called by internal functions.", LineValue));
             return null;
@@ -344,32 +596,41 @@ namespace TastyScript.Lang.Func
         protected override void ForExtension(TParameter args, ExtensionFor findFor, string lineval)
         {
             Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"Cannot call 'For' on {this.Name}.", LineValue));
+        }
+    }
+    [Function("GuaranteedHalt",isSealed:true)]
+    public class FunctionGuaranteedHalt : FunctionDefinitions<object>
+    {
+        public override object CallBase(TParameter args)
+        {
+            FunctionTimer.TimerStop();
+            return args;
         }
     }
     [Function("Halt")]
     public class FunctionHalt : FunctionDefinitions<object>
     {
-        public override void TryParse(TParameter args, string lineval = "{0}")
+        public override void TryParse(TParameter args, IBaseFunction caller, string lineval = "{0}")
         {
-            Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"{this.Name} can only be called by internal functions.", LineValue));
+            //Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"{this.Name} can only be called by internal functions.", LineValue));
         }
-        public new object CallBase(TParameter args)
+        public override object CallBase(TParameter args)
         {
-            Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"{this.Name} can only be called by internal functions.", LineValue));
+            //Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"{this.Name} can only be called by internal functions.", LineValue));
             return null;
         }
         protected override void ForExtension(TParameter args, ExtensionFor findFor, string lineval)
         {
-            Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"Cannot call 'For' on {this.Name}.", LineValue));
+            //Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"Cannot call 'For' on {this.Name}.", LineValue));
         }
     }
     [Function("Awake", FunctionObsolete: true)]
     public class FunctionAwake : FunctionDefinitions<object>
     {
-        public override void TryParse(TParameter args, string lineval = "{0}")
+        public override void TryParse(TParameter args, IBaseFunction caller, string lineval = "{0}")
         {
         }
-        public new object CallBase(TParameter args)
+        public override object CallBase(TParameter args)
         {
             Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"{this.Name} can only be called by internal functions.", LineValue));
             return null;
@@ -379,14 +640,14 @@ namespace TastyScript.Lang.Func
             Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"Cannot call 'For' on {this.Name}.", LineValue));
         }
     }
-    [Function("Base")]
+    [Function("Base", isSealed: true)]
     public class FunctionBase : FunctionDefinitions<object>
     {
-        public override void TryParse(TParameter args, string lineval = "{0}")
+        public override void TryParse(TParameter args, IBaseFunction caller, string lineval = "{0}")
         {
             Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"{this.Name} can not be overrided", LineValue));
         }
-        public new object CallBase(TParameter args)
+        public override object CallBase(TParameter args)
         {
             Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"{this.Name} can not be overrided.", LineValue));
             return null;
@@ -399,28 +660,21 @@ namespace TastyScript.Lang.Func
     [Function("Sleep", new string[] { "time" })]
     public class FunctionSleep : FunctionDefinitions<object>
     {
-        public override object Parse(TParameter args)
+        public override object CallBase(TParameter args)
         {
-            return CallBase(args);
-        }
-        public new object CallBase(TParameter args)
-        {
-            var time = double.Parse((ProvidedArgs.FirstOrDefault(f => f.Name == "time") as TVariable).Value.Value.ToString());
-            Thread.Sleep((int)Math.Ceiling(time));
+            var time = double.Parse((ProvidedArgs.FirstOrDefault(f => f.Name == "time") as TObject).Value.Value.ToString());
+            //changed to utilities sleep for cancelation
+            Utilities.Sleep((int)Math.Ceiling(time));
             return args;
         }
     }
     [Function("Touch", new string[] { "intX", "intY", "sleep" })]
     public class FunctionTouch : FunctionDefinitions<object>
     {
-        public override object Parse(TParameter args)
+        public override object CallBase(TParameter args)
         {
-            return CallBase(args);
-        }
-        public new object CallBase(TParameter args)
-        {
-            var x = (ProvidedArgs.FirstOrDefault(f => f.Name == "intX") as TVariable);
-            var y = (ProvidedArgs.FirstOrDefault(f => f.Name == "intY") as TVariable);
+            var x = (ProvidedArgs.FirstOrDefault(f => f.Name == "intX") as TObject);
+            var y = (ProvidedArgs.FirstOrDefault(f => f.Name == "intY") as TObject);
             if (x == null || y == null)
             {
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.NullReferenceException,
@@ -435,7 +689,7 @@ namespace TastyScript.Lang.Func
             double sleep = TokenParser.SleepDefaultTime;
             if (args.Value.Value.Count > 2)
             {
-                sleep = double.Parse((ProvidedArgs.FirstOrDefault(f => f.Name == "sleep") as TVariable).Value.Value.ToString());
+                sleep = double.Parse((ProvidedArgs.FirstOrDefault(f => f.Name == "sleep") as TObject).Value.Value.ToString());
             }
             FunctionHelpers.Sleep(sleep);
             return args;
@@ -444,15 +698,11 @@ namespace TastyScript.Lang.Func
     [Function("LongTouch", new string[] { "intX", "intY", "duration", "sleep" })]
     public class FunctionLongTouch : FunctionDefinitions<object>
     {
-        public override object Parse(TParameter args)
+        public override object CallBase(TParameter args)
         {
-            return CallBase(args);
-        }
-        public new object CallBase(TParameter args)
-        {
-            var x = (ProvidedArgs.FirstOrDefault(f => f.Name == "intX") as TVariable);
-            var y = (ProvidedArgs.FirstOrDefault(f => f.Name == "intY") as TVariable);
-            var dur = (ProvidedArgs.FirstOrDefault(f => f.Name == "duration") as TVariable);
+            var x = (ProvidedArgs.FirstOrDefault(f => f.Name == "intX") as TObject);
+            var y = (ProvidedArgs.FirstOrDefault(f => f.Name == "intY") as TObject);
+            var dur = (ProvidedArgs.FirstOrDefault(f => f.Name == "duration") as TObject);
             if(x == null || y == null || dur == null)
             {
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.NullReferenceException,
@@ -468,7 +718,7 @@ namespace TastyScript.Lang.Func
             double sleep = TokenParser.SleepDefaultTime;
             if (args.Value.Value.Count > 3)
             {
-                sleep = double.Parse((ProvidedArgs.FirstOrDefault(f => f.Name == "sleep") as TVariable).Value.Value.ToString());
+                sleep = double.Parse((ProvidedArgs.FirstOrDefault(f => f.Name == "sleep") as TObject).Value.Value.ToString());
             }
             FunctionHelpers.Sleep(sleep);
             return args;
@@ -477,17 +727,13 @@ namespace TastyScript.Lang.Func
     [Function("Swipe", new string[] { "intX1", "intY1", "intX2", "intY2", "duration", "sleep" })]
     public class FunctionSwipe : FunctionDefinitions<object>
     {
-        public override object Parse(TParameter args)
+        public override object CallBase(TParameter args)
         {
-            return CallBase(args);
-        }
-        public new object CallBase(TParameter args)
-        {
-            var x1 = (ProvidedArgs.FirstOrDefault(f => f.Name == "intX1") as TVariable);
-            var y1 = (ProvidedArgs.FirstOrDefault(f => f.Name == "intY1") as TVariable);
-            var x2 = (ProvidedArgs.FirstOrDefault(f => f.Name == "intX2") as TVariable);
-            var y2 = (ProvidedArgs.FirstOrDefault(f => f.Name == "intY2") as TVariable);
-            var dur = (ProvidedArgs.FirstOrDefault(f => f.Name == "duration") as TVariable);
+            var x1 = (ProvidedArgs.FirstOrDefault(f => f.Name == "intX1") as TObject);
+            var y1 = (ProvidedArgs.FirstOrDefault(f => f.Name == "intY1") as TObject);
+            var x2 = (ProvidedArgs.FirstOrDefault(f => f.Name == "intX2") as TObject);
+            var y2 = (ProvidedArgs.FirstOrDefault(f => f.Name == "intY2") as TObject);
+            var dur = (ProvidedArgs.FirstOrDefault(f => f.Name == "duration") as TObject);
             if (x1 == null || y1 == null || x2 == null || y2 == null || dur == null)
             {
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.NullReferenceException,
@@ -505,7 +751,7 @@ namespace TastyScript.Lang.Func
             double sleep = TokenParser.SleepDefaultTime;
             if (args.Value.Value.Count > 5)
             {
-                sleep = double.Parse((ProvidedArgs.FirstOrDefault(f => f.Name == "sleep") as TVariable).Value.Value.ToString());
+                sleep = double.Parse((ProvidedArgs.FirstOrDefault(f => f.Name == "sleep") as TObject).Value.Value.ToString());
             }
             FunctionHelpers.Sleep(sleep);
             return args;
@@ -514,11 +760,7 @@ namespace TastyScript.Lang.Func
     [Function("KeyEvent",new string[] { "keyevent" })]
     public class FunctionKeyEvent : FunctionDefinitions<object>
     {
-        public override object Parse(TParameter args)
-        {
-            return CallBase(args);
-        }
-        public new object CallBase(TParameter args)
+        public override object CallBase(TParameter args)
         {
             var argsList = ProvidedArgs.FirstOrDefault(f => f.Name == "keyevent");
             if (argsList == null)
@@ -544,11 +786,7 @@ namespace TastyScript.Lang.Func
     [Function("SendText", new string[] { "s" })]
     public class FunctionSendText : FunctionDefinitions<object>
     {
-        public override object Parse(TParameter args)
-        {
-            return CallBase(args);
-        }
-        public new object CallBase(TParameter args)
+        public override object CallBase(TParameter args)
         {
             var argsList = ProvidedArgs.FirstOrDefault(f => f.Name == "s");
             if (argsList == null)
@@ -568,11 +806,7 @@ namespace TastyScript.Lang.Func
     [Function("Back")]
     public class FunctionBack : FunctionDefinitions<object>
     {
-        public override object Parse(TParameter args)
-        {
-            return CallBase(args);
-        }
-        public new object CallBase(TParameter args)
+        public override object CallBase(TParameter args)
         {
             Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException,
                 $"The function 'Back()' is depricated. Please use the command 'KeyEvent()' instead. Check out the documentation to learn more.",LineValue));
@@ -591,11 +825,6 @@ namespace TastyScript.Lang.Func
     [Function("PrintLine", new string[] { "s" })]
     public class FunctionPrintLine : FunctionDefinitions<string>
     {
-        public override string Parse(TParameter args)
-        {
-            Concat();
-            return CallBase(args);
-        }
         private List<string> concatStrings = new List<string>();
         private void Concat()
         {
@@ -611,15 +840,16 @@ namespace TastyScript.Lang.Func
                 }
             }
         }
-        public new string CallBase(TParameter args)
+        public override string CallBase(TParameter args)
         {
+            Concat();
             var print = "";
             var argsList = ProvidedArgs.FirstOrDefault(f => f.Name == "s");
             if (argsList != null)
                 print = argsList.ToString();
             //color extension check
-            var color = ConsoleColor.Gray;
             var findColorExt = Extensions.FirstOrDefault(f => f.Name == "Color") as ExtensionColor;
+            var color = ConsoleColor.Gray;
             if(findColorExt != null)
             {
                 var param = findColorExt.Extend();
@@ -628,7 +858,18 @@ namespace TastyScript.Lang.Func
                 if (nofail)
                     color = newcol;
             }
-            IO.Output.Print(print + String.Join("", concatStrings),color);
+            //try to escape, and if escaping fails fallback on the original string
+            string output = print + String.Join("", concatStrings);
+            try
+            {
+                output = System.Text.RegularExpressions.Regex.Unescape(print + String.Join("", concatStrings));
+            }
+            catch (Exception e)
+            {
+                if (!(e is ArgumentException) || !(e is ArgumentNullException))
+                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"Unexpected input: {output}", LineValue));
+            }
+            IO.Output.Print(output,color);
 
             //clear extensions after done
             concatStrings = new List<string>();
@@ -639,11 +880,6 @@ namespace TastyScript.Lang.Func
     [Function("Print", new string[] { "s" })]
     public class FunctionPrint : FunctionDefinitions<string>
     {
-        public override string Parse(TParameter args)
-        {
-            Concat();
-            return CallBase(args);
-        }
         private List<string> concatStrings = new List<string>();
         private void Concat()
         {
@@ -659,8 +895,9 @@ namespace TastyScript.Lang.Func
                 }
             }
         }
-        public new string CallBase(TParameter args)
+        public override string CallBase(TParameter args)
         {
+            Concat();
             var print = "";
             var argsList = ProvidedArgs.FirstOrDefault(f => f.Name == "s");
             if (argsList != null)
@@ -676,7 +913,19 @@ namespace TastyScript.Lang.Func
                 if (nofail)
                     color = newcol;
             }
-            IO.Output.Print(print + String.Join("", concatStrings), color, false);
+            //try to escape, and if escaping fails fallback on the original string
+            string output = print + String.Join("", concatStrings);
+            try
+            {
+                output = System.Text.RegularExpressions.Regex.Unescape(print + String.Join("", concatStrings));
+            }
+            catch (Exception e)
+            {
+                if (!(e is ArgumentException) || !(e is ArgumentNullException))
+                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"Unexpected input: {output}", LineValue));
+            }
+            IO.Output.Print(output, color,false);
+
 
             //clear extensions after done
             concatStrings = new List<string>();

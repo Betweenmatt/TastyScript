@@ -4,7 +4,6 @@
 function.Awake(){
 	ConnectDevice("YOUR DEVICE SERIAL NUMBER HERE");
 	AppPackage("com.vespainteractive.KingsRaid");
-	Sleep(2000);#you dont need this sleep, its just suppsed to slow down the initial touch burst
 	Print(DateTime);
 	PrintLine(" : Starting...");
 }
@@ -15,7 +14,7 @@ override.Halt(){
 	Print("Halted at : ");
 	PrintLine(DateTime);
 }
-#this is the accept button for the standard popup
+#this is the accept button for the standard popup in KR
 function.Accept(){
 	Touch(631, 531);
 }

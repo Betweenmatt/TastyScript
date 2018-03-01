@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using TastyScript.Lang.Exceptions;
 using TastyScript.Lang.Func;
 using TastyScript.Lang.Token;
@@ -9,25 +10,42 @@ namespace TastyScript.Lang
 {
     public class TokenParser
     {
-        public static List<IBaseFunction> FunctionList = new List<IBaseFunction>();
+        public static List<IBaseFunction> FunctionList;
         /// <summary>
         /// The default sleep timer for android commands in milliseconds
         /// </summary>
         public static double SleepDefaultTime;
-        public static List<IBaseToken> GlobalVariables = new List<IBaseToken>()
-        {
-            new TString("DateTime",()=>{return DateTime.Now.ToString(); }),
-            new TString("Date",()=>{return DateTime.Now.ToShortDateString(); }),
-            new TString("Time",()=>{return DateTime.Now.ToShortTimeString(); })
-        };
+        public static List<IBaseToken> GlobalVariables;
         //saving the halt function for later calling
-        public static IBaseFunction HaltFunction;
+        public static IBaseFunction HaltFunction { get; private set; }
+        public static IBaseFunction GuaranteedHaltFunction { get; private set; }
         public static List<IExtension> Extensions = new List<IExtension>();
-        public static bool Stop;
+        private static bool _stop;
+        public static bool Stop {
+            get
+            {
+                return _stop;
+            }
+            set
+            {
+                if (value && CancellationTokenSource != null && !CancellationTokenSource.IsCancellationRequested)
+                    CancellationTokenSource.Cancel();
+                _stop = value;
+            }
+        }
+        public static CancellationTokenSource CancellationTokenSource { get; private set; }
 
         public TokenParser(List<IBaseFunction> functionList)
         {
-            FunctionList = functionList;
+            CancellationTokenSource = new CancellationTokenSource();
+            FunctionList.AddRange(functionList);
+            GlobalVariables = new List<IBaseToken>()
+            {
+            new TObject("DateTime",()=>{return DateTime.Now.ToString(); }, locked:true),
+            new TObject("Date",()=>{return DateTime.Now.ToShortDateString(); }, locked:true),
+            new TObject("Time",()=>{return DateTime.Now.ToShortTimeString(); }, locked:true),
+            new TObject("null","null", locked:true)
+            };
             StartParse();
         }
 
@@ -37,6 +55,7 @@ namespace TastyScript.Lang
             var startScope = FunctionList.FirstOrDefault(f => f.Name == "Start");
             var awakeScope = FunctionList.FirstOrDefault(f => f.Name == "Awake");
             HaltFunction = FunctionList.FirstOrDefault(f => f.Name == "Halt");
+            GuaranteedHaltFunction = FunctionList.FirstOrDefault(f => f.Name == "GuaranteedHalt");
 
             if (awakeScope != null)
             {
@@ -44,7 +63,7 @@ namespace TastyScript.Lang
                 {
                     if (x.Name == "Awake")
                     {
-                        x.TryParse(null);
+                        x.TryParse(null,null);
                     }
                 }
             }
@@ -57,7 +76,11 @@ namespace TastyScript.Lang
             var startIndex = FunctionList.IndexOf(startScope);
             FunctionList.RemoveAt(startIndex);
 
-            startScope.TryParse(null);
+            //foreach (var x in FunctionList)
+            //    Console.WriteLine(x.Name);
+            //Stop = true;
+
+            startScope.TryParse(null, null);
         }
 
     }

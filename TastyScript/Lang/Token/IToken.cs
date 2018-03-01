@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using TastyScript.Lang.Func;
 
 namespace TastyScript.Lang.Token
 {
-    public enum Type { String, Number, Member, Extension, Parameters, Variable }
-    public enum SubType { Single, Array }
     [Serializable]
     public class TFunction : Token<IBaseFunction>
     {
@@ -19,12 +18,12 @@ namespace TastyScript.Lang.Token
         }
     }
     [Serializable]
-    public class TString : Token<string>
+    public class TObject : Token<object>
     {
         protected override string _name { get; set; }
-        protected override BaseValue<string> _value { get; set; }
+        protected override BaseValue<object> _value { get; set; }
         //override value to use action if it is not null
-        public override BaseValue<string> Value
+        public override BaseValue<object> Value
         {
             get
             {
@@ -34,68 +33,26 @@ namespace TastyScript.Lang.Token
                 }
                 else
                 {
-                    return new BaseValue<string>(_action());
+                    return new BaseValue<object>(_action());
                 }
             }
         }
-        private Func<string> _action;
-        public TString(string name, string val)
+        private Func<object> _action;
+        public TObject(string name, object val, bool locked = false)
         {
+            Locked = locked;
             _name = name;
-            _value = new BaseValue<string>(val);
+            _value = new BaseValue<object>(val);
         }
-        public TString(string name, Func<string> action)
+        public TObject(string name, Func<object> action, bool locked = false)
         {
+            Locked = locked;
             _name = name;
             _action = action;
         }
-        [Obsolete]
-        private void ApplyExtensions()
+        public void SetValue(string val)
         {
-            var extensionAdd = Extensions.FirstOrDefault(f => f.Name == "Add") as ExtensionAddParams;
-            if (extensionAdd != null)
-            {
-                TParameter test = extensionAdd.Extend();
-                string output = _value.Value;
-                foreach (var x in test.Value.Value)
-                {
-                    var asstring = x as TString;
-                    output += asstring.Value.Value;
-                }
-                _value.SetValue(output);
-            }
-        }
-    }
-    [Serializable]
-    public class TNumber : Token<double>
-    {
-        protected override string _name { get; set; }
-        protected override BaseValue<double> _value { get; set; }
-        public TNumber(string name, double val)
-        {
-            _name = name;
-            _value = new BaseValue<double>(val);
-        }
-    }
-    [Serializable]
-    public class TVariable : Token<IBaseToken>
-    {
-        protected override string _name { get; set; }
-        protected override BaseValue<IBaseToken> _value { get; set; }
-        public TVariable(string name, IBaseToken value)
-        {
-            _name = name;
-            _value = new BaseValue<IBaseToken>(value);
-        }
-    }
-    [Serializable]
-    public class TAction : Token<string>
-    {
-        protected override string _name { get; set; }
-        protected override BaseValue<string> _value { get; set; }
-        public TAction(string name, Func<string> value)
-        {
-
+            _value = new BaseValue<object>(val);
         }
     }
     [Serializable]
@@ -119,6 +76,7 @@ namespace TastyScript.Lang.Token
         public virtual BaseValue<T> Value { get { return _value; } }
         public TParameter Arguments { get; set; }
         public List<IExtension> Extensions { get; set; }
+        public bool Locked { get; protected set; }
         public override string ToString()
         {
             return Value.ToString();
@@ -128,7 +86,8 @@ namespace TastyScript.Lang.Token
             return typeof(T);
         }
     }
-    public interface IBaseToken { string Name { get; } TParameter Arguments { get; set; } System.Type GetMemberType(); List<IExtension> Extensions { get; set; } }
+    public interface IBaseToken { bool Locked { get; } string Name { get; } TParameter Arguments { get; set; } System.Type GetMemberType(); List<IExtension> Extensions { get; set; } }
+
     public interface IToken<T> : IBaseToken
     {
         BaseValue<T> Value { get; }

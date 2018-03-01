@@ -13,6 +13,7 @@ using Microsoft.Owin.Hosting;
 using Owin;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Drawing;
 
 namespace TastyScript
 {
@@ -27,7 +28,7 @@ namespace TastyScript
         private static string _consoleCommand = "";
         private static bool _remoteActive; 
 
-        static void Main(string[] args)
+        static void Main(string[] args) 
         {
             _quickDirectory = Properties.Settings.Default.dir;
             LogLevel = Properties.Settings.Default.loglevel;
@@ -37,6 +38,7 @@ namespace TastyScript
             Console.Title = Title;
             //on load set predefined functions and extensions to mitigate load from reflection
             predefinedFunctions = GetPredefinedFunctions();
+            Compiler.PredefinedList = predefinedFunctions;
             TokenParser.Extensions = GetExtensions();
             Compiler.ExceptionListener = new ExceptionListener();
             //
@@ -246,35 +248,19 @@ namespace TastyScript
             }
             IO.Output.Print("Remote Active: " + _remoteActive);
         }
+        
         private static void CommandRun(string r)
         {
             try
             {
                 var path = r.Replace("\'", "").Replace("\"", "");
-                var file = "";
-                //check if its a full path
-                if (File.Exists(path))
-                    file = System.IO.File.ReadAllText(path);
-                //check if the path is local to the app directory
-                else if (File.Exists(AppDomain.CurrentDomain.BaseDirectory + path))
-                    file = System.IO.File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + path);
-                //check for quick directory
-                else if (File.Exists(_quickDirectory + "/" + path))
-                    file = System.IO.File.ReadAllText(_quickDirectory + "/" + path);
-                //check for quick directory
-                else if (File.Exists(AppDomain.CurrentDomain.BaseDirectory + "/" + _quickDirectory + "/" + path))
-                    file = System.IO.File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "/" + _quickDirectory + "/" + path);
-                //or fail
-                else
-                {
-                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException, $"Could not find path: {path}"));
-                    return;
-                }
+                var file = GetFileFromPath(path);
                 TokenParser.SleepDefaultTime = 1200;
                 TokenParser.Stop = false;
                 Thread esc = new Thread(ListenForEscape);
                 esc.Start();
                 StartScript(path, file);
+                
             }
             catch (Exception e)
             {
@@ -341,14 +327,21 @@ namespace TastyScript
             if (TokenParser.HaltFunction != null)
             {
                 TokenParser.HaltFunction.BlindExecute = true;
-                TokenParser.HaltFunction.TryParse(null);
+                TokenParser.HaltFunction.TryParse(null,null);
             }
+            if(TokenParser.GuaranteedHaltFunction != null)
+            {
+                TokenParser.GuaranteedHaltFunction.BlindExecute = true;
+                TokenParser.GuaranteedHaltFunction.TryParse(null, null);
+            }
+
         }
 
         private static bool StartScript(string path, string file)
         {
             Compiler c = new Compiler(path, file, predefinedFunctions);
             TokenParser.Stop = true;
+            Thread.Sleep(2000);//sleep for 2 seconds after finishing the script
             return true;
         }
 
@@ -367,9 +360,32 @@ namespace TastyScript
                             var func = System.Type.GetType(type.ToString());
                             var inst = Activator.CreateInstance(func) as IBaseFunction;
                             var attt = type.GetCustomAttribute(typeof(Function), true) as Function;
-                            inst.SetProperties(attt.Name, attt.ExpectedArgs);
+                            inst.SetProperties(attt.Name, attt.ExpectedArgs,attt.Invoking,attt.Sealed);
                             if (!attt.Obsolete)
                                 temp.Add(inst);
+                        }
+            return temp;
+        }
+        //i guess a quick way to essentially deep clone base functions on demand.
+        //idk how much this will kill performance but i cant think of another way
+        public static IBaseFunction CopyFunctionReference(string funcName)
+        {
+            IBaseFunction temp = null;
+            string definedIn = typeof(Function).Assembly.GetName().Name;
+            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+                if ((!assembly.GlobalAssemblyCache) && ((assembly.GetName().Name == definedIn) || assembly.GetReferencedAssemblies().Any(a => a.Name == definedIn)))
+                    foreach (System.Type type in assembly.GetTypes())
+                        if (type.GetCustomAttributes(typeof(Function), true).Length > 0)
+                        {
+                            var attt = type.GetCustomAttribute(typeof(Function), true) as Function;
+                            if (attt.Name == funcName)
+                            {
+                                var func = System.Type.GetType(type.ToString());
+                                var inst = Activator.CreateInstance(func) as IBaseFunction;
+                                inst.SetProperties(attt.Name, attt.ExpectedArgs, attt.Invoking, attt.Sealed);
+                                if (!attt.Obsolete)
+                                    temp = (inst);
+                            }
                         }
             return temp;
         }
@@ -387,13 +403,58 @@ namespace TastyScript
                             var func = System.Type.GetType(type.ToString());
                             var inst = Activator.CreateInstance(func) as IExtension;
                             var attt = type.GetCustomAttribute(typeof(Extension), true) as Extension;
-                            inst.SetProperties(attt.Name, attt.ExpectedArgs);
+                            inst.SetProperties(attt.Name, attt.ExpectedArgs,attt.Invoking);
                             if (!attt.Obsolete)
                                 temp.Add(inst);
                         }
             return temp;
         }
-
+        /// <summary>
+        /// Checks both absolute and relative, as well as pre-set directories
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public static string GetFileFromPath(string path)
+        {
+            var file = "";
+            //check if its a full path
+            if (File.Exists(path))
+                file = System.IO.File.ReadAllText(path);
+            //check if the path is local to the app directory
+            else if (File.Exists(AppDomain.CurrentDomain.BaseDirectory + path))
+                file = System.IO.File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + path);
+            //check for quick directory
+            else if (File.Exists(_quickDirectory + "/" + path))
+                file = System.IO.File.ReadAllText(_quickDirectory + "/" + path);
+            //check for quick directory
+            else if (File.Exists(AppDomain.CurrentDomain.BaseDirectory + "/" + _quickDirectory + "/" + path))
+                file = System.IO.File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "/" + _quickDirectory + "/" + path);
+            //or fail
+            else
+            {
+                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException,
+                    $"Could not find path: {path}"));
+            }
+            return file;
+        }
+        public static Bitmap GetImageFromPath(string path)
+        {
+            Bitmap file = null;
+            if (File.Exists(path))
+                file = (Bitmap)Bitmap.FromFile(path);
+            else if(File.Exists(AppDomain.CurrentDomain.BaseDirectory + path))
+                file = (Bitmap)Bitmap.FromFile(AppDomain.CurrentDomain.BaseDirectory + path);
+            else if (File.Exists(_quickDirectory + "/" + path))
+                file = (Bitmap)Bitmap.FromFile(_quickDirectory + "/" + path);
+            else if (File.Exists(AppDomain.CurrentDomain.BaseDirectory + "/" + _quickDirectory + "/" + path))
+                file = (Bitmap)Bitmap.FromFile(AppDomain.CurrentDomain.BaseDirectory + "/" + _quickDirectory + "/" + path);
+            else
+            {
+                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException,
+                    $"Could not find path: {path}"));
+            }
+            return file;
+        }
         private static string WelcomeMessage()
         {
             return $"Welcome to {Title}!\nCredits:\n@TastyGod - https://github.com/TastyGod " +

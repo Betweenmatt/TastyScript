@@ -16,7 +16,7 @@ namespace TastyScript.Lang.Exceptions
     }
     public class ExceptionHandler
     {
-        private string _line = "0:0";
+        private string _line = "0";
         public string Line { get { return _line; } }
         public string Message { get; }
         public ExceptionType Type { get; }
@@ -46,19 +46,20 @@ namespace TastyScript.Lang.Exceptions
         {
             if (line != null)
             {
+                var firstLine = line.Split('\n').FirstOrDefault(f=>!String.IsNullOrWhiteSpace(f));
                 foreach (var file in Compiler.Files)
                 {
-                    var sp = file.Value.Split('\r');
+                    var sp = file.Value.Split('\n');
                     var index = 0;
                     foreach (var x in sp)
                     {
                         index++;
-                        if (x.Contains(line))
+                        if (x.Contains(firstLine))
                             break;
                     }
                     if (index != sp.Length)
                     {
-                        _line = $"{file.Key} {index}:0";
+                        _line = $"{file.Key}:{index}";
                         break;
                     }
                 }
