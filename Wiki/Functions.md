@@ -41,6 +41,8 @@ CheckScreen( *SuccessFunction*, *FailFunction*,*SuccessPath* ) | CheckScreen(*Su
 *Override* | sealed | | |
 
 #### Description
+Note: For this function to work correctly, you must provide a part of an image to check against. This is called the template. The template must be at most half of the screen being checked. For best results, make sure the template is not mono-tone, and has as much pixel to pixel difference as possible. Do not use an inadequate template and just lower the threshold or you will have a lot of false positives.
+
 Takes a screenshot of the current device, and compares it to the image at the *SuccessPath*. If the screenshot passes the threshold, Invoke *SuccessFunction*; else Invoke *FailFunction*.
 
 Use the overload to include a fail-check image to compare against. If the image at *SuccessPath* passes the threshold, Invoke *SuccessFunction*; then if the image at *FailPath* passes the threshold, Invoke *FailFunction*; else throws DriverException.

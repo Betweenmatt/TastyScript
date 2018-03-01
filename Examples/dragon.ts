@@ -1,8 +1,8 @@
-@import Examples/tools.ts;
+@import tools.ts;
 @end
 override.Start(){
 	#slow down the sleep timer on overnight stam burning
-	SetDefaultSleep(1000);
+	#SetDefaultSleep(1000);
 	MainLoop().For(0);
 }
 function.MainLoop(){
