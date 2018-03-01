@@ -22,6 +22,15 @@ Adds the *Input* to the Print() or PrintLine() output.
 **Note:** Please use `.Concat()` instead, this is deprecated.
 #### Examples
 
+---
+
+## And
+ .And(*Conditional*) | |  | |
+:---:|:---:|:---:|:---:
+*Expected Arguments* | *Conditional*(string) | 
+*Functions* | [If()](/Wiki/Functions.md#if) | 
+#### Description
+Adds additional conditional requirements to the attached `If()` function. Read [If()](/Wiki/Functions.md#if) for examples.
 
 ---
 
@@ -64,6 +73,16 @@ function.LoopTest(i){
 
 ---
 
+## Else
+ .Else(*Function*) | |  | |
+:---:|:---:|:---:|:---:
+*Expected Arguments* | *Function*(string) | 
+*Functions* | [If()](/Wiki/Functions.md#if) | 
+#### Description
+Defines the function to be invoked when the conditional `If()` returns false. Read [If()](/Wiki/Functions.md#if) for examples.
+
+---
+
 ## For
  .For(*Iterations*) | |  | |
 :---:|:---:|:---:|:---:
@@ -82,6 +101,26 @@ function.EndlessLoop(){
     PrintLine("Looping!");
 }
 ```
+
+---
+
+## Or
+ .Or(*Conditional*) | |  | |
+:---:|:---:|:---:|:---:
+*Expected Arguments* | *Conditional*(string) | 
+*Functions* | [If()](/Wiki/Functions.md#if) | 
+#### Description
+Adds additional conditional requirements to the attached `If()` function. Read [If()](/Wiki/Functions.md#if) for examples.
+
+---
+
+## Then
+ .Then(*Function*) | |  | |
+:---:|:---:|:---:|:---:
+*Expected Arguments* | *Function*(string) | 
+*Functions* | [If()](/Wiki/Functions.md#if) | 
+#### Description
+Defines the function to be invoked when the conditional `If()` returns true. Read [If()](/Wiki/Functions.md#if) for examples.
 
 ---
 

@@ -1,3 +1,5 @@
+# How To Create A Functioning Scripts
+
 Hey!
 
 I wrote this tutorial to help out the people who aren't used to programming! This should be much easier to understand than looking through endless files of code ;)

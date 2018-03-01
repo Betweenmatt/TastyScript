@@ -6,11 +6,11 @@
 * [Looping](#looping)
 * [Variables](#variables)
 * [Order of Operations](#order-of-operations)
-
+ 
 # Introduction
-Welcome!
+Welcome to **1.2.2**!
 
-TastyScript is a very simple command based language. Every script comprises of *Functions* which execute in their own scope on command. Every **main** script **must override Start()!** (not imports)
+TastyScript is a very simple command based language. Every script comprises of *Functions* which execute in their own scope on command. Functions can be extended with *Extensions* for even more customization. **Every main script(not imported!) must override the Start() function!** Like this:
 
 ```
 #comments are prepended with the hash symbol!
@@ -50,7 +50,7 @@ As you see in the above example, the custom function required an *x* and a *y* p
 
 # Extensions
 
-Extensions are a very basic way to add optional functionality to some predefined *Functions* You can find the list of Extensions [Here](/Wiki/Extensions.md). Extensions are prepended with a period\(.\) and always require arguments.
+Extensions are a very basic way to add optional functionality to some predefined *Functions* You can find the list of Extensions [Here](/Wiki/Extensions.md). Extensions are prepended with a period\(.\) and, like *Functions*, always require arguments.
 
 ```
 override.Start(){
@@ -81,7 +81,7 @@ The above example would run and print `Hello World!`. **Note:** The import secti
 
 # Overriding
 
-You can override pre-defined functions with the `override` tag. Overriding is useful for adding additional functionality to the pre-defined functions.
+You can override pre-defined functions with the `override` tag. Overriding is useful for adding additional functionality to the pre-defined functions. Note some functions are `Sealed` and cannot be overriden! If you take a look at the [Functions](/Wiki/Functions.md) page you can see which functions are sealed.
 
 ```
 override.Start(){
@@ -97,7 +97,7 @@ The example above would print `2/20/18 4:46:44: Hello, World!`. **Note:** the ov
 
 # Looping
 
-There are a couple ways to have a recursive loop, depending on the results needed. **Note:** *DO NOT* create uncontrolled loops by calling a function into another function! This will cause a stack overflow exception at around 500 iterations.
+There are a couple ways to have a recursive loop, depending on the results needed. **Note:** *DO NOT* create uncontrolled loops by calling a function into another function! This will cause a stack overflow exception very quickly.
 ```
 *WRONG!!!:*
 
@@ -107,9 +107,12 @@ function.Test1(){
 }
 ```
 
-Instead either use the `Loop()` function with the `.For()` extension, or just use the `.For()` extension. Use the `Loop()` function if you want to get the current iteration at runtime. The performance difference between the two functions is the same.
+Instead either use the `Loop()` function or use the `.For()` extension. Use the `Loop()` function if you want to get the current iteration at runtime. The performance difference between the two functions is the same.
+
+the `Loop()` function requires a `string`, which is the name of the function to Invoke. ***NEW:*** With version you can alternatively use the [Lambda Expression](/Wiki/LambdaExpressions.md) to create an anonymous function to be invoked. Check out example2:
 
 ```
+#example1
 override.Start(){
    Loop("LoopExample").For(1000);
    ForExample().For(0);
@@ -120,14 +123,29 @@ function.LoopExample(i){
 function.ForExample(){
    PrintLine("I'm Looping!");
 }
+#example2, with lambda expression
+override.Start(){
+    #this performs the same function as the above Loop() example!
+    Loop(=>(var i){
+        PrintLine("I'm looping!").Concat(i).Concat(" Times");
+    }).For(1000);
+}
 ```
 
 # Variables
-Variable functionality is extremely limited at this point. You can define a variable with a string or number, like so: `var MyNumberVar = 12;`
+***NEW:*** Variables are now much more flexible in 1.2.2! You can now assign both local *and* global variables, as well as reassignment in both scopes. 
 
-`var MyStringVar = "Hello, World!";`
+To assign a local variable use the keyword `var` like so:
 
-Variables are local to the scope they were assigned, and at this time cannot be reassigned.
+`var Variable = "I am a variable";`
+
+To assign a global variable use the `$var` keyword:
+
+`$var GlobalVariable = "I am a global variable!";`
+
+Both assignment and reassignment of variables must be prepended with the `var` or `$var` keyword. Available types are `string`, `number`, another variable, or a [Mathematical Expression](/Wiki/MathExpressions.md).
+
+Variables can be called by just their name. `PrintLine(GlobalVariable)` would print `I am a global variable!`.
 
 # Order of Operations
 The Order of Operations, or what I like to call the OoO, works in a predictable and sensible way. The compiler parses scripts with a multi-pass system so functions *don't* have to be created before they're called or vise versa. The position of a function in a script *does* make a difference though, but only when there are multiple functions with the same name.
@@ -137,17 +155,19 @@ The Order of Operations, or what I like to call the OoO, works in a predictable 
    2) All Overrides are put into the stack
    3) All imports are parsed from top to bottom, following the above two points
    4) All the pre-defined functions are put into the stack
-* When a function is put into the stack it is parsed from top to bottom, on a line by line basis.
+   1) The Awake function(s) are executed in the order of first in the stack
+   2) The Start override is executed\
+* When a function is called from the stack it is parsed from top to bottom, on a line by line basis.
    1) All strings are found and a token is created
    2) All numbers are found and a token is created
+   3) All Mathematical Expressions are determined
    3) All parameters are found and a token is created
    4) All variables are assigned and a token is created
    5) All functions are found and a token is created. The parameters are added to the function token.
    6) All extensions are found and a token is created. The parameters are added to the extension token, and then the extension is added to the function token it is attached to.
-* The compiler walks the function stack
-   1) The Awake function(s) are executed in the order of first in the stack
-   2) The Start override is executed
-   3) Every function token that is found is executed by searching the stack for the First function by name, so if there are two `Print()` functions, the one that is added to the stack first will always execute.
+
+Because of the way that the parser finds things, Syntax errors are generally found either immediately, or once the function has started. Compiler errors generally aren't found until they're trying to be called.
+   
 
 Here are some examples: 
 
@@ -162,6 +182,7 @@ function.DoubleFunctionExample(){
 function.DoubleFunctionExample(){
     PrintLine("Second");
 }
+
 #in this example, Second would be printed before First.
 #this is because functions are added to the stack before overrides regardless of
 #the order they were created.
@@ -176,6 +197,7 @@ function.Print(arg){
     PrintLine("Second");
     PrintLine(arg);
 }
+
 #this example shows the Awake function, and if you were to run it it would print Hello.
 function.Awake(){
    Print("H");
