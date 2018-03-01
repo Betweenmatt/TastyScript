@@ -5,6 +5,8 @@ using AForge.Imaging;
 using AForge.Imaging.Filters;
 using TastyScript.Lang;
 using TastyScript.Lang.Exceptions;
+using System.Threading;
+using System.Diagnostics;
 
 namespace TastyScript.Android
 {
@@ -26,22 +28,74 @@ namespace TastyScript.Android
         }
         public void Analyze(string success, Action successAction, Action failureAction, int thresh)
         {
-            if (CheckScreen(Program.GetImageFromPath(success), thresh))
-                successAction();
-            else
-                failureAction();
+            Action action = null;
+            Thread th = new Thread(() =>
+            {
+                if (CheckScreen(Program.GetImageFromPath(success), thresh))
+                    action = successAction;
+                else
+                    action = failureAction;
+            });
+            th.Start();
+            Stopwatch watch = new Stopwatch();
+            watch.Start();
+            while (action == null)
+            {
+                Thread.Sleep(1000);//sleep for 1 second before checking again
+                //if 30 seconds go by, then break and kill the thread
+                if (watch.Elapsed.TotalMilliseconds >= 30000)
+                {
+                    action = failureAction;
+                    Compiler.ExceptionListener.ThrowSilent(new ExceptionHandler(ExceptionType.SystemException,
+                        $"CheckScreen() timed out.", success));
+                    //smash the thread and move on. we dont care about that data anyway
+                    try { th.Abort(); } catch (Exception e) { if (!(e is ThreadAbortException)) throw; }
+                    break;
+                }
+            }
+            watch.Stop();
+            action();
         }
         public void Analyze(string success, string failure, Action successAction, Action failureAction, int thresh)
         {
-            if (CheckScreen(Program.GetImageFromPath(success), thresh))
-                successAction();
-            else if (CheckScreen(Program.GetImageFromPath(failure), thresh))
-                failureAction();
-            else
+            Action action = null;
+            bool fail = false;
+            Thread th = new Thread(() =>
             {
-                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException,
-                    $"Image Recognition error."));
+                if (CheckScreen(Program.GetImageFromPath(success), thresh))
+                    action = successAction;
+                else if (CheckScreen(Program.GetImageFromPath(failure), thresh))
+                    action = failureAction;
+                else
+                {
+                    fail = true;
+                    action = failureAction;
+                }
+            });
+            th.Start();
+            Stopwatch watch = new Stopwatch();
+            watch.Start();
+            while (action == null)
+            {
+                Thread.Sleep(1000);//sleep for 1 second before checking again
+                //if 30 seconds go by, then break and kill the thread
+                if (watch.Elapsed.TotalMilliseconds >= 30000)
+                {
+                    action = failureAction;
+                    Compiler.ExceptionListener.ThrowSilent(new ExceptionHandler(ExceptionType.SystemException,
+                        $"CheckScreen() timed out.", success));
+                    //smash the thread and move on. we dont care about that data anyway
+                    try { th.Abort(); } catch (Exception e) { if (!(e is ThreadAbortException)) throw; }
+                    break;
+                }
             }
+            watch.Stop();
+            if (!fail)
+                action();
+            else
+                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException,
+                        $"Image Recognition error. Neither images matched."));
+
         }
         public void Analyze(Bitmap success, Action successAction, Action failureAction, int thresh)
         {

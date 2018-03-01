@@ -44,11 +44,11 @@ Both can be found as Nuget packages
 
 *Functionality*
 - [ ] Remote control
-- [ ] Conditional evaluation
-- [ ] Nested scopes
-- [ ] Custom variable support
-- [ ] Basic math evaluation
-- [ ] Better error handling 
+- [x] Conditional evaluation
+- [x] Nested scopes
+- [x] Custom variable support
+- [x] Basic math evaluation
+- [ ] Better error handling (getting there!)
 
 # Credits
 [AForge Image Processing](https://github.com/andrewkirillov/AForge.NET) for their amazing image processing framework!
