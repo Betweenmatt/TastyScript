@@ -182,7 +182,6 @@ function.DoubleFunctionExample(){
 function.DoubleFunctionExample(){
     PrintLine("Second");
 }
-
 #in this example, Second would be printed before First.
 #this is because functions are added to the stack before overrides regardless of
 #the order they were created.
@@ -197,7 +196,6 @@ function.Print(arg){
     PrintLine("Second");
     PrintLine(arg);
 }
-
 #this example shows the Awake function, and if you were to run it it would print Hello.
 function.Awake(){
    Print("H");
