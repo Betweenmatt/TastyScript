@@ -1,9 +1,7 @@
-@import Examples/tools.ts;
+@import tools.ts;
 @end
 override.Start(){
-	# set this loop to a large arbitrary number, or the number of times the buy/grind loop
-	# can be run before you run out of raid points (currentRaidPoints / (buyLoopIterations * 450))
-	Loop("RaidScreen").For(1000);
+	Loop("RaidScreen");
 }
 function.RaidScreen(i){
 	PrintLine(DateTime).Concat(": Iteration number: ").Concat(i);

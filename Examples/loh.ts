@@ -1,4 +1,4 @@
-@import Examples/tools.ts;
+@import tools.ts;
 @end
 override.Start(){
 	MainLoop().For(0);
