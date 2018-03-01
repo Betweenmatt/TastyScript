@@ -46,7 +46,7 @@ namespace TastyScript.Lang
                 {
                     if (x.Name == "Awake")
                     {
-                        x.TryParse(null);
+                        x.TryParse(null,null);
                     }
                 }
             }
@@ -59,7 +59,7 @@ namespace TastyScript.Lang
             var startIndex = FunctionList.IndexOf(startScope);
             FunctionList.RemoveAt(startIndex);
 
-            startScope.TryParse(null);
+            startScope.TryParse(null, null);
         }
 
     }

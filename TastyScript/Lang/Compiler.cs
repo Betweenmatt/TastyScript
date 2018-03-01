@@ -14,6 +14,7 @@ namespace TastyScript.Lang
         private List<IBaseFunction> _compileStack;
         public static Dictionary<string, string> Files;
         public static IExceptionListener ExceptionListener;
+        public static List<LoopTracer> LoopTracerList;
         private static int _anonymousFunctionIndex = -1;
         public static int AnonymousFunctionIndex
         {
@@ -25,6 +26,7 @@ namespace TastyScript.Lang
         }
         public Compiler(string filename, string file, List<IBaseFunction> predefined)
         {
+            LoopTracerList = new List<LoopTracer>();
             TokenParser.FunctionList = new List<IBaseFunction>();//clear this every run
             Files = new Dictionary<string, string>();
             Files.Add(filename, file);
@@ -104,6 +106,19 @@ namespace TastyScript.Lang
         private void StartScope(List<IBaseFunction> list)
         {
             TokenParser p = new TokenParser(list);
+        }
+    }
+    public class LoopTracer
+    {
+        public bool Break { get; private set; }
+        public bool Continue { get; private set; }
+        public void SetBreak(bool _break)
+        {
+            Break = _break;
+        }
+        public void SetContinue(bool _continue)
+        {
+            Continue = _continue;
         }
     }
 }
