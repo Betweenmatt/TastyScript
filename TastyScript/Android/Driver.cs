@@ -23,7 +23,8 @@ namespace TastyScript.Android
             Device = AdbClient.Instance.GetDevices().FirstOrDefault(f => f.Serial == input);
             if (Device == null)
             {
-                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.DriverException, $"The device {input} could not be found. Make sure your adb client is loaded!\n Type the command 'devices' to see all the connected devices"));
+                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.DriverException,
+                    $"The device {input} could not be found. Make sure your adb client is loaded!\n Type the command 'devices' to see all the connected devices"));
                 return;
             }
             IO.Output.Print($"Device {input} has been connected",ConsoleColor.DarkGreen);
@@ -125,12 +126,11 @@ namespace TastyScript.Android
                 watch.Stop();
                 return screenshot;
             }
-            catch(Exception e)
+            catch
             {
-                Console.WriteLine(e);
+                Compiler.ExceptionListener.ThrowSilent(new ExceptionHandler(ExceptionType.DriverException,
+                    $"[131]GetFrameBuffer timed out."));
             }
-            //var screenshot = AdbClient.Instance.GetFrameBufferAsync(Device, CancellationToken.None).Result;
-            //return screenshot;
             return null;
         }
         //a wrapper for the bulk of the shell command requirements
@@ -145,7 +145,8 @@ namespace TastyScript.Android
             }
             catch
             {
-                Compiler.ExceptionListener.ThrowSilent(new ExceptionHandler(ExceptionType.DriverException, $"Command {command} was canceled and will not be retried."));
+                Compiler.ExceptionListener.ThrowSilent(new ExceptionHandler(ExceptionType.DriverException,
+                    $"Command {command} was canceled and will not be retried."));
             }
         }
         public string SendShellCommand(string c)
@@ -176,7 +177,6 @@ namespace TastyScript.Android
                 }
                 else
                 {
-                    //_cancelationToken.Cancel();
                     return false;
                 }
             

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using TastyScript.Lang.Exceptions;
 using TastyScript.Lang.Func;
@@ -44,6 +45,7 @@ namespace TastyScript.Lang
             new TObject("DateTime",()=>{return DateTime.Now.ToString(); }, locked:true),
             new TObject("Date",()=>{return DateTime.Now.ToShortDateString(); }, locked:true),
             new TObject("Time",()=>{return DateTime.Now.ToShortTimeString(); }, locked:true),
+            new TObject("GetVersion",()=> {return Assembly.GetExecutingAssembly().GetName().Version.ToString(); }, locked:true),
             new TObject("null","null", locked:true)
             };
             StartParse();
