@@ -1,6 +1,7 @@
 ﻿using SharpAdbClient;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -22,7 +23,8 @@ namespace TastyScript.Android
             Device = AdbClient.Instance.GetDevices().FirstOrDefault(f => f.Serial == input);
             if (Device == null)
             {
-                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.DriverException, $"The device {input} could not be found. Make sure your adb client is loaded!\n Type the command 'devices' to see all the connected devices"));
+                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.DriverException,
+                    $"The device {input} could not be found. Make sure your adb client is loaded!\n Type the command 'devices' to see all the connected devices"));
                 return;
             }
             IO.Output.Print($"Device {input} has been connected",ConsoleColor.DarkGreen);
@@ -34,7 +36,8 @@ namespace TastyScript.Android
             _appPackage = appPackage;
             IO.Output.Print($"App Package set to {appPackage}",ConsoleColor.DarkGreen);
         }
-        public void Tap(int x, int y)
+        //all compile time shell commands(tap/getscreenshot/etc) check for app package before continuing
+        private void CheckAppPackage()
         {
             if (AppPackage != "")
             {
@@ -58,6 +61,10 @@ namespace TastyScript.Android
                 Compiler.ExceptionListener.ThrowSilent(new ExceptionHandler(ExceptionType.DriverException,
                     $"Warning! There is no app package set, events will not be paused when app loses focus. Check documentation for more info."), once: true);
             }
+        }
+        public void Tap(int x, int y)
+        {
+            CheckAppPackage();
             ShellCommand($"input tap {x} {y}");
             //trying to prevent event bursts, especailly on load
             Thread.Sleep(300);
@@ -68,28 +75,7 @@ namespace TastyScript.Android
         /// <param name="code"></param>
         public void KeyEvent(AndroidKeyCode code)
         {
-            if (AppPackage != "")
-            {
-                //halt software while app isnt in focus
-                bool checkFocus = CheckFocusedApp();
-                bool test = true;
-                if (!checkFocus)
-                {
-                    test = false;
-                    _cancelationToken.Cancel();
-                }
-                while (!checkFocus) { Thread.Sleep(5000); checkFocus = CheckFocusedApp(); }
-                if (!test)
-                {
-                    //reup the cancelation token if it was canceled
-                    _cancelationToken = new CancellationTokenSource();
-                }
-            }
-            else
-            {
-                Compiler.ExceptionListener.ThrowSilent(new ExceptionHandler(ExceptionType.DriverException,
-                    $"Warning! There is no app package set, events will not be paused when app loses focus. Check documentation for more info."), once: true);
-            }
+            CheckAppPackage();
             ShellCommand($"input keyevent {(int)code}");
         }
         /// <summary>
@@ -98,80 +84,17 @@ namespace TastyScript.Android
         /// <param name="text"></param>
         public void SendText(string text)
         {
-            if (AppPackage != "")
-            {
-                //halt software while app isnt in focus
-                bool checkFocus = CheckFocusedApp();
-                bool test = true;
-                if (!checkFocus)
-                {
-                    test = false;
-                    _cancelationToken.Cancel();
-                }
-                while (!checkFocus) { Thread.Sleep(5000); checkFocus = CheckFocusedApp(); }
-                if (!test)
-                {
-                    //reup the cancelation token if it was canceled
-                    _cancelationToken = new CancellationTokenSource();
-                }
-            }
-            else
-            {
-                Compiler.ExceptionListener.ThrowSilent(new ExceptionHandler(ExceptionType.DriverException,
-                    $"Warning! There is no app package set, events will not be paused when app loses focus. Check documentation for more info."), once: true);
-            }
+            CheckAppPackage();
             ShellCommand($"input text {text.Replace(" ","%s")}");
         }
         public void Swipe(int x1, int y1, int x2, int y2, int duration)
         {
-            if (AppPackage != "")
-            {
-                //halt software while app isnt in focus
-                bool checkFocus = CheckFocusedApp();
-                bool test = true;
-                if (!checkFocus)
-                {
-                    test = false;
-                    _cancelationToken.Cancel();
-                }
-                while (!checkFocus) { Thread.Sleep(5000); checkFocus = CheckFocusedApp(); }
-                if (!test)
-                {
-                    //reup the cancelation token if it was canceled
-                    _cancelationToken = new CancellationTokenSource();
-                }
-            }
-            else
-            {
-                Compiler.ExceptionListener.ThrowSilent(new ExceptionHandler(ExceptionType.DriverException,
-                    $"Warning! There is no app package set, events will not be paused when app loses focus. Check documentation for more info."), once: true);
-            }
+            CheckAppPackage();
             ShellCommand($"input swipe {x1} {y1} {x2} {y2} {duration}");
         }
         public void LongPress(int x, int y, int duration)
         {
-            if (AppPackage != "")
-            {
-                //halt software while app isnt in focus
-                bool checkFocus = CheckFocusedApp();
-                bool test = true;
-                if (!checkFocus)
-                {
-                    test = false;
-                    _cancelationToken.Cancel();
-                }
-                while (!checkFocus) { Thread.Sleep(5000); checkFocus = CheckFocusedApp(); }
-                if (!test)
-                {
-                    //reup the cancelation token if it was canceled
-                    _cancelationToken = new CancellationTokenSource();
-                }
-            }
-            else
-            {
-                Compiler.ExceptionListener.ThrowSilent(new ExceptionHandler(ExceptionType.DriverException,
-                    $"Warning! There is no app package set, events will not be paused when app loses focus. Check documentation for more info."), once: true);
-            }
+            CheckAppPackage();
             ShellCommand($"input swipe {x} {y} {x} {y} {duration}");
         }
         public static void Test(string cmd)
@@ -183,32 +106,32 @@ namespace TastyScript.Android
                 IO.Output.Print(response.Message,ConsoleColor.Magenta);
             }
         }
-        public Image GetScreenshot()
+        public async Task<Image> GetScreenshot()
         {
-            if (AppPackage != "")
+            CheckAppPackage();
+            try
             {
-                //halt software while app isnt in focus
-                bool checkFocus = CheckFocusedApp();
-                bool test = true;
-                if (!checkFocus)
+                CancellationTokenSource source = new CancellationTokenSource();
+                //run as async,but block the main thread with the timeout.
+                var screenshot = await AdbClient.Instance.GetFrameBufferAsync(Device, source.Token);
+                Stopwatch watch = new Stopwatch();
+                watch.Start();
+                while (screenshot == null)
                 {
-                    test = false;
-                    _cancelationToken.Cancel();
+                    if(watch.ElapsedMilliseconds >= 30000)
+                    {
+                        source.Cancel();
+                    }
                 }
-                while (!checkFocus) { Thread.Sleep(5000); checkFocus = CheckFocusedApp(); }
-                if (!test)
-                {
-                    //reup the cancelation token if it was canceled
-                    _cancelationToken = new CancellationTokenSource();
-                }
+                watch.Stop();
+                return screenshot;
             }
-            else
+            catch
             {
                 Compiler.ExceptionListener.ThrowSilent(new ExceptionHandler(ExceptionType.DriverException,
-                    $"Warning! There is no app package set, events will not be paused when app loses focus. Check documentation for more info."), once: true);
+                    $"[131]GetFrameBuffer timed out."));
             }
-            var screenshot = AdbClient.Instance.GetFrameBufferAsync(Device, CancellationToken.None).Result;
-            return screenshot;
+            return null;
         }
         //a wrapper for the bulk of the shell command requirements
         private async void ShellCommand(string command)
@@ -222,7 +145,8 @@ namespace TastyScript.Android
             }
             catch
             {
-                Compiler.ExceptionListener.ThrowSilent(new ExceptionHandler(ExceptionType.DriverException, $"Command {command} was canceled and will not be retried."));
+                Compiler.ExceptionListener.ThrowSilent(new ExceptionHandler(ExceptionType.DriverException,
+                    $"Command {command} was canceled and will not be retried."));
             }
         }
         public string SendShellCommand(string c)
@@ -253,97 +177,9 @@ namespace TastyScript.Android
                 }
                 else
                 {
-                    //_cancelationToken.Cancel();
                     return false;
                 }
             
         }
-    }
-    public enum AndroidKeyCode
-    {
-        Menu = 1,
-        SoftRight = 2,
-        Home = 3,
-        Back = 4,
-        Call = 5,
-        EndCall = 6,
-        Zero = 7,
-        One = 8,
-        Two = 9,
-        Three = 10,
-        Four = 11,
-        Five = 12,
-        Six = 13,
-        Seven = 14,
-        Eight = 15,
-        Nine = 16,
-        Star = 17,
-        Pound = 18,
-        DPadUp = 19,
-        DPadDown = 20,
-        DPadLeft = 21,
-        DPadRight = 22,
-        DPadCenter = 23,
-        VolumeUp = 24,
-        VolumeDown = 25,
-        Power = 26,
-        Camera = 27,
-        Clear = 28,
-        A = 29,
-        B = 30,
-        C = 31,
-        D = 32,
-        E = 33,
-        F = 34,
-        G = 35,
-        H = 36,
-        I = 37,
-        J = 38,
-        K = 39,
-        L = 40,
-        M = 41,
-        N = 42,
-        O = 43,
-        P = 44,
-        Q = 45,
-        R = 46,
-        S = 47,
-        T = 48,
-        U = 49,
-        V = 50,
-        W = 51,
-        X = 52,
-        Y = 53,
-        Z = 54,
-        Comma = 55,
-        Period = 56,
-        AltLeft = 57,
-        AltRight = 58,
-        ShiftLeft = 59,
-        ShiftRight = 60,
-        Tab = 61,
-        Space = 62,
-        Sym = 63,
-        Explorer = 64,
-        Envelope = 65,
-        Enter = 66,
-        Del = 67,
-        Grave = 68,
-        Minus = 69,
-        Equals = 70,
-        LeftBracket = 71,
-        RightBracket = 72,
-        BackSlash = 73,
-        SemiColon = 74,
-        Apostrophe = 75,
-        Slash = 76,
-        At = 77,
-        Num = 78,
-        HeadSetHook = 79,
-        Focus = 80,
-        Plus = 81,
-        Menu2 = 82,
-        Notification = 83,
-        Search = 84
     }
 }
