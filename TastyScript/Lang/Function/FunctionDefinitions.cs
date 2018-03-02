@@ -203,7 +203,7 @@ namespace TastyScript.Lang.Func
                 return null;
             }
             var ss = Program.AndroidDriver.GetScreenshot();
-            ss.Save(path.ToString(), ImageFormat.Png);
+            ss.Result.Save(path.ToString(), ImageFormat.Png);
             return args;
         }
     }

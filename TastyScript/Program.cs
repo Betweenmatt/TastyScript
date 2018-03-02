@@ -280,7 +280,7 @@ namespace TastyScript
                 if (AndroidDriver != null)
                 {
                     var ss = AndroidDriver.GetScreenshot();
-                    ss.Save(r, ImageFormat.Png);
+                    ss.Result.Save(r, ImageFormat.Png);
                 }
                 else
                 {

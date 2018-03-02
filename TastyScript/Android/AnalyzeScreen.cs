@@ -18,84 +18,106 @@ namespace TastyScript.Android
             try
             {
                 var ss = Program.AndroidDriver.GetScreenshot();
-                _screen = (Bitmap)ss;
+                _screen = (Bitmap)ss.Result;
             }
             catch (Exception e)
             {
-                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException,
+                Compiler.ExceptionListener.ThrowSilent(new ExceptionHandler(ExceptionType.SystemException,
                     $"Unexpected error saving screenshot: {e.Message}"));
+                _screen = null;
             }
         }
         public void Analyze(string success, Action successAction, Action failureAction, int thresh)
         {
-            Action action = null;
-            Thread th = new Thread(() =>
+            try
             {
-                if (CheckScreen(Program.GetImageFromPath(success), thresh))
-                    action = successAction;
-                else
-                    action = failureAction;
-            });
-            th.Start();
-            Stopwatch watch = new Stopwatch();
-            watch.Start();
-            while (action == null)
-            {
-                Thread.Sleep(1000);//sleep for 1 second before checking again
-                //if 30 seconds go by, then break and kill the thread
-                if (watch.Elapsed.TotalMilliseconds >= 30000)
+                Action action = null;
+                Thread th = new Thread(() =>
                 {
-                    action = failureAction;
-                    Compiler.ExceptionListener.ThrowSilent(new ExceptionHandler(ExceptionType.SystemException,
-                        $"CheckScreen() timed out.", success));
-                    //smash the thread and move on. we dont care about that data anyway
-                    try { th.Abort(); } catch (Exception e) { if (!(e is ThreadAbortException)) throw; }
-                    break;
+                    if (CheckScreen(Program.GetImageFromPath(success), thresh))
+                        action = successAction;
+                    else
+                        action = failureAction;
+                });
+                th.Start();
+                Stopwatch watch = new Stopwatch();
+                watch.Start();
+                while (action == null)
+                {
+                    Thread.Sleep(1000);//sleep for 1 second before checking again
+                                       //if 30 seconds go by, then break and kill the thread
+                    if (watch.Elapsed.TotalMilliseconds >= 30000)
+                    {
+                        action = failureAction;
+                        Compiler.ExceptionListener.ThrowSilent(new ExceptionHandler(ExceptionType.SystemException,
+                            $"CheckScreen() timed out.", success));
+                        //smash the thread and move on. we dont care about that data anyway
+                        try { th.Abort(); } catch (Exception e) { if (!(e is ThreadAbortException)) throw; }
+                        break;
+                    }
                 }
+                watch.Stop();
+                action();
             }
-            watch.Stop();
-            action();
+            catch
+            {
+                Compiler.ExceptionListener.ThrowSilent(new ExceptionHandler("[63]Image check failed to execute. Continuing with failure function"));
+                failureAction();
+            }
         }
         public void Analyze(string success, string failure, Action successAction, Action failureAction, int thresh)
         {
-            Action action = null;
-            bool fail = false;
-            Thread th = new Thread(() =>
+            //since now the constructor can return null without throwing an exceptiong, added this
+            //to make sure parsing doesn't continue with an innapropriate check result.
+            if (_screen == null)
+                Compiler.ExceptionListener.Throw(new ExceptionHandler($"[63]Unexpected error saving image on CheckScreen() overload."));
+            
+            try
             {
-                if (CheckScreen(Program.GetImageFromPath(success), thresh))
-                    action = successAction;
-                else if (CheckScreen(Program.GetImageFromPath(failure), thresh))
-                    action = failureAction;
+                Action action = null;
+                bool fail = false;
+                Thread th = new Thread(() =>
+                {
+                    if (CheckScreen(Program.GetImageFromPath(success), thresh))
+                        action = successAction;
+                    else if (CheckScreen(Program.GetImageFromPath(failure), thresh))
+                        action = failureAction;
+                    else
+                    {
+                        fail = true;
+                        action = failureAction;
+                    }
+                });
+                th.Start();
+                Stopwatch watch = new Stopwatch();
+                watch.Start();
+                while (action == null)
+                {
+                    Thread.Sleep(1000);//sleep for 1 second before checking again
+                                       //if 30 seconds go by, then break and kill the thread
+                    if (watch.Elapsed.TotalMilliseconds >= 30000)
+                    {
+                        action = failureAction;
+                        Compiler.ExceptionListener.ThrowSilent(new ExceptionHandler(ExceptionType.SystemException,
+                            $"CheckScreen() timed out.", success));
+                        //smash the thread and move on. we dont care about that data anyway
+                        try { th.Abort(); } catch (Exception e) { if (!(e is ThreadAbortException)) throw; }
+                        break;
+                    }
+                }
+                watch.Stop();
+                if (!fail)
+                    action();
                 else
-                {
-                    fail = true;
-                    action = failureAction;
-                }
-            });
-            th.Start();
-            Stopwatch watch = new Stopwatch();
-            watch.Start();
-            while (action == null)
-            {
-                Thread.Sleep(1000);//sleep for 1 second before checking again
-                //if 30 seconds go by, then break and kill the thread
-                if (watch.Elapsed.TotalMilliseconds >= 30000)
-                {
-                    action = failureAction;
-                    Compiler.ExceptionListener.ThrowSilent(new ExceptionHandler(ExceptionType.SystemException,
-                        $"CheckScreen() timed out.", success));
-                    //smash the thread and move on. we dont care about that data anyway
-                    try { th.Abort(); } catch (Exception e) { if (!(e is ThreadAbortException)) throw; }
-                    break;
-                }
-            }
-            watch.Stop();
-            if (!fail)
-                action();
-            else
-                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException,
-                        $"Image Recognition error. Neither images matched."));
+                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException,
+                            $"Image Recognition error. Neither images matched."));
 
+            }
+            catch
+            {
+                Compiler.ExceptionListener.Throw(new ExceptionHandler("[112]Image check failed to execute."));
+                failureAction();
+            }
         }
         public void Analyze(Bitmap success, Action successAction, Action failureAction, int thresh)
         {
@@ -118,6 +140,8 @@ namespace TastyScript.Android
         }
         private bool CheckScreen(Bitmap temp, int thresh)
         {
+            if (_screen == null)
+                return false;
             float threshold = thresh / 100f;
             System.Drawing.Bitmap sourceImage = AForge.Imaging.Image.Clone(_screen, PixelFormat.Format24bppRgb);
             System.Drawing.Bitmap template = AForge.Imaging.Image.Clone(temp, PixelFormat.Format24bppRgb);
