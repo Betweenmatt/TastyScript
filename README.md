@@ -2,7 +2,7 @@
 
 TastyScript is a very basic language I originally created for rapid prototyping automated gaming on my Android phone, since my computer cannot run Nox. This version of TastyScript connects to your phone via ADB, and allows you to communicate touch locations, (some)hard buttons, and take screenshots. There are many more features I'd like to add so I make updates frequently!
 
-Check the documentation at the [Wiki](../../wiki) to learn about the core concepts of the language, as well as full documentation on functionality.
+Check the documentation at the [Wiki](/Wiki) to learn about the core concepts of the language, as well as full documentation on functionality.
  
 On a side note, this was my very first language. It does not use any complex parsing frameworks, only regex and and some string manipulation. I plan on replacing my work with ANTLR in the future, when I have time to sit down and learn how to use it!
 
@@ -17,7 +17,7 @@ On a side note, this was my very first language. It does not use any complex par
 
 Now you're good to run any scripts you choose! Take a look at the [Examples](/Examples) folder or the [How To tutorial](https://github.com/TastyGod/TastyScript/wiki/Tutorial:-How-To-Create-a-Functional-Script) for ideas/help etc on creating your own script. Note: the touch locations in the examples will most likely fail on your phone! You need to use the pixel locations that work for your phone's aspect ratio/resolution
 
-For a list of console commands check out the [Wiki](../../wiki/Console-Commands).
+For a list of console commands check out the [Wiki](/Wiki/ConsoleCommands.md).
 
 
 # Requirements
