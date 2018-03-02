@@ -5,12 +5,12 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text.RegularExpressions;
-using TastyScript.Lang.Exceptions;
+using TastyScript.Lang.Extensions;
 using TastyScript.Lang.Token;
 
-namespace TastyScript.Lang.Func
+namespace TastyScript.Lang
 {
-    public class Line
+    internal class Line
     {
         public List<IBaseToken> Tokens { get; private set; }
         public string Value { get; private set; }
@@ -206,7 +206,7 @@ namespace TastyScript.Lang.Func
                     }
                     
                     //clone the extension because it was breaking
-                    var clone = DeepCopy<BaseExtension>(findExt as BaseExtension);
+                    var clone = DeepCopy<EDefinition>(findExt as EDefinition);
                     if (clone.Invoking)
                     {
                         var asT = extArgs as TParameter;

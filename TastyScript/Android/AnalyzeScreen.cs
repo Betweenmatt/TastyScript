@@ -10,7 +10,7 @@ using System.Diagnostics;
 
 namespace TastyScript.Android
 {
-    public class AnalyzeScreen
+    internal class AnalyzeScreen
     {
         private static Bitmap _screen;
         public AnalyzeScreen()

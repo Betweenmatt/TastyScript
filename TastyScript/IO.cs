@@ -8,9 +8,9 @@ namespace TastyScript
     /// This is a wrapper for Console.Write/ReadLine. I changed all input to this
     /// in case i wanted to use a different output than console.writeline later on down the road
     /// </summary>
-    public class IO
+    internal class IO
     {
-        public class Output
+        internal class Output
         {
             public static void Print(object o, bool line = true)
             {
@@ -29,7 +29,7 @@ namespace TastyScript
                 Console.ResetColor();
             }
         }
-        public class Input
+        internal class Input
         {
             public static string ReadLine()
             {
@@ -38,7 +38,7 @@ namespace TastyScript
         }
     }
 
-    public class Reader
+    internal class Reader
     {
         private static Thread inputThread;
         private static AutoResetEvent getInput;
@@ -82,7 +82,7 @@ namespace TastyScript
             gotInput.Set();
         }
     }
-    static class WaitExtensions
+    internal static class WaitExtensions
     {
         public static bool WaitOne(this WaitHandle handle, int millisecondsTimeout, CancellationToken cancellationToken)
         {

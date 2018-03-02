@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace TastyScript.Lang.Exceptions
 {
-    public interface IExceptionListener
+    internal interface IExceptionListener
     {
         void Throw(ExceptionHandler ex);
         void ThrowSilent(ExceptionHandler ex, bool once = false);
     }
-    public class ExceptionListener : IExceptionListener
+    internal class ExceptionListener : IExceptionListener
     {
         private List<ExceptionHandler> _onceList = new List<ExceptionHandler>();
         public void Throw(ExceptionHandler ex)
@@ -38,7 +38,7 @@ namespace TastyScript.Lang.Exceptions
     /// This is a ghetto way to silently stop the script from running when
     /// hitting an compiler controlled exception.
     /// </summary>
-    public class CompilerControledException : Exception
+    internal class CompilerControledException : Exception
     {
     }
 }

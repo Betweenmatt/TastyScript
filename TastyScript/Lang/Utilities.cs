@@ -8,7 +8,7 @@ using TastyScript.Lang.Exceptions;
 
 namespace TastyScript.Lang
 {
-    public static class Utilities
+    internal static class Utilities
     {
         /// <summary>
         /// Sleeps the main thread until time is reached, or Token.Stop is true

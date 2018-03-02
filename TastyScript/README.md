@@ -1,5 +1,14 @@
 ﻿# ChangeLog
 
+## v1.2.3
+
+### Todo
+- [ ] Array get/set functionality
+- [ ] Incremental variables( ++ / -- )
+- [ ] Seperate functions/commands/drivers to easily adapt to future driver changes/additions etc.
+- [x] Fix the visibility. Like none of these classes should be public lol.
+
+
 ## v1.2.2
 
 * Fixed the issue where objects such as DateTime were having their instance referenced, instead of their return data.

@@ -3,7 +3,7 @@
 namespace TastyScript.Lang
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
-    public class Function : Attribute
+    internal class Function : Attribute
     {
         public string Name { get; }
         public string[] ExpectedArgs { get; }
@@ -31,7 +31,7 @@ namespace TastyScript.Lang
         }
     }
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
-    public class Extension : Attribute
+    internal class Extension : Attribute
     {
         public string Name { get; }
         public bool Sealed { get; }

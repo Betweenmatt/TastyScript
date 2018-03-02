@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TastyScript.Lang.Exceptions
+namespace TastyScript.Lang
 {
-    public enum ExceptionType
+    internal enum ExceptionType
     {
         DriverException,
         SystemException,
@@ -14,7 +14,7 @@ namespace TastyScript.Lang.Exceptions
         CompilerException,
         NullReferenceException
     }
-    public class ExceptionHandler
+    internal class ExceptionHandler
     {
         private string _line = "0";
         public string Line { get { return _line; } }

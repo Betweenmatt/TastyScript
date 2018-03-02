@@ -5,11 +5,10 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TastyScript.Lang.Exceptions;
-using TastyScript.Lang.Func;
 
 namespace TastyScript.Lang
 {
-    public class Compiler
+    internal class Compiler
     {
         private List<IBaseFunction> _compileStack;
         public static Dictionary<string, string> Files;
@@ -115,7 +114,7 @@ namespace TastyScript.Lang
             TokenParser p = new TokenParser(list);
         }
     }
-    public class LoopTracer
+    internal class LoopTracer
     {
         public bool Break { get; private set; }
         public bool Continue { get; private set; }

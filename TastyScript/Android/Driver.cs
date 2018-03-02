@@ -12,7 +12,7 @@ using TastyScript.Lang.Exceptions;
 
 namespace TastyScript.Android
 {
-    public class Driver
+    internal class Driver
     {
         public DeviceData Device { get; private set; }
         private string _appPackage = "";

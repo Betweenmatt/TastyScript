@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
-using TastyScript.Lang.Exceptions;
-using TastyScript.Lang.Func;
+using TastyScript.Lang.Extensions;
 using TastyScript.Lang.Token;
 
 namespace TastyScript.Lang
 {
-    public class TokenParser
+    internal class TokenParser
     {
         public static List<IBaseFunction> FunctionList;
         /// <summary>

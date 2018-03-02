@@ -5,7 +5,6 @@ using System.Reflection;
 using System.Collections.Generic;
 using System.Linq;
 using TastyScript.Android;
-using TastyScript.Lang.Func;
 using TastyScript.Lang;
 using TastyScript.Lang.Exceptions;
 using System.Threading.Tasks;
@@ -14,10 +13,11 @@ using Owin;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Drawing;
+using TastyScript.Lang.Extensions;
 
 namespace TastyScript
 {
-    class Program
+    internal class Program
     {
         public static Driver AndroidDriver;
         private static List<IBaseFunction> predefinedFunctions;
@@ -68,7 +68,7 @@ namespace TastyScript
                 }
                 catch (OperationCanceledException e)
                 {
-                    Console.WriteLine("thread has been poked");
+                    //Console.WriteLine("thread has been poked");
                 }
                 catch(Exception e)
                 {

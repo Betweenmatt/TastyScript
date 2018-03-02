@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using TastyScript.Lang.Exceptions;
+using TastyScript.Lang.Extensions;
 using TastyScript.Lang.Token;
 
-namespace TastyScript.Lang.Func
+namespace TastyScript.Lang
 {
-    public interface IBaseFunction : IBaseToken
+    internal interface IBaseFunction : IBaseToken
     {
         List<IBaseToken> GeneratedTokens { get; set; }
         int GeneratedTokensIndex { get; }
@@ -25,17 +26,17 @@ namespace TastyScript.Lang.Func
         void SetProperties(string name, string[] args, bool invoking, bool isSealed);
         bool Sealed { get; }
     }
-    public interface IFunction<T> : IBaseFunction
+    internal interface IFunction<T> : IBaseFunction
     {
         string Value { get; }
         T Parse(TParameter args);
     }
-    public interface IOverride<T> : IFunction<T>
+    internal interface IOverride<T> : IFunction<T>
     {
         T CallBase(TParameter args);
         void TryCallBase(TParameter args);
     }
-    public class AnonymousFunction<T> : IFunction<T>
+    internal class AnonymousFunction<T> : IFunction<T>
     {
         public string Name { get; protected set; }
         public string Value { get; private set; }
