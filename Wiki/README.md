@@ -109,7 +109,7 @@ function.Test1(){
 
 Instead either use the `Loop()` function or use the `.For()` extension. Use the `Loop()` function if you want to get the current iteration at runtime. The performance difference between the two functions is the same.
 
-the `Loop()` function requires a `string`, which is the name of the function to Invoke. ***NEW:*** With version you can alternatively use the [Lambda Expression](/Wiki/LambdaExpressions.md) to create an anonymous function to be invoked. Check out example2:
+the `Loop()` function requires a `string`, which is the name of the function to Invoke. ***NEW:*** With version 1.2.2 you can alternatively use the [Lambda Expression](/Wiki/LambdaExpressions.md) to create an anonymous function to be invoked. Check out example2:
 
 ```
 #example1
