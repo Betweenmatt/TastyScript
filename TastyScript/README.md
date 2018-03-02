@@ -2,7 +2,6 @@
 
 ## v1.2.2
 
-### TypeFix-patch
 * Fixed the issue where objects such as DateTime were having their instance referenced, instead of their return data.
 * Reduced typeing to objects, functions, and parameters instead of string/number/variable etc.
 
