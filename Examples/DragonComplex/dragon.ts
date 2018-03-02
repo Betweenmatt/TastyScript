@@ -31,16 +31,23 @@ function.MainLoop(var i){
 		#increment the iteration count
 		$var iterations = [iterations + 1];
 		PrintLine("Run number: ").Concat(iterations);
-		#do the even check just to speed up things a little
+		#do the nth check just to speed up things a little
 		#since selling/grinding doesnt need to be done after
 		#every run.
-		var even = [iterations % 2];
-		If(even == 0)
+		var nth = [iterations % 5];
+		If(nth == 0)
 			.Then(=>(){
 				SellCrap();
 				GrindCrap();
-				BackArrow();
-				});
+				#attempt to prevent accidental back button clicking
+				#by checking if the raid room is active. if it is, then
+				#skip the back button press.
+				CheckScreen(=>(){
+					#return
+				},=>(){
+					BackArrow();
+				},"/startbattle.png");
+			});
 		StartBattle();
 	},=>(){
 		#do this a few times since its short and can help
