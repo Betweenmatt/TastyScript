@@ -20,8 +20,8 @@ namespace TastyScript.Lang.Functions
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.NullReferenceException, $"Path must be specified", LineValue));
                 return null;
             }
-            var ss = Program.AndroidDriver.GetScreenshot();
-            ss.Result.Save(path.ToString(), ImageFormat.Png);
+            var ss = Commands.GetScreenshot();
+            ss.Save(path.ToString(), ImageFormat.Png);
             return args;
         }
     }

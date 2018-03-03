@@ -21,56 +21,6 @@ namespace TastyScript.Lang.Functions
             var newArgs = new TParameter("sleep", new List<IBaseToken>() { new TObject("sleep", ms) });
             func.Value.Value.TryParse(newArgs, null);
         }
-        public static void AndroidTouch(int x, int y)
-        {
-            Program.AndroidDriver.Tap(x, y);
-        }
-        [Obsolete]
-        public static void AndroidBack()
-        {
-            Program.AndroidDriver.KeyEvent(Android.AndroidKeyCode.Back);
-        }
-        [Obsolete]
-        public static void AndroidCheckScreen(string succPath, IBaseFunction succFunc, IBaseFunction failFunc, int thresh = 90)
-        {
-            try
-            {
-                AnalyzeScreen ascreen = new AnalyzeScreen();
-                ascreen.Analyze(succPath,
-                    () => { succFunc.TryParse(null, null); },
-                    () => { failFunc.TryParse(null, null); },
-                    thresh
-                );
-            }
-            catch (Exception e)
-            {
-                if (e is System.IO.FileNotFoundException)
-                {
-                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.DriverException,
-                        $"File could not be found: {succPath}"));
-                }
-                Console.WriteLine(e);
-                Compiler.ExceptionListener.Throw(new ExceptionHandler(""));
-            }
-        }
-        [Obsolete]
-        public static void AndroidCheckScreen(string succPath, string failPath, IBaseFunction succFunc, IBaseFunction failFunc, int thresh = 90)
-        {
-            try
-            {
-                AnalyzeScreen ascreen = new AnalyzeScreen();
-                ascreen.Analyze(succPath, failPath,
-                    () => { succFunc.TryParse(null, null); },
-                    () => { failFunc.TryParse(null, null); },
-                    thresh
-                );
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                Compiler.ExceptionListener.Throw(new ExceptionHandler(""));
-            }
-        }
     }
     internal class FDefinition<T> : AnonymousFunction<T>, IOverride<T>
     {

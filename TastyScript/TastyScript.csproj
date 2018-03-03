@@ -104,6 +104,7 @@
     <Compile Include="Android\Driver.cs" />
     <Compile Include="IO.cs" />
     <Compile Include="Lang\Attributes.cs" />
+    <Compile Include="Lang\Commands.cs" />
     <Compile Include="Lang\Compiler.cs" />
     <Compile Include="Lang\Exceptions\ExceptionHandler.cs" />
     <Compile Include="Lang\Exceptions\IExceptionListener.cs" />

@@ -62,41 +62,15 @@ namespace TastyScript.Android
                     $"Warning! There is no app package set, events will not be paused when app loses focus. Check documentation for more info."), once: true);
             }
         }
-        public void Tap(int x, int y)
+        
+        public void SendCommand(string cmd)
         {
             CheckAppPackage();
-            ShellCommand($"input tap {x} {y}");
-            //trying to prevent event bursts, especailly on load
+            ShellCommand(cmd);
             Thread.Sleep(300);
         }
-        /// <summary>
-        /// Send a keyevent via "input keyevent 'code'"
-        /// </summary>
-        /// <param name="code"></param>
-        public void KeyEvent(AndroidKeyCode code)
-        {
-            CheckAppPackage();
-            ShellCommand($"input keyevent {(int)code}");
-        }
-        /// <summary>
-        /// Send text via "input text 'string'"
-        /// </summary>
-        /// <param name="text"></param>
-        public void SendText(string text)
-        {
-            CheckAppPackage();
-            ShellCommand($"input text {text.Replace(" ","%s")}");
-        }
-        public void Swipe(int x1, int y1, int x2, int y2, int duration)
-        {
-            CheckAppPackage();
-            ShellCommand($"input swipe {x1} {y1} {x2} {y2} {duration}");
-        }
-        public void LongPress(int x, int y, int duration)
-        {
-            CheckAppPackage();
-            ShellCommand($"input swipe {x} {y} {x} {y} {duration}");
-        }
+        
+        
         public static void Test(string cmd)
         {
             using (AdbSocket socket = new AdbSocket(AdbClient.Instance.EndPoint))
@@ -106,6 +80,7 @@ namespace TastyScript.Android
                 IO.Output.Print(response.Message,ConsoleColor.Magenta);
             }
         }
+
         public async Task<Image> GetScreenshot()
         {
             CheckAppPackage();
@@ -164,22 +139,22 @@ namespace TastyScript.Android
             }
             
         }
-        private bool CheckFocusedApp()
+        public bool CheckFocusedApp()
         {
-            
-                string command = $"dumpsys window windows | grep -E 'mCurrentFocus'";
-                var receiver = new ConsoleOutputReceiver();
-                AdbClient.Instance.ExecuteRemoteCommand(command, Device, receiver);
-                var echo = receiver.ToString();
-                if (echo.Contains(AppPackage))
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            
+
+            string command = $"dumpsys window windows | grep -E 'mCurrentFocus'";
+            var receiver = new ConsoleOutputReceiver();
+            AdbClient.Instance.ExecuteRemoteCommand(command, Device, receiver);
+            var echo = receiver.ToString();
+            if (echo.Contains(AppPackage))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+
         }
     }
 }

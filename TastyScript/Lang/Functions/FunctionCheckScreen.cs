@@ -42,12 +42,7 @@ namespace TastyScript.Lang.Functions
             {
                 try
                 {
-                    AnalyzeScreen ascreen = new AnalyzeScreen();
-                    ascreen.Analyze(succPath.ToString(), failPath.ToString(),
-                        () => { sf.TryParse(null, this); },
-                        () => { ff.TryParse(null, this); },
-                        thresh
-                    );
+                    Commands.AnalyzeScreen(succPath.ToString(), failPath.ToString(), sf, ff, thresh, this);
                 }
                 catch (Exception e)
                 {
@@ -64,12 +59,7 @@ namespace TastyScript.Lang.Functions
             {
                 try
                 {
-                    AnalyzeScreen ascreen = new AnalyzeScreen();
-                    ascreen.Analyze(succPath.ToString(),
-                        () => { sf.TryParse(null, this); },
-                        () => { ff.TryParse(null, this); },
-                        thresh
-                    );
+                    Commands.AnalyzeScreen(succPath.ToString(), sf, ff, thresh, this);
                 }
                 catch (Exception e)
                 {

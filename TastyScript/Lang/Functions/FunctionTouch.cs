@@ -24,7 +24,7 @@ namespace TastyScript.Lang.Functions
             if (Program.AndroidDriver == null)
                 IO.Output.Print($"[DRIVERLESS] Touch x:{intX} y:{intY}");
             else
-                FunctionHelpers.AndroidTouch((int)intX, (int)intY);
+                Commands.Tap((int)intX, (int)intY);
             double sleep = TokenParser.SleepDefaultTime;
             if (args.Value.Value.Count > 2)
             {

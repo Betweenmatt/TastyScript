@@ -18,7 +18,7 @@ namespace TastyScript.Lang.Functions
 
             if (Program.AndroidDriver != null)
             {
-                Program.AndroidDriver.SendText(argsList.ToString());
+                Commands.SendText(argsList.ToString());
             }
             else
             {

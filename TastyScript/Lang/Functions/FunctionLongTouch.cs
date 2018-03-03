@@ -26,7 +26,7 @@ namespace TastyScript.Lang.Functions
             if (Program.AndroidDriver == null)
                 IO.Output.Print($"[DRIVERLESS] LongTouch x:{intX} y:{intY} duration:{duration}");
             else
-                Program.AndroidDriver.LongPress((int)intX, (int)intY, (int)duration);
+                Commands.LongTap((int)intX, (int)intY, (int)duration);
             double sleep = TokenParser.SleepDefaultTime;
             if (args.Value.Value.Count > 3)
             {

@@ -25,7 +25,7 @@ namespace TastyScript.Lang.Functions
                 if (!nofail)
                     Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException,
                         $"The Key Event {argsList.ToString()} could not be found.", LineValue));
-                Program.AndroidDriver.KeyEvent(newcol);
+                Commands.KeyEvent(newcol);
             }
             else
             {
