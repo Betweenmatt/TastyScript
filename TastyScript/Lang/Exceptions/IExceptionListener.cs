@@ -9,6 +9,7 @@ namespace TastyScript.Lang.Exceptions
     internal interface IExceptionListener
     {
         void Throw(ExceptionHandler ex);
+        void Throw(string msg, ExceptionType type, string lineref);
         void ThrowSilent(ExceptionHandler ex, bool once = false);
     }
     internal class ExceptionListener : IExceptionListener
@@ -20,6 +21,11 @@ namespace TastyScript.Lang.Exceptions
             if(Program.LogLevel == "warn" || Program.LogLevel == "error")
                 IO.Output.Print($"\n[ERROR] ({ex.Type.ToString()}) {ex.Message} File: {ex.Line}\n", ConsoleColor.Red);
             throw new CompilerControledException();
+        }
+        public void Throw(string msg, ExceptionType type = ExceptionType.CompilerException, string lineref = "{0}")
+        {
+            var n = new ExceptionHandler(type, msg, lineref);
+            Throw(n);
         }
         public void ThrowSilent(ExceptionHandler ex, bool once = false)
         {

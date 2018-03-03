@@ -106,7 +106,7 @@ namespace TastyScript.Lang
             //if line is variable assignment
             if (value.Contains("var "))
             {
-                value = CheckForVar(value, reference, val);
+                value = EvaluateVar(value, reference, val);
                 if (value == "")
                     return temp;
             }
@@ -189,7 +189,8 @@ namespace TastyScript.Lang
                     var seperate = ext[x].Split(' ');
                     if (seperate.Length < 2)
                     {
-                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException, $"[157]Extension arguments must be present.", value));
+                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException,
+                            $"[157]Extension arguments must be present.", value));
                         return extensions;
                     }
                     var extName = seperate[0].Replace(" ", "");
@@ -197,14 +198,15 @@ namespace TastyScript.Lang
                     var extArgs = reference.GeneratedTokens.FirstOrDefault(f => f.Name == argsName);
                     if (extArgs == null)
                     {
-                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException, $"[170]Unexpected error getting arguments for extension.", value));
+                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException,
+                            $"[170]Unexpected error getting arguments for extension.", value));
                     }
                     var findExt = TokenParser.Extensions.FirstOrDefault(f => f.Name == extName);
                     if (findExt == null)
                     {
-                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException, $"[176]Unexpected error getting arguments for extension.", value));
+                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException,
+                            $"[176]Unexpected error getting arguments for extension.", value));
                     }
-                    
                     //clone the extension because it was breaking
                     var clone = DeepCopy<EDefinition>(findExt as EDefinition);
                     if (clone.Invoking)
@@ -222,7 +224,6 @@ namespace TastyScript.Lang
                                     clone.SetInvokeProperties(args);
                                 }
                             }
-
                         }
                     }
                     clone.Arguments = extArgs as TParameter;
@@ -231,146 +232,103 @@ namespace TastyScript.Lang
             }
             return extensions;
         }
-
-        private string CheckForVar(string value, IBaseFunction reference, string lineRef)
+        private string EvaluateVar(string value, IBaseFunction reference, string lineRef)
         {
+            //get the var scope
+            List<IBaseToken> varList = null;
             if (value.Contains("$var "))
+                varList = TokenParser.GlobalVariables;
+            else if (value.Contains("var "))
+                varList = reference.VariableTokens;
+            if (varList == null)
+                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
+                    $"[244]Unexpected error occured.", lineRef));
+            //assign based on operator
+            
+            var strip = value.Replace("$", "").Replace("var ", "");
+            string[] assign = default(string[]);
+            if(strip.Contains("++"))
+                assign = strip.Split(new string[] { "++" }, StringSplitOptions.None);
+            else if(strip.Contains("--"))
+                assign = strip.Split(new string[] { "--" }, StringSplitOptions.None);
+            else if(strip.Contains("+="))
+                assign = strip.Split(new string[] { "+=" }, StringSplitOptions.None);
+            else if (strip.Contains("-="))
+                assign = strip.Split(new string[] { "-=" }, StringSplitOptions.None);
+            else if (strip.Contains("="))
+                assign = strip.Split(new string[] { "=" }, StringSplitOptions.None);
+
+            //get the left hand
+            var leftHand = assign[0].Replace(" ", "");
+            var varRef = varList.FirstOrDefault(f => f.Name == leftHand);
+            
+            //one sided assignment
+            if (strip.Contains("++") || strip.Contains("--"))
             {
-                var strip = value.Replace("$var ", "");
-                var assign = strip.Split('=');
-                if (assign.Length != 2)
-                {
+                if (varRef == null)
                     Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
-                        $"[244]Unknown error with assignment.", lineRef));
-                }
-                var rightHandAssignment = assign[1].Replace(" ", "");
-                var leftHandAssignment = assign[0].Replace(" ", "");
-                if (rightHandAssignment == null || rightHandAssignment == "" || rightHandAssignment == " ")
-                {
-                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
-                        $"[251]Unknown error with assignemnt.", lineRef));
-                }
+                        $"[269]Cannot find the left hand variable.", lineRef));
+                double numOut = 0;
+                double.TryParse(varRef.ToString(), out numOut);
+                if (strip.Contains("++"))
+                    numOut++;
                 else
+                    numOut--;
+                varRef = new TObject(varRef.Name, numOut);
+                return "";
+            }
+            var rightHand = assign[1].Replace(" ", "");
+            if (varRef.Locked)
+                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
+                    $"[282]Cannot re-assign a sealed variable!", lineRef));
+            if (rightHand == null || rightHand == "" || rightHand == " ")
+                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
+                    $"[285]Right hand must be a value.", lineRef));
+            var token = GetTokens(new string[] { rightHand }, reference, lineRef)[0];
+            if (strip.Contains("+=") || strip.Contains("-="))
+            {
+                if (varRef == null)
+                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
+                        $"[291]Cannot find the left hand variable.", lineRef));
+                //check if number and apply the change
+                double leftNumOut = 0;
+                double rightNumOut = 0;
+                
+                //check if token is a number too
+                var nofailRight = double.TryParse(token.ToString(), out rightNumOut);
+                var nofailLeft = double.TryParse(varRef.ToString(), out leftNumOut);
+                if (nofailLeft && nofailRight)
                 {
-                    var stripws = rightHandAssignment.Replace(" ", "");
-                    var varRef = TokenParser.GlobalVariables.FirstOrDefault(f => f.Name == leftHandAssignment);
-                    if (stripws == "null")
-                    {
-                        if (varRef != null)
-                        {
-                            TokenParser.GlobalVariables.Remove(varRef);
-                        }
-                        return "";
-                    }
-                    IBaseToken obj = null;
-
-                    var tryGlobal = TokenParser.GlobalVariables.FirstOrDefault(f => f.Name == stripws);
-                    if (tryGlobal != null)
-                        obj = tryGlobal;
-                    var tryLocal = reference.VariableTokens.FirstOrDefault(f => f.Name == stripws);
-                    if (tryLocal != null)
-                        obj = tryLocal;
-                    if (reference.ProvidedArgs != null)
-                    {
-                        var tryParam = reference.ProvidedArgs.FirstOrDefault(f => f.Name == stripws);
-                        if (tryParam != null)
-                            obj = tryParam;
-                    }
-                    var tryAnon = reference.GeneratedTokens.FirstOrDefault(f => f.Name == stripws);
-                    if (tryAnon != null)
-                        obj = tryAnon;
-
-                    if (obj == null)
-                    {
-                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
-                            $"[269]Unknown error with assignment.", lineRef));
-                    }
-                    if (varRef != null)
-                    {
-                        if (!varRef.Locked)
-                        {
-                            var varAsT = varRef as TObject;
-                            varAsT.SetValue(obj.ToString());
-                        }
-                        else
-                            Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException,
-                                    $"Cannot re-assign locked variable: {stripws}", lineRef));
-                    }
+                    if (strip.Contains("+="))
+                        leftNumOut += rightNumOut;
                     else
-                        TokenParser.GlobalVariables.Add(new TObject(leftHandAssignment, obj.ToString()));
+                        leftNumOut -= rightNumOut;
+                    varRef = new TObject(varRef.Name, leftNumOut);
+                }
+                else//one or both arent numbers, which means concatenation intead of incrementation.
+                {
+                    var str = varRef.ToString();
+                    if (strip.Contains("+="))
+                        str += token.ToString();
+                    else
+                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException, 
+                            "[314]Cannot apply the operand -= with type string.", lineRef));
+                    varRef = new TObject(varRef.Name, str);
                 }
                 return "";
             }
-            else if (value.Contains("var "))
+            if (strip.Contains("="))
             {
-                if (value.Contains('='))
+                if (varRef != null)
                 {
-                    var strip = value.Replace("var ", "");
-                    var assign = strip.Split('=');
-                    if (assign.Length != 2)
-                    {
-                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
-                            $"[290]Unknown error with assignment.", lineRef));
-                    }
-                    var rightHandAssignment = assign[1].Replace(" ", "");
-                    var leftHandAssignment = assign[0].Replace(" ", "");
-                    if (rightHandAssignment == null || rightHandAssignment == "" || rightHandAssignment == " ")
-                    {
-                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
-                            $"[297]Unknown error with assignemnt.", lineRef));
-                    }
-                    else
-                    {
-                        var stripws = rightHandAssignment.Replace(" ", "");
-                        var varRef = reference.VariableTokens.FirstOrDefault(f => f.Name == leftHandAssignment);
-                        if (stripws == "null")
-                        {
-                            if (varRef != null)
-                                reference.VariableTokens.Remove(varRef);
-                            return "";
-                        }
-                        IBaseToken obj = null;
-
-                        var tryGlobal = TokenParser.GlobalVariables.FirstOrDefault(f => f.Name == stripws);
-                        if (tryGlobal != null)
-                            obj = tryGlobal;
-                        var tryLocal = reference.VariableTokens.FirstOrDefault(f => f.Name == stripws);
-                        if (tryLocal != null)
-                            obj = tryLocal;
-                        if (reference.ProvidedArgs != null)
-                        {
-                            var tryParam = reference.ProvidedArgs.FirstOrDefault(f => f.Name == stripws);
-                            if (tryParam != null)
-                                obj = tryParam;
-                        }
-                        var tryAnon = reference.GeneratedTokens.FirstOrDefault(f => f.Name == stripws);
-                        if (tryAnon != null)
-                            obj = tryAnon;
-
-                        if (obj == null)
-                        {
-                            Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
-                                $"[313]Unknown error with assignment.", lineRef));
-                        }
-                        if (varRef != null)
-                        {
-                            if (!varRef.Locked)
-                            {
-                                var varAsT = varRef as TObject;
-                                varAsT.SetValue(obj.ToString());
-                            }
-                            else
-                                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException,
-                                    $"Cannot re-assign locked variable: {stripws}", lineRef));
-                        }
-                        else
-                            reference.VariableTokens.Add(new TObject(leftHandAssignment, obj.ToString()));
-                    }
-                    return "";
+                    var varAsT = varRef as TObject;
+                    varAsT.SetValue(token.ToString());
                 }
+                else
+                    varList.Add(new TObject(leftHand, token.ToString()));
+                return "";
             }
-            Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
-                $"[327]Unknown error with assignment.", lineRef));
+            Compiler.ExceptionListener.Throw("[330]Unknown error with assignment.", ExceptionType.SyntaxException, lineRef);
             return "";
         }
         public static T DeepCopy<T>(T obj)
@@ -396,7 +354,6 @@ namespace TastyScript.Lang
             return result;
 
         }
-
         //evaluates a mathematical expression written in string format
         private double MathExpression(string expression, IBaseFunction reference, string lineReference)
         {
