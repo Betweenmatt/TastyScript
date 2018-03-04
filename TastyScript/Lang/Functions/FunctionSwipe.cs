@@ -8,36 +8,36 @@ using TastyScript.Lang.Tokens;
 namespace TastyScript.Lang.Functions
 {
     [Function("Swipe", new string[] { "intX1", "intY1", "intX2", "intY2", "duration", "sleep" })]
-    internal class FunctionSwipe : FDefinition<object>
+    internal class FunctionSwipe : FDefinition
     {
-        public override object CallBase(TParameter args)
+        public override string CallBase()
         {
-            var x1 = (ProvidedArgs.FirstOrDefault(f => f.Name == "intX1") as TObject);
-            var y1 = (ProvidedArgs.FirstOrDefault(f => f.Name == "intY1") as TObject);
-            var x2 = (ProvidedArgs.FirstOrDefault(f => f.Name == "intX2") as TObject);
-            var y2 = (ProvidedArgs.FirstOrDefault(f => f.Name == "intY2") as TObject);
-            var dur = (ProvidedArgs.FirstOrDefault(f => f.Name == "duration") as TObject);
+            var x1 = (ProvidedArgs.FirstOrDefault(f => f.Name == "intX1") );
+            var y1 = (ProvidedArgs.FirstOrDefault(f => f.Name == "intY1") );
+            var x2 = (ProvidedArgs.FirstOrDefault(f => f.Name == "intX2") );
+            var y2 = (ProvidedArgs.FirstOrDefault(f => f.Name == "intY2") );
+            var dur = (ProvidedArgs.FirstOrDefault(f => f.Name == "duration"));
             if (x1 == null || y1 == null || x2 == null || y2 == null || dur == null)
             {
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.NullReferenceException,
                     $"The function [{this.Name}] requires [{ExpectedArgs.Length}] TNumber arguments", LineValue));
             }
-            double intX1 = double.Parse(x1.Value.Value.ToString());
-            double intY1 = double.Parse(y1.Value.Value.ToString());
-            double intX2 = double.Parse(x2.Value.Value.ToString());
-            double intY2 = double.Parse(y2.Value.Value.ToString());
-            double duration = double.Parse(dur.Value.Value.ToString());
+            double intX1 = double.Parse(x1.ToString());
+            double intY1 = double.Parse(y1.ToString());
+            double intX2 = double.Parse(x2.ToString());
+            double intY2 = double.Parse(y2.ToString());
+            double duration = double.Parse(dur.ToString());
             if (Program.AndroidDriver == null)
                 IO.Output.Print($"[DRIVERLESS] LongTouch x1:{intX1} y1:{intY1} x2:{intX2} y2:{intY2} duration:{duration}");
             else
                 Commands.Swipe((int)intX1, (int)intY1, (int)intX2, (int)intY2, (int)duration);
             double sleep = TokenParser.SleepDefaultTime;
-            if (args.Value.Value.Count > 5)
+            if (ProvidedArgs.Count > 5)
             {
-                sleep = double.Parse((ProvidedArgs.FirstOrDefault(f => f.Name == "sleep") as TObject).Value.Value.ToString());
+                sleep = double.Parse((ProvidedArgs.FirstOrDefault(f => f.Name == "sleep")).ToString());
             }
             FunctionHelpers.Sleep(sleep);
-            return args;
+            return "";
         }
     }
 }

@@ -9,9 +9,9 @@ using TastyScript.Lang.Tokens;
 namespace TastyScript.Lang.Functions
 {
     [Function("If", new string[] { "bool" }, isSealed: true)]
-    internal class FunctionIf : FDefinition<object>
+    internal class FunctionIf : FDefinition
     {
-        public override object CallBase(TParameter args)
+        public override string CallBase()
         {
             var prov = ProvidedArgs.FirstOrDefault(f => f.Name == "bool");
             if (prov == null)
@@ -27,8 +27,8 @@ namespace TastyScript.Lang.Functions
                 foreach (var o in orExtensions)
                 {
                     var or = o as ExtensionOr;
-                    TParameter param = or.Extend();
-                    bool paramFlag = (param.Value.Value[0].ToString() == "True") ? true : false;
+                    string[] param = or.Extend();
+                    bool paramFlag = (param[0].ToString() == "True") ? true : false;
                     if (paramFlag)
                     {
                         flag = true;
@@ -42,9 +42,9 @@ namespace TastyScript.Lang.Functions
                 foreach (var a in andExtensions)
                 {
                     var and = a as ExtensionAnd;
-                    TParameter param = and.Extend();
+                    string[] param = and.Extend();
                     //Console.WriteLine(param.Value.Value[0].ToString());
-                    bool paramFlag = (param.Value.Value[0].ToString() == "True") ? true : false;
+                    bool paramFlag = (param[0].ToString() == "True") ? true : false;
                     if (!paramFlag)
                     {
                         flag = false;
@@ -59,13 +59,14 @@ namespace TastyScript.Lang.Functions
                 var findThen = Extensions.FirstOrDefault(f => f.Name == "Then") as ExtensionThen;
                 if (findThen != null)
                 {
-                    TParameter thenFunc = findThen.Extend();
-                    var func = TokenParser.FunctionList.FirstOrDefault(f => f.Name == thenFunc.Value.Value[0].ToString());
+                    string[] thenFunc = findThen.Extend();
+                    var func = TokenParser.FunctionList.FirstOrDefault(f => f.Name == thenFunc[0].ToString());
                     if (func == null)
                         Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException,
                             $"Cannot find the invoked function.", LineValue));
                     //pass in invoke properties. shouldnt break with null
-                    func.TryParse(findThen.GetInvokeProperties(), this);
+                    
+                    func.TryParse(new TFunction(Caller.Function, null, findThen.GetInvokeProperties()));
                 }
                 else
                 {
@@ -79,15 +80,15 @@ namespace TastyScript.Lang.Functions
                 var findElse = Extensions.FirstOrDefault(f => f.Name == "Else") as ExtensionElse;
                 if (findElse != null)
                 {
-                    TParameter elseFunc = findElse.Extend();
-                    var func = TokenParser.FunctionList.FirstOrDefault(f => f.Name == elseFunc.Value.Value[0].ToString());
+                    string[] elseFunc = findElse.Extend();
+                    var func = TokenParser.FunctionList.FirstOrDefault(f => f.Name == elseFunc[0].ToString());
                     if (func == null)
                         Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException,
                             $"Cannot find the invoked function.", LineValue));
-                    func.TryParse(findElse.GetInvokeProperties(), this);
+                    func.TryParse(new TFunction(Caller.Function, null, findElse.GetInvokeProperties()));
                 }
             }
-            return args;
+            return "";
         }
     }
 }

@@ -9,7 +9,7 @@ namespace TastyScript.Lang.Exceptions
     internal interface IExceptionListener
     {
         void Throw(ExceptionHandler ex);
-        void Throw(string msg, ExceptionType type, string lineref);
+        void Throw(string msg, ExceptionType type = ExceptionType.CompilerException, string lineref = "{0}");
         void ThrowSilent(ExceptionHandler ex, bool once = false);
     }
     internal class ExceptionListener : IExceptionListener

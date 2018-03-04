@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TastyScript.Android;
+using TastyScript.Lang.Tokens;
 
 namespace TastyScript.Lang
 {
@@ -45,21 +46,21 @@ namespace TastyScript.Lang
         {
             return Program.AndroidDriver.CheckFocusedApp();
         }
-        public static void AnalyzeScreen(string success, IBaseFunction successAction, IBaseFunction failureAction, int thresh, IBaseFunction caller = null)
+        public static void AnalyzeScreen(string success, IBaseFunction successAction, IBaseFunction failureAction, int thresh, TFunction caller = null)
         {
             AnalyzeScreen ascreen = new AnalyzeScreen();
             ascreen.Analyze(success,
-                () => { successAction.TryParse(null, caller); },
-                () => { failureAction.TryParse(null, caller); },
+                () => { successAction.TryParse(caller); },
+                () => { failureAction.TryParse(caller); },
                 thresh
             );
         }
-        public static void AnalyzeScreen(string success, string failure, IBaseFunction successAction, IBaseFunction failureAction, int thresh, IBaseFunction caller = null)
+        public static void AnalyzeScreen(string success, string failure, IBaseFunction successAction, IBaseFunction failureAction, int thresh, TFunction caller = null)
         {
             AnalyzeScreen ascreen = new AnalyzeScreen();
             ascreen.Analyze(success, failure,
-                () => { successAction.TryParse(null, caller); },
-                () => { failureAction.TryParse(null, caller); },
+                () => { successAction.TryParse(caller); },
+                () => { failureAction.TryParse(caller); },
                 thresh
             );
         }

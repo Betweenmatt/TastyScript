@@ -15,9 +15,9 @@ namespace TastyScript.Lang.Extensions
     [Serializable]
     internal class ExtensionSetItem : EDefinition
     {
-        public override TParameter Extend(IBaseToken input)
+        public override string[] Extend(Token input)
         {
-            var args = Arguments.Value.Value;
+            var args = Extend();
             if(args == null || args.ElementAtOrDefault(0) == null)
                 Compiler.ExceptionListener.Throw($"{this.Name} arguments cannot be null.",
                     ExceptionType.CompilerException, "{0}");
@@ -30,31 +30,30 @@ namespace TastyScript.Lang.Extensions
                     Compiler.ExceptionListener.Throw($"{this.Name} arguments must be a whole number.",
                         ExceptionType.CompilerException, "{0}");
             }
-            
-            var inputAsTobj = input as TObject;
+
+            var inputAsTobj = input;
             if (inputAsTobj == null)
                 Compiler.ExceptionListener.Throw($"Cannot find TObject {input.Name}",
                     ExceptionType.CompilerException, "{0}");
-            Console.WriteLine(inputAsTobj.Value.Value);
-            var getParam = inputAsTobj.Value.Value.ToString().Replace("[", "").Replace("]", "").Split(',');
+
+            var getParam = inputAsTobj.ToArray().ToList<string>();
             if (getParam == null)
                 Compiler.ExceptionListener.Throw($"Cannot find TParameter in {input.Name}",
                     ExceptionType.CompilerException, "{0}");
-            List<IBaseToken> tempParam = new List<IBaseToken>();
-            foreach (var x in getParam)
-                tempParam.Add(new TObject("", x));
+            
             if (index == -1)
             {
-                tempParam.Add(new TObject("",args[0]));
-                return new TParameter("AnonArray", tempParam);
+                getParam.Add(args[0]);
+                return getParam.ToArray<string>();
             }
-            var ele = tempParam.ElementAtOrDefault(index);
+
+            var ele = getParam.ElementAtOrDefault(index);
             if (ele == null)
                 Compiler.ExceptionListener.Throw($"The element at {index} is null.",
                     ExceptionType.NullReferenceException, "{0}");
-            tempParam[index] = new TObject("", args[0]);
+            getParam[index] = args[0];
 
-            return new TParameter($"AnonArray{index}", tempParam );
+            return getParam.ToArray<string>();
 
         }
     }

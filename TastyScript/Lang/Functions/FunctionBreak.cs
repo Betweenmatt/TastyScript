@@ -8,16 +8,16 @@ using TastyScript.Lang.Tokens;
 namespace TastyScript.Lang.Functions
 {
     [Function("Break", isSealed: true)]
-    internal class FunctionBreak : FDefinition<object>
+    internal class FunctionBreak : FDefinition
     {
-        public override object CallBase(TParameter args)
+        public override string CallBase()
         {
             var tracer = Compiler.LoopTracerStack.LastOrDefault();
             if (tracer != null)
                 tracer.SetBreak(true);
             else
                 Compiler.ExceptionListener.ThrowSilent(new ExceptionHandler($"Unexpected `Break()` without a loop to trigger.", LineValue));
-            return args;
+            return "";
         }
     }
 }

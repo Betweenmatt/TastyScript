@@ -1,17 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using TastyScript.Lang.Tokens;
 
 namespace TastyScript.Lang.Extensions
 {
+    
     internal interface IExtension
     {
         string Name { get; }
-        TParameter Arguments { get; set; }
+        string Arguments { get; }
         bool Invoking { get; }
         void SetProperties(string name, string[] args, bool invoking = false);
-        void SetInvokeProperties(TParameter args);
-        TParameter GetInvokeProperties();
+        void SetInvokeProperties(string args);
+        string GetInvokeProperties();
+        void SetArguments(string args);
     }
     [Serializable]
     internal class EDefinition : IExtension
@@ -19,16 +22,18 @@ namespace TastyScript.Lang.Extensions
         public string Name { get; protected set; }
         public string[] ExpectedArgs { get; protected set; }
         //public TParameter ProvidedArgs { get; protected set; }
-        public TParameter Arguments { get; set; }
+        public string Arguments { get; set; }
         public bool Invoking { get; protected set; }
-        private TParameter invokeProperties;
-        public virtual TParameter Extend()
+        private string invokeProperties;
+        public virtual string[] Extend()
         {
-            return Arguments;
+            var commaRegex = new Regex(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+            return commaRegex.Split(Arguments);
         }
-        public virtual TParameter Extend(IBaseToken input)
+        public virtual string[] Extend(Token input)
         {
-            return Arguments;
+            var commaRegex = new Regex(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+            return commaRegex.Split(Arguments);
         }
         public void SetProperties(string name, string[] args, bool invoking = false)
         {
@@ -36,11 +41,15 @@ namespace TastyScript.Lang.Extensions
             ExpectedArgs = args;
             Invoking = invoking;
         }
-        public void SetInvokeProperties(TParameter args)
+        public void SetArguments(string args)
+        {
+            Arguments = args;
+        }
+        public void SetInvokeProperties(string args)
         {
             invokeProperties = args;
         }
-        public TParameter GetInvokeProperties()
+        public string GetInvokeProperties()
         {
             return invokeProperties;
         }

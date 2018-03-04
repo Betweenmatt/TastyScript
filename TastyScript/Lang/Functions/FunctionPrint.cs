@@ -9,7 +9,7 @@ using TastyScript.Lang.Tokens;
 namespace TastyScript.Lang.Functions
 {
     [Function("Print", new string[] { "s" })]
-    internal class FunctionPrint : FDefinition<string>
+    internal class FunctionPrint : FDefinition
     {
         private List<string> concatStrings = new List<string>();
         private void Concat()
@@ -21,12 +21,12 @@ namespace TastyScript.Lang.Functions
                 foreach (var x in concatList)
                 {
                     var param = x as ExtensionConcat;
-                    TParameter ext = param.Extend();
-                    concatStrings.Add(ext.Value.Value[0].ToString());
+                    string[] ext = param.Extend();
+                    concatStrings.Add(ext[0]);
                 }
             }
         }
-        public override string CallBase(TParameter args)
+        public override string CallBase()
         {
             Concat();
             var print = "";
@@ -40,7 +40,7 @@ namespace TastyScript.Lang.Functions
             {
                 var param = findColorExt.Extend();
                 ConsoleColor newcol = ConsoleColor.Gray;
-                var nofail = Enum.TryParse<ConsoleColor>(param.Value.Value[0].ToString(), out newcol);
+                var nofail = Enum.TryParse<ConsoleColor>(param[0].ToString(), out newcol);
                 if (nofail)
                     color = newcol;
             }
@@ -60,7 +60,7 @@ namespace TastyScript.Lang.Functions
 
             //clear extensions after done
             concatStrings = new List<string>();
-            Extensions = new List<IExtension>();
+            Extensions = new List<EDefinition>();
             return print;
         }
     }

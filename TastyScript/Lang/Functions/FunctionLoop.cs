@@ -9,9 +9,9 @@ using TastyScript.Lang.Tokens;
 namespace TastyScript.Lang.Functions
 {
     [Function("Loop", new string[] { "invoke" }, isSealed: true, invoking: true)]
-    internal class FunctionLoop : FDefinition<object>
+    internal class FunctionLoop : FDefinition
     {
-        public override object CallBase(TParameter args)
+        public override string CallBase()
         {
             var prov = ProvidedArgs.FirstOrDefault(f => f.Name == "invoke");
             if (prov == null)
@@ -24,8 +24,8 @@ namespace TastyScript.Lang.Functions
             var findFor = Extensions.FirstOrDefault(f => f.Name == "For") as ExtensionFor;
             if (findFor != null)
             {
-                TParameter forNumber = findFor.Extend();
-                int forNumberAsNumber = int.Parse(forNumber.Value.Value[0].ToString());
+                string[] forNumber = findFor.Extend();
+                int forNumberAsNumber = int.Parse(forNumber[0].ToString());
                 if (forNumberAsNumber == 0)
                     forNumberAsNumber = int.MaxValue;
                 LoopTracer tracer = new LoopTracer();
@@ -48,17 +48,17 @@ namespace TastyScript.Lang.Functions
                         var passed = this.GetInvokeProperties();
                         if (passed != null)
                         {
-                            var getFirstElement = passed.Value.Value.ElementAtOrDefault(0);
+                            var getFirstElement = passed.ElementAtOrDefault(0);
                             if (getFirstElement != null)
                             {
-                                passed.Value.Value[0] = new TObject(passed.Value.Value[0].Name, x.ToString());
+                                passed[0] = x.ToString();
                             }
                         }
                         else
                         {
-                            passed = new TParameter("Loop", new List<IBaseToken>() { new TObject("enumerator", x.ToString()) });
+                            passed = new string[] { x.ToString() };
                         }
-                        func.TryParse(passed, this, LineValue);
+                        func.TryParse(new TFunction(Caller.Function, null, passed));
                     }
                     else
                     {
@@ -91,17 +91,17 @@ namespace TastyScript.Lang.Functions
                         var passed = this.GetInvokeProperties();
                         if (passed != null)
                         {
-                            var getFirstElement = passed.Value.Value.ElementAtOrDefault(0);
+                            var getFirstElement = passed.ElementAtOrDefault(0);
                             if (getFirstElement != null)
                             {
-                                passed.Value.Value[0] = new TObject(passed.Value.Value[0].Name, x.ToString());
+                                passed[0] = x.ToString();
                             }
                         }
                         else
                         {
-                            passed = new TParameter("Loop", new List<IBaseToken>() { new TObject("enumerator", x.ToString()) });
+                            passed = new string[] { x.ToString() };
                         }
-                        func.TryParse(passed, this, LineValue);
+                        func.TryParse(new TFunction(Caller.Function, null, passed));
                         x++;
                     }
                     else
@@ -112,12 +112,12 @@ namespace TastyScript.Lang.Functions
                 Compiler.LoopTracerStack.Remove(tracer);
                 tracer = null;
             }
-            return args;
+            return "";
         }
         //stop the base for looping extension from overriding this custom looping function
-        protected override void ForExtension(TParameter args, ExtensionFor findFor, string lineval)
+        protected override void ForExtension(TFunction caller, ExtensionFor findFor)
         {
-            TryParse(args, false, this, lineval);
+            TryParse(caller, true);
         }
     }
 }

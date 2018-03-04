@@ -8,14 +8,14 @@ using TastyScript.Lang.Tokens;
 namespace TastyScript.Lang.Functions
 {
     [Function("Sleep", new string[] { "time" })]
-    internal class FunctionSleep : FDefinition<object>
+    internal class FunctionSleep : FDefinition
     {
-        public override object CallBase(TParameter args)
+        public override string CallBase()
         {
-            var time = double.Parse((ProvidedArgs.FirstOrDefault(f => f.Name == "time") as TObject).Value.Value.ToString());
-            //changed to utilities sleep for cancelation
+            var time = double.Parse((ProvidedArgs.FirstOrDefault(f => f.Name == "time")).ToString());
+            //changed to utilities sleep for cancelations
             Utilities.Sleep((int)Math.Ceiling(time));
-            return args;
+            return "";
         }
     }
 }

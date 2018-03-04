@@ -10,7 +10,7 @@ using TastyScript.Lang.Tokens;
 namespace TastyScript.Lang.Functions
 {
     [Function("Timer", isSealed: true)]
-    internal class FunctionTimer : FDefinition<object>
+    internal class FunctionTimer : FDefinition
     {
         private static Stopwatch _watch;
         public static void TimerStop()
@@ -18,7 +18,7 @@ namespace TastyScript.Lang.Functions
             if (_watch != null)
                 _watch.Stop();
         }
-        public override object CallBase(TParameter args)
+        public override string CallBase()
         {
             //find extensions
             var tryStart = Extensions.FirstOrDefault(f => f.Name == "Start") as ExtensionStart;
@@ -39,7 +39,7 @@ namespace TastyScript.Lang.Functions
                     {
                         var colorParam = tryColor.Extend();
                         ConsoleColor newcol = ConsoleColor.Gray;
-                        var nofail = Enum.TryParse<ConsoleColor>(colorParam.Value.Value[0].ToString(), out newcol);
+                        var nofail = Enum.TryParse<ConsoleColor>(colorParam[0].ToString(), out newcol);
                         if (nofail)
                             color = newcol;
                     }
@@ -51,7 +51,7 @@ namespace TastyScript.Lang.Functions
                 if (_watch != null)
                     _watch.Stop();
             }
-            return args;
+            return "";
         }
     }
 }

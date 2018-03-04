@@ -10,53 +10,50 @@ namespace TastyScript.Lang
 {
     internal interface IBaseFunction : IBaseToken
     {
-        List<IBaseToken> GeneratedTokens { get; set; }
-        int GeneratedTokensIndex { get; }
-        List<IBaseToken> VariableTokens { get; set; }
-        List<IBaseToken> ProvidedArgs { get; set; }
-        string[] ExpectedArgs { get; set; }
+        List<Token> ProvidedArgs { get; }
+        string[] ExpectedArgs { get; }
         IBaseFunction Base { get; }
         string LineValue { get; }
         bool BlindExecute { get; set; }
         LoopTracer Tracer { get; }
         bool Invoking { get; }
-        TParameter GetInvokeProperties();
-        void SetInvokeProperties(TParameter args);
-        void TryParse(TParameter args, IBaseFunction caller, string lineval = "{0}");
+        string[] GetInvokeProperties();
+        void SetInvokeProperties(string[] args);
+        void TryParse(TFunction caller);
         void SetProperties(string name, string[] args, bool invoking, bool isSealed);
         bool Sealed { get; }
+        List<Token> LocalVariables { get; set; }
     }
-    internal interface IFunction<T> : IBaseFunction
+    internal interface IFunction : IBaseFunction
     {
         string Value { get; }
-        T Parse(TParameter args);
+        string Parse();
     }
-    internal interface IOverride<T> : IFunction<T>
+    internal interface IOverride : IFunction
     {
-        T CallBase(TParameter args);
-        void TryCallBase(TParameter args);
+        string CallBase();
     }
-    internal class AnonymousFunction<T> : IFunction<T>
+    internal class AnonymousFunction : IFunction
     {
         public string Name { get; protected set; }
         public string Value { get; private set; }
-        public string[] ExpectedArgs { get; set; }
+        public string[] ExpectedArgs { get; protected set; }
         public bool Locked { get; protected set; }
-        public List<IBaseToken> ProvidedArgs { get; set; }
-        public List<IBaseToken> GeneratedTokens { get; set; }
-        public TParameter Arguments { get; set; }
-        public List<IExtension> _extensions = new List<IExtension>();
-        public List<IExtension> Extensions { get { return _extensions; } set { _extensions = value; } }
-        public List<IBaseToken> VariableTokens { get; set; }
+        public List<Token> ProvidedArgs { get; protected set; }
+        public string Arguments { get; set; }
+        public List<EDefinition> _extensions = new List<EDefinition>();
+        public List<EDefinition> Extensions { get { return _extensions; } set { _extensions = value; } }
         public List<Line> Lines { get; set; }
         public string LineValue { get; protected set; }
         public IBaseFunction Base { get; protected set; }
         public bool BlindExecute { get; set; }
-        protected TParameter invokeProperties;
+        protected string[] invokeProperties;
         public LoopTracer Tracer { get; protected set; }
         private int _generatedTokensIndex = -1;
         public bool Invoking { get; protected set; }
         public bool Sealed { get; private set; }
+        public List<Token> LocalVariables { get; set; }
+        public TFunction Caller { get; protected set; }
         public object GetValue()
         {
             throw new NotImplementedException();
@@ -69,11 +66,11 @@ namespace TastyScript.Lang
                 return _generatedTokensIndex;
             }
         }
-        public void SetInvokeProperties(TParameter args)
+        public void SetInvokeProperties(string[] args)
         {
             invokeProperties = args;
         }
-        public TParameter GetInvokeProperties()
+        public string[] GetInvokeProperties()
         {
             return invokeProperties;
         }
@@ -88,16 +85,15 @@ namespace TastyScript.Lang
         //standard constructor
         public AnonymousFunction(string value)
         {
-            GeneratedTokens = new List<IBaseToken>();
-            VariableTokens = new List<IBaseToken>();
-            ProvidedArgs = new List<IBaseToken>();
+            ProvidedArgs = new List<Token>();
+            LocalVariables = new List<Token>();
 
             //get top level anonymous functions before everything else
             var anonRegex = new Regex(Compiler.ScopeRegex(@"=>"), RegexOptions.IgnorePatternWhitespace);
             var anonRegexMatches = anonRegex.Matches(value);
             foreach(var a in anonRegexMatches)
             {
-                var func = new AnonymousFunction<object>(a.ToString(), true);
+                var func = new AnonymousFunction(a.ToString(), true);
                 TokenParser.FunctionList.Add(func);
                 value = value.Replace(a.ToString(), $"\"{func.Name}\"");
             }
@@ -116,17 +112,15 @@ namespace TastyScript.Lang
         //this constructor is when function is anonomysly named
         public AnonymousFunction(string value, bool anon)
         {
-            GeneratedTokens = new List<IBaseToken>();
-            VariableTokens = new List<IBaseToken>();
-            ProvidedArgs = new List<IBaseToken>();
-
+            ProvidedArgs = new List<Token>();
+            LocalVariables = new List<Token>();
             //get top level anonymous functions before everything else
             value = value.Substring(1);
             var anonRegex = new Regex(Compiler.ScopeRegex(@"=>"), RegexOptions.IgnorePatternWhitespace);
             var anonRegexMatches = anonRegex.Matches(value);
             foreach (var a in anonRegexMatches)
             {
-                var func = new AnonymousFunction<object>(a.ToString(), true);
+                var func = new AnonymousFunction(a.ToString(), true);
                 TokenParser.FunctionList.Add(func);
                 value = value.Replace(a.ToString(), $"\"{func.Name}\"");
             }
@@ -138,15 +132,14 @@ namespace TastyScript.Lang
         //this is the constructor used when function is an override
         public AnonymousFunction(string value, List<IBaseFunction> predefined)
         {
-            GeneratedTokens = new List<IBaseToken>();
-            VariableTokens = new List<IBaseToken>();
-
+            ProvidedArgs = new List<Token>();
+            LocalVariables = new List<Token>();
             //get top level anonymous functions before everything else
             var anonRegex = new Regex(Compiler.ScopeRegex(@"=>"), RegexOptions.IgnorePatternWhitespace);
             var anonRegexMatches = anonRegex.Matches(value);
             foreach (var a in anonRegexMatches)
             {
-                var func = new AnonymousFunction<object>(a.ToString(), true);
+                var func = new AnonymousFunction(a.ToString(), true);
                 TokenParser.FunctionList.Add(func);
                 value = value.Replace(a.ToString(), $"\"{func.Name}\"");
             }
@@ -164,29 +157,30 @@ namespace TastyScript.Lang
             }
             Base = b;
         }
-        public virtual void TryParse(TParameter args, IBaseFunction caller, string lineval = "{0}")
+        public virtual void TryParse(TFunction caller)
         {
             if (caller != null)
             {
                 BlindExecute = caller.BlindExecute;
                 Tracer = caller.Tracer;
+                Caller = caller;
             }
-            LineValue = lineval;
             var findFor = Extensions.FirstOrDefault(f => f.Name == "For") as ExtensionFor;
             if (findFor != null)
             {
                 //if for extension exists, reroutes this tryparse method to the loop version without the for check
-                ForExtension(args, findFor, lineval);
+                ForExtension(caller, findFor);
                 return;
             }
             //combine expected args and given args and add them to variabel pool
-            if (args != null)
+            if (caller != null && caller.Arguments != null)
             {
-                ProvidedArgs = new List<IBaseToken>();
-                for (var i = 0; i < args.Value.Value.Count; i++)
+                ProvidedArgs = new List<Token>();
+                var args = caller.ReturnArgsArray();
+                for (var i = 0; i < args.Length; i++)
                 {
                     var exp = ExpectedArgs[i].Replace("var ", "").Replace(" ", "");
-                    ProvidedArgs.Add(new TObject(exp, args.Value.Value[i]));
+                    ProvidedArgs.Add(new Token(exp, args[i], caller.Line));
                 }
             }
             var guts = Value.Split('{')[1].Split('}');
@@ -194,76 +188,60 @@ namespace TastyScript.Lang
             Lines = new List<Line>();
             foreach (var l in lines)
                 Lines.Add(new Line(l, this));
-            Parse(args);
+            Parse();
         }
-        //this override is when the function is called with the for extension
-        public virtual void TryParse(TParameter args, bool forFlag, IBaseFunction caller, string lineval = "{0}")
+        //this overload is when the function is called with the for extension
+        public virtual void TryParse(TFunction caller, bool forFlag)
         {
             if (caller != null)
             {
                 BlindExecute = caller.BlindExecute;
                 Tracer = caller.Tracer;
+                Caller = caller;
             }
-            LineValue = lineval;
-            if (args != null)
+            //combine expected args and given args and add them to variabel pool
+            if (caller != null && caller.Arguments != null)
             {
-                ProvidedArgs = new List<IBaseToken>();
-                for (var i = 0; i < args.Value.Value.Count; i++)
+                ProvidedArgs = new List<Token>();
+                var args = caller.ReturnArgsArray();
+                for (var i = 0; i < args.Length; i++)
                 {
                     var exp = ExpectedArgs[i].Replace("var ", "").Replace(" ", "");
-                    ProvidedArgs.Add(new TObject(exp, args.Value.Value[i]));
+                    ProvidedArgs.Add(new Token(exp, args[i], caller.Line));
                 }
             }
             var guts = Value.Split('{')[1].Split('}');
-            var addScolons = guts[0].Replace("\r", ";").Replace("\n", ";");
-            addScolons = addScolons.Replace(";;;", ";").Replace(";;", ";");
-            var lines = addScolons.Split(';');
+            var lines = guts[0].Split(';');
             Lines = new List<Line>();
             foreach (var l in lines)
                 Lines.Add(new Line(l, this));
-            Parse(args);
+            Parse();
         }
-        public virtual T Parse(TParameter args)
+        public virtual string Parse()
         {
             foreach (var line in Lines)
             {
-                foreach (var token in line.Tokens)
+                if (!TokenParser.Stop)
                 {
-                    if (!TokenParser.Stop)
-                    {
-                        if (Tracer == null || (!Tracer.Continue && !Tracer.Break))
-                            TryParseMember(token, line.Value);
-                    }
-                    else if (TokenParser.Stop && BlindExecute)
-                    {
-                        //Console.WriteLine($"\t{DateTime.Now.ToString("HH:mm:ss.fff")}:\t{token.Name}");
-                        TryParseMember(token, line.Value);
-                    }
+                    if (Tracer == null || (!Tracer.Continue && !Tracer.Break))
+                        TryParseMember(line.Token);
+                }
+                else if (TokenParser.Stop && BlindExecute)
+                {
+                    //Console.WriteLine($"\t{DateTime.Now.ToString("HH:mm:ss.fff")}:\t{token.Name}");
+                    TryParseMember(line.Token);
                 }
             }
-            return default(T);
+            return "";
         }
-        private void TryParseMember(IBaseToken t, string lineval)
+        private void TryParseMember(TFunction t)
         {
-            if (t.Name.Contains("{AnonGeneratedToken"))
-            {
-                var trystring = t as TObject;
-                //check for anonymous function alone
-                if(trystring != null)
-                {
-                    var tryobj = TokenParser.FunctionList.FirstOrDefault(f => f.Name == trystring.ToString());
-                    if(tryobj != null)
-                    {
-                        tryobj.TryParse(null,this,lineval);
-                        return;
-                    }
-                }
+            if (t == null)
                 return;
-            }
             if (t.Name == "Base")
             {
                 var b = Base;
-                b.Extensions = new List<IExtension>();
+                b.Extensions = new List<EDefinition>();
                 if (t.Extensions != null)
                     b.Extensions = t.Extensions;
 
@@ -279,15 +257,16 @@ namespace TastyScript.Lang
                             b.Extensions.Add(x);
                     }
                 }
-                b.TryParse(t.Arguments, this, lineval);
+                b.TryParse(t);
                 return;
             }
-            var z = t as TFunction;
+            //change this plz
+            var z = t.Function;
             if (t.Extensions != null)
             {
-                z.Value.Value.Extensions = t.Extensions;
+                z.Extensions = t.Extensions;
             }
-            z.Value.Value.TryParse(t.Arguments, this, lineval);
+            z.TryParse(t);
             return;
         }
         /// <summary>
@@ -296,10 +275,10 @@ namespace TastyScript.Lang
         /// </summary>
         /// <param name="args"></param>
         /// <param name="findFor"></param>
-        protected virtual void ForExtension(TParameter args, ExtensionFor findFor, string lineval)
+        protected virtual void ForExtension(TFunction caller, ExtensionFor findFor)
         {
-            TParameter forNumber = findFor.Extend();
-            int forNumberAsNumber = int.Parse(forNumber.Value.Value[0].ToString());
+            string[] forNumber = findFor.Extend();
+            int forNumberAsNumber = int.Parse(forNumber[0]);
             LoopTracer tracer = new LoopTracer();
             Compiler.LoopTracerStack.Add(tracer);
             Tracer = tracer;
@@ -319,7 +298,7 @@ namespace TastyScript.Lang
                         continue;
                     }
 
-                    TryParse(args, true, this, lineval);
+                    TryParse(caller, true);
                 }
                 else
                 {
@@ -328,15 +307,6 @@ namespace TastyScript.Lang
             }
             Compiler.LoopTracerStack.Remove(tracer);
             tracer = null;
-        }
-        public string ValueToString()
-        {
-            //change this to return value at some point
-            return "function." + Name.ToString();
-        }
-        public System.Type GetMemberType()
-        {
-            return typeof(object);
         }
     }
 }

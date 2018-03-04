@@ -10,7 +10,7 @@ using TastyScript.Lang.Tokens;
 using TastyScript.Lang.TokenOLD;
 
 namespace TastyScript.Lang
-{
+{/*
     internal class LineOLD
     {
         public List<IBaseToken> Tokens { get; private set; }
@@ -653,7 +653,7 @@ namespace TastyScript.Lang
                         {
                             tempvar = (tryfunc);
                         }
-                        */
+                        *//*
                     }
                 }
                 if (tempvar == null && !failsafe)
@@ -666,4 +666,5 @@ namespace TastyScript.Lang
             return temp;
         }
     }
+    */
 }

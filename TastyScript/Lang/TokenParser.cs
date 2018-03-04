@@ -15,7 +15,7 @@ namespace TastyScript.Lang
         /// The default sleep timer for android commands in milliseconds
         /// </summary>
         public static double SleepDefaultTime;
-        public static List<IBaseToken> GlobalVariables;
+        public static List<Token> GlobalVariables;
         public static List<Token> AnonymousTokens;
         private static int _anonymousTokensIndex = -1;
         public static int AnonymousTokensIndex
@@ -29,7 +29,8 @@ namespace TastyScript.Lang
         //saving the halt function for later calling
         public static IBaseFunction HaltFunction { get; private set; }
         public static IBaseFunction GuaranteedHaltFunction { get; private set; }
-        public static List<IExtension> Extensions = new List<IExtension>();
+        public static List<EDefinition> Extensions = new List<EDefinition>();
+        
         private static bool _stop;
         public static bool Stop {
             get
@@ -49,13 +50,14 @@ namespace TastyScript.Lang
         {
             CancellationTokenSource = new CancellationTokenSource();
             FunctionList.AddRange(functionList);
-            GlobalVariables = new List<IBaseToken>()
+            AnonymousTokens = new List<Token>();
+            GlobalVariables = new List<Token>()
             {
-            new TObject("DateTime",()=>{return DateTime.Now.ToString(); }, locked:true),
-            new TObject("Date",()=>{return DateTime.Now.ToShortDateString(); }, locked:true),
-            new TObject("Time",()=>{return DateTime.Now.ToShortTimeString(); }, locked:true),
-            new TObject("GetVersion",()=> {return Assembly.GetExecutingAssembly().GetName().Version.ToString(); }, locked:true),
-            new TObject("null","null", locked:true)
+            new Token("DateTime",()=>{return DateTime.Now.ToString(); }, "{0}", locked:true),
+            new Token("Date",()=>{return DateTime.Now.ToShortDateString(); },"{0}", locked:true),
+            new Token("Time",()=>{return DateTime.Now.ToShortTimeString(); },"{0}", locked:true),
+            new Token("GetVersion",()=> {return Assembly.GetExecutingAssembly().GetName().Version.ToString(); },"{0}", locked:true),
+            new Token("null","null","{0}", locked:true)
             };
             StartParse();
         }
@@ -74,7 +76,7 @@ namespace TastyScript.Lang
                 {
                     if (x.Name == "Awake")
                     {
-                        x.TryParse(null,null);
+                        x.TryParse(null);
                     }
                 }
             }
@@ -91,7 +93,7 @@ namespace TastyScript.Lang
             //    Console.WriteLine(x.Name);
             //Stop = true;
 
-            startScope.TryParse(null, null);
+            startScope.TryParse(null);
         }
 
     }
