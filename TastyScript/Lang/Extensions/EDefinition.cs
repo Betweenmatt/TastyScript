@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using TastyScript.Lang.Token;
+using TastyScript.Lang.Tokens;
 
 namespace TastyScript.Lang.Extensions
 {

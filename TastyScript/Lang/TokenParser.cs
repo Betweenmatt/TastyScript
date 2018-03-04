@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using TastyScript.Lang.Extensions;
-using TastyScript.Lang.Token;
+using TastyScript.Lang.Tokens;
 
 namespace TastyScript.Lang
 {
@@ -16,6 +16,16 @@ namespace TastyScript.Lang
         /// </summary>
         public static double SleepDefaultTime;
         public static List<IBaseToken> GlobalVariables;
+        public static List<Token> AnonymousTokens;
+        private static int _anonymousTokensIndex = -1;
+        public static int AnonymousTokensIndex
+        {
+            get
+            {
+                _anonymousTokensIndex++;
+                return _anonymousTokensIndex;
+            }
+        }
         //saving the halt function for later calling
         public static IBaseFunction HaltFunction { get; private set; }
         public static IBaseFunction GuaranteedHaltFunction { get; private set; }

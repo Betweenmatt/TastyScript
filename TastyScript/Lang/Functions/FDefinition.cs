@@ -9,7 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using TastyScript.Android;
 using TastyScript.Lang.Extensions;
-using TastyScript.Lang.Token;
+using TastyScript.Lang.Tokens;
 
 namespace TastyScript.Lang.Functions
 {

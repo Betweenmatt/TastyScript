@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using TastyScript.Android;
 using TastyScript.Lang.Exceptions;
 using TastyScript.Lang.Extensions;
-using TastyScript.Lang.Token;
+using TastyScript.Lang.Tokens;
 
 namespace TastyScript.Lang.Functions
 {

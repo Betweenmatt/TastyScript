@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using TastyScript.Lang.Exceptions;
 using TastyScript.Lang.Extensions;
-using TastyScript.Lang.Token;
+using TastyScript.Lang.Tokens;
 
 namespace TastyScript.Lang
 {

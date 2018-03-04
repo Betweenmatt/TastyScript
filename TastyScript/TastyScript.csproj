@@ -149,6 +149,7 @@
     <Compile Include="Lang\Functions\FDefinition.cs" />
     <Compile Include="Lang\IFunction.cs" />
     <Compile Include="Lang\Line.cs" />
+    <Compile Include="Lang\LineOLD.cs" />
     <Compile Include="Lang\TokenParser.cs" />
     <Compile Include="Lang\Token\IToken.cs" />
     <Compile Include="Lang\Token\TFunction.cs" />
