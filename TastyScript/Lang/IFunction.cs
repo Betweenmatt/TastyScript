@@ -57,6 +57,10 @@ namespace TastyScript.Lang
         private int _generatedTokensIndex = -1;
         public bool Invoking { get; protected set; }
         public bool Sealed { get; private set; }
+        public object GetValue()
+        {
+            throw new NotImplementedException();
+        }
         public int GeneratedTokensIndex
         {
             get

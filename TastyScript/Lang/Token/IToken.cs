@@ -20,9 +20,9 @@ namespace TastyScript.Lang.Token
         {
             return Value.ToString();
         }
-        public System.Type GetMemberType()
+        public object GetValue()
         {
-            return typeof(T);
+            return Value.Value;
         }
     }
     internal interface IBaseToken
@@ -30,7 +30,8 @@ namespace TastyScript.Lang.Token
         bool Locked { get; }
         string Name { get; }
         TParameter Arguments { get; set; }
-        System.Type GetMemberType(); List<IExtension> Extensions { get; set; }
+        object GetValue();
+        List<IExtension> Extensions { get; set; }
     }
 
     internal interface IToken<T> : IBaseToken

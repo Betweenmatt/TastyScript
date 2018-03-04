@@ -39,7 +39,7 @@ namespace TastyScript.Lang.Token
             _name = name;
             _action = action;
         }
-        public void SetValue(string val)
+        public void SetValue(object val)
         {
             _value = new BaseValue<object>(val);
         }

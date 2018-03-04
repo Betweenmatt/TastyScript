@@ -113,8 +113,11 @@
     <Compile Include="Lang\Extensions\ExtensionConcat.cs" />
     <Compile Include="Lang\Extensions\ExtensionElse.cs" />
     <Compile Include="Lang\Extensions\ExtensionFor.cs" />
+    <Compile Include="Lang\Extensions\ExtensionGetIndex.cs" />
+    <Compile Include="Lang\Extensions\ExtensionGetItem.cs" />
     <Compile Include="Lang\Extensions\ExtensionOr.cs" />
     <Compile Include="Lang\Extensions\ExtensionPrint.cs" />
+    <Compile Include="Lang\Extensions\ExtensionSetItem.cs" />
     <Compile Include="Lang\Extensions\ExtensionStart.cs" />
     <Compile Include="Lang\Extensions\ExtensionStop.cs" />
     <Compile Include="Lang\Extensions\ExtensionThen.cs" />

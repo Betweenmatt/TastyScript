@@ -4,7 +4,7 @@
 
 ### Todo
 - [ ] Array get/set functionality
-- [ ] Incremental variables( ++ / -- )
+- [x] Incremental variables( ++ / -- )
 - [x] Seperate functions/commands/drivers to easily adapt to future driver changes/additions etc.
 - [x] Fix the visibility. Like none of these classes should be public lol.
 

@@ -16,5 +16,11 @@ namespace TastyScript.Lang.Token
             _name = name;
             _value = new BaseValue<List<IBaseToken>>(value);
         }
+        public override string ToString()
+        {
+            var str = "[" + String.Join(",",_value.Value);
+            
+            return str += "]";
+        }
     }
 }

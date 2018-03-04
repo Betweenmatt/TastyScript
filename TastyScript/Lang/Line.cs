@@ -13,13 +13,146 @@ namespace TastyScript.Lang
     internal class Line
     {
         public List<IBaseToken> Tokens { get; private set; }
+        private IBaseFunction _reference;
         public string Value { get; private set; }
         public Line(string value, IBaseFunction reference)
         {
             //performance check on a line by line basis
             //Console.WriteLine($"\t{DateTime.Now.ToString("HH:mm:ss.fff")}:\t{value}");
             Value = value;
+            _reference = reference;
             Tokens = Parse(value, reference);
+        }
+        private string ParseStrings(string value)
+        {
+            var stringTokenRegex = new Regex("\"([^\"\"]*)\"", RegexOptions.Multiline);
+            var strings = stringTokenRegex.Matches(value);
+            foreach (var x in strings)
+            {
+                string tokenname = " {AnonGeneratedToken" + _reference.GeneratedTokensIndex + "} ";
+                var tstring = new TObject(tokenname.Replace(" ", ""), Regex.Replace(x.ToString(), "\"", ""));
+                value = value.Replace(x.ToString(), tokenname);
+
+                _reference.GeneratedTokens.Add(tstring);
+            }
+            return value;
+        }
+        private string ParseMathExpressions(string value)
+        {
+            var mathexpRegex = new Regex(@"\[([^\[\]]*)\]", RegexOptions.Multiline);
+            var mathexp = mathexpRegex.Matches(value);
+            foreach (var x in mathexp)
+            {
+                var input = x.ToString().Replace("[", "").Replace("]", "").Replace(" ", "");
+                if (input != null && input != "")
+                {
+                    string tokenname = " {AnonGeneratedToken" + _reference.GeneratedTokensIndex + "} ";
+                    double exp = MathExpression(input, _reference, Value);
+                    _reference.GeneratedTokens.Add(new TObject(tokenname.Replace(" ", ""), exp));
+                    value = value.Replace(x.ToString(), tokenname);
+                }
+            }
+            return value;
+        }
+        private string ParseNumbers(string value)
+        {
+            var numberTokenRegex = new Regex(@"\b-*[0-9\.]+\b", RegexOptions.Multiline);
+            var numbers = numberTokenRegex.Matches(value);
+            foreach (var x in numbers)
+            {
+                string tokenname = " {AnonGeneratedToken" + _reference.GeneratedTokensIndex + "} ";
+                double output = 0;
+                var nofail = double.TryParse(x.ToString(), out output);
+                if (nofail)
+                {
+                    _reference.GeneratedTokens.Add(new TObject(tokenname.Replace(" ", ""), output));
+
+                    //do this regex instead of a blind replace to fix the above issue. NOTE this fix may break decimal use in some situations!!!!
+                    var indvRegex = (@"\b-*" + x + @"\b");
+                    var regex = new Regex(indvRegex);
+                    value = regex.Replace(value, tokenname);
+                }
+            }
+            return value;
+        }
+        private string ParseParameters(string value)
+        {
+            var paramTokenRegex = new Regex(@"\(([^()]*)\)", RegexOptions.Multiline);
+            var paramss = paramTokenRegex.Matches(value);
+            foreach (var x in paramss)
+            {
+                string tokenname = " {AnonGeneratedToken" + _reference.GeneratedTokensIndex + "} ";
+                List<IBaseToken> paramlist = new List<IBaseToken>();
+                var compCheck = ComparisonCheck(x.ToString(), _reference, Value);
+                if (compCheck != "")
+                {
+                    paramlist.Add(new TObject("bool", compCheck));
+                }
+                else
+                {
+                    var splode = x.ToString().Replace("(", "").Replace(")", "").Split(',');
+                    paramlist = GetTokens(splode, _reference, Value);
+                }
+                _reference.GeneratedTokens.Add(new TParameter(tokenname.Replace(" ", ""), paramlist));
+                value = value.Replace(x.ToString(), tokenname);
+            }
+            return value;
+        }
+        private string ParseVariableExtensions(string value)
+        {
+            if (value.Contains("."))
+            {
+                if (!value.Contains(")."))
+                {
+                    //get extensions
+                    var ext = EvaluateExtensions(value, _reference);
+                    //get object to be extended
+                    var strip = value.Split('.');
+                    var objLeft = strip[0];
+                    var objRemoveKeywords = objLeft.Split(new string[] { "+=", "-=", "++", "--", "=" }, StringSplitOptions.RemoveEmptyEntries);
+                    var obj = objRemoveKeywords[objRemoveKeywords.Length - 1];
+                    var objVar = GetTokens(new string[] { obj }, _reference, value, true).FirstOrDefault();
+                    if (objVar != null)
+                    {
+                        foreach (var e in ext)
+                        {
+                            if (e is ExtensionGetItem)
+                            {
+                                string tokenname = " {AnonGeneratedToken" + _reference.GeneratedTokensIndex + "} ";
+                                var thisExt = e as ExtensionGetItem;
+                                _reference.GeneratedTokens.Add(new TObject(tokenname.Replace(" ", ""), thisExt.Extend(objVar).Value.Value[0]));
+                                //replace the old token with the new token, and remove the extension
+                                value = value.Replace(obj + "." + strip[1], tokenname);
+                                //value = value.Replace(obj, tokenname);
+                                //value = value.Replace("." + strip[1], "");
+                            }
+                            if (e is ExtensionSetItem)
+                            {
+                                string tokenname = " {AnonGeneratedToken" + _reference.GeneratedTokensIndex + "} ";
+                                var thisExt = e as ExtensionSetItem;
+                                _reference.GeneratedTokens.Add(new TParameter(tokenname.Replace(" ", ""), thisExt.Extend(objVar).Value.Value));
+                                //replace the old token with the new token, and remove the extension
+                                value = value.Replace(obj + "." + strip[1], tokenname);
+                                //if self-assigning ommitting left hand
+                                if (!value.Contains("="))
+                                {
+                                    //creates the assignment line to compensate from left hand ommission
+                                    value = $"var {obj}={tokenname}";
+                                }
+                            }
+                            if (e is ExtensionGetIndex)
+                            {
+                                string tokenname = " {AnonGeneratedToken" + _reference.GeneratedTokensIndex + "} ";
+                                var thisExt = e as ExtensionGetIndex;
+                                _reference.GeneratedTokens.Add(new TObject(tokenname.Replace(" ", ""), thisExt.Extend(objVar).Value.Value[0]));
+                                //replace the old token with the new token, and remove the extension
+                                value = value.Replace(obj + "." + strip[1], tokenname);
+                            }
+                        }
+                    }
+                }
+            }
+            return value;
         }
         private List<IBaseToken> Parse(string val, IBaseFunction reference)
         {
@@ -33,75 +166,22 @@ namespace TastyScript.Lang
             //    value = value.Split('#')[0];
             //
             //string parsing(look for quotes)
-            var stringTokenRegex = new Regex("\"([^\"\"]*)\"",RegexOptions.Multiline);
-            var strings = stringTokenRegex.Matches(value);
-            foreach (var x in strings)
-            {
-                string tokenname = " {AnonGeneratedToken" + reference.GeneratedTokensIndex + "} ";
-                var tstring = new TObject(tokenname.Replace(" ", ""), Regex.Replace(x.ToString(), "\"", ""));
-                value = value.Replace(x.ToString(), tokenname);
+            value = ParseStrings(value);
 
-                reference.GeneratedTokens.Add(tstring);
-            }
-            
             //
             //do math expressions(look for brackets)
-            var mathexpRegex = new Regex(@"\[([^\[\]]*)\]", RegexOptions.Multiline);
-            var mathexp = mathexpRegex.Matches(value);
-            foreach (var x in mathexp)
-            {
-                var input = x.ToString().Replace("[", "").Replace("]", "").Replace(" ", "");
-                if (input != null && input != "")
-                {
-                    string tokenname = " {AnonGeneratedToken" + reference.GeneratedTokensIndex + "} ";
-                    double exp = MathExpression(input, reference, val);
-                    reference.GeneratedTokens.Add(new TObject(tokenname.Replace(" ", ""), exp));
-                    value = value.Replace(x.ToString(), tokenname);
-                }
-            }
-            
+            value = ParseMathExpressions(value);
+
             //
             //number parsing
-            var numberTokenRegex = new Regex(@"\b-*[0-9\.]+\b", RegexOptions.Multiline);
-            var numbers = numberTokenRegex.Matches(value);
-            foreach (var x in numbers)
-            {
-                string tokenname = " {AnonGeneratedToken" + reference.GeneratedTokensIndex + "} ";
-                double output = 0;
-                var nofail = double.TryParse(x.ToString(), out output);
-                if (nofail) {
-                    reference.GeneratedTokens.Add(new TObject(tokenname.Replace(" ", ""), output));
+            value = ParseNumbers(value);
 
-                    //do this regex instead of a blind replace to fix the above issue. NOTE this fix may break decimal use in some situations!!!!
-                    var indvRegex = (@"\b-*" + x + @"\b");
-                    var regex = new Regex(indvRegex);
-                    value = regex.Replace(value, tokenname);
-                }
-            }
 
-            
             //
             //parameters parsing(look for parentheses)
-            var paramTokenRegex = new Regex(@"\(([^()]*)\)", RegexOptions.Multiline);
-            var paramss = paramTokenRegex.Matches(value);
-            foreach (var x in paramss)
-            {
-                string tokenname = " {AnonGeneratedToken" + reference.GeneratedTokensIndex + "} ";
-                List<IBaseToken> paramlist = new List<IBaseToken>();
-                var compCheck = ComparisonCheck(x.ToString(),reference,val);
-                if (compCheck != "")
-                {
-                    paramlist.Add(new TObject("bool", compCheck));
-                }
-                else
-                {
-                    var splode = x.ToString().Replace("(", "").Replace(")", "").Split(',');
-                    paramlist = GetTokens(splode, reference, val);
-                }
-                reference.GeneratedTokens.Add(new TParameter(tokenname.Replace(" ", ""), paramlist));
-                value = value.Replace(x.ToString(), tokenname);
-            }
+            value = ParseParameters(value);
 
+            value = ParseVariableExtensions(value);
             //
             //if line is variable assignment
             if (value.Contains("var "))
@@ -205,7 +285,7 @@ namespace TastyScript.Lang
                     if (findExt == null)
                     {
                         Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException,
-                            $"[176]Unexpected error getting arguments for extension.", value));
+                            $"[176]Unexpected error getting extension.", value));
                     }
                     //clone the extension because it was breaking
                     var clone = DeepCopy<EDefinition>(findExt as EDefinition);
@@ -274,17 +354,22 @@ namespace TastyScript.Lang
                     numOut++;
                 else
                     numOut--;
-                varRef = new TObject(varRef.Name, numOut);
+                var varRefAsT = varRef as TObject;
+                varRefAsT.SetValue(numOut.ToString());
                 return "";
             }
             var rightHand = assign[1].Replace(" ", "");
-            if (varRef.Locked)
+            if(varRef != null && varRef.Locked)
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
                     $"[282]Cannot re-assign a sealed variable!", lineRef));
             if (rightHand == null || rightHand == "" || rightHand == " ")
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
                     $"[285]Right hand must be a value.", lineRef));
-            var token = GetTokens(new string[] { rightHand }, reference, lineRef)[0];
+            IBaseToken token = GetTokens(new string[] { rightHand }, reference, lineRef).ElementAtOrDefault(0);
+            if(token == null)
+                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
+                    $"[285]Right hand must be a value.", lineRef));
+
             if (strip.Contains("+=") || strip.Contains("-="))
             {
                 if (varRef == null)
@@ -303,7 +388,8 @@ namespace TastyScript.Lang
                         leftNumOut += rightNumOut;
                     else
                         leftNumOut -= rightNumOut;
-                    varRef = new TObject(varRef.Name, leftNumOut);
+                    var varRefAsT = varRef as TObject;
+                    varRefAsT.SetValue(leftNumOut.ToString());
                 }
                 else//one or both arent numbers, which means concatenation intead of incrementation.
                 {
@@ -313,7 +399,8 @@ namespace TastyScript.Lang
                     else
                         Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException, 
                             "[314]Cannot apply the operand -= with type string.", lineRef));
-                    varRef = new TObject(varRef.Name, str);
+                    var varRefAsT = varRef as TObject;
+                    varRefAsT.SetValue(str);
                 }
                 return "";
             }
@@ -527,26 +614,27 @@ namespace TastyScript.Lang
                         continue;
                     if (p.Contains("{AnonGeneratedToken"))
                     {
-                        var obj = reference.GeneratedTokens.FirstOrDefault(f => f.Name == stripws);
-                        if (obj == null)
-                        {
-                            Compiler.ExceptionListener.Throw(new ExceptionHandler($"Generated Token {stripws} could not be found.", val));
-                            return temp;
-                        }
-                        tempvar = obj;
+                            var obj = reference.GeneratedTokens.FirstOrDefault(f => f.Name == stripws);
+                            if (obj == null)
+                            {
+                                //Compiler.ExceptionListener.Throw(new ExceptionHandler($"[555]Generated Token {stripws} could not be found.", val));
+                                return temp;
+                            }
+                            tempvar = obj;
+                        
                     }
                     else
                     {
                         var tryglob = TokenParser.GlobalVariables.FirstOrDefault(f => f.Name == stripws);
                         if (tryglob != null)
                         {
-                            var globval = tryglob.ToString();
+                            var globval = tryglob.GetValue();
                             tempvar = (new TObject(tryglob.Name, globval));
                         }
                         var tryvar = reference.VariableTokens.FirstOrDefault(f => f.Name == stripws);
                         if (tryvar != null)
                         {
-                            var varval = tryvar.ToString();
+                            var varval = tryvar.GetValue();
                             tempvar = (new TObject(tryvar.Name, varval));
                         }
                         if (reference.ProvidedArgs != null)
@@ -554,7 +642,7 @@ namespace TastyScript.Lang
                             var trypar = reference.ProvidedArgs.FirstOrDefault(f => f.Name == stripws);
                             if (trypar != null)
                             {
-                                var parval = trypar.ToString();
+                                var parval = trypar.GetValue();
                                 tempvar = (new TObject(trypar.Name, parval));
                             }
                         }
@@ -568,8 +656,10 @@ namespace TastyScript.Lang
                     }
                 }
                 if (tempvar == null && !failsafe)
+                {
                     Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException,
                         $"[503]Unknown variable [{stripws}] found.", val));
+                }
                 temp.Add(tempvar);
             }
             return temp;

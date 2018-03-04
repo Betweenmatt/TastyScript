@@ -26,6 +26,10 @@ namespace TastyScript.Lang.Extensions
         {
             return Arguments;
         }
+        public virtual TParameter Extend(IBaseToken input)
+        {
+            return Arguments;
+        }
         public void SetProperties(string name, string[] args, bool invoking = false)
         {
             Name = name;
