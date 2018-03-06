@@ -17,6 +17,7 @@ namespace TastyScript.Lang
         bool BlindExecute { get; set; }
         LoopTracer Tracer { get; }
         bool Invoking { get; }
+        string Value { get; }
         string[] GetInvokeProperties();
         void SetInvokeProperties(string[] args);
         void TryParse(TFunction caller);
@@ -72,7 +73,10 @@ namespace TastyScript.Lang
         }
         public string[] GetInvokeProperties()
         {
-            return invokeProperties;
+            if (invokeProperties == null)
+                return new string[] { };
+            else
+                return invokeProperties;
         }
         public void SetProperties(string name, string[] args, bool invoking, bool isSealed)
         {
@@ -173,14 +177,25 @@ namespace TastyScript.Lang
                 return;
             }
             //combine expected args and given args and add them to variabel pool
-            if (caller != null && caller.Arguments != null)
-            {
-                ProvidedArgs = new List<Token>();
-                var args = caller.ReturnArgsArray();
-                for (var i = 0; i < args.Length; i++)
+            if (caller != null && caller.Arguments != null && ExpectedArgs != null && ExpectedArgs.Length > 0)
+            {try
                 {
-                    var exp = ExpectedArgs[i].Replace("var ", "").Replace(" ", "");
-                    ProvidedArgs.Add(new Token(exp, args[i], caller.Line));
+                    ProvidedArgs = new List<Token>();
+                    var args = caller.ReturnArgsArray();
+                    if (args.Length > 0)
+                    {
+                        for (var i = 0; i < args.Length; i++)
+                        {
+                            var exp = ExpectedArgs[i].Replace("var ", "").Replace(" ", "");
+                            ProvidedArgs.Add(new Token(exp, args[i], caller.Line));
+                        }
+                    }
+                }
+                catch
+                {
+                    Console.WriteLine($"args: {string.Join(",", caller.ReturnArgsArray())}");
+                    Console.WriteLine($"expect: {string.Join(",", ExpectedArgs)}");
+                    throw;
                 }
             }
             var guts = Value.Split('{')[1].Split('}');
@@ -200,14 +215,17 @@ namespace TastyScript.Lang
                 Caller = caller;
             }
             //combine expected args and given args and add them to variabel pool
-            if (caller != null && caller.Arguments != null)
+            if (caller != null && caller.Arguments != null && ExpectedArgs != null && ExpectedArgs.Length > 0)
             {
                 ProvidedArgs = new List<Token>();
                 var args = caller.ReturnArgsArray();
-                for (var i = 0; i < args.Length; i++)
+                if (args.Length > 0)
                 {
-                    var exp = ExpectedArgs[i].Replace("var ", "").Replace(" ", "");
-                    ProvidedArgs.Add(new Token(exp, args[i], caller.Line));
+                    for (var i = 0; i < args.Length; i++)
+                    {
+                        var exp = ExpectedArgs[i].Replace("var ", "").Replace(" ", "");
+                        ProvidedArgs.Add(new Token(exp, args[i], caller.Line));
+                    }
                 }
             }
             var guts = Value.Split('{')[1].Split('}');
@@ -228,7 +246,7 @@ namespace TastyScript.Lang
                 }
                 else if (TokenParser.Stop && BlindExecute)
                 {
-                    //Console.WriteLine($"\t{DateTime.Now.ToString("HH:mm:ss.fff")}:\t{token.Name}");
+                    //Console.WriteLine($"\t{DateTime.Now.ToString("HH:mm:ss.fff")}:\t{line.Token.Name}");
                     TryParseMember(line.Token);
                 }
             }
@@ -238,12 +256,16 @@ namespace TastyScript.Lang
         {
             if (t == null)
                 return;
+            if (BlindExecute)
+                t.BlindExecute = true;
             if (t.Name == "Base")
             {
                 var b = Base;
                 b.Extensions = new List<EDefinition>();
                 if (t.Extensions != null)
                     b.Extensions = t.Extensions;
+                if (t.Function.BlindExecute)
+                    b.BlindExecute = true;
 
                 ///This is the whitelist for passing extensions to the Base function
                 ///
@@ -261,11 +283,13 @@ namespace TastyScript.Lang
                 return;
             }
             //change this plz
+           
             var z = t.Function;
             if (t.Extensions != null)
             {
                 z.Extensions = t.Extensions;
             }
+            
             z.TryParse(t);
             return;
         }

@@ -44,14 +44,17 @@ namespace TastyScript.Lang.Functions
                 ForExtension(caller, findFor);
                 return;
             }
-            if (caller != null && caller.Arguments != null)
+            if (caller != null && caller.Arguments != null && ExpectedArgs != null && ExpectedArgs.Length > 0)
             {
                 ProvidedArgs = new List<Token>();
                 var args = caller.ReturnArgsArray();
-                for (var i = 0; i < args.Length; i++)
+                if (args.Length > 0)
                 {
-                    var exp = ExpectedArgs[i].Replace("var ", "").Replace(" ", "");
-                    ProvidedArgs.Add(new Token(exp, args[i], caller.Line));
+                    for (var i = 0; i < args.Length; i++)
+                    {
+                        var exp = ExpectedArgs[i].Replace("var ", "").Replace(" ", "");
+                        ProvidedArgs.Add(new Token(exp, args[i], caller.Line));
+                    }
                 }
             }
             Parse();
@@ -65,14 +68,17 @@ namespace TastyScript.Lang.Functions
                 Caller = caller;
                 Extensions = caller.Extensions;
             }
-            if (caller != null && caller.Arguments != null)
+            if (caller != null && caller.Arguments != null && ExpectedArgs != null && ExpectedArgs.Length > 0)
             {
                 ProvidedArgs = new List<Token>();
                 var args = caller.ReturnArgsArray();
-                for (var i = 0; i < args.Length; i++)
+                if (args.Length > 0)
                 {
-                    var exp = ExpectedArgs[i].Replace("var ", "").Replace(" ", "");
-                    ProvidedArgs.Add(new Token(exp, args[i], caller.Line));
+                    for (var i = 0; i < args.Length; i++)
+                    {
+                        var exp = ExpectedArgs[i].Replace("var ", "").Replace(" ", "");
+                        ProvidedArgs.Add(new Token(exp, args[i], caller.Line));
+                    }
                 }
             }
             Parse();

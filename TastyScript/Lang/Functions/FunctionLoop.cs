@@ -53,6 +53,10 @@ namespace TastyScript.Lang.Functions
                             {
                                 passed[0] = x.ToString();
                             }
+                            else
+                            {
+                                passed = new string[] { x.ToString() };
+                            }
                         }
                         else
                         {
@@ -95,6 +99,10 @@ namespace TastyScript.Lang.Functions
                             if (getFirstElement != null)
                             {
                                 passed[0] = x.ToString();
+                            }
+                            else
+                            {
+                                passed = new string[] { x.ToString() };
                             }
                         }
                         else

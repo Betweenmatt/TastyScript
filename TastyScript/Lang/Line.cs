@@ -20,6 +20,7 @@ namespace TastyScript.Lang
 
         public Line(string val, IBaseFunction reference)
         {
+            Compiler.ExceptionListener.SetCurrentLine(val);
             Value = val;
             _reference = reference;
             Token = WalkTree(val);
@@ -27,7 +28,7 @@ namespace TastyScript.Lang
 
         private TFunction WalkTree(string value)
         {
-            
+            value = value.Replace("\r", "").Replace("\n", "").Replace("\t", "");
             TFunction temp = null;
             value = ParseMathExpressions(value);
             value = ParseArrays(value);
@@ -138,8 +139,8 @@ namespace TastyScript.Lang
                         param = string.Join(",", commaSplit);
                     }
                     TokenParser.AnonymousTokens.Add(new Token(tokenname, $"[{param}]", val));
-                    val = val.Replace(a.ToString(), "->" + tokenname + "|");
                 }
+                val = val.Replace(a.ToString(), "->" + tokenname + "|");
             }
             return val;
         }
@@ -157,13 +158,13 @@ namespace TastyScript.Lang
                     var first = firstSplit[i];
                     var secondSplit = first.Split(new string[] { "->" }, StringSplitOptions.None);
                     if (secondSplit.Length != 2)
-                        Compiler.ExceptionListener.Throw("Extensions must provide arguments");
+                        Compiler.ExceptionListener.Throw("[160]Extensions must provide arguments",ExceptionType.SyntaxException);
                     var original = TokenParser.Extensions.FirstOrDefault(f => f.Name == secondSplit[0]);
                     //Console.WriteLine(secondSplit[0] + " " + secondSplit[1]);
                     var clone = DeepCopy<EDefinition>(original);
                     var param = GetTokens(new string[] { secondSplit[1].Replace("|", "") });
                     if (param.Count != 1)
-                        Compiler.ExceptionListener.Throw("Extensions must provide arguments");
+                        Compiler.ExceptionListener.Throw("[166]Extensions must provide arguments", ExceptionType.SyntaxException);
                     clone.SetArguments(param[0].ToString());
                     temp.Add(clone);
                 }
@@ -178,45 +179,50 @@ namespace TastyScript.Lang
             var secondSplit = firstSplit.Split(new string[] { "->" }, StringSplitOptions.None);
             var func = TokenParser.FunctionList.FirstOrDefault(f => f.Name == secondSplit[0]);
             if (func == null)
-                Compiler.ExceptionListener.Throw($"Cannot find function [{secondSplit[0]}]");
+                Compiler.ExceptionListener.Throw($"[181]Cannot find function [{secondSplit[0]}]", ExceptionType.SyntaxException);
             //get args
             var param = GetTokens(new string[] { secondSplit[1] });
             if (param.Count != 1)
-                Compiler.ExceptionListener.Throw("Extensions must provide arguments");
+                Compiler.ExceptionListener.Throw("[185]Extensions must provide arguments", ExceptionType.SyntaxException);
             var returnObj = new TFunction(func, ext, param[0].ToString());
             temp = returnObj;
             return temp;
         }
 
-        private List<Token> GetTokens(string[] names, bool safe = false)
+        private List<Token> GetTokens(string[] names, bool safe = false, bool returnInput = false)
         {
             List<Token> temp = new List<Token>();
             foreach (var n in names)
             {
-                var tryLocal = _reference.LocalVariables.FirstOrDefault(f => f.Name == n);
+                var stripws = n.Replace(" ", "");
+                var tryLocal = _reference.LocalVariables.FirstOrDefault(f => f.Name == stripws);
                 if (tryLocal != null)
                 {
-                    temp.Add(new Token(n,tryLocal.Value,Value));
+                    temp.Add(new Token(stripws, tryLocal.Value,Value));
                     continue;
                 }
-                var tryGlobal = TokenParser.GlobalVariables.FirstOrDefault(f => f.Name == n);
+                var tryGlobal = TokenParser.GlobalVariables.FirstOrDefault(f => f.Name == stripws);
                 if (tryGlobal != null)
                 {
-                    temp.Add(new Token(n, tryGlobal.Value, Value));
+                    temp.Add(new Token(stripws, tryGlobal.Value, Value));
                     continue;
                 }
-                var tryAnon = TokenParser.AnonymousTokens.FirstOrDefault(f => f.Name == n);
+                var tryAnon = TokenParser.AnonymousTokens.FirstOrDefault(f => f.Name == stripws);
                 if (tryAnon != null)
                 {
-                    temp.Add(new Token(n, tryAnon.Value, Value));
+                    temp.Add(new Token(stripws, tryAnon.Value, Value));
                     continue;
                 }
                 //try params?
-                var tryParams = _reference.ProvidedArgs.FirstOrDefault(f => f.Name == n);
+                var tryParams = _reference.ProvidedArgs.FirstOrDefault(f => f.Name == stripws);
                 if(tryParams != null)
                 {
-                    temp.Add(new Token(n, tryParams.Value, Value));
+                    temp.Add(new Token(stripws, tryParams.Value, Value));
                     continue;
+                }
+                if (returnInput)
+                {
+                    temp.Add(new Token(stripws, stripws, Value));
                 }
             }
 
@@ -303,7 +309,7 @@ namespace TastyScript.Lang
                     break;
             }
             var splitop = line.Split(new string[] { opString }, StringSplitOptions.None);
-            var lr = GetTokens(new string[] { splitop[0], splitop[1] });
+            var lr = GetTokens(new string[] { splitop[0], splitop[1] },true,true);
             if (lr.Count != 2)
                 Compiler.ExceptionListener.Throw("There must be one left-hand and one right-hand in comparison objects.",
                     ExceptionType.SyntaxException);

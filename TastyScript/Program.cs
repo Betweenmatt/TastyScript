@@ -14,6 +14,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Drawing;
 using TastyScript.Lang.Extensions;
+using TastyScript.Lang.Tokens;
 
 namespace TastyScript
 {

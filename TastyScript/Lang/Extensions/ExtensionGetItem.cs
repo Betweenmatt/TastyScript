@@ -10,7 +10,7 @@ namespace TastyScript.Lang.Extensions
     /// <summary>
     /// Gets the item from the extended collection at the given index
     /// </summary>
-    [Extension("GetItem", new string[] { "index" })]
+    [Extension("GetItem", new string[] { "index" }, FunctionObsolete: true)]
     [Serializable]
     internal class ExtensionGetItem : EDefinition
     {

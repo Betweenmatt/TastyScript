@@ -33,14 +33,14 @@ namespace TastyScript.Lang.Tokens
         /// <param name="val"></param>
         /// <param name="line"></param>
         public Token() { }
-        public Token(string name, string val, string line, bool locked = true)
+        public Token(string name, string val, string line, bool locked = false)
         {
             Name = name;
             _value = val;
             Line = line;
             Locked = locked;
         }
-        public Token(string name, Func<string> action, string line, bool locked = true)
+        public Token(string name, Func<string> action, string line, bool locked = false)
         {
             Name = name;
             _action = action;
@@ -73,7 +73,7 @@ namespace TastyScript.Lang.Tokens
     {
         public IBaseFunction Function { get; private set; }
         public string Arguments { get; private set; }
-        public bool BlindExecute { get; }
+        public bool BlindExecute { get; set; }
         public LoopTracer Tracer { get; }
         public TFunction(IBaseFunction func, List<EDefinition> ext, string args)
         {

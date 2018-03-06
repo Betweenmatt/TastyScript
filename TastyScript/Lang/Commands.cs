@@ -48,19 +48,21 @@ namespace TastyScript.Lang
         }
         public static void AnalyzeScreen(string success, IBaseFunction successAction, IBaseFunction failureAction, int thresh, TFunction caller = null)
         {
+            var tfunc = new TFunction(caller.Function, null, string.Join(",",caller.Function.GetInvokeProperties()));
             AnalyzeScreen ascreen = new AnalyzeScreen();
             ascreen.Analyze(success,
-                () => { successAction.TryParse(caller); },
-                () => { failureAction.TryParse(caller); },
+                () => { successAction.TryParse(tfunc); },
+                () => { failureAction.TryParse(tfunc); },
                 thresh
             );
         }
         public static void AnalyzeScreen(string success, string failure, IBaseFunction successAction, IBaseFunction failureAction, int thresh, TFunction caller = null)
         {
+            var tfunc = new TFunction(caller.Function, null, string.Join(",", caller.Function.GetInvokeProperties()));
             AnalyzeScreen ascreen = new AnalyzeScreen();
             ascreen.Analyze(success, failure,
-                () => { successAction.TryParse(caller); },
-                () => { failureAction.TryParse(caller); },
+                () => { successAction.TryParse(tfunc); },
+                () => { failureAction.TryParse(tfunc); },
                 thresh
             );
         }
