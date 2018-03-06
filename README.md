@@ -21,6 +21,7 @@ Now you're good to run any scripts you choose! Take a look at the [Examples](/Ex
 
 For a list of console commands check out the [Wiki](/Wiki/ConsoleCommands.md).
 
+[Connecting to Nox on ADB](https://stackoverflow.com/a/47151050/3496006)
 
 # Requirements
 Windows computer with .Net 4.5
