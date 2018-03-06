@@ -40,6 +40,8 @@ namespace TastyScript.Lang
             if (wscheckk)
                 return temp;
             //
+            //get var extensions before normal extensions
+            value = EvaluateVarExtensions(value);
             var ext = ParseExtensions(value);
             //vars here
             if (value.Contains("var "))
@@ -135,7 +137,7 @@ namespace TastyScript.Lang
                         }
                         param = string.Join(",", commaSplit);
                     }
-                    TokenParser.AnonymousTokens.Add(new Token(tokenname, param.Replace("\"",""), val));
+                    TokenParser.AnonymousTokens.Add(new Token(tokenname, $"[{param}]", val));
                     val = val.Replace(a.ToString(), "->" + tokenname + "|");
                 }
             }
@@ -194,26 +196,26 @@ namespace TastyScript.Lang
                 var tryLocal = _reference.LocalVariables.FirstOrDefault(f => f.Name == n);
                 if (tryLocal != null)
                 {
-                    temp.Add(new Token(n,tryLocal.ToString(),Value));
+                    temp.Add(new Token(n,tryLocal.Value,Value));
                     continue;
                 }
                 var tryGlobal = TokenParser.GlobalVariables.FirstOrDefault(f => f.Name == n);
                 if (tryGlobal != null)
                 {
-                    temp.Add(new Token(n, tryGlobal.ToString(), Value));
+                    temp.Add(new Token(n, tryGlobal.Value, Value));
                     continue;
                 }
                 var tryAnon = TokenParser.AnonymousTokens.FirstOrDefault(f => f.Name == n);
                 if (tryAnon != null)
                 {
-                    temp.Add(new Token(n, tryAnon.ToString(), Value));
+                    temp.Add(new Token(n, tryAnon.Value, Value));
                     continue;
                 }
                 //try params?
                 var tryParams = _reference.ProvidedArgs.FirstOrDefault(f => f.Name == n);
                 if(tryParams != null)
                 {
-                    temp.Add(new Token(n, tryParams.ToString(), Value));
+                    temp.Add(new Token(n, tryParams.Value, Value));
                     continue;
                 }
             }
@@ -373,6 +375,63 @@ namespace TastyScript.Lang
 
         }
 
+        private string EvaluateVarExtensions(string val)
+        {
+            var value = val;
+            if (val.Contains("<-"))
+            {
+                //get extensions
+                var ext = ParseExtensions(value);
+                //get object to be extended
+                var strip = value.Split(new string[] { "<-" },StringSplitOptions.None);
+                var objLeft = strip[0];
+                var objRemoveKeywords = objLeft.Split(new string[] { "+=", "-=", "++", "--", "=" }, StringSplitOptions.RemoveEmptyEntries);
+                var obj = objRemoveKeywords[objRemoveKeywords.Length - 1];
+                var objVar = GetTokens(new string[] { obj.Replace("|","") }, true).FirstOrDefault();
+                if (objVar != null)
+                {
+                    foreach (var e in ext)
+                    {
+                        if (e is ExtensionGetItem)
+                        {
+                            string tokenname = "{AnonGeneratedToken" + TokenParser.AnonymousTokensIndex + "}";
+                            var thisExt = e as ExtensionGetItem;
+                            TokenParser.AnonymousTokens.Add(
+                                new Token(tokenname, thisExt.Extend(objVar)[0], Value));
+                            //replace the old token with the new token, and remove the extension
+                            value = value.Replace(obj + "<-" + strip[1], tokenname);
+                            //value = value.Replace(obj, tokenname);
+                            //value = value.Replace("." + strip[1], "");
+                        }
+                        if (e is ExtensionSetItem)
+                        {
+                            string tokenname = "{AnonGeneratedToken" + TokenParser.AnonymousTokensIndex + "}";
+                            var thisExt = e as ExtensionSetItem;
+                            TokenParser.AnonymousTokens.Add(
+                                new Token(tokenname, string.Join(",", thisExt.Extend(objVar)), Value));
+                            //replace the old token with the new token, and remove the extension
+                            value = value.Replace(obj + "<-" + strip[1], tokenname);
+                            //if self-assigning ommitting left hand
+                            if (!value.Contains("="))
+                            {
+                                //creates the assignment line to compensate from left hand ommission
+                                value = $"var {obj}={tokenname}";
+                            }
+                        }
+                        if (e is ExtensionGetIndex)
+                        {
+                            string tokenname = "{AnonGeneratedToken" + TokenParser.AnonymousTokensIndex + "}";
+                            var thisExt = e as ExtensionGetIndex;
+                            TokenParser.AnonymousTokens.Add(
+                                new Token(tokenname, thisExt.Extend(objVar)[0], Value));
+                            //replace the old token with the new token, and remove the extension
+                            value = value.Replace(obj + "<-" + strip[1], tokenname);
+                        }
+                    }
+                }
+            }
+            return value;
+        }
         private string EvaluateVar(string value)
         {
             //get the var scope
@@ -419,6 +478,11 @@ namespace TastyScript.Lang
                 return "";
             }
             var rightHand = assign[1].Replace(" ", "");
+            if (rightHand.Contains("<-"))
+            {
+                //rightHand = EvaluateVarExtensions(rightHand);
+            }
+            rightHand = rightHand.Replace("->", "").Replace("|","");//just in case
             if (varRef != null && varRef.Locked)
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
                     $"[282]Cannot re-assign a sealed variable!", Value));

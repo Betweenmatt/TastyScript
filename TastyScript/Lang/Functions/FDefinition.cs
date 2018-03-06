@@ -35,6 +35,7 @@ namespace TastyScript.Lang.Functions
                 BlindExecute = caller.BlindExecute;
                 Tracer = caller.Tracer;
                 Caller = caller;
+                Extensions = caller.Extensions;
             }
             var findFor = Extensions.FirstOrDefault(f => f.Name == "For") as ExtensionFor;
             if (findFor != null)
@@ -62,6 +63,7 @@ namespace TastyScript.Lang.Functions
                 BlindExecute = caller.BlindExecute;
                 Tracer = caller.Tracer;
                 Caller = caller;
+                Extensions = caller.Extensions;
             }
             if (caller != null && caller.Arguments != null)
             {

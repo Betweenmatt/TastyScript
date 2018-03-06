@@ -28,12 +28,24 @@ namespace TastyScript.Lang.Extensions
         public virtual string[] Extend()
         {
             var commaRegex = new Regex(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
-            return commaRegex.Split(Arguments);
+            var reg =  commaRegex.Split(Arguments);
+            for (var i = 0; i < reg.Length; i++)
+            {
+                //get them quotes outta here!
+                reg[i] = reg[i].Replace("\"", "");
+            }
+            return reg;
         }
         public virtual string[] Extend(Token input)
         {
             var commaRegex = new Regex(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
-            return commaRegex.Split(Arguments);
+            var reg = commaRegex.Split(Arguments);
+            for (var i = 0; i < reg.Length; i++)
+            {
+                //get them quotes outta here!
+                reg[i] = reg[i].Replace("\"", "");
+            }
+            return reg;
         }
         public void SetProperties(string name, string[] args, bool invoking = false)
         {

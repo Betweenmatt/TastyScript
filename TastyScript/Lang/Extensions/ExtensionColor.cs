@@ -8,5 +8,10 @@ namespace TastyScript.Lang.Extensions
 {
     [Extension("Color", new string[] { "color" })]
     [Serializable]
-    internal class ExtensionColor : EDefinition { }
+    internal class ExtensionColor : EDefinition {
+        public override string[] Extend()
+        {
+            return base.Extend();
+        }
+    }
 }
