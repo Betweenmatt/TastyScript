@@ -24,6 +24,8 @@ namespace TastyScript.Lang
         void SetProperties(string name, string[] args, bool invoking, bool isSealed);
         bool Sealed { get; }
         List<Token> LocalVariables { get; set; }
+        Token ReturnBubble { get; set; }
+        bool ReturnFlag { get; set; }
     }
     internal interface IFunction : IBaseFunction
     {
@@ -55,6 +57,8 @@ namespace TastyScript.Lang
         public bool Sealed { get; private set; }
         public List<Token> LocalVariables { get; set; }
         public TFunction Caller { get; protected set; }
+        public Token ReturnBubble { get;  set; }
+        public bool ReturnFlag { get;  set; }
         public object GetValue()
         {
             throw new NotImplementedException();
@@ -193,10 +197,11 @@ namespace TastyScript.Lang
             }
             var guts = Value.Split('{')[1].Split('}');
             var lines = guts[0].Split(';');
-            Lines = new List<Line>();
+            //Lines = new List<Line>();
             foreach (var l in lines)
-                Lines.Add(new Line(l, this));
-            Parse();
+                new Line(l, this);
+                //Lines.Add(new Line(l, this));
+            //Parse();
         }
         //this overload is when the function is called with the for extension
         public virtual void TryParse(TFunction caller, bool forFlag)
@@ -223,13 +228,15 @@ namespace TastyScript.Lang
             }
             var guts = Value.Split('{')[1].Split('}');
             var lines = guts[0].Split(';');
-            Lines = new List<Line>();
+            //Lines = new List<Line>();
             foreach (var l in lines)
-                Lines.Add(new Line(l, this));
-            Parse();
+                new Line(l, this);
+                //Lines.Add(new Line(l, this));
+            //Parse();
         }
         public virtual string Parse()
         {
+            /*
             foreach (var line in Lines)
             {
                 if (!TokenParser.Stop)
@@ -244,9 +251,12 @@ namespace TastyScript.Lang
                 }
             }
             return "";
+            */
+            return "";
         }
         private void TryParseMember(TFunction t)
         {
+            /*
             if (t == null)
                 return;
             if (BlindExecute)
@@ -285,6 +295,7 @@ namespace TastyScript.Lang
             
             z.TryParse(t);
             return;
+            */
         }
         /// <summary>
         /// Override this method if you do not want to include it as a function.

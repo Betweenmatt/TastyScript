@@ -62,7 +62,7 @@ namespace TastyScript.Lang.Functions
                         {
                             passed = new string[] { x.ToString() };
                         }
-                        func.TryParse(new TFunction(Caller.Function, null, passed));
+                        func.TryParse(new TFunction(Caller.Function, null, passed, Caller.CallingFunction));
                     }
                     else
                     {
@@ -109,7 +109,7 @@ namespace TastyScript.Lang.Functions
                         {
                             passed = new string[] { x.ToString() };
                         }
-                        func.TryParse(new TFunction(Caller.Function, null, passed));
+                        func.TryParse(new TFunction(Caller.Function, null, passed, Caller.CallingFunction));
                         x++;
                     }
                     else

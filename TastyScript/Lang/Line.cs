@@ -16,14 +16,16 @@ namespace TastyScript.Lang
     {
         private IBaseFunction _reference;
         public string Value { get; private set; }
-        public TFunction Token { get; private set; }
+        //public TFunction Token { get; private set; }
 
         public Line(string val, IBaseFunction reference)
         {
             Compiler.ExceptionListener.SetCurrentLine(val);
             Value = val;
             _reference = reference;
-            Token = WalkTree(val);
+            //Token = 
+                WalkTree(val);
+            
         }
         private string ReplaceAllNotInStringWhiteSpace(string value)
         {
@@ -37,6 +39,7 @@ namespace TastyScript.Lang
                 }
                 if (level)
                 {   
+                    //these symbols are for preserving strings.
                     switch (value[i])
                     {/*
                         case ('+'):
@@ -87,12 +90,12 @@ namespace TastyScript.Lang
             }
             return output;
         }
-        private TFunction WalkTree(string value)
+        private void WalkTree(string value)
         {
             //value = value.Replace("\r", "").Replace("\n", "").Replace("\t", "");
             value = value.ReplaceFirst("var ", "var%");
             value = ReplaceAllNotInStringWhiteSpace(value);
-            TFunction temp = null;
+            //TFunction temp = null;
             value = ParseMathExpressions(value);
             value = ParseArrays(value);
             value = ParseParameters(value);
@@ -103,21 +106,26 @@ namespace TastyScript.Lang
             var wscheck = new Regex(@"^\s*$");
             var wscheckk = wscheck.IsMatch(value);
             if (wscheckk)
-                return temp;
+                return;// temp;
             //
             //get var extensions before normal extensions
-            value = EvaluateVarExtensions(value);
-            var ext = ParseExtensions(value);
+            
+            
             //vars here
             if (value.Contains("var%"))
             {
                 value = EvaluateVar(value);
                 if (value == "")
-                    return temp;
+                    return;// temp;
             }
+            //try extension sweep after vars instead of before
+            //value = EvaluateVarExtensions(value);
+            var ext = ParseExtensions(value);
+
             //
-            temp = ParseFunctions(value, ext);
-            return temp;
+            //temp =
+            ParseFunctions(value, ext);
+            return;// temp;
         }
         private string ParseStrings(string value)
         {
@@ -187,6 +195,13 @@ namespace TastyScript.Lang
                     param = ParseParameters(param);
                     param = param.Replace(".", "<-").Replace("\n", "").Replace("\r", "").Replace("\t", "");
                     param = EvaluateVarExtensions(param);
+                    
+                    var fext = ParseExtensions(param);
+                    var fcheckSplit = param.Split(new string[] { "->" }, StringSplitOptions.None);
+                    var fcheck = TokenParser.FunctionList.FirstOrDefault(f => f.Name == fcheckSplit[0]);
+                    if(fcheck != null)
+                        param = ParseFunctions(param, fext);
+                    
                 }
                 string tokenname = "{AnonGeneratedToken" + TokenParser.AnonymousTokensIndex + "}";
                 
@@ -304,15 +319,20 @@ namespace TastyScript.Lang
             }
             return temp;
         }
-        private TFunction ParseFunctions(string value, List<EDefinition> ext)
+        private string ParseFunctions(string value, List<EDefinition> ext, bool safelook = false)
         {
             TFunction temp = null;
-
+            string val = value;
             var firstSplit = value.Split('|')[0];
             var secondSplit = firstSplit.Split(new string[] { "->" }, StringSplitOptions.None);
             var func = TokenParser.FunctionList.FirstOrDefault(f => f.Name == secondSplit[0]);
             if (func == null)
-                Compiler.ExceptionListener.Throw($"[181]Cannot find function [{secondSplit[0]}]", ExceptionType.SyntaxException);
+            {
+                if (safelook)
+                    return "";
+                else
+                    Compiler.ExceptionListener.Throw($"[181]Cannot find function [{secondSplit[0]}]", ExceptionType.SyntaxException);
+            }
             //get args
             var param = GetTokens(new string[] { secondSplit[1] });
             if (param.Count != 1)
@@ -335,9 +355,19 @@ namespace TastyScript.Lang
                     }
                 }
             }
-            var returnObj = new TFunction(func, ext, param[0].ToString());
+            var returnObj = new TFunction(func, ext, param[0].ToString(),_reference);
             temp = returnObj;
-            return temp;
+            //do the whole returning thing
+            var getret = Parse(temp);
+            if (getret != null)
+            {
+                string tokenname = "{AnonGeneratedToken" + TokenParser.AnonymousTokensIndex + "}";
+                getret.SetName(tokenname);
+                TokenParser.AnonymousTokens.Add(getret);
+                val = tokenname;
+                return val;
+            }
+            return "null";
         }
 
         private List<Token> GetTokens(string[] names, bool safe = false, bool returnInput = false)
@@ -378,7 +408,10 @@ namespace TastyScript.Lang
             }
 
             if (temp.Count == 0 && !safe)
-                Compiler.ExceptionListener.Throw($"Cannot find tokens [{string.Join(",",names)}]");
+            {
+                //throw new Exception();
+                Compiler.ExceptionListener.Throw($"Cannot find tokens [{string.Join(",", names)}]");
+            }
             return temp;
         }
         private double MathExpression(string expression)
@@ -576,7 +609,7 @@ namespace TastyScript.Lang
                             if (!value.Contains("="))
                             {
                                 //creates the assignment line to compensate from left hand ommission
-                                value = $"var%{obj}={tokenname}";
+                                //value = $"var%{obj}={tokenname}";
                             }
                         }
                         if (e is ExtensionGetIndex)
@@ -623,7 +656,9 @@ namespace TastyScript.Lang
             //get the left hand
             var leftHand = assign[0].Replace(" ", "");
             var varRef = varList.FirstOrDefault(f => f.Name == leftHand);
-
+            if (varRef != null && varRef.Locked)
+                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
+                    $"[282]Cannot re-assign a sealed variable!", Value));
             //one sided assignment
             if (strip.Contains("++") || strip.Contains("--"))
             {
@@ -639,15 +674,51 @@ namespace TastyScript.Lang
                 varRef.SetValue(numOut.ToString());
                 return "";
             }
+            Token token = null;
             var rightHand = assign[1].Replace(" ", "");
-            if (rightHand.Contains("<-"))
+            //if (rightHand.Contains('+'))
+            //{
+                var parts = rightHand.Split('+');
+                string output = "";
+            foreach (var p in parts)
             {
-                //rightHand = EvaluateVarExtensions(rightHand);
+                var x = p;
+                if (x.Contains("->"))
+                {
+                    var fext = ParseExtensions(x);
+                    var fcheckSplit = x.Split(new string[] { "->" }, StringSplitOptions.None);
+                    var fcheck = TokenParser.FunctionList.FirstOrDefault(f => f.Name == fcheckSplit[0]);
+                    if (fcheck != null)
+                        x = ParseFunctions(x, fext);
+                }
+                if (x.Contains("<-"))
+                    x = EvaluateVarExtensions(x);
+                if (x == null || x == "" || x == " ")
+                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
+                        $"[688]Right hand must be a value.", Value));
+                var ntoken = GetTokens(new string[] { x }).ElementAtOrDefault(0);
+                if (ntoken == null)
+                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
+                        $"[692]Right hand must be a value.", Value));
+                output += ntoken.ToString();
+            }
+                token = new Token("concatination", output, Value);
+            rightHand = output;
+            //}
+            if (token == null)
+                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
+                    $"[699]Right hand must be a value.", Value));
+            /*
+            if (rightHand.Contains("->"))
+            {
+                var fext = ParseExtensions(rightHand);
+                var fcheckSplit = rightHand.Split(new string[] { "->" }, StringSplitOptions.None);
+                var fcheck = TokenParser.FunctionList.FirstOrDefault(f => f.Name == fcheckSplit[0]);
+                if (fcheck != null)
+                    rightHand = ParseFunctions(rightHand, fext);
             }
             rightHand = rightHand.Replace("->", "").Replace("|","");//just in case
-            if (varRef != null && varRef.Locked)
-                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
-                    $"[282]Cannot re-assign a sealed variable!", Value));
+            
             if (rightHand == null || rightHand == "" || rightHand == " ")
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
                     $"[285]Right hand must be a value.", Value));
@@ -655,7 +726,7 @@ namespace TastyScript.Lang
             if (token == null)
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
                     $"[285]Right hand must be a value.", Value));
-
+            */
             if (strip.Contains("+=") || strip.Contains("-="))
             {
                 if (varRef == null)
@@ -700,6 +771,64 @@ namespace TastyScript.Lang
             }
             Compiler.ExceptionListener.Throw("[330]Unknown error with assignment.", ExceptionType.SyntaxException, Value);
             return "";
+        }
+
+        private Token Parse(TFunction t)
+        {
+            if (!_reference.ReturnFlag)
+            {
+                if (!TokenParser.Stop)
+                {
+                    if (_reference.Tracer == null || (!_reference.Tracer.Continue && !_reference.Tracer.Break))
+                        return TryParseMember(t);
+                }
+                else if (TokenParser.Stop && _reference.BlindExecute)
+                {
+                    return TryParseMember(t);
+                }
+            }
+            return null;
+        }
+        private Token TryParseMember(TFunction t)
+        {
+            if (t == null)
+                return null;
+            if (_reference.BlindExecute)
+                t.BlindExecute = true;
+            if (t.Name == "Base")
+            {
+                var b = _reference.Base;
+                b.Extensions = new List<EDefinition>();
+                if (t.Extensions != null)
+                    b.Extensions = t.Extensions;
+                if (t.Function.BlindExecute)
+                    b.BlindExecute = true;
+
+                ///This is the whitelist for passing extensions to the Base function
+                ///
+                if (_reference.Extensions != null)
+                {
+                    foreach (var x in _reference.Extensions)
+                    {
+                        if (x.Name == "Concat" ||
+                            x.Name == "Color" ||
+                            x.Name == "Threshold")
+                            b.Extensions.Add(x);
+                    }
+                }
+                b.TryParse(t);
+                return b.ReturnBubble;
+            }
+            //change this plz
+
+            var z = t.Function;
+            if (t.Extensions != null)
+            {
+                z.Extensions = t.Extensions;
+            }
+
+            z.TryParse(t);
+            return z.ReturnBubble;
         }
     }
     public static class StringExtensionMethods

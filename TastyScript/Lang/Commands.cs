@@ -48,7 +48,7 @@ namespace TastyScript.Lang
         }
         public static void AnalyzeScreen(string success, IBaseFunction successAction, IBaseFunction failureAction, int thresh, TFunction caller = null)
         {
-            var tfunc = new TFunction(caller.Function, null, string.Join(",",caller.Function.GetInvokeProperties()));
+            var tfunc = new TFunction(caller.Function, null, string.Join(",",caller.Function.GetInvokeProperties()),caller.CallingFunction);
             AnalyzeScreen ascreen = new AnalyzeScreen();
             ascreen.Analyze(success,
                 () => { successAction.TryParse(tfunc); },
@@ -58,7 +58,7 @@ namespace TastyScript.Lang
         }
         public static void AnalyzeScreen(string success, string failure, IBaseFunction successAction, IBaseFunction failureAction, int thresh, TFunction caller = null)
         {
-            var tfunc = new TFunction(caller.Function, null, string.Join(",", caller.Function.GetInvokeProperties()));
+            var tfunc = new TFunction(caller.Function, null, string.Join(",", caller.Function.GetInvokeProperties()), caller.CallingFunction);
             AnalyzeScreen ascreen = new AnalyzeScreen();
             ascreen.Analyze(success, failure,
                 () => { successAction.TryParse(tfunc); },

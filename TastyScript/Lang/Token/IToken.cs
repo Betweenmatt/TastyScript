@@ -56,6 +56,10 @@ namespace TastyScript.Lang.Tokens
         {
             Line = line;
         }
+        public void SetName(string name)
+        {
+            Name = name;
+        }
         public string[] ToArray()
         {
             var commaRegex = new Regex(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
@@ -159,23 +163,26 @@ namespace TastyScript.Lang.Tokens
     {
         public IBaseFunction Function { get; private set; }
         public string[] Arguments { get; private set; }
+        public IBaseFunction CallingFunction { get; private set; }
         public bool BlindExecute { get; set; }
         public LoopTracer Tracer { get; }
-        public TFunction(IBaseFunction func, List<EDefinition> ext, string args)
+        public TFunction(IBaseFunction func, List<EDefinition> ext, string args, IBaseFunction callingFunction)
         {
             Name = func.Name;
             Function = func;
             _value = "[Type.TFunction]";
             Extensions = ext;
             Arguments = ReturnArgsArray(args);
+            CallingFunction = callingFunction;
         }
-        public TFunction(IBaseFunction func, List<EDefinition> ext, string[] args)
+        public TFunction(IBaseFunction func, List<EDefinition> ext, string[] args, IBaseFunction callingFunction)
         {
             Name = func.Name;
             Function = func;
             _value = "[Type.TFunction]";
             Extensions = ext;
             Arguments = args;
+            CallingFunction = callingFunction;
         }
         public string[] ReturnArgsArray()
         {

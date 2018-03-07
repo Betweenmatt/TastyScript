@@ -322,18 +322,27 @@ namespace TastyScript
         //stops the script, announces the halting and executes Halt() function if it exist
         private static void SendStopScript()
         {
-            //halt the script
-            TokenParser.Stop = true;
-            IO.Output.Print("\nScript execution is halting. Please wait.\n", ConsoleColor.Yellow);
-            if (TokenParser.HaltFunction != null)
+            try
             {
-                TokenParser.HaltFunction.BlindExecute = true;
-                TokenParser.HaltFunction.TryParse(null);
+                //halt the script
+                TokenParser.Stop = true;
+                IO.Output.Print("\nScript execution is halting. Please wait.\n", ConsoleColor.Yellow);
+                if (TokenParser.HaltFunction != null)
+                {
+                    TokenParser.HaltFunction.BlindExecute = true;
+                    TokenParser.HaltFunction.TryParse(null);
+                }
+                if (TokenParser.GuaranteedHaltFunction != null)
+                {
+                    TokenParser.GuaranteedHaltFunction.BlindExecute = true;
+                    TokenParser.GuaranteedHaltFunction.TryParse(null);
+                }
             }
-            if(TokenParser.GuaranteedHaltFunction != null)
+            catch
             {
-                TokenParser.GuaranteedHaltFunction.BlindExecute = true;
-                TokenParser.GuaranteedHaltFunction.TryParse(null);
+                Compiler.ExceptionListener.ThrowSilent(new ExceptionHandler(ExceptionType.SystemException,
+                    $"Unknown error with halt thread, aborting all execution."));
+                TokenParser.Stop = true;
             }
 
         }
