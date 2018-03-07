@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 using TastyScript.Lang.Exceptions;
@@ -197,11 +198,10 @@ namespace TastyScript.Lang
             }
             var guts = Value.Split('{')[1].Split('}');
             var lines = guts[0].Split(';');
-            //Lines = new List<Line>();
             foreach (var l in lines)
+            {
                 new Line(l, this);
-                //Lines.Add(new Line(l, this));
-            //Parse();
+            }
         }
         //this overload is when the function is called with the for extension
         public virtual void TryParse(TFunction caller, bool forFlag)
@@ -228,74 +228,17 @@ namespace TastyScript.Lang
             }
             var guts = Value.Split('{')[1].Split('}');
             var lines = guts[0].Split(';');
-            //Lines = new List<Line>();
             foreach (var l in lines)
                 new Line(l, this);
-                //Lines.Add(new Line(l, this));
-            //Parse();
         }
         public virtual string Parse()
         {
-            /*
-            foreach (var line in Lines)
-            {
-                if (!TokenParser.Stop)
-                {
-                    if (Tracer == null || (!Tracer.Continue && !Tracer.Break))
-                        TryParseMember(line.Token);
-                }
-                else if (TokenParser.Stop && BlindExecute)
-                {
-                    //Console.WriteLine($"\t{DateTime.Now.ToString("HH:mm:ss.fff")}:\t{line.Token.Name}");
-                    TryParseMember(line.Token);
-                }
-            }
-            return "";
-            */
+            //this was moved to Line.cs
             return "";
         }
         private void TryParseMember(TFunction t)
         {
-            /*
-            if (t == null)
-                return;
-            if (BlindExecute)
-                t.BlindExecute = true;
-            if (t.Name == "Base")
-            {
-                var b = Base;
-                b.Extensions = new List<EDefinition>();
-                if (t.Extensions != null)
-                    b.Extensions = t.Extensions;
-                if (t.Function.BlindExecute)
-                    b.BlindExecute = true;
-
-                ///This is the whitelist for passing extensions to the Base function
-                ///
-                if (Extensions != null)
-                {
-                    foreach (var x in Extensions)
-                    {
-                        if (x.Name == "Concat" ||
-                            x.Name == "Color" ||
-                            x.Name == "Threshold")
-                            b.Extensions.Add(x);
-                    }
-                }
-                b.TryParse(t);
-                return;
-            }
-            //change this plz
-           
-            var z = t.Function;
-            if (t.Extensions != null)
-            {
-                z.Extensions = t.Extensions;
-            }
-            
-            z.TryParse(t);
-            return;
-            */
+            //this was moved to Line.cs
         }
         /// <summary>
         /// Override this method if you do not want to include it as a function.

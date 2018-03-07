@@ -18,7 +18,7 @@ namespace TastyScript.Lang
     {
         private string _line = "0";
         public string Line { get { return _line; } }
-        private string _snippet = "[No snippet available]";
+        private string _snippet;
         public string Snippet { get { return _snippet; } }
         public string Message { get; }
         public ExceptionType Type { get; }
@@ -26,7 +26,7 @@ namespace TastyScript.Lang
         {
             Type = ExceptionType.CompilerException;
             Message = msg;
-            SetLine("[No snippet available]");
+            SetLine("");
         }
         public ExceptionHandler(string msg, string line)
         {
@@ -38,7 +38,7 @@ namespace TastyScript.Lang
         {
             Type = type;
             Message = msg;
-            SetLine("[No snippet available]");
+            SetLine("");
         }
         public ExceptionHandler(ExceptionType type, string msg, string line)
         {
@@ -49,7 +49,8 @@ namespace TastyScript.Lang
         private void SetLine(string line)
         {
             //trying something different
-            line = Compiler.ExceptionListener.CurrentLine;
+            if(line == null && line == "" || line == "{0}")
+                line = Compiler.ExceptionListener.CurrentLine;
             if (line.Contains("AnonymousFunction"))
             {
                 var anonlist = TokenParser.FunctionList.Where(w => w.Name.Contains("AnonymousFunction"));

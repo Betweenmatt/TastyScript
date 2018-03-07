@@ -20,21 +20,49 @@ namespace TastyScript.Android
         private CancellationTokenSource _cancelationToken;
         public Driver(string input)
         {
-            Device = AdbClient.Instance.GetDevices().FirstOrDefault(f => f.Serial == input);
-            if (Device == null)
+            if (input != "")
             {
-                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.DriverException,
-                    $"The device {input} could not be found. Make sure your adb client is loaded!\n Type the command 'devices' to see all the connected devices"));
-                return;
+                Device = AdbClient.Instance.GetDevices().FirstOrDefault(f => f.Serial == input);
+                if (Device == null)
+                {
+                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.DriverException,
+                        $"The device {input} could not be found. Make sure your adb client is loaded!\n Type the command 'devices' to see all the connected devices"));
+                    return;
+                }
+                IO.Output.Print($"Device {input} has been connected", ConsoleColor.DarkGreen);
+                Console.Title = Program.Title + $" | Device {Device.Serial}";
+                _cancelationToken = new CancellationTokenSource();
             }
-            IO.Output.Print($"Device {input} has been connected",ConsoleColor.DarkGreen);
-            Console.Title = Program.Title + $" | Device {Device.Serial}";
-            _cancelationToken = new CancellationTokenSource();
+            else
+            {
+                Device = AdbClient.Instance.GetDevices().FirstOrDefault();
+                if (Device == null)
+                {
+                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.DriverException,
+                        $"The device could not be found. Make sure your adb client is loaded!\n Type the command 'devices' to see all the connected devices"));
+                    return;
+                }
+                IO.Output.Print($"Device first device found has been connected", ConsoleColor.DarkGreen);
+                Console.Title = Program.Title + $" | Device {Device.Serial}";
+                _cancelationToken = new CancellationTokenSource();
+            }
         }
         public void SetAppPackage(string appPackage)
         {
-            _appPackage = appPackage;
-            IO.Output.Print($"App Package set to {appPackage}",ConsoleColor.DarkGreen);
+            if (appPackage != "")
+            {
+                _appPackage = appPackage;
+                IO.Output.Print($"App Package set to {appPackage}", ConsoleColor.DarkGreen);
+            }
+            else
+            {
+                string command = $"dumpsys window windows | grep -E 'mCurrentFocus'";
+                var receiver = new ConsoleOutputReceiver();
+                AdbClient.Instance.ExecuteRemoteCommand(command, Device, receiver);
+                var echo = receiver.ToString();
+                _appPackage = echo;
+                IO.Output.Print($"App Package set to the currently opened app.", ConsoleColor.DarkGreen);
+            }
         }
         //all compile time shell commands(tap/getscreenshot/etc) check for app package before continuing
         private void CheckAppPackage()
@@ -141,7 +169,6 @@ namespace TastyScript.Android
         }
         public bool CheckFocusedApp()
         {
-
             string command = $"dumpsys window windows | grep -E 'mCurrentFocus'";
             var receiver = new ConsoleOutputReceiver();
             AdbClient.Instance.ExecuteRemoteCommand(command, Device, receiver);

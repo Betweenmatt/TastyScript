@@ -726,25 +726,7 @@ namespace TastyScript.Lang
             if (token == null)
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
                     $"[699]Right hand must be a value.", Value));
-            /*
-            if (rightHand.Contains("->"))
-            {
-                var fext = ParseExtensions(rightHand);
-                var fcheckSplit = rightHand.Split(new string[] { "->" }, StringSplitOptions.None);
-                var fcheck = TokenParser.FunctionList.FirstOrDefault(f => f.Name == fcheckSplit[0]);
-                if (fcheck != null)
-                    rightHand = ParseFunctions(rightHand, fext);
-            }
-            rightHand = rightHand.Replace("->", "").Replace("|","");//just in case
-            
-            if (rightHand == null || rightHand == "" || rightHand == " ")
-                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
-                    $"[285]Right hand must be a value.", Value));
-            Token token = GetTokens(new string[] { rightHand }).ElementAtOrDefault(0);
-            if (token == null)
-                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
-                    $"[285]Right hand must be a value.", Value));
-            */
+           
             if (strip.Contains("+=") || strip.Contains("-="))
             {
                 if (varRef == null)

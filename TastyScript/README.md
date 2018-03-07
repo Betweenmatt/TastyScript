@@ -1,9 +1,11 @@
 ﻿# ChangeLog
 
-## v1.2.3
+## ~~v1.2.3~~ v1.3.0
 
 ### Todo
-- [ ] Array get/set functionality
+* Skipping a minor version because of the major overhaul of the internal parser and relevant systems. Also I don't like 1.2.3 lol
+- [x] ConnectDevice() and AppPackage() with null value to find first
+- [x] Array get/set functionality
 - [x] Incremental variables( ++ / -- )
 - [x] Seperate functions/commands/drivers to easily adapt to future driver changes/additions etc.
 - [x] Fix the visibility. Like none of these classes should be public lol.
