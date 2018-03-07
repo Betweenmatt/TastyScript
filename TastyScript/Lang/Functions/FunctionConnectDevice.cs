@@ -19,8 +19,8 @@ namespace TastyScript.Lang.Functions
             var argsList = ProvidedArgs.FirstOrDefault(f => f.Name == "serial");
             if (argsList != null)
                 print = argsList.ToString();
-            Program.AndroidDriver = new Android.Driver(print);
-
+            Commands.Connect(print);
+            
             return "";
         }
         protected override void ForExtension(TFunction caller, ExtensionFor findFor)

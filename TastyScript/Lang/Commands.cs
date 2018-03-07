@@ -14,6 +14,10 @@ namespace TastyScript.Lang
     //and having all the commands in one place will make ios support much easier to implement
     internal static class Commands
     {
+        public static void Connect(string i)
+        {
+            Program.AndroidDriver = new Android.Driver(i.CleanString());
+        }
         public static void Tap(int x, int y)
         {
             Program.AndroidDriver.SendCommand($"input tap {x} {y}");
@@ -32,7 +36,7 @@ namespace TastyScript.Lang
         }
         public static void SendText(string text)
         {
-            Program.AndroidDriver.SendCommand($"input text {text.Replace(" ", "%s")}");
+            Program.AndroidDriver.SendCommand($"input text {text.CleanString().Replace(" ", "%s")}");
         }
         public static Image GetScreenshot()
         {
@@ -40,7 +44,7 @@ namespace TastyScript.Lang
         }
         public static void SetAppPackage(string pkg)
         {
-            Program.AndroidDriver.SetAppPackage(pkg);
+            Program.AndroidDriver.SetAppPackage(pkg.CleanString());
         }
         public static bool CheckFocus()
         {
@@ -50,7 +54,7 @@ namespace TastyScript.Lang
         {
             var tfunc = new TFunction(caller.Function, null, string.Join(",",caller.Function.GetInvokeProperties()),caller.CallingFunction);
             AnalyzeScreen ascreen = new AnalyzeScreen();
-            ascreen.Analyze(success,
+            ascreen.Analyze(success.CleanString(),
                 () => { successAction.TryParse(tfunc); },
                 () => { failureAction.TryParse(tfunc); },
                 thresh
@@ -60,7 +64,7 @@ namespace TastyScript.Lang
         {
             var tfunc = new TFunction(caller.Function, null, string.Join(",", caller.Function.GetInvokeProperties()), caller.CallingFunction);
             AnalyzeScreen ascreen = new AnalyzeScreen();
-            ascreen.Analyze(success, failure,
+            ascreen.Analyze(success.CleanString(), failure.CleanString(),
                 () => { successAction.TryParse(tfunc); },
                 () => { failureAction.TryParse(tfunc); },
                 thresh

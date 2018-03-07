@@ -41,37 +41,55 @@ namespace TastyScript.Lang
                 {   
                     //these symbols are for preserving strings.
                     switch (value[i])
-                    {/*
+                    {
                         case ('+'):
+                            output += "&plus;";
+                            break;
+                        case ('-'):
+                            output += "&neg;";
                             break;
                         case ('='):
+                            output += "&eq;";
                             break;
                         case ('%'):
+                            output += "&per;";
                             break;
                         case ('$'):
+                            output += "&dollar;";
                             break;
                         case ('!'):
+                            output += "&expl;";
                             break;
                         case ('('):
+                            output += "&lparen;";
                             break;
                         case (')'):
+                            output += "&rparen;";
                             break;
                         case ('['):
+                            output += "&lbrack;";
                             break;
                         case (']'):
+                            output += "&rbrack;";
                             break;
                         case ('{'):
+                            output += "&lbrace;";
                             break;
                         case ('}'):
+                            output += "&rbrace;";
                             break;
                         case ('<'):
+                            output += "&lchev;";
                             break;
                         case ('>'):
+                            output += "&rchev;";
                             break;
                         case ('.'):
+                            output += "&period;";
                             break;
                         case ('&'):
-                            break;*/
+                            output += "&amp;";
+                            break;
                         case (','):
                             output += "&comma;";
                             break;
@@ -841,6 +859,26 @@ namespace TastyScript.Lang
                 return text;
             }
             return text.Substring(0, pos) + replace + text.Substring(pos + search.Length);
+        }
+        public static string CleanString(this string input)
+        {
+            return input.Replace("&comma;", ",")
+                .Replace("&plus;", "+")
+                .Replace("&neg;", "-")
+                .Replace("&eq;", "=")
+                .Replace("&per;", "%")
+                .Replace("&dollar;", "$")
+                .Replace("&expl;", "!")
+                .Replace("&lparen;", "(")
+                .Replace("&rparen;", ")")
+                .Replace("&lbrack;", "[")
+                .Replace("&rbrack;", "]")
+                .Replace("&lbrace;", "{")
+                .Replace("&rbrace;", "}")
+                .Replace("&lchev;", "<")
+                .Replace("&rchev;", ">")
+                .Replace("&period;", ".")
+                .Replace("&amp;", "&");
         }
     }
 }

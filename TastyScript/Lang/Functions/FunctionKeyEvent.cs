@@ -21,7 +21,7 @@ namespace TastyScript.Lang.Functions
             {
                 //FunctionHelpers.AndroidBack();
                 AndroidKeyCode newcol = AndroidKeyCode.A;
-                var nofail = Enum.TryParse<AndroidKeyCode>(argsList.ToString(), out newcol);
+                var nofail = Enum.TryParse<AndroidKeyCode>(argsList.ToString().CleanString(), out newcol);
                 if (!nofail)
                     Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException,
                         $"The Key Event {argsList.ToString()} could not be found.", LineValue));

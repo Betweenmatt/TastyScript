@@ -24,10 +24,7 @@ namespace TastyScript.Lang.Functions
             */
             Utilities.Sleep((int)ms);
         }
-        public static string CleanString(string input)
-        {
-            return input.Replace("&comma;", ",");
-        }
+        
     }
     internal class FDefinition : AnonymousFunction, IOverride
     {
