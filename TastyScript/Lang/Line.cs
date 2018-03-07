@@ -25,13 +25,77 @@ namespace TastyScript.Lang
             _reference = reference;
             Token = WalkTree(val);
         }
-
+        private string ReplaceAllNotInStringWhiteSpace(string value)
+        {
+            bool level = false;
+            string output = "";
+            for (int i = 0; i < value.Length; i++)
+            {
+                if(value[i] == '\"')
+                {
+                    level = (level) ? false : true;
+                }
+                if (level)
+                {   
+                    switch (value[i])
+                    {/*
+                        case ('+'):
+                            break;
+                        case ('='):
+                            break;
+                        case ('%'):
+                            break;
+                        case ('$'):
+                            break;
+                        case ('!'):
+                            break;
+                        case ('('):
+                            break;
+                        case (')'):
+                            break;
+                        case ('['):
+                            break;
+                        case (']'):
+                            break;
+                        case ('{'):
+                            break;
+                        case ('}'):
+                            break;
+                        case ('<'):
+                            break;
+                        case ('>'):
+                            break;
+                        case ('.'):
+                            break;
+                        case ('&'):
+                            break;*/
+                        case (','):
+                            output += "&comma;";
+                            break;
+                        default:
+                            output += value[i];
+                            break;
+                    }
+                }
+                else
+                {
+                    if (value[i] != ' ' && value[i] != '\n' && value[i] != '\r' && value[i] != '\t')
+                    {
+                        output += value[i];
+                    }
+                }
+            }
+            return output;
+        }
         private TFunction WalkTree(string value)
         {
-            value = value.Replace("\r", "").Replace("\n", "").Replace("\t", "");
+            //value = value.Replace("\r", "").Replace("\n", "").Replace("\t", "");
+            value = value.ReplaceFirst("var ", "var%");
+            value = ReplaceAllNotInStringWhiteSpace(value);
             TFunction temp = null;
             value = ParseMathExpressions(value);
             value = ParseArrays(value);
+            value = ParseParameters(value);
             value = ParseStrings(value);
             value = ParseNumbers(value);
             value = value.Replace(".", "<-").Replace("\n", "").Replace("\r", "").Replace("\t", "");
@@ -45,7 +109,7 @@ namespace TastyScript.Lang
             value = EvaluateVarExtensions(value);
             var ext = ParseExtensions(value);
             //vars here
-            if (value.Contains("var "))
+            if (value.Contains("var%"))
             {
                 value = EvaluateVar(value);
                 if (value == "")
@@ -107,16 +171,25 @@ namespace TastyScript.Lang
             }
             return value;
         }
-        private string ParseArrays(string value)
+        private string ParseParameters(string value)
         {
             string val = value;
             //first we have to find all the arrays
-            var arrayRegex = new Regex(@"\(([^()]*)\)", RegexOptions.Multiline);
+            var regstr = @"(?:(?:\((?>[^()]+|\((?<number>)|\)(?<-number>))*(?(number)(?!))\))|{^()\))+";
+            var arrayRegex = new Regex(regstr, RegexOptions.Multiline);
+            //var arrayRegex = new Regex(@"\(([^()]*)\)", RegexOptions.Multiline);
             var arrayMatches = arrayRegex.Matches(val);
             foreach (var a in arrayMatches)
             {
+                var param = a.ToString().Substring(1, a.ToString().Length - 2);
+                if(param.Contains("(") && param.Contains(")"))
+                {
+                    param = ParseParameters(param);
+                    param = param.Replace(".", "<-").Replace("\n", "").Replace("\r", "").Replace("\t", "");
+                    param = EvaluateVarExtensions(param);
+                }
                 string tokenname = "{AnonGeneratedToken" + TokenParser.AnonymousTokensIndex + "}";
-                var param = a.ToString().Replace("(","").Replace(")","");
+                
                 var compCheck = ComparisonCheck(param);
                 if (compCheck != "")
                 {
@@ -126,11 +199,11 @@ namespace TastyScript.Lang
                 {
                     var commaRegex = new Regex(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
                     var commaSplit = commaRegex.Split(param);
-                    var tokens = GetTokens(commaSplit,true);
+                    var tokens = GetTokens(commaSplit, true);
                     //make sure values are being collected and not tokens
                     if (tokens.Count > 0)
                     {
-                        for (int i = 0; i < commaSplit.Length; i++) 
+                        for (int i = 0; i < commaSplit.Length; i++)
                         {
                             var obj = tokens.FirstOrDefault(f => f.Name == commaSplit[i]);
                             if (obj != null)
@@ -138,9 +211,49 @@ namespace TastyScript.Lang
                         }
                         param = string.Join(",", commaSplit);
                     }
-                    TokenParser.AnonymousTokens.Add(new Token(tokenname, $"[{param}]", val));
+                    TokenParser.AnonymousTokens.Add(new Token(tokenname, param, val));
                 }
                 val = val.Replace(a.ToString(), "->" + tokenname + "|");
+            }
+            return val;
+        }
+        private string ParseArrays(string value)
+        {
+            string val = value;
+            if (val.Contains("array("))
+            {
+                //first we have to find all the arrays
+                var arrayRegex = new Regex(@"\barray\(([^()]*)\)", RegexOptions.Multiline);
+                var arrayMatches = arrayRegex.Matches(val);
+                foreach (var a in arrayMatches)
+                {
+                    string tokenname = "{AnonGeneratedToken" + TokenParser.AnonymousTokensIndex + "}";
+                    var param = a.ToString().Replace("array(", "").Replace(")", "");
+                    var compCheck = ComparisonCheck(param);
+                    if (compCheck != "")
+                    {
+                        TokenParser.AnonymousTokens.Add(new Token(tokenname, compCheck, val));
+                    }
+                    else
+                    {
+                        var commaRegex = new Regex(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+                        var commaSplit = commaRegex.Split(param);
+                        var tokens = GetTokens(commaSplit, true);
+                        //make sure values are being collected and not tokens
+                        if (tokens.Count > 0)
+                        {
+                            for (int i = 0; i < commaSplit.Length; i++)
+                            {
+                                var obj = tokens.FirstOrDefault(f => f.Name == commaSplit[i]);
+                                if (obj != null)
+                                    commaSplit[i] = obj.Value;
+                            }
+                            param = string.Join(",", commaSplit);
+                        }
+                        TokenParser.AnonymousTokens.Add(new TArray(tokenname, commaSplit, val));
+                    }
+                    val = val.Replace(a.ToString(), "" + tokenname + "");
+                }
             }
             return val;
         }
@@ -165,6 +278,26 @@ namespace TastyScript.Lang
                     var param = GetTokens(new string[] { secondSplit[1].Replace("|", "") });
                     if (param.Count != 1)
                         Compiler.ExceptionListener.Throw("[166]Extensions must provide arguments", ExceptionType.SyntaxException);
+                    if (clone.Invoking)
+                    {
+                        var invokeFuncName = param[0].ToString();
+                        if (invokeFuncName.Contains("AnonymousFunction"))
+                        {
+                            var functionToInvoke = TokenParser.FunctionList.FirstOrDefault(f => f.Name == invokeFuncName.Replace("\"",""));
+                            
+                            if (functionToInvoke != null)
+                            {
+                                //Console.WriteLine($"n: {functionToInvoke.Name} exp: {string.Join(",",functionToInvoke.ExpectedArgs)}");
+                                var args = GetTokens(functionToInvoke.ExpectedArgs, true, true);
+                                List<string> argsarr = new List<string>();
+                                foreach(var x in args)
+                                {
+                                    argsarr.Add(x.ToString());
+                                }
+                                clone.SetInvokeProperties(argsarr.ToArray());
+                            }
+                        }
+                    }
                     clone.SetArguments(param[0].ToString());
                     temp.Add(clone);
                 }
@@ -184,6 +317,24 @@ namespace TastyScript.Lang
             var param = GetTokens(new string[] { secondSplit[1] });
             if (param.Count != 1)
                 Compiler.ExceptionListener.Throw("[185]Extensions must provide arguments", ExceptionType.SyntaxException);
+            if (func.Invoking)
+            {
+                var invokeFuncName = param[0].ToString();
+                if (invokeFuncName.Contains("AnonymousFunction"))
+                {
+                    var functionToInvoke = TokenParser.FunctionList.FirstOrDefault(f => f.Name == invokeFuncName.Replace("\"", ""));
+                    if (functionToInvoke != null)
+                    {
+                        var args = GetTokens(functionToInvoke.ExpectedArgs, true, true);
+                        List<string> argsarr = new List<string>();
+                        foreach (var x in args)
+                        {
+                            argsarr.Add(x.ToString());
+                        }
+                        func.SetInvokeProperties(argsarr.ToArray());
+                    }
+                }
+            }
             var returnObj = new TFunction(func, ext, param[0].ToString());
             temp = returnObj;
             return temp;
@@ -198,26 +349,26 @@ namespace TastyScript.Lang
                 var tryLocal = _reference.LocalVariables.FirstOrDefault(f => f.Name == stripws);
                 if (tryLocal != null)
                 {
-                    temp.Add(new Token(stripws, tryLocal.Value,Value));
+                    temp.Add(new Token(stripws, tryLocal.ToString(),Value));
                     continue;
                 }
                 var tryGlobal = TokenParser.GlobalVariables.FirstOrDefault(f => f.Name == stripws);
                 if (tryGlobal != null)
                 {
-                    temp.Add(new Token(stripws, tryGlobal.Value, Value));
+                    temp.Add(new Token(stripws, tryGlobal.ToString(), Value));
                     continue;
                 }
                 var tryAnon = TokenParser.AnonymousTokens.FirstOrDefault(f => f.Name == stripws);
                 if (tryAnon != null)
                 {
-                    temp.Add(new Token(stripws, tryAnon.Value, Value));
+                    temp.Add(new Token(stripws, tryAnon.ToString(), Value));
                     continue;
                 }
                 //try params?
                 var tryParams = _reference.ProvidedArgs.FirstOrDefault(f => f.Name == stripws);
                 if(tryParams != null)
                 {
-                    temp.Add(new Token(stripws, tryParams.Value, Value));
+                    temp.Add(new Token(stripws, tryParams.ToString(), Value));
                     continue;
                 }
                 if (returnInput)
@@ -401,9 +552,10 @@ namespace TastyScript.Lang
                         if (e is ExtensionGetItem)
                         {
                             string tokenname = "{AnonGeneratedToken" + TokenParser.AnonymousTokensIndex + "}";
-                            var thisExt = e as ExtensionGetItem;
+                            var thisExt = (e) as ExtensionGetItem;
+                            var extend = thisExt.Extend(objVar);
                             TokenParser.AnonymousTokens.Add(
-                                new Token(tokenname, thisExt.Extend(objVar)[0], Value));
+                                new Token(tokenname, extend.Value, Value));
                             //replace the old token with the new token, and remove the extension
                             value = value.Replace(obj + "<-" + strip[1], tokenname);
                             //value = value.Replace(obj, tokenname);
@@ -412,24 +564,28 @@ namespace TastyScript.Lang
                         if (e is ExtensionSetItem)
                         {
                             string tokenname = "{AnonGeneratedToken" + TokenParser.AnonymousTokensIndex + "}";
-                            var thisExt = e as ExtensionSetItem;
+                            var thisExt = (e) as ExtensionSetItem;
+                            var extend = thisExt.Extend(objVar) as TArray;
+                            if (extend == null)
+                                Compiler.ExceptionListener.Throw("SetItem() can only be used on an array", ExceptionType.SyntaxException, Value);
                             TokenParser.AnonymousTokens.Add(
-                                new Token(tokenname, string.Join(",", thisExt.Extend(objVar)), Value));
+                                new TArray(tokenname, extend.Arguments, Value));
                             //replace the old token with the new token, and remove the extension
                             value = value.Replace(obj + "<-" + strip[1], tokenname);
                             //if self-assigning ommitting left hand
                             if (!value.Contains("="))
                             {
                                 //creates the assignment line to compensate from left hand ommission
-                                value = $"var {obj}={tokenname}";
+                                value = $"var%{obj}={tokenname}";
                             }
                         }
                         if (e is ExtensionGetIndex)
                         {
                             string tokenname = "{AnonGeneratedToken" + TokenParser.AnonymousTokensIndex + "}";
-                            var thisExt = e as ExtensionGetIndex;
+                            var thisExt = (e) as ExtensionGetIndex;
+                            var extend = thisExt.Extend(objVar);
                             TokenParser.AnonymousTokens.Add(
-                                new Token(tokenname, thisExt.Extend(objVar)[0], Value));
+                                new Token(tokenname, extend.Value, Value));
                             //replace the old token with the new token, and remove the extension
                             value = value.Replace(obj + "<-" + strip[1], tokenname);
                         }
@@ -442,16 +598,16 @@ namespace TastyScript.Lang
         {
             //get the var scope
             List<Token> varList = null;
-            if (value.Contains("$var "))
+            if (value.Contains("$var%"))
                 varList = TokenParser.GlobalVariables;
-            else if (value.Contains("var "))
+            else if (value.Contains("var%"))
                 varList = _reference.LocalVariables;
             if (varList == null)
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
                     $"[244]Unexpected error occured.",Value));
             //assign based on operator
 
-            var strip = value.Replace("$", "").Replace("var ", "");
+            var strip = value.Replace("$", "").Replace("var%", "");
             string[] assign = default(string[]);
             if (strip.Contains("++"))
                 assign = strip.Split(new string[] { "++" }, StringSplitOptions.None);
@@ -544,6 +700,18 @@ namespace TastyScript.Lang
             }
             Compiler.ExceptionListener.Throw("[330]Unknown error with assignment.", ExceptionType.SyntaxException, Value);
             return "";
+        }
+    }
+    public static class StringExtensionMethods
+    {
+        public static string ReplaceFirst(this string text, string search, string replace)
+        {
+            int pos = text.IndexOf(search);
+            if (pos < 0)
+            {
+                return text;
+            }
+            return text.Substring(0, pos) + replace + text.Substring(pos + search.Length);
         }
     }
 }

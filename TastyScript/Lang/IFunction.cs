@@ -178,8 +178,7 @@ namespace TastyScript.Lang
             }
             //combine expected args and given args and add them to variabel pool
             if (caller != null && caller.Arguments != null && ExpectedArgs != null && ExpectedArgs.Length > 0)
-            {try
-                {
+            {
                     ProvidedArgs = new List<Token>();
                     var args = caller.ReturnArgsArray();
                     if (args.Length > 0)
@@ -190,13 +189,7 @@ namespace TastyScript.Lang
                             ProvidedArgs.Add(new Token(exp, args[i], caller.Line));
                         }
                     }
-                }
-                catch
-                {
-                    Console.WriteLine($"args: {string.Join(",", caller.ReturnArgsArray())}");
-                    Console.WriteLine($"expect: {string.Join(",", ExpectedArgs)}");
-                    throw;
-                }
+                
             }
             var guts = Value.Split('{')[1].Split('}');
             var lines = guts[0].Split(';');

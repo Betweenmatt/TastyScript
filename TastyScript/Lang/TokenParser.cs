@@ -46,6 +46,12 @@ namespace TastyScript.Lang
         }
         public static CancellationTokenSource CancellationTokenSource { get; private set; }
 
+        private string[] StrVersion()
+        {
+            var vers = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            var spl = vers.Split('.');
+            return spl;
+        }
         public TokenParser(List<IBaseFunction> functionList)
         {
             CancellationTokenSource = new CancellationTokenSource();
@@ -56,7 +62,7 @@ namespace TastyScript.Lang
             new Token("DateTime",()=>{return DateTime.Now.ToString(); }, "{0}", locked:true),
             new Token("Date",()=>{return DateTime.Now.ToShortDateString(); },"{0}", locked:true),
             new Token("Time",()=>{return DateTime.Now.ToShortTimeString(); },"{0}", locked:true),
-            new Token("GetVersion",()=> {return Assembly.GetExecutingAssembly().GetName().Version.ToString(); },"{0}", locked:true),
+            new TArray("GetVersion", StrVersion(),"{0}", locked:true),
             new Token("null","null","{0}", locked:true)
             };
             StartParse();

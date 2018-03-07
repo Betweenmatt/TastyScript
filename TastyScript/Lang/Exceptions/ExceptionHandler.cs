@@ -26,7 +26,7 @@ namespace TastyScript.Lang
         {
             Type = ExceptionType.CompilerException;
             Message = msg;
-            SetLine("");
+            SetLine("[No snippet available]");
         }
         public ExceptionHandler(string msg, string line)
         {
@@ -38,7 +38,7 @@ namespace TastyScript.Lang
         {
             Type = type;
             Message = msg;
-            SetLine("");
+            SetLine("[No snippet available]");
         }
         public ExceptionHandler(ExceptionType type, string msg, string line)
         {

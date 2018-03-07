@@ -13,6 +13,7 @@ namespace TastyScript.Lang.Extensions
         bool Invoking { get; }
         void SetProperties(string name, string[] args, bool invoking = false);
         void SetInvokeProperties(string args);
+        void SetInvokeProperties(string[] args);
         string GetInvokeProperties();
         void SetArguments(string args);
     }
@@ -36,16 +37,9 @@ namespace TastyScript.Lang.Extensions
             }
             return reg;
         }
-        public virtual string[] Extend(Token input)
+        public virtual Token Extend(Token input)
         {
-            var commaRegex = new Regex(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
-            var reg = commaRegex.Split(Arguments);
-            for (var i = 0; i < reg.Length; i++)
-            {
-                //get them quotes outta here!
-                reg[i] = reg[i].Replace("\"", "");
-            }
-            return reg;
+            return null;
         }
         public void SetProperties(string name, string[] args, bool invoking = false)
         {
@@ -60,6 +54,11 @@ namespace TastyScript.Lang.Extensions
         public void SetInvokeProperties(string args)
         {
             invokeProperties = args;
+        }
+        public void SetInvokeProperties(string[] args)
+        {
+            invokeProperties = string.Join(",", args);
+            
         }
         public string GetInvokeProperties()
         {

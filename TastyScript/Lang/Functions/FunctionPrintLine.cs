@@ -55,7 +55,7 @@ namespace TastyScript.Lang.Functions
                 if (!(e is ArgumentException) || !(e is ArgumentNullException))
                     Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"Unexpected input: {output}", LineValue));
             }
-            IO.Output.Print(output, color);
+            IO.Output.Print(FunctionHelpers.CleanString(output), color);
 
             //clear extensions after done
             concatStrings = new List<string>();

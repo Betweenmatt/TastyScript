@@ -11,49 +11,43 @@ namespace TastyScript.Lang.Extensions
     /// Replaces the extended collections object at the given index with the given object
     /// null index adds the given object to the end of the collection
     /// </summary>
-    [Extension("SetItem",new string[] { "arr", "index" }, FunctionObsolete: true)]
+    [Extension("SetItem",new string[] { "arr", "index" })]
     [Serializable]
     internal class ExtensionSetItem : EDefinition
     {
-        public override string[] Extend(Token input)
+        public override Token Extend(Token input)
         {
             var args = Extend();
             if(args == null || args.ElementAtOrDefault(0) == null)
                 Compiler.ExceptionListener.Throw($"{this.Name} arguments cannot be null.",
-                    ExceptionType.CompilerException, "{0}");
+                    ExceptionType.CompilerException, input.Line);
 
             int index = -1;
             if (args.ElementAtOrDefault(1) != null)
             {
-                var nofail = int.TryParse(args[0].ToString(), out index);
+                var nofail = int.TryParse(args[1].ToString(), out index);
                 if (!nofail)
                     Compiler.ExceptionListener.Throw($"{this.Name} arguments must be a whole number.",
-                        ExceptionType.CompilerException, "{0}");
+                        ExceptionType.CompilerException, input.Line);
             }
 
-            var inputAsTobj = input;
+            var inputAsTobj = new TArray("arr", input.Value, input.Line); ;
             if (inputAsTobj == null)
-                Compiler.ExceptionListener.Throw($"Cannot find TObject {input.Name}",
-                    ExceptionType.CompilerException, "{0}");
-
-            var getParam = inputAsTobj.ToArray().ToList<string>();
-            if (getParam == null)
-                Compiler.ExceptionListener.Throw($"Cannot find TParameter in {input.Name}",
-                    ExceptionType.CompilerException, "{0}");
-            
+                Compiler.ExceptionListener.Throw($"Cannot find Token [{input.Name}]",
+                    ExceptionType.CompilerException, input.Line);
             if (index == -1)
             {
-                getParam.Add(args[0]);
-                return getParam.ToArray<string>();
+                inputAsTobj.Add(args[0]);
+                return inputAsTobj;
             }
 
-            var ele = getParam.ElementAtOrDefault(index);
+            var ele = inputAsTobj.Arguments.ElementAtOrDefault(index);
             if (ele == null)
-                Compiler.ExceptionListener.Throw($"The element at {index} is null.",
-                    ExceptionType.NullReferenceException, "{0}");
-            getParam[index] = args[0];
+                Compiler.ExceptionListener.Throw($"The element at [{index}] is null.",
+                    ExceptionType.NullReferenceException, input.Line);
+            inputAsTobj.Arguments[index] = args[0];
 
-            return getParam.ToArray<string>();
+            return inputAsTobj;
 
         }
     }
