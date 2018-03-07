@@ -5,14 +5,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TastyScript.Lang.Exceptions;
-using TastyScript.Lang.Token;
+using TastyScript.Lang.Tokens;
 
 namespace TastyScript.Lang.Functions
 {
     [Function("TakeScreenshot", new string[] { "path" }, isSealed: true)]
-    internal class FunctionTakeScreenshot : FDefinition<object>
+    internal class FunctionTakeScreenshot : FDefinition
     {
-        public override object CallBase(TParameter args)
+        public override string CallBase()
         {
             var path = ProvidedArgs.FirstOrDefault(f => f.Name == "path");
             if (path == null)
@@ -22,7 +22,7 @@ namespace TastyScript.Lang.Functions
             }
             var ss = Commands.GetScreenshot();
             ss.Save(path.ToString(), ImageFormat.Png);
-            return args;
+            return "";
         }
     }
 }

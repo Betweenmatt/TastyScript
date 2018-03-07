@@ -9,7 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using TastyScript.Android;
 using TastyScript.Lang.Extensions;
-using TastyScript.Lang.Token;
+using TastyScript.Lang.Tokens;
 
 namespace TastyScript.Lang.Functions
 {
@@ -17,113 +17,92 @@ namespace TastyScript.Lang.Functions
     {
         public static void Sleep(double ms)
         {
+            /*
             var func = new TFunction("Sleep", TokenParser.FunctionList.FirstOrDefault(f => f.Name == "Sleep"));
             var newArgs = new TParameter("sleep", new List<IBaseToken>() { new TObject("sleep", ms) });
             func.Value.Value.TryParse(newArgs, null);
+            */
+            Utilities.Sleep((int)ms);
+        }
+        public static string CleanString(string input)
+        {
+            return input.Replace("&comma;", ",");
         }
     }
-    internal class FDefinition<T> : AnonymousFunction<T>, IOverride<T>
+    internal class FDefinition : AnonymousFunction, IOverride
     {
-        public virtual T CallBase(TParameter args) { return default(T); }
-        public override void TryParse(TParameter args, IBaseFunction caller, string lineval = "{0}")
+        public virtual string CallBase() { return ""; }
+        public override void TryParse(TFunction caller)
         {
             if (caller != null)
             {
                 BlindExecute = caller.BlindExecute;
                 Tracer = caller.Tracer;
+                Caller = caller;
+                Extensions = caller.Extensions;
             }
-            LineValue = lineval;
             var findFor = Extensions.FirstOrDefault(f => f.Name == "For") as ExtensionFor;
             if (findFor != null)
             {
                 //if for extension exists, reroutes this tryparse method to the loop version without the for check
-                ForExtension(args, findFor, lineval);
+                ForExtension(caller, findFor);
                 return;
             }
-            if (args != null)
+            if (caller != null && caller.Arguments != null && ExpectedArgs != null && ExpectedArgs.Length > 0)
             {
-                var arg = args.Value.Value.FirstOrDefault(f => f.Name.Contains("[]")) as TObject;
-                var argarr = args.Value.Value.FirstOrDefault(f => f.Name.Contains("[]")) as TParameter;
-                if (argarr != null)//if arg array is multi element
+                ProvidedArgs = new List<Token>();
+                var args = caller.ReturnArgsArray();
+                if (args.Length > 0)
                 {
-                    ProvidedArgs = new List<IBaseToken>();
-                    for (var i = 0; i < argarr.Value.Value.Count; i++)
+                    for (var i = 0; i < args.Length; i++)
                     {
-                        ProvidedArgs.Add(new TObject(ExpectedArgs[i], argarr.Value.Value[i]));
-                    }
-                }
-                else if (arg != null)//if arg array is a single element 
-                {
-                    ProvidedArgs = new List<IBaseToken>();
-                    ProvidedArgs.Add(new TObject(ExpectedArgs[0], arg.Value.Value));
-                }
-                else
-                {
-                    ProvidedArgs = new List<IBaseToken>();
-                    for (var i = 0; i < args.Value.Value.Count; i++)
-                    {
-                        ProvidedArgs.Add(new TObject(ExpectedArgs[i], args.Value.Value[i]));
+                        var exp = ExpectedArgs[i].Replace("var ", "").Replace(" ", "");
+                        ProvidedArgs.Add(new Token(exp, args[i], caller.Line));
                     }
                 }
             }
-            Parse(args);
+            Parse();
         }
-        public override void TryParse(TParameter args, bool forFlag, IBaseFunction caller, string lineval = "{0}")
+        public override void TryParse(TFunction caller, bool forFlag)
         {
             if (caller != null)
             {
                 BlindExecute = caller.BlindExecute;
                 Tracer = caller.Tracer;
+                Caller = caller;
+                Extensions = caller.Extensions;
             }
-            LineValue = lineval;
-            if (args != null)
+            if (caller != null && caller.Arguments != null && ExpectedArgs != null && ExpectedArgs.Length > 0)
             {
-                var arg = args.Value.Value.FirstOrDefault(f => f.Name.Contains("[]")) as TObject;
-                var argarr = args.Value.Value.FirstOrDefault(f => f.Name.Contains("[]")) as TParameter;
-                if (argarr != null)//if arg array is multi element
+                ProvidedArgs = new List<Token>();
+                var args = caller.ReturnArgsArray();
+                if (args.Length > 0)
                 {
-                    ProvidedArgs = new List<IBaseToken>();
-                    for (var i = 0; i < argarr.Value.Value.Count; i++)
+                    for (var i = 0; i < args.Length; i++)
                     {
-                        ProvidedArgs.Add(new TObject(ExpectedArgs[i], argarr.Value.Value[i]));
-                    }
-                }
-                else if (arg != null)//if arg array is a single element 
-                {
-                    ProvidedArgs = new List<IBaseToken>();
-                    ProvidedArgs.Add(new TObject(ExpectedArgs[0], arg.Value.Value));
-                }
-                else
-                {
-                    ProvidedArgs = new List<IBaseToken>();
-                    for (var i = 0; i < args.Value.Value.Count; i++)
-                    {
-                        ProvidedArgs.Add(new TObject(ExpectedArgs[i], args.Value.Value[i]));
+                        var exp = ExpectedArgs[i].Replace("var ", "").Replace(" ", "");
+                        ProvidedArgs.Add(new Token(exp, args[i], caller.Line));
                     }
                 }
             }
-            Parse(args);
+            Parse();
         }
 
-        public override T Parse(TParameter args)
+        public override string Parse()
         {
             if (!TokenParser.Stop)
             {
                 if (Tracer == null || (!Tracer.Continue && !Tracer.Break))
-                    return CallBase(args);
+                    return CallBase();
 
             }
             else if (TokenParser.Stop && BlindExecute)
             {
-                return CallBase(args);
+                return CallBase();
             }
 
-            return default(T);
+            return "";
 
-        }
-        [Obsolete("this feels too redundant", true)]
-        public virtual void TryCallBase(TParameter args)
-        {
         }
     }
 }

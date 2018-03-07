@@ -3,35 +3,35 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TastyScript.Lang.Token;
+using TastyScript.Lang.Tokens;
 
 namespace TastyScript.Lang.Functions
 {
     [Function("Touch", new string[] { "intX", "intY", "sleep" })]
-    internal class FunctionTouch : FDefinition<object>
+    internal class FunctionTouch : FDefinition
     {
-        public override object CallBase(TParameter args)
+        public override string CallBase()
         {
-            var x = (ProvidedArgs.FirstOrDefault(f => f.Name == "intX") as TObject);
-            var y = (ProvidedArgs.FirstOrDefault(f => f.Name == "intY") as TObject);
+            var x = (ProvidedArgs.FirstOrDefault(f => f.Name == "intX"));
+            var y = (ProvidedArgs.FirstOrDefault(f => f.Name == "intY"));
             if (x == null || y == null)
             {
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.NullReferenceException,
-                    $"The function [{this.Name}] requires [{ExpectedArgs.Length}] TNumber arguments", LineValue));
+                    $"The function [{this.Name}] requires [{ExpectedArgs.Length}] arguments", LineValue));
             }
-            double intX = double.Parse(x.Value.Value.ToString());
-            double intY = double.Parse(y.Value.Value.ToString());
+            double intX = double.Parse(x.ToString());
+            double intY = double.Parse(y.ToString());
             if (Program.AndroidDriver == null)
                 IO.Output.Print($"[DRIVERLESS] Touch x:{intX} y:{intY}");
             else
                 Commands.Tap((int)intX, (int)intY);
             double sleep = TokenParser.SleepDefaultTime;
-            if (args.Value.Value.Count > 2)
+            if (ProvidedArgs.Count > 2)
             {
-                sleep = double.Parse((ProvidedArgs.FirstOrDefault(f => f.Name == "sleep") as TObject).Value.Value.ToString());
+                sleep = double.Parse((ProvidedArgs.FirstOrDefault(f => f.Name == "sleep")).ToString());
             }
             FunctionHelpers.Sleep(sleep);
-            return args;
+            return "";
         }
     }
 }

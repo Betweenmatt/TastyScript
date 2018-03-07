@@ -14,6 +14,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Drawing;
 using TastyScript.Lang.Extensions;
+using TastyScript.Lang.Tokens;
 
 namespace TastyScript
 {
@@ -321,18 +322,27 @@ namespace TastyScript
         //stops the script, announces the halting and executes Halt() function if it exist
         private static void SendStopScript()
         {
-            //halt the script
-            TokenParser.Stop = true;
-            IO.Output.Print("\nScript execution is halting. Please wait.\n", ConsoleColor.Yellow);
-            if (TokenParser.HaltFunction != null)
+            try
             {
-                TokenParser.HaltFunction.BlindExecute = true;
-                TokenParser.HaltFunction.TryParse(null,null);
+                //halt the script
+                TokenParser.Stop = true;
+                IO.Output.Print("\nScript execution is halting. Please wait.\n", ConsoleColor.Yellow);
+                if (TokenParser.HaltFunction != null)
+                {
+                    TokenParser.HaltFunction.BlindExecute = true;
+                    TokenParser.HaltFunction.TryParse(null);
+                }
+                if (TokenParser.GuaranteedHaltFunction != null)
+                {
+                    TokenParser.GuaranteedHaltFunction.BlindExecute = true;
+                    TokenParser.GuaranteedHaltFunction.TryParse(null);
+                }
             }
-            if(TokenParser.GuaranteedHaltFunction != null)
+            catch
             {
-                TokenParser.GuaranteedHaltFunction.BlindExecute = true;
-                TokenParser.GuaranteedHaltFunction.TryParse(null, null);
+                Compiler.ExceptionListener.ThrowSilent(new ExceptionHandler(ExceptionType.SystemException,
+                    $"Unknown error with halt thread, aborting all execution."));
+                TokenParser.Stop = true;
             }
 
         }
@@ -389,9 +399,9 @@ namespace TastyScript
                         }
             return temp;
         }
-        private static List<IExtension> GetExtensions()
+        private static List<EDefinition> GetExtensions()
         {
-            List<IExtension> temp = new List<IExtension>();
+            List<EDefinition> temp = new List<EDefinition>();
             string definedIn = typeof(Extension).Assembly.GetName().Name;
             foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
                 // Note that we have to call GetName().Name.  Just GetName() will not work.  The following
@@ -401,7 +411,7 @@ namespace TastyScript
                         if (type.GetCustomAttributes(typeof(Extension), true).Length > 0)
                         {
                             var func = System.Type.GetType(type.ToString());
-                            var inst = Activator.CreateInstance(func) as IExtension;
+                            var inst = Activator.CreateInstance(func) as EDefinition;
                             var attt = type.GetCustomAttribute(typeof(Extension), true) as Extension;
                             inst.SetProperties(attt.Name, attt.ExpectedArgs,attt.Invoking);
                             if (!attt.Obsolete)

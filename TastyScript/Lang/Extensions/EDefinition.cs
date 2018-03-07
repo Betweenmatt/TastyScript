@@ -1,17 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using TastyScript.Lang.Token;
+using System.Text.RegularExpressions;
+using TastyScript.Lang.Tokens;
 
 namespace TastyScript.Lang.Extensions
 {
+    
     internal interface IExtension
     {
         string Name { get; }
-        TParameter Arguments { get; set; }
+        string Arguments { get; }
         bool Invoking { get; }
         void SetProperties(string name, string[] args, bool invoking = false);
-        void SetInvokeProperties(TParameter args);
-        TParameter GetInvokeProperties();
+        void SetInvokeProperties(string args);
+        void SetInvokeProperties(string[] args);
+        string GetInvokeProperties();
+        void SetArguments(string args);
     }
     [Serializable]
     internal class EDefinition : IExtension
@@ -19,16 +23,23 @@ namespace TastyScript.Lang.Extensions
         public string Name { get; protected set; }
         public string[] ExpectedArgs { get; protected set; }
         //public TParameter ProvidedArgs { get; protected set; }
-        public TParameter Arguments { get; set; }
+        public string Arguments { get; set; }
         public bool Invoking { get; protected set; }
-        private TParameter invokeProperties;
-        public virtual TParameter Extend()
+        private string invokeProperties;
+        public virtual string[] Extend()
         {
-            return Arguments;
+            var commaRegex = new Regex(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+            var reg =  commaRegex.Split(Arguments);
+            for (var i = 0; i < reg.Length; i++)
+            {
+                //get them quotes outta here!
+                reg[i] = reg[i].Replace("\"", "");
+            }
+            return reg;
         }
-        public virtual TParameter Extend(IBaseToken input)
+        public virtual Token Extend(Token input)
         {
-            return Arguments;
+            return null;
         }
         public void SetProperties(string name, string[] args, bool invoking = false)
         {
@@ -36,11 +47,20 @@ namespace TastyScript.Lang.Extensions
             ExpectedArgs = args;
             Invoking = invoking;
         }
-        public void SetInvokeProperties(TParameter args)
+        public void SetArguments(string args)
+        {
+            Arguments = args;
+        }
+        public void SetInvokeProperties(string args)
         {
             invokeProperties = args;
         }
-        public TParameter GetInvokeProperties()
+        public void SetInvokeProperties(string[] args)
+        {
+            invokeProperties = string.Join(",", args);
+            
+        }
+        public string GetInvokeProperties()
         {
             return invokeProperties;
         }

@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 using TastyScript.Android;
 using TastyScript.Lang.Exceptions;
 using TastyScript.Lang.Extensions;
-using TastyScript.Lang.Token;
+using TastyScript.Lang.Tokens;
 
 namespace TastyScript.Lang.Functions
 {
     [Function("CheckScreen", new string[] { "succFunc", "failFunc", "succPath", "failPath" }, isSealed: true)]
-    internal class FunctionCheckScreen : FDefinition<object>
+    internal class FunctionCheckScreen : FDefinition
     {
-        public override object CallBase(TParameter args)
+        public override string CallBase()
         {
             var succFunc = ProvidedArgs.FirstOrDefault(f => f.Name == "succFunc");
             var failFunc = ProvidedArgs.FirstOrDefault(f => f.Name == "failFunc");
@@ -36,13 +36,13 @@ namespace TastyScript.Lang.Functions
             if (threshExt != null)
             {
                 var param = threshExt.Extend();
-                var nofail = int.TryParse(param.Value.Value[0].ToString(), out thresh);
+                var nofail = int.TryParse(param[0].ToString(), out thresh);
             }
             if (failPath != null)
             {
                 try
                 {
-                    Commands.AnalyzeScreen(succPath.ToString(), failPath.ToString(), sf, ff, thresh, this);
+                    Commands.AnalyzeScreen(succPath.ToString(), failPath.ToString(), sf, ff, thresh, this.Caller);
                 }
                 catch (Exception e)
                 {
@@ -59,7 +59,7 @@ namespace TastyScript.Lang.Functions
             {
                 try
                 {
-                    Commands.AnalyzeScreen(succPath.ToString(), sf, ff, thresh, this);
+                    Commands.AnalyzeScreen(succPath.ToString(), sf, ff, thresh, this.Caller);
                 }
                 catch (Exception e)
                 {
@@ -73,7 +73,7 @@ namespace TastyScript.Lang.Functions
                 }
             }
 
-            return args;
+            return "";
         }
     }
 }

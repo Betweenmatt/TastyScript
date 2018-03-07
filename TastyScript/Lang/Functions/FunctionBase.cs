@@ -4,23 +4,23 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TastyScript.Lang.Extensions;
-using TastyScript.Lang.Token;
+using TastyScript.Lang.Tokens;
 
 namespace TastyScript.Lang.Functions
 {
     [Function("Base", isSealed: true)]
-    internal class FunctionBase : FDefinition<object>
+    internal class FunctionBase : FDefinition
     {
-        public override void TryParse(TParameter args, IBaseFunction caller, string lineval = "{0}")
+        public override void TryParse(TFunction caller)
         {
             Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"{this.Name} can not be overrided", LineValue));
         }
-        public override object CallBase(TParameter args)
+        public override string CallBase()
         {
             Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"{this.Name} can not be overrided.", LineValue));
             return null;
         }
-        protected override void ForExtension(TParameter args, ExtensionFor findFor, string lineval)
+        protected override void ForExtension(TFunction caller, ExtensionFor findFor)
         {
             Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"Cannot call 'For' on {this.Name}.", LineValue));
         }

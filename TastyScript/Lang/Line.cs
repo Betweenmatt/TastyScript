@@ -4,24 +4,128 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using TastyScript.Lang.Extensions;
-using TastyScript.Lang.Token;
+using TastyScript.Lang.Tokens;
 
 namespace TastyScript.Lang
 {
     internal class Line
     {
-        public List<IBaseToken> Tokens { get; private set; }
         private IBaseFunction _reference;
         public string Value { get; private set; }
-        public Line(string value, IBaseFunction reference)
+        //public TFunction Token { get; private set; }
+
+        public Line(string val, IBaseFunction reference)
         {
-            //performance check on a line by line basis
-            //Console.WriteLine($"\t{DateTime.Now.ToString("HH:mm:ss.fff")}:\t{value}");
-            Value = value;
+            Compiler.ExceptionListener.SetCurrentLine(val);
+            Value = val;
             _reference = reference;
-            Tokens = Parse(value, reference);
+            //Token = 
+                WalkTree(val);
+            
+        }
+        private string ReplaceAllNotInStringWhiteSpace(string value)
+        {
+            bool level = false;
+            string output = "";
+            for (int i = 0; i < value.Length; i++)
+            {
+                if(value[i] == '\"')
+                {
+                    level = (level) ? false : true;
+                }
+                if (level)
+                {   
+                    //these symbols are for preserving strings.
+                    switch (value[i])
+                    {/*
+                        case ('+'):
+                            break;
+                        case ('='):
+                            break;
+                        case ('%'):
+                            break;
+                        case ('$'):
+                            break;
+                        case ('!'):
+                            break;
+                        case ('('):
+                            break;
+                        case (')'):
+                            break;
+                        case ('['):
+                            break;
+                        case (']'):
+                            break;
+                        case ('{'):
+                            break;
+                        case ('}'):
+                            break;
+                        case ('<'):
+                            break;
+                        case ('>'):
+                            break;
+                        case ('.'):
+                            break;
+                        case ('&'):
+                            break;*/
+                        case (','):
+                            output += "&comma;";
+                            break;
+                        default:
+                            output += value[i];
+                            break;
+                    }
+                }
+                else
+                {
+                    if (value[i] != ' ' && value[i] != '\n' && value[i] != '\r' && value[i] != '\t')
+                    {
+                        output += value[i];
+                    }
+                }
+            }
+            return output;
+        }
+        private void WalkTree(string value)
+        {
+            //value = value.Replace("\r", "").Replace("\n", "").Replace("\t", "");
+            value = value.ReplaceFirst("var ", "var%");
+            value = ReplaceAllNotInStringWhiteSpace(value);
+            //TFunction temp = null;
+            value = ParseMathExpressions(value);
+            value = ParseArrays(value);
+            value = ParseParameters(value);
+            value = ParseStrings(value);
+            value = ParseNumbers(value);
+            value = value.Replace(".", "<-").Replace("\n", "").Replace("\r", "").Replace("\t", "");
+            //check for empty lines
+            var wscheck = new Regex(@"^\s*$");
+            var wscheckk = wscheck.IsMatch(value);
+            if (wscheckk)
+                return;// temp;
+            //
+            //get var extensions before normal extensions
+            
+            
+            //vars here
+            if (value.Contains("var%"))
+            {
+                value = EvaluateVar(value);
+                if (value == "")
+                    return;// temp;
+            }
+            //try extension sweep after vars instead of before
+            //value = EvaluateVarExtensions(value);
+            var ext = ParseExtensions(value);
+
+            //
+            //temp =
+            ParseFunctions(value, ext);
+            return;// temp;
         }
         private string ParseStrings(string value)
         {
@@ -29,11 +133,32 @@ namespace TastyScript.Lang
             var strings = stringTokenRegex.Matches(value);
             foreach (var x in strings)
             {
-                string tokenname = " {AnonGeneratedToken" + _reference.GeneratedTokensIndex + "} ";
-                var tstring = new TObject(tokenname.Replace(" ", ""), Regex.Replace(x.ToString(), "\"", ""));
+                string tokenname = "{AnonGeneratedToken" + TokenParser.AnonymousTokensIndex + "}";
+                var tstring = new Token(tokenname, Regex.Replace(x.ToString(), "\"", ""),Value);
                 value = value.Replace(x.ToString(), tokenname);
 
-                _reference.GeneratedTokens.Add(tstring);
+                TokenParser.AnonymousTokens.Add(tstring);
+            }
+            return value;
+        }
+        private string ParseNumbers(string value)
+        {
+            var numberTokenRegex = new Regex(@"\b-*[0-9\.]+\b", RegexOptions.Multiline);
+            var numbers = numberTokenRegex.Matches(value);
+            foreach (var x in numbers)
+            {
+                string tokenname = "{AnonGeneratedToken" + TokenParser.AnonymousTokensIndex + "}";
+                double output = 0;
+                var nofail = double.TryParse(x.ToString(), out output);
+                if (nofail)
+                {
+                    TokenParser.AnonymousTokens.Add(new Token(tokenname, output.ToString(),Value));
+                    //do this regex instead of a blind replace to fix the above issue. 
+                    //NOTE this fix may break decimal use in some situations!!!!
+                    var indvRegex = (@"\b-*" + x + @"\b");
+                    var regex = new Regex(indvRegex);
+                    value = regex.Replace(value, tokenname);
+                }
             }
             return value;
         }
@@ -46,431 +171,266 @@ namespace TastyScript.Lang
                 var input = x.ToString().Replace("[", "").Replace("]", "").Replace(" ", "");
                 if (input != null && input != "")
                 {
-                    string tokenname = " {AnonGeneratedToken" + _reference.GeneratedTokensIndex + "} ";
-                    double exp = MathExpression(input, _reference, Value);
-                    _reference.GeneratedTokens.Add(new TObject(tokenname.Replace(" ", ""), exp));
+                    string tokenname = "{AnonGeneratedToken" + TokenParser.AnonymousTokensIndex + "}";
+                    double exp = MathExpression(input);
+                    TokenParser.AnonymousTokens.Add(new Token(tokenname, exp.ToString(), Value));
                     value = value.Replace(x.ToString(), tokenname);
-                }
-            }
-            return value;
-        }
-        private string ParseNumbers(string value)
-        {
-            var numberTokenRegex = new Regex(@"\b-*[0-9\.]+\b", RegexOptions.Multiline);
-            var numbers = numberTokenRegex.Matches(value);
-            foreach (var x in numbers)
-            {
-                string tokenname = " {AnonGeneratedToken" + _reference.GeneratedTokensIndex + "} ";
-                double output = 0;
-                var nofail = double.TryParse(x.ToString(), out output);
-                if (nofail)
-                {
-                    _reference.GeneratedTokens.Add(new TObject(tokenname.Replace(" ", ""), output));
-
-                    //do this regex instead of a blind replace to fix the above issue. NOTE this fix may break decimal use in some situations!!!!
-                    var indvRegex = (@"\b-*" + x + @"\b");
-                    var regex = new Regex(indvRegex);
-                    value = regex.Replace(value, tokenname);
                 }
             }
             return value;
         }
         private string ParseParameters(string value)
         {
-            var paramTokenRegex = new Regex(@"\(([^()]*)\)", RegexOptions.Multiline);
-            var paramss = paramTokenRegex.Matches(value);
-            foreach (var x in paramss)
+            string val = value;
+            //first we have to find all the arrays
+            var regstr = @"(?:(?:\((?>[^()]+|\((?<number>)|\)(?<-number>))*(?(number)(?!))\))|{^()\))+";
+            var arrayRegex = new Regex(regstr, RegexOptions.Multiline);
+            //var arrayRegex = new Regex(@"\(([^()]*)\)", RegexOptions.Multiline);
+            var arrayMatches = arrayRegex.Matches(val);
+            foreach (var a in arrayMatches)
             {
-                string tokenname = " {AnonGeneratedToken" + _reference.GeneratedTokensIndex + "} ";
-                List<IBaseToken> paramlist = new List<IBaseToken>();
-                var compCheck = ComparisonCheck(x.ToString(), _reference, Value);
+                var param = a.ToString().Substring(1, a.ToString().Length - 2);
+                if(param.Contains("(") && param.Contains(")"))
+                {
+                    param = ParseParameters(param);
+                    param = param.Replace(".", "<-").Replace("\n", "").Replace("\r", "").Replace("\t", "");
+                    param = EvaluateVarExtensions(param);
+                    
+                    var fext = ParseExtensions(param);
+                    var fcheckSplit = param.Split(new string[] { "->" }, StringSplitOptions.None);
+                    var fcheck = TokenParser.FunctionList.FirstOrDefault(f => f.Name == fcheckSplit[0]);
+                    if(fcheck != null)
+                        param = ParseFunctions(param, fext);
+                    
+                }
+                string tokenname = "{AnonGeneratedToken" + TokenParser.AnonymousTokensIndex + "}";
+                
+                var compCheck = ComparisonCheck(param);
                 if (compCheck != "")
                 {
-                    paramlist.Add(new TObject("bool", compCheck));
+                    TokenParser.AnonymousTokens.Add(new Token(tokenname, compCheck, val));
                 }
                 else
                 {
-                    var splode = x.ToString().Replace("(", "").Replace(")", "").Split(',');
-                    paramlist = GetTokens(splode, _reference, Value);
-                }
-                _reference.GeneratedTokens.Add(new TParameter(tokenname.Replace(" ", ""), paramlist));
-                value = value.Replace(x.ToString(), tokenname);
-            }
-            return value;
-        }
-        private string ParseVariableExtensions(string value)
-        {
-            if (value.Contains("."))
-            {
-                if (!value.Contains(")."))
-                {
-                    //get extensions
-                    var ext = EvaluateExtensions(value, _reference);
-                    //get object to be extended
-                    var strip = value.Split('.');
-                    var objLeft = strip[0];
-                    var objRemoveKeywords = objLeft.Split(new string[] { "+=", "-=", "++", "--", "=" }, StringSplitOptions.RemoveEmptyEntries);
-                    var obj = objRemoveKeywords[objRemoveKeywords.Length - 1];
-                    var objVar = GetTokens(new string[] { obj }, _reference, value, true).FirstOrDefault();
-                    if (objVar != null)
+                    var commaRegex = new Regex(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+                    var commaSplit = commaRegex.Split(param);
+                    var tokens = GetTokens(commaSplit, true);
+                    //make sure values are being collected and not tokens
+                    if (tokens.Count > 0)
                     {
-                        foreach (var e in ext)
+                        for (int i = 0; i < commaSplit.Length; i++)
                         {
-                            if (e is ExtensionGetItem)
+                            var obj = tokens.FirstOrDefault(f => f.Name == commaSplit[i]);
+                            if (obj != null)
+                                commaSplit[i] = obj.Value;
+                        }
+                        param = string.Join(",", commaSplit);
+                    }
+                    TokenParser.AnonymousTokens.Add(new Token(tokenname, param, val));
+                }
+                val = val.Replace(a.ToString(), "->" + tokenname + "|");
+            }
+            return val;
+        }
+        private string ParseArrays(string value)
+        {
+            string val = value;
+            if (val.Contains("array("))
+            {
+                //first we have to find all the arrays
+                var arrayRegex = new Regex(@"\barray\(([^()]*)\)", RegexOptions.Multiline);
+                var arrayMatches = arrayRegex.Matches(val);
+                foreach (var a in arrayMatches)
+                {
+                    string tokenname = "{AnonGeneratedToken" + TokenParser.AnonymousTokensIndex + "}";
+                    var param = a.ToString().Replace("array(", "").Replace(")", "");
+                    var compCheck = ComparisonCheck(param);
+                    if (compCheck != "")
+                    {
+                        TokenParser.AnonymousTokens.Add(new Token(tokenname, compCheck, val));
+                    }
+                    else
+                    {
+                        var commaRegex = new Regex(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+                        var commaSplit = commaRegex.Split(param);
+                        var tokens = GetTokens(commaSplit, true);
+                        //make sure values are being collected and not tokens
+                        if (tokens.Count > 0)
+                        {
+                            for (int i = 0; i < commaSplit.Length; i++)
                             {
-                                string tokenname = " {AnonGeneratedToken" + _reference.GeneratedTokensIndex + "} ";
-                                var thisExt = e as ExtensionGetItem;
-                                _reference.GeneratedTokens.Add(new TObject(tokenname.Replace(" ", ""), thisExt.Extend(objVar).Value.Value[0]));
-                                //replace the old token with the new token, and remove the extension
-                                value = value.Replace(obj + "." + strip[1], tokenname);
-                                //value = value.Replace(obj, tokenname);
-                                //value = value.Replace("." + strip[1], "");
+                                var obj = tokens.FirstOrDefault(f => f.Name == commaSplit[i]);
+                                if (obj != null)
+                                    commaSplit[i] = obj.Value;
                             }
-                            if (e is ExtensionSetItem)
+                            param = string.Join(",", commaSplit);
+                        }
+                        TokenParser.AnonymousTokens.Add(new TArray(tokenname, commaSplit, val));
+                    }
+                    val = val.Replace(a.ToString(), "" + tokenname + "");
+                }
+            }
+            return val;
+        }
+        private List<EDefinition> ParseExtensions(string value)
+        {
+            List<EDefinition> temp = new List<EDefinition>();
+            if (value.Contains("<-"))
+            {
+                string val = value;
+                var firstSplit = val.Split(new string[] { "<-" }, StringSplitOptions.None);
+                for (int i = 0; i < firstSplit.Length; i++) 
+                {
+                    if (i == 0)
+                        continue;
+                    var first = firstSplit[i];
+                    var secondSplit = first.Split(new string[] { "->" }, StringSplitOptions.None);
+                    if (secondSplit.Length != 2)
+                        Compiler.ExceptionListener.Throw("[160]Extensions must provide arguments",ExceptionType.SyntaxException);
+                    var original = TokenParser.Extensions.FirstOrDefault(f => f.Name == secondSplit[0]);
+                    //Console.WriteLine(secondSplit[0] + " " + secondSplit[1]);
+                    var clone = DeepCopy<EDefinition>(original);
+                    var param = GetTokens(new string[] { secondSplit[1].Replace("|", "") });
+                    if (param.Count != 1)
+                        Compiler.ExceptionListener.Throw("[166]Extensions must provide arguments", ExceptionType.SyntaxException);
+                    if (clone.Invoking)
+                    {
+                        var invokeFuncName = param[0].ToString();
+                        if (invokeFuncName.Contains("AnonymousFunction"))
+                        {
+                            var functionToInvoke = TokenParser.FunctionList.FirstOrDefault(f => f.Name == invokeFuncName.Replace("\"",""));
+                            
+                            if (functionToInvoke != null)
                             {
-                                string tokenname = " {AnonGeneratedToken" + _reference.GeneratedTokensIndex + "} ";
-                                var thisExt = e as ExtensionSetItem;
-                                _reference.GeneratedTokens.Add(new TParameter(tokenname.Replace(" ", ""), thisExt.Extend(objVar).Value.Value));
-                                //replace the old token with the new token, and remove the extension
-                                value = value.Replace(obj + "." + strip[1], tokenname);
-                                //if self-assigning ommitting left hand
-                                if (!value.Contains("="))
+                                //Console.WriteLine($"n: {functionToInvoke.Name} exp: {string.Join(",",functionToInvoke.ExpectedArgs)}");
+                                var args = GetTokens(functionToInvoke.ExpectedArgs, true, true);
+                                List<string> argsarr = new List<string>();
+                                foreach(var x in args)
                                 {
-                                    //creates the assignment line to compensate from left hand ommission
-                                    value = $"var {obj}={tokenname}";
+                                    argsarr.Add(x.ToString());
                                 }
-                            }
-                            if (e is ExtensionGetIndex)
-                            {
-                                string tokenname = " {AnonGeneratedToken" + _reference.GeneratedTokensIndex + "} ";
-                                var thisExt = e as ExtensionGetIndex;
-                                _reference.GeneratedTokens.Add(new TObject(tokenname.Replace(" ", ""), thisExt.Extend(objVar).Value.Value[0]));
-                                //replace the old token with the new token, and remove the extension
-                                value = value.Replace(obj + "." + strip[1], tokenname);
+                                clone.SetInvokeProperties(argsarr.ToArray());
                             }
                         }
                     }
-                }
-            }
-            return value;
-        }
-        private List<IBaseToken> Parse(string val, IBaseFunction reference)
-        {
-            List<IBaseToken> temp = new List<IBaseToken>();
-            string value = val.Replace("\r", "").Replace("\n", "").Replace("\t", "");
-            var wscheck = new Regex(@"^\s*$");
-            var wscheckk = wscheck.IsMatch(value);
-            if (wscheckk)
-                return temp;
-            //if (value.Contains('#'))
-            //    value = value.Split('#')[0];
-            //
-            //string parsing(look for quotes)
-            value = ParseStrings(value);
-
-            //
-            //do math expressions(look for brackets)
-            value = ParseMathExpressions(value);
-
-            //
-            //number parsing
-            value = ParseNumbers(value);
-
-
-            //
-            //parameters parsing(look for parentheses)
-            value = ParseParameters(value);
-
-            value = ParseVariableExtensions(value);
-            //
-            //if line is variable assignment
-            if (value.Contains("var "))
-            {
-                value = EvaluateVar(value, reference, val);
-                if (value == "")
-                    return temp;
-            }
-
-
-            //
-            //lastly do functions and extensions
-            var words = value.Split(' ');
-            if (words.Length == 1)
-                if (words[0] == "")
-                    return temp;
-                else
-                {
-                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
-                        $"[113]Unknown token [{words[0]}]", val));
-                    return temp;
-                }
-            else if (words.Length > 1)
-            {
-                var stripws = words[0].Replace(" ", "");
-                if (stripws != "" && stripws != " ")//??
-                {
-                    var obj = TokenParser.FunctionList.FirstOrDefault(f => f.Name == stripws);
-                    if (obj == null)
-                    {
-                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
-                            $"[124]Function: [{stripws}] cannot be found.", val));
-                        return temp;
-                    }
-                    var argsname = words[1].Replace(" ", "");
-                    var args = reference.GeneratedTokens.FirstOrDefault(f => f.Name == argsname);
-                    if (args == null)
-                    {
-                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
-                            $"[131]Arguments cannot be found.", val));
-                        return temp;
-                    }
-                    var func = new TFunction(obj.Name, obj);
-                    IBaseFunction clone = null;
-                    if (obj.Invoking)
-                    {
-                        clone = Program.CopyFunctionReference(obj.Name);
-                        var asT = args as TParameter;
-                        if (asT != null)
-                        {
-                            var invokeFuncName = asT.Value.Value[0].ToString();
-                            if (invokeFuncName.Contains("AnonymousFunction"))
-                            {
-                                var functionToInvoke = TokenParser.FunctionList.FirstOrDefault(f => f.Name == invokeFuncName);
-                                if (functionToInvoke != null)
-                                {
-                                    var argss = new TParameter("args", GetTokens(functionToInvoke.ExpectedArgs, reference, value));
-                                    clone.SetInvokeProperties(argss);
-                                    func = new TFunction(obj.Name, clone);//replace the old func with the clone
-                                }
-                            }
-                        }
-                        
-                    }
-                    
-                    func.Arguments = args as TParameter;
-                    func.Extensions = EvaluateExtensions(value, reference);
-                    temp.Add(func);
+                    clone.SetArguments(param[0].ToString());
+                    temp.Add(clone);
                 }
             }
             return temp;
         }
-
-        private List<IExtension> EvaluateExtensions(string value, IBaseFunction reference, IBaseToken homeToken = null)
+        private string ParseFunctions(string value, List<EDefinition> ext, bool safelook = false)
         {
-            string[] ext = value.Split('.');
-
-            var extensions = new List<IExtension>();
-            if (ext.Length > 1)
+            TFunction temp = null;
+            string val = value;
+            var firstSplit = value.Split('|')[0];
+            var secondSplit = firstSplit.Split(new string[] { "->" }, StringSplitOptions.None);
+            var func = TokenParser.FunctionList.FirstOrDefault(f => f.Name == secondSplit[0]);
+            if (func == null)
             {
-                for (var x = 0; x < ext.Length; x++)
+                if (safelook)
+                    return "";
+                else
+                    Compiler.ExceptionListener.Throw($"[181]Cannot find function [{secondSplit[0]}]", ExceptionType.SyntaxException);
+            }
+            //get args
+            var param = GetTokens(new string[] { secondSplit[1] });
+            if (param.Count != 1)
+                Compiler.ExceptionListener.Throw("[185]Extensions must provide arguments", ExceptionType.SyntaxException);
+            if (func.Invoking)
+            {
+                var invokeFuncName = param[0].ToString();
+                if (invokeFuncName.Contains("AnonymousFunction"))
                 {
-                    if (x == 0)
-                        continue;
-                    var seperate = ext[x].Split(' ');
-                    if (seperate.Length < 2)
+                    var functionToInvoke = TokenParser.FunctionList.FirstOrDefault(f => f.Name == invokeFuncName.Replace("\"", ""));
+                    if (functionToInvoke != null)
                     {
-                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException,
-                            $"[157]Extension arguments must be present.", value));
-                        return extensions;
-                    }
-                    var extName = seperate[0].Replace(" ", "");
-                    var argsName = seperate[1].Replace(" ", "");
-                    var extArgs = reference.GeneratedTokens.FirstOrDefault(f => f.Name == argsName);
-                    if (extArgs == null)
-                    {
-                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException,
-                            $"[170]Unexpected error getting arguments for extension.", value));
-                    }
-                    var findExt = TokenParser.Extensions.FirstOrDefault(f => f.Name == extName);
-                    if (findExt == null)
-                    {
-                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException,
-                            $"[176]Unexpected error getting extension.", value));
-                    }
-                    //clone the extension because it was breaking
-                    var clone = DeepCopy<EDefinition>(findExt as EDefinition);
-                    if (clone.Invoking)
-                    {
-                        var asT = extArgs as TParameter;
-                        if (asT != null)
+                        var args = GetTokens(functionToInvoke.ExpectedArgs, true, true);
+                        List<string> argsarr = new List<string>();
+                        foreach (var x in args)
                         {
-                            var invokeFuncName = asT.Value.Value[0].ToString();
-                            if (invokeFuncName.Contains("AnonymousFunction"))
-                            {
-                                var functionToInvoke = TokenParser.FunctionList.FirstOrDefault(f => f.Name == invokeFuncName);
-                                if (functionToInvoke != null)
-                                {
-                                    var args = new TParameter("args", GetTokens(functionToInvoke.ExpectedArgs, reference, value));
-                                    clone.SetInvokeProperties(args);
-                                }
-                            }
+                            argsarr.Add(x.ToString());
                         }
+                        func.SetInvokeProperties(argsarr.ToArray());
                     }
-                    clone.Arguments = extArgs as TParameter;
-                    extensions.Add(clone as IExtension);
                 }
             }
-            return extensions;
+            var returnObj = new TFunction(func, ext, param[0].ToString(),_reference);
+            temp = returnObj;
+            //do the whole returning thing
+            var getret = Parse(temp);
+            if (getret != null)
+            {
+                string tokenname = "{AnonGeneratedToken" + TokenParser.AnonymousTokensIndex + "}";
+                getret.SetName(tokenname);
+                TokenParser.AnonymousTokens.Add(getret);
+                val = tokenname;
+                return val;
+            }
+            return "null";
         }
-        private string EvaluateVar(string value, IBaseFunction reference, string lineRef)
+
+        private List<Token> GetTokens(string[] names, bool safe = false, bool returnInput = false)
         {
-            //get the var scope
-            List<IBaseToken> varList = null;
-            if (value.Contains("$var "))
-                varList = TokenParser.GlobalVariables;
-            else if (value.Contains("var "))
-                varList = reference.VariableTokens;
-            if (varList == null)
-                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
-                    $"[244]Unexpected error occured.", lineRef));
-            //assign based on operator
-            
-            var strip = value.Replace("$", "").Replace("var ", "");
-            string[] assign = default(string[]);
-            if(strip.Contains("++"))
-                assign = strip.Split(new string[] { "++" }, StringSplitOptions.None);
-            else if(strip.Contains("--"))
-                assign = strip.Split(new string[] { "--" }, StringSplitOptions.None);
-            else if(strip.Contains("+="))
-                assign = strip.Split(new string[] { "+=" }, StringSplitOptions.None);
-            else if (strip.Contains("-="))
-                assign = strip.Split(new string[] { "-=" }, StringSplitOptions.None);
-            else if (strip.Contains("="))
-                assign = strip.Split(new string[] { "=" }, StringSplitOptions.None);
+            List<Token> temp = new List<Token>();
+            foreach (var n in names)
+            {
+                var stripws = n.Replace(" ", "");
+                var tryLocal = _reference.LocalVariables.FirstOrDefault(f => f.Name == stripws);
+                if (tryLocal != null)
+                {
+                    temp.Add(new Token(stripws, tryLocal.ToString(),Value));
+                    continue;
+                }
+                var tryGlobal = TokenParser.GlobalVariables.FirstOrDefault(f => f.Name == stripws);
+                if (tryGlobal != null)
+                {
+                    temp.Add(new Token(stripws, tryGlobal.ToString(), Value));
+                    continue;
+                }
+                var tryAnon = TokenParser.AnonymousTokens.FirstOrDefault(f => f.Name == stripws);
+                if (tryAnon != null)
+                {
+                    temp.Add(new Token(stripws, tryAnon.ToString(), Value));
+                    continue;
+                }
+                //try params?
+                var tryParams = _reference.ProvidedArgs.FirstOrDefault(f => f.Name == stripws);
+                if(tryParams != null)
+                {
+                    temp.Add(new Token(stripws, tryParams.ToString(), Value));
+                    continue;
+                }
+                if (returnInput)
+                {
+                    temp.Add(new Token(stripws, stripws, Value));
+                }
+            }
 
-            //get the left hand
-            var leftHand = assign[0].Replace(" ", "");
-            var varRef = varList.FirstOrDefault(f => f.Name == leftHand);
-            
-            //one sided assignment
-            if (strip.Contains("++") || strip.Contains("--"))
+            if (temp.Count == 0 && !safe)
             {
-                if (varRef == null)
-                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
-                        $"[269]Cannot find the left hand variable.", lineRef));
-                double numOut = 0;
-                double.TryParse(varRef.ToString(), out numOut);
-                if (strip.Contains("++"))
-                    numOut++;
-                else
-                    numOut--;
-                var varRefAsT = varRef as TObject;
-                varRefAsT.SetValue(numOut.ToString());
-                return "";
+                //throw new Exception();
+                Compiler.ExceptionListener.Throw($"Cannot find tokens [{string.Join(",", names)}]");
             }
-            var rightHand = assign[1].Replace(" ", "");
-            if(varRef != null && varRef.Locked)
-                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
-                    $"[282]Cannot re-assign a sealed variable!", lineRef));
-            if (rightHand == null || rightHand == "" || rightHand == " ")
-                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
-                    $"[285]Right hand must be a value.", lineRef));
-            IBaseToken token = GetTokens(new string[] { rightHand }, reference, lineRef).ElementAtOrDefault(0);
-            if(token == null)
-                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
-                    $"[285]Right hand must be a value.", lineRef));
-
-            if (strip.Contains("+=") || strip.Contains("-="))
-            {
-                if (varRef == null)
-                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
-                        $"[291]Cannot find the left hand variable.", lineRef));
-                //check if number and apply the change
-                double leftNumOut = 0;
-                double rightNumOut = 0;
-                
-                //check if token is a number too
-                var nofailRight = double.TryParse(token.ToString(), out rightNumOut);
-                var nofailLeft = double.TryParse(varRef.ToString(), out leftNumOut);
-                if (nofailLeft && nofailRight)
-                {
-                    if (strip.Contains("+="))
-                        leftNumOut += rightNumOut;
-                    else
-                        leftNumOut -= rightNumOut;
-                    var varRefAsT = varRef as TObject;
-                    varRefAsT.SetValue(leftNumOut.ToString());
-                }
-                else//one or both arent numbers, which means concatenation intead of incrementation.
-                {
-                    var str = varRef.ToString();
-                    if (strip.Contains("+="))
-                        str += token.ToString();
-                    else
-                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException, 
-                            "[314]Cannot apply the operand -= with type string.", lineRef));
-                    var varRefAsT = varRef as TObject;
-                    varRefAsT.SetValue(str);
-                }
-                return "";
-            }
-            if (strip.Contains("="))
-            {
-                if (varRef != null)
-                {
-                    var varAsT = varRef as TObject;
-                    varAsT.SetValue(token.ToString());
-                }
-                else
-                    varList.Add(new TObject(leftHand, token.ToString()));
-                return "";
-            }
-            Compiler.ExceptionListener.Throw("[330]Unknown error with assignment.", ExceptionType.SyntaxException, lineRef);
-            return "";
+            return temp;
         }
-        public static T DeepCopy<T>(T obj)
-        {
-            if (!typeof(T).IsSerializable)
-            {
-                throw new Exception("The source object must be serializable");
-            }
-
-            if (Object.ReferenceEquals(obj, null))
-            {
-                throw new Exception("The source object must not be null");
-            }
-            T result = default(T);
-            using (var memoryStream = new MemoryStream())
-            {
-                var formatter = new BinaryFormatter();
-                formatter.Serialize(memoryStream, obj);
-                memoryStream.Seek(0, SeekOrigin.Begin);
-                result = (T)formatter.Deserialize(memoryStream);
-                memoryStream.Close();
-            }
-            return result;
-
-        }
-        //evaluates a mathematical expression written in string format
-        private double MathExpression(string expression, IBaseFunction reference, string lineReference)
+        private double MathExpression(string expression)
         {
             string exp = expression;
             //get vars and params out of the expression
-            //idk if i should be checking for anon tokens, so im gunna leave this here for a while just in case
-            var tokenRegex = new Regex(@"\{AnonymousGeneratedToken*\d*\}");
-            var tokenRegexMatches = tokenRegex.Matches(exp);
-            foreach(var x in tokenRegexMatches)
-            {
-                var tok = GetTokens(new string[] { x.ToString() }, reference, lineReference);
-                var tokfirst = tok.FirstOrDefault(f => f != null);
-                if (tokfirst != null)
-                {
-                    exp = exp.Replace(x.ToString(), tokfirst.ToString());
-                }
-            }
+            
             var varRegex = new Regex(@"\w[A-Za-z]*\d*");
             var varRegexMatches = varRegex.Matches(exp);
-            foreach(var x in varRegexMatches)
+            foreach (var x in varRegexMatches)
             {
-                var tok = GetTokens(new string[] { x.ToString() }, reference, lineReference, true);
-                
+                var tok = GetTokens(new string[] { x.ToString() },true);
+
                 var tokfirst = tok.FirstOrDefault(f => f != null);
                 if (tokfirst != null)
                 {
                     exp = exp.Replace(x.ToString(), tokfirst.ToString());
                 }
             }
-
             try
             {
                 DataTable table = new DataTable();
@@ -483,38 +443,31 @@ namespace TastyScript.Lang
             {
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
                     $"[331]Unexpected error with mathematical expression:\n{e.Message}",
-                    lineReference));
+                    Value));
             }
             return 0;
         }
         #region Comparison
-        /// <summary>
-        /// Check for comparison operators
-        /// </summary>
-        /// <param name="line"></param>
-        /// <param name="reference"></param>
-        /// <param name="lineReference"></param>
-        /// <returns></returns>
         enum Operator { EQ, NOTEQ, GT, LT, GTEQ, LTEQ }
-        private string ComparisonCheck(string line, IBaseFunction reference, string lineReference)
+        private string ComparisonCheck(string line)
         {
             string output = "";
             if (line.Contains("=="))
-                output = FindOperation(Operator.EQ, line, lineReference, reference);
+                output = FindOperation(Operator.EQ, line);
             else if (line.Contains("!="))
-                output = FindOperation(Operator.NOTEQ, line, lineReference, reference);
+                output = FindOperation(Operator.NOTEQ, line);
             else if (line.Contains(">="))
-                output = FindOperation(Operator.GTEQ, line, lineReference, reference);
+                output = FindOperation(Operator.GTEQ, line);
             else if (line.Contains("<="))
-                output = FindOperation(Operator.LTEQ, line, lineReference, reference);
+                output = FindOperation(Operator.LTEQ, line);
             else if (line.Contains(">"))
-                output = FindOperation(Operator.GT, line, lineReference, reference);
+                output = FindOperation(Operator.GT, line);
             else if (line.Contains("<"))
-                output = FindOperation(Operator.LT, line, lineReference, reference);
+                output = FindOperation(Operator.LT, line);
             return output;
         }
         //the heavy lifting for comparison check
-        private string FindOperation(Operator op, string line, string lineRef, IBaseFunction reference)
+        private string FindOperation(Operator op, string line)
         {
             string output = "";
             string opString = "";
@@ -540,19 +493,20 @@ namespace TastyScript.Lang
                     break;
             }
             var splitop = line.Split(new string[] { opString }, StringSplitOptions.None);
-            if (splitop.Length != 2)
-                CompareFail(lineRef);
-            var lr = GetTokens(new string[] { splitop[0], splitop[1] }, reference, lineRef);
+            var lr = GetTokens(new string[] { splitop[0], splitop[1] },true,true);
+            if (lr.Count != 2)
+                Compiler.ExceptionListener.Throw("There must be one left-hand and one right-hand in comparison objects.",
+                    ExceptionType.SyntaxException);
             try
             {
                 switch (op)
                 {
                     case (Operator.EQ):
-                        output = (lr[0].ToString() == lr[1].ToString()) 
+                        output = (lr[0].ToString() == lr[1].ToString())
                             ? "True" : "False";
                         break;
                     case (Operator.NOTEQ):
-                        output = (lr[0].ToString() != lr[1].ToString()) 
+                        output = (lr[0].ToString() != lr[1].ToString())
                             ? "True" : "False";
                         break;
                     case (Operator.GT):
@@ -573,96 +527,320 @@ namespace TastyScript.Lang
                         break;
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Console.WriteLine(e);
-                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException, $"Unexpected input: {line}", lineRef));
+                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException, $"Unexpected input: {line}"));
             }
 
             return output;
         }
         //this rips off the comparison check, since the concept is the same.
-        
         private void CompareFail(string line)
         {
             Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException, $"Can not compare more or less than 2 values", line));
         }
         #endregion
-
-        /// <summary>
-        /// takes parameters() and gets all the tokens inside it and returns a list
-        /// </summary>
-        /// <param name="arr"></param>
-        /// <param name="reference"></param>
-        /// <param name="val"></param>
-        /// <returns></returns>
-        private List<IBaseToken> GetTokens(string[] arr, IBaseFunction reference, string val, bool failsafe = false)
+        public static T DeepCopy<T>(T obj)
         {
-            var temp = new List<IBaseToken>();
-            foreach (var p in arr)
+            if (!typeof(T).IsSerializable)
             {
-                IBaseToken tempvar = null;
-                var stripws = p.Replace("(", "").Replace(")", "").Replace("\n","").Replace("\r","").Replace("\t","");
-                if (stripws.Contains("var "))
+                throw new Exception("The source object must be serializable");
+            }
+
+            if (Object.ReferenceEquals(obj, null))
+            {
+                throw new Exception("The source object must not be null");
+            }
+            T result = default(T);
+            using (var memoryStream = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(memoryStream, obj);
+                memoryStream.Seek(0, SeekOrigin.Begin);
+                result = (T)formatter.Deserialize(memoryStream);
+                memoryStream.Close();
+            }
+            return result;
+
+        }
+
+        private string EvaluateVarExtensions(string val)
+        {
+            var value = val;
+            if (val.Contains("<-"))
+            {
+                //get extensions
+                var ext = ParseExtensions(value);
+                //get object to be extended
+                var strip = value.Split(new string[] { "<-" },StringSplitOptions.None);
+                var objLeft = strip[0];
+                var objRemoveKeywords = objLeft.Split(new string[] { "+=", "-=", "++", "--", "=" }, StringSplitOptions.RemoveEmptyEntries);
+                var obj = objRemoveKeywords[objRemoveKeywords.Length - 1];
+                var objVar = GetTokens(new string[] { obj.Replace("|","") }, true).FirstOrDefault();
+                if (objVar != null)
                 {
-                    tempvar = new TObject(stripws.Replace("var ", "").Replace(" ", ""), "0");
+                    foreach (var e in ext)
+                    {
+                        if (e is ExtensionGetItem)
+                        {
+                            string tokenname = "{AnonGeneratedToken" + TokenParser.AnonymousTokensIndex + "}";
+                            var thisExt = (e) as ExtensionGetItem;
+                            var extend = thisExt.Extend(objVar);
+                            TokenParser.AnonymousTokens.Add(
+                                new Token(tokenname, extend.Value, Value));
+                            //replace the old token with the new token, and remove the extension
+                            value = value.Replace(obj + "<-" + strip[1], tokenname);
+                            //value = value.Replace(obj, tokenname);
+                            //value = value.Replace("." + strip[1], "");
+                        }
+                        if (e is ExtensionSetItem)
+                        {
+                            string tokenname = "{AnonGeneratedToken" + TokenParser.AnonymousTokensIndex + "}";
+                            var thisExt = (e) as ExtensionSetItem;
+                            var extend = thisExt.Extend(objVar) as TArray;
+                            if (extend == null)
+                                Compiler.ExceptionListener.Throw("SetItem() can only be used on an array", ExceptionType.SyntaxException, Value);
+                            TokenParser.AnonymousTokens.Add(
+                                new TArray(tokenname, extend.Arguments, Value));
+                            //replace the old token with the new token, and remove the extension
+                            value = value.Replace(obj + "<-" + strip[1], tokenname);
+                            //if self-assigning ommitting left hand
+                            if (!value.Contains("="))
+                            {
+                                //creates the assignment line to compensate from left hand ommission
+                                //value = $"var%{obj}={tokenname}";
+                            }
+                        }
+                        if (e is ExtensionGetIndex)
+                        {
+                            string tokenname = "{AnonGeneratedToken" + TokenParser.AnonymousTokensIndex + "}";
+                            var thisExt = (e) as ExtensionGetIndex;
+                            var extend = thisExt.Extend(objVar);
+                            TokenParser.AnonymousTokens.Add(
+                                new Token(tokenname, extend.Value, Value));
+                            //replace the old token with the new token, and remove the extension
+                            value = value.Replace(obj + "<-" + strip[1], tokenname);
+                        }
+                    }
+                }
+            }
+            return value;
+        }
+        private string EvaluateVar(string value)
+        {
+            //get the var scope
+            List<Token> varList = null;
+            if (value.Contains("$var%"))
+                varList = TokenParser.GlobalVariables;
+            else if (value.Contains("var%"))
+                varList = _reference.LocalVariables;
+            if (varList == null)
+                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
+                    $"[244]Unexpected error occured.",Value));
+            //assign based on operator
+
+            var strip = value.Replace("$", "").Replace("var%", "");
+            string[] assign = default(string[]);
+            if (strip.Contains("++"))
+                assign = strip.Split(new string[] { "++" }, StringSplitOptions.None);
+            else if (strip.Contains("--"))
+                assign = strip.Split(new string[] { "--" }, StringSplitOptions.None);
+            else if (strip.Contains("+="))
+                assign = strip.Split(new string[] { "+=" }, StringSplitOptions.None);
+            else if (strip.Contains("-="))
+                assign = strip.Split(new string[] { "-=" }, StringSplitOptions.None);
+            else if (strip.Contains("="))
+                assign = strip.Split(new string[] { "=" }, StringSplitOptions.None);
+
+            //get the left hand
+            var leftHand = assign[0].Replace(" ", "");
+            var varRef = varList.FirstOrDefault(f => f.Name == leftHand);
+            if (varRef != null && varRef.Locked)
+                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
+                    $"[282]Cannot re-assign a sealed variable!", Value));
+            //one sided assignment
+            if (strip.Contains("++") || strip.Contains("--"))
+            {
+                if (varRef == null)
+                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
+                        $"[269]Cannot find the left hand variable.", Value));
+                double numOut = 0;
+                double.TryParse(varRef.ToString(), out numOut);
+                if (strip.Contains("++"))
+                    numOut++;
+                else
+                    numOut--;
+                varRef.SetValue(numOut.ToString());
+                return "";
+            }
+            Token token = null;
+            var rightHand = assign[1].Replace(" ", "");
+            //if (rightHand.Contains('+'))
+            //{
+                var parts = rightHand.Split('+');
+                string output = "";
+            foreach (var p in parts)
+            {
+                var x = p;
+                if (x.Contains("->"))
+                {
+                    var fext = ParseExtensions(x);
+                    var fcheckSplit = x.Split(new string[] { "->" }, StringSplitOptions.None);
+                    var fcheck = TokenParser.FunctionList.FirstOrDefault(f => f.Name == fcheckSplit[0]);
+                    if (fcheck != null)
+                        x = ParseFunctions(x, fext);
+                }
+                if (x.Contains("<-"))
+                    x = EvaluateVarExtensions(x);
+                if (x == null || x == "" || x == " ")
+                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
+                        $"[688]Right hand must be a value.", Value));
+                var ntoken = GetTokens(new string[] { x }).ElementAtOrDefault(0);
+                if (ntoken == null)
+                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
+                        $"[692]Right hand must be a value.", Value));
+                output += ntoken.ToString();
+            }
+                token = new Token("concatination", output, Value);
+            rightHand = output;
+            //}
+            if (token == null)
+                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
+                    $"[699]Right hand must be a value.", Value));
+            /*
+            if (rightHand.Contains("->"))
+            {
+                var fext = ParseExtensions(rightHand);
+                var fcheckSplit = rightHand.Split(new string[] { "->" }, StringSplitOptions.None);
+                var fcheck = TokenParser.FunctionList.FirstOrDefault(f => f.Name == fcheckSplit[0]);
+                if (fcheck != null)
+                    rightHand = ParseFunctions(rightHand, fext);
+            }
+            rightHand = rightHand.Replace("->", "").Replace("|","");//just in case
+            
+            if (rightHand == null || rightHand == "" || rightHand == " ")
+                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
+                    $"[285]Right hand must be a value.", Value));
+            Token token = GetTokens(new string[] { rightHand }).ElementAtOrDefault(0);
+            if (token == null)
+                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
+                    $"[285]Right hand must be a value.", Value));
+            */
+            if (strip.Contains("+=") || strip.Contains("-="))
+            {
+                if (varRef == null)
+                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
+                        $"[291]Cannot find the left hand variable.", Value));
+                //check if number and apply the change
+                double leftNumOut = 0;
+                double rightNumOut = 0;
+
+                //check if token is a number too
+                var nofailRight = double.TryParse(token.ToString(), out rightNumOut);
+                var nofailLeft = double.TryParse(varRef.ToString(), out leftNumOut);
+                if (nofailLeft && nofailRight)
+                {
+                    if (strip.Contains("+="))
+                        leftNumOut += rightNumOut;
+                    else
+                        leftNumOut -= rightNumOut;
+                    varRef.SetValue(leftNumOut.ToString());
+                }
+                else//one or both arent numbers, which means concatenation intead of incrementation.
+                {
+                    var str = varRef.ToString();
+                    if (strip.Contains("+="))
+                        str += token.ToString();
+                    else
+                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
+                            "[314]Cannot apply the operand -= with type string.", Value));
+                    varRef.SetValue(str);
+                }
+                return "";
+            }
+            if (strip.Contains("="))
+            {
+                if (varRef != null)
+                {
+                    varRef.SetValue(token.ToString());
                 }
                 else
-                {
-                    stripws = stripws.Replace(" ", "");//wait till after var declaration to strip spaces
-                    if (stripws == "" || stripws == " ")
-                        continue;
-                    if (p.Contains("{AnonGeneratedToken"))
-                    {
-                            var obj = reference.GeneratedTokens.FirstOrDefault(f => f.Name == stripws);
-                            if (obj == null)
-                            {
-                                //Compiler.ExceptionListener.Throw(new ExceptionHandler($"[555]Generated Token {stripws} could not be found.", val));
-                                return temp;
-                            }
-                            tempvar = obj;
-                        
-                    }
-                    else
-                    {
-                        var tryglob = TokenParser.GlobalVariables.FirstOrDefault(f => f.Name == stripws);
-                        if (tryglob != null)
-                        {
-                            var globval = tryglob.GetValue();
-                            tempvar = (new TObject(tryglob.Name, globval));
-                        }
-                        var tryvar = reference.VariableTokens.FirstOrDefault(f => f.Name == stripws);
-                        if (tryvar != null)
-                        {
-                            var varval = tryvar.GetValue();
-                            tempvar = (new TObject(tryvar.Name, varval));
-                        }
-                        if (reference.ProvidedArgs != null)
-                        {
-                            var trypar = reference.ProvidedArgs.FirstOrDefault(f => f.Name == stripws);
-                            if (trypar != null)
-                            {
-                                var parval = trypar.GetValue();
-                                tempvar = (new TObject(trypar.Name, parval));
-                            }
-                        }
-                        /*
-                        var tryfunc = TokenParser.FunctionList.FirstOrDefault(f => f.Name == stripws);
-                        if (tryfunc != null)
-                        {
-                            tempvar = (tryfunc);
-                        }
-                        */
-                    }
-                }
-                if (tempvar == null && !failsafe)
-                {
-                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException,
-                        $"[503]Unknown variable [{stripws}] found.", val));
-                }
-                temp.Add(tempvar);
+                    varList.Add(new Token(leftHand, token.ToString(),Value));
+                return "";
             }
-            return temp;
+            Compiler.ExceptionListener.Throw("[330]Unknown error with assignment.", ExceptionType.SyntaxException, Value);
+            return "";
+        }
+
+        private Token Parse(TFunction t)
+        {
+            if (!_reference.ReturnFlag)
+            {
+                if (!TokenParser.Stop)
+                {
+                    if (_reference.Tracer == null || (!_reference.Tracer.Continue && !_reference.Tracer.Break))
+                        return TryParseMember(t);
+                }
+                else if (TokenParser.Stop && _reference.BlindExecute)
+                {
+                    return TryParseMember(t);
+                }
+            }
+            return null;
+        }
+        private Token TryParseMember(TFunction t)
+        {
+            if (t == null)
+                return null;
+            if (_reference.BlindExecute)
+                t.BlindExecute = true;
+            if (t.Name == "Base")
+            {
+                var b = _reference.Base;
+                b.Extensions = new List<EDefinition>();
+                if (t.Extensions != null)
+                    b.Extensions = t.Extensions;
+                if (t.Function.BlindExecute)
+                    b.BlindExecute = true;
+
+                ///This is the whitelist for passing extensions to the Base function
+                ///
+                if (_reference.Extensions != null)
+                {
+                    foreach (var x in _reference.Extensions)
+                    {
+                        if (x.Name == "Concat" ||
+                            x.Name == "Color" ||
+                            x.Name == "Threshold")
+                            b.Extensions.Add(x);
+                    }
+                }
+                b.TryParse(t);
+                return b.ReturnBubble;
+            }
+            //change this plz
+
+            var z = t.Function;
+            if (t.Extensions != null)
+            {
+                z.Extensions = t.Extensions;
+            }
+
+            z.TryParse(t);
+            return z.ReturnBubble;
+        }
+    }
+    public static class StringExtensionMethods
+    {
+        public static string ReplaceFirst(this string text, string search, string replace)
+        {
+            int pos = text.IndexOf(search);
+            if (pos < 0)
+            {
+                return text;
+            }
+            return text.Substring(0, pos) + replace + text.Substring(pos + search.Length);
         }
     }
 }

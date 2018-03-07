@@ -79,7 +79,7 @@ namespace TastyScript.Lang
             var scopes = scopeRegex.Matches(file);
             foreach (var s in scopes)
             {
-                temp.Add(new AnonymousFunction<object>(s.ToString()));
+                temp.Add(new AnonymousFunction(s.ToString()));
             }
             //add inherits second
             var _inheritStack = new List<IBaseFunction>();
@@ -88,7 +88,7 @@ namespace TastyScript.Lang
             var inherits = inheritRegex.Matches(file);
             foreach (var i in inherits)
             {
-                var obj = new AnonymousFunction<object>(i.ToString(), predefined);
+                var obj = new AnonymousFunction(i.ToString(), predefined);
                 _inheritStack.Add(obj);
             }
             //add imports

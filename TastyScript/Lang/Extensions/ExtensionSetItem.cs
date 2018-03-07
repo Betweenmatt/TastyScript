@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TastyScript.Lang.Token;
+using TastyScript.Lang.Tokens;
 
 namespace TastyScript.Lang.Extensions
 {
@@ -15,46 +15,39 @@ namespace TastyScript.Lang.Extensions
     [Serializable]
     internal class ExtensionSetItem : EDefinition
     {
-        public override TParameter Extend(IBaseToken input)
+        public override Token Extend(Token input)
         {
-            var args = Arguments.Value.Value;
+            var args = Extend();
             if(args == null || args.ElementAtOrDefault(0) == null)
                 Compiler.ExceptionListener.Throw($"{this.Name} arguments cannot be null.",
-                    ExceptionType.CompilerException, "{0}");
+                    ExceptionType.CompilerException, input.Line);
 
             int index = -1;
             if (args.ElementAtOrDefault(1) != null)
             {
-                var nofail = int.TryParse(args[0].ToString(), out index);
+                var nofail = int.TryParse(args[1].ToString(), out index);
                 if (!nofail)
                     Compiler.ExceptionListener.Throw($"{this.Name} arguments must be a whole number.",
-                        ExceptionType.CompilerException, "{0}");
+                        ExceptionType.CompilerException, input.Line);
             }
-            
-            var inputAsTobj = input as TObject;
+
+            var inputAsTobj = new TArray("arr", input.Value, input.Line); ;
             if (inputAsTobj == null)
-                Compiler.ExceptionListener.Throw($"Cannot find TObject {input.Name}",
-                    ExceptionType.CompilerException, "{0}");
-            Console.WriteLine(inputAsTobj.Value.Value);
-            var getParam = inputAsTobj.Value.Value.ToString().Replace("[", "").Replace("]", "").Split(',');
-            if (getParam == null)
-                Compiler.ExceptionListener.Throw($"Cannot find TParameter in {input.Name}",
-                    ExceptionType.CompilerException, "{0}");
-            List<IBaseToken> tempParam = new List<IBaseToken>();
-            foreach (var x in getParam)
-                tempParam.Add(new TObject("", x));
+                Compiler.ExceptionListener.Throw($"Cannot find Token [{input.Name}]",
+                    ExceptionType.CompilerException, input.Line);
             if (index == -1)
             {
-                tempParam.Add(new TObject("",args[0]));
-                return new TParameter("AnonArray", tempParam);
+                inputAsTobj.Add(args[0]);
+                return inputAsTobj;
             }
-            var ele = tempParam.ElementAtOrDefault(index);
-            if (ele == null)
-                Compiler.ExceptionListener.Throw($"The element at {index} is null.",
-                    ExceptionType.NullReferenceException, "{0}");
-            tempParam[index] = new TObject("", args[0]);
 
-            return new TParameter($"AnonArray{index}", tempParam );
+            var ele = inputAsTobj.Arguments.ElementAtOrDefault(index);
+            if (ele == null)
+                Compiler.ExceptionListener.Throw($"The element at [{index}] is null.",
+                    ExceptionType.NullReferenceException, input.Line);
+            inputAsTobj.Arguments[index] = args[0];
+
+            return inputAsTobj;
 
         }
     }

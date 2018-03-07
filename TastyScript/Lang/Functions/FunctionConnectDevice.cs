@@ -5,15 +5,15 @@ using System.Text;
 using System.Threading.Tasks;
 using TastyScript.Lang.Exceptions;
 using TastyScript.Lang.Extensions;
-using TastyScript.Lang.Token;
+using TastyScript.Lang.Tokens;
 
 namespace TastyScript.Lang.Functions
 {
     [Function("ConnectDevice", new string[] { "serial" }, isSealed: true)]
-    internal class FunctionConnectDevice : FDefinition<object>
+    internal class FunctionConnectDevice : FDefinition
     {
 
-        public override object CallBase(TParameter args)
+        public override string CallBase()
         {
             var print = "";
             var argsList = ProvidedArgs.FirstOrDefault(f => f.Name == "serial");
@@ -21,9 +21,9 @@ namespace TastyScript.Lang.Functions
                 print = argsList.ToString();
             Program.AndroidDriver = new Android.Driver(print);
 
-            return args;
+            return "";
         }
-        protected override void ForExtension(TParameter args, ExtensionFor findFor, string lineval)
+        protected override void ForExtension(TFunction caller, ExtensionFor findFor)
         {
             Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"Cannot call 'For' on {this.Name}.", LineValue));
         }

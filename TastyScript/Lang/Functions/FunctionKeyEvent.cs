@@ -4,14 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TastyScript.Android;
-using TastyScript.Lang.Token;
+using TastyScript.Lang.Tokens;
 
 namespace TastyScript.Lang.Functions
 {
     [Function("KeyEvent", new string[] { "keyevent" })]
-    internal class FunctionKeyEvent : FDefinition<object>
+    internal class FunctionKeyEvent : FDefinition
     {
-        public override object CallBase(TParameter args)
+        public override string CallBase()
         {
             var argsList = ProvidedArgs.FirstOrDefault(f => f.Name == "keyevent");
             if (argsList == null)
@@ -31,7 +31,7 @@ namespace TastyScript.Lang.Functions
             {
                 IO.Output.Print($"[DRIVERLESS] Keyevent {argsList.ToString()}");
             }
-            return args;
+            return "";
         }
     }
 }

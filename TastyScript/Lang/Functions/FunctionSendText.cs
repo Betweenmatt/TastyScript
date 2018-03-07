@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TastyScript.Lang.Token;
+using TastyScript.Lang.Tokens;
 
 namespace TastyScript.Lang.Functions
 {
     [Function("SendText", new string[] { "s" })]
-    internal class FunctionSendText : FDefinition<object>
+    internal class FunctionSendText : FDefinition
     {
-        public override object CallBase(TParameter args)
+        public override string CallBase()
         {
             var argsList = ProvidedArgs.FirstOrDefault(f => f.Name == "s");
             if (argsList == null)
@@ -24,7 +24,7 @@ namespace TastyScript.Lang.Functions
             {
                 IO.Output.Print($"[DRIVERLESS] text {argsList.ToString()}");
             }
-            return args;
+            return "";
         }
     }
 }

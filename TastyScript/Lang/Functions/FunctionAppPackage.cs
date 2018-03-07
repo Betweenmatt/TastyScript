@@ -4,14 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TastyScript.Lang.Exceptions;
-using TastyScript.Lang.Token;
+using TastyScript.Lang.Tokens;
 
 namespace TastyScript.Lang.Functions
 {
     [Function("AppPackage", new string[] { "app" }, isSealed: true)]
-    internal class FunctionAppPackage : FDefinition<object>
+    internal class FunctionAppPackage : FDefinition
     {
-        public override object CallBase(TParameter args)
+        public override string CallBase()
         {
             var print = "";
             var argsList = ProvidedArgs.FirstOrDefault(f => f.Name == "app");
@@ -21,7 +21,7 @@ namespace TastyScript.Lang.Functions
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.DriverException,
                     $"Cannot set the app package without having a device connected. Please connect to a device first.", LineValue));
             Commands.SetAppPackage(print);
-            return args;
+            return print;
         }
     }
 }

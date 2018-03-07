@@ -3,17 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TastyScript.Lang.Token;
+using TastyScript.Lang.Tokens;
 
 namespace TastyScript.Lang.Functions
 {
     [Function("GuaranteedHalt", isSealed: true)]
-    internal class FunctionGuaranteedHalt : FDefinition<object>
+    internal class FunctionGuaranteedHalt : FDefinition
     {
-        public override object CallBase(TParameter args)
+        public override string CallBase()
         {
             FunctionTimer.TimerStop();
-            return args;
+            return "";
         }
     }
 }
