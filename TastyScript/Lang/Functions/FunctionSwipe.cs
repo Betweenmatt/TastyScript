@@ -36,7 +36,7 @@ namespace TastyScript.Lang.Functions
             {
                 sleep = double.Parse((ProvidedArgs.FirstOrDefault(f => f.Name == "sleep")).ToString());
             }
-            FunctionHelpers.Sleep(sleep);
+            FunctionHelpers.Sleep(sleep, Caller);
             return "";
         }
     }

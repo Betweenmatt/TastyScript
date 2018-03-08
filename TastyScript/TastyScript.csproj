@@ -150,12 +150,8 @@
     <Compile Include="Lang\Functions\FDefinition.cs" />
     <Compile Include="Lang\IFunction.cs" />
     <Compile Include="Lang\Line.cs" />
-    <Compile Include="Lang\LineOLD.cs" />
     <Compile Include="Lang\TokenParser.cs" />
     <Compile Include="Lang\Token\IToken.cs" />
-    <Compile Include="Lang\Token\TFunction.cs" />
-    <Compile Include="Lang\Token\TObject.cs" />
-    <Compile Include="Lang\Token\TParameter.cs" />
     <Compile Include="Lang\Utilities.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -192,7 +188,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties BuildVersion_AssemblyInfoFilename="Properties\AssemblyInfo.cs" BuildVersion_UpdateFileVersion="True" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_BuildVersioningStyle="None.None.None.DeltaBaseDateInDays" BuildVersion_UseGlobalSettings="True" BuildVersion_StartDate="2018/2/5" />
+      <UserProperties BuildVersion_StartDate="2018/2/5" BuildVersion_UseGlobalSettings="True" BuildVersion_BuildVersioningStyle="None.None.None.DeltaBaseDateInDays" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_UpdateFileVersion="True" BuildVersion_AssemblyInfoFilename="Properties\AssemblyInfo.cs" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

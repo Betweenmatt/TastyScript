@@ -66,7 +66,7 @@ namespace TastyScript.Lang.Functions
                             $"Cannot find the invoked function.", LineValue));
                     //pass in invoke properties. shouldnt break with null
                     
-                    func.TryParse(new TFunction(Caller.Function, null, findThen.GetInvokeProperties(), Caller.CallingFunction));
+                    func.TryParse(new TFunction(Caller.Function, new List<EDefinition>(), findThen.GetInvokeProperties(), Caller.CallingFunction));
                 }
                 else
                 {
@@ -85,7 +85,7 @@ namespace TastyScript.Lang.Functions
                     if (func == null)
                         Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException,
                             $"Cannot find the invoked function.", LineValue));
-                    func.TryParse(new TFunction(Caller.Function, null, findElse.GetInvokeProperties(), Caller.CallingFunction));
+                    func.TryParse(new TFunction(Caller.Function, new List<EDefinition>(), findElse.GetInvokeProperties(), Caller.CallingFunction));
                 }
             }
             return "";

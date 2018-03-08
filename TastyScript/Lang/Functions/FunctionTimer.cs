@@ -51,6 +51,10 @@ namespace TastyScript.Lang.Functions
                 if (_watch != null)
                     _watch.Stop();
             }
+            if(_watch != null)
+            {
+                ReturnBubble = new Tokens.Token("timems", _watch.ElapsedMilliseconds.ToString(), Caller.Line);
+            }
             return "";
         }
     }

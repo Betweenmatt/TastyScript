@@ -15,14 +15,12 @@ namespace TastyScript.Lang.Functions
 {
     internal static class FunctionHelpers
     {
-        public static void Sleep(double ms)
+        public static void Sleep(double ms, TFunction caller)
         {
-            /*
-            var func = new TFunction("Sleep", TokenParser.FunctionList.FirstOrDefault(f => f.Name == "Sleep"));
-            var newArgs = new TParameter("sleep", new List<IBaseToken>() { new TObject("sleep", ms) });
-            func.Value.Value.TryParse(newArgs, null);
-            */
-            Utilities.Sleep((int)ms);
+            var sleep = TokenParser.FunctionList.First(f => f.Name == "Sleep");
+            var func = new TFunction(sleep, new List<EDefinition>(), ms.ToString() , caller.CallingFunction);
+            sleep.TryParse(func);
+            //Utilities.Sleep((int)ms);
         }
         
     }

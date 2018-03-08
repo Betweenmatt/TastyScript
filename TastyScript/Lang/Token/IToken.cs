@@ -4,7 +4,6 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
 using TastyScript.Lang.Extensions;
-using TastyScript.Lang.TokenOLD;
 
 namespace TastyScript.Lang.Tokens
 {
@@ -153,8 +152,6 @@ namespace TastyScript.Lang.Tokens
                         splode[i] = splode[i].Replace(p.Key, p.Value).Replace("\"", "");
                 }
             }
-            //foreach (var x in splode)
-            //   Console.WriteLine("   " + x);
             return splode;
         }
     }
@@ -254,7 +251,7 @@ namespace TastyScript.Lang.Tokens
         public string Name { get { return _name; } }
         protected abstract BaseValue<T> _value { get; set; }
         public virtual BaseValue<T> Value { get { return _value; } }
-        public TParameter Arguments { get; set; }
+        //public TParameter Arguments { get; set; }
         public List<EDefinition> Extensions { get; set; }
         public bool Locked { get; protected set; }
         public override string ToString()
@@ -274,14 +271,15 @@ namespace TastyScript.Lang.Tokens
         object GetValue();
         List<EDefinition> Extensions { get; set; }
     }
-
+    [Obsolete]
     internal interface IToken<T> : IBaseToken
     {
         BaseValue<T> Value { get; }
     }
-
+    [Obsolete]
     internal class IBaseValue { }
     [Serializable]
+    [Obsolete]
     internal class BaseValue<T> : IBaseValue
     {
         public T Value { get; private set; }

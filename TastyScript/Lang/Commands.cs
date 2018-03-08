@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TastyScript.Android;
+using TastyScript.Lang.Extensions;
 using TastyScript.Lang.Tokens;
 
 namespace TastyScript.Lang
@@ -52,7 +53,7 @@ namespace TastyScript.Lang
         }
         public static void AnalyzeScreen(string success, IBaseFunction successAction, IBaseFunction failureAction, int thresh, TFunction caller = null)
         {
-            var tfunc = new TFunction(caller.Function, null, string.Join(",",caller.Function.GetInvokeProperties()),caller.CallingFunction);
+            var tfunc = new TFunction(caller.Function, new List<EDefinition>(), string.Join(",",caller.Function.GetInvokeProperties()),caller.CallingFunction);
             AnalyzeScreen ascreen = new AnalyzeScreen();
             ascreen.Analyze(success.CleanString(),
                 () => { successAction.TryParse(tfunc); },
@@ -62,7 +63,7 @@ namespace TastyScript.Lang
         }
         public static void AnalyzeScreen(string success, string failure, IBaseFunction successAction, IBaseFunction failureAction, int thresh, TFunction caller = null)
         {
-            var tfunc = new TFunction(caller.Function, null, string.Join(",", caller.Function.GetInvokeProperties()), caller.CallingFunction);
+            var tfunc = new TFunction(caller.Function, new List<EDefinition>(), string.Join(",", caller.Function.GetInvokeProperties()), caller.CallingFunction);
             AnalyzeScreen ascreen = new AnalyzeScreen();
             ascreen.Analyze(success.CleanString(), failure.CleanString(),
                 () => { successAction.TryParse(tfunc); },
