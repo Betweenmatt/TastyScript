@@ -306,6 +306,8 @@ namespace TastyScript.Lang
                     if (secondSplit.Length != 2)
                         Compiler.ExceptionListener.Throw("[160]Extensions must provide arguments",ExceptionType.SyntaxException);
                     var original = TokenParser.Extensions.FirstOrDefault(f => f.Name == secondSplit[0]);
+                    if (original == null)
+                        Compiler.ExceptionListener.Throw($"[310]Cannot find extension [{secondSplit[0]}]");
                     //Console.WriteLine(secondSplit[0] + " " + secondSplit[1]);
                     var clone = DeepCopy<EDefinition>(original);
                     var param = GetTokens(new string[] { secondSplit[1].Replace("|", "") });
@@ -803,7 +805,8 @@ namespace TastyScript.Lang
                     b.Extensions = t.Extensions;
                 if (t.Function.BlindExecute)
                     b.BlindExecute = true;
-
+                /* ommitting this with the change to nested scope and multi parameter overrides
+                 * 
                 ///This is the whitelist for passing extensions to the Base function
                 ///
                 if (_reference.Extensions != null)
@@ -816,6 +819,7 @@ namespace TastyScript.Lang
                             b.Extensions.Add(x);
                     }
                 }
+                */
                 b.TryParse(t);
                 return b.ReturnBubble;
             }

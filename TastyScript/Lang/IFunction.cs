@@ -46,8 +46,22 @@ namespace TastyScript.Lang
         public bool Locked { get; protected set; }
         public List<Token> ProvidedArgs { get; protected set; }
         public string Arguments { get; set; }
-        public List<EDefinition> _extensions = new List<EDefinition>();
-        public List<EDefinition> Extensions { get { return _extensions; } set { _extensions = value; } }
+        public List<EDefinition> _extensions;
+        public List<EDefinition> Extensions
+        {
+            get
+            {
+                if(_extensions == null)
+                    _extensions = new List<EDefinition>();
+                return _extensions;
+            }
+            set
+            {
+                if (_extensions == null)
+                    _extensions = new List<EDefinition>();
+                _extensions = value;
+            }
+        }
         public List<Line> Lines { get; set; }
         public string LineValue { get; protected set; }
         public bool Obsolete { get; private set; }
@@ -99,18 +113,7 @@ namespace TastyScript.Lang
         {
             ProvidedArgs = new List<Token>();
             LocalVariables = new List<Token>();
-
-            //get top level anonymous functions before everything else
-            var anonRegex = new Regex(Compiler.ScopeRegex(@"=>"), RegexOptions.IgnorePatternWhitespace);
-            var anonRegexMatches = anonRegex.Matches(value);
-            foreach(var a in anonRegexMatches)
-            {
-                var func = new AnonymousFunction(a.ToString(), true);
-                TokenParser.FunctionList.Add(func);
-                value = value.Replace(a.ToString(), $"\"{func.Name}\"");
-            }
-            //
-            Value = value;
+            
             Name = value.Split('.')[1].Split('(')[0];
             var b = Compiler.PredefinedList.FirstOrDefault(f => f.Name == Name);
             if (b != null)
@@ -119,6 +122,18 @@ namespace TastyScript.Lang
                     Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException,
                         $"Invalid Operation. Cannot create a new instance of a Sealed function: {Name}.", value));
                 }
+            //get top level anonymous functions before everything else
+            var anonRegex = new Regex(Compiler.ScopeRegex(@"=>"), RegexOptions.IgnorePatternWhitespace);
+            var anonRegexMatches = anonRegex.Matches(value);
+            foreach (var a in anonRegexMatches)
+            {
+                var func = new AnonymousFunction(a.ToString(), true);
+                func.Base = Base;
+                TokenParser.FunctionList.Add(func);
+                value = value.Replace(a.ToString(), $"\"{func.Name}\"");
+            }
+            //
+            Value = value;
             ExpectedArgs = value.Split('(')[1].Split(')')[0].Split(',');
         }
         //this constructor is when function is anonomysly named
@@ -133,6 +148,7 @@ namespace TastyScript.Lang
             foreach (var a in anonRegexMatches)
             {
                 var func = new AnonymousFunction(a.ToString(), true);
+                func.Base = Base;
                 TokenParser.FunctionList.Add(func);
                 value = value.Replace(a.ToString(), $"\"{func.Name}\"");
             }
@@ -146,19 +162,10 @@ namespace TastyScript.Lang
         {
             ProvidedArgs = new List<Token>();
             LocalVariables = new List<Token>();
-            //get top level anonymous functions before everything else
-            var anonRegex = new Regex(Compiler.ScopeRegex(@"=>"), RegexOptions.IgnorePatternWhitespace);
-            var anonRegexMatches = anonRegex.Matches(value);
-            foreach (var a in anonRegexMatches)
-            {
-                var func = new AnonymousFunction(a.ToString(), true);
-                TokenParser.FunctionList.Add(func);
-                value = value.Replace(a.ToString(), $"\"{func.Name}\"");
-            }
-            //
-            Value = value;
+            
+            
             Name = value.Split('.')[1].Split('(')[0];
-            ExpectedArgs = value.Split('(')[1].Split(')')[0].Split(',');
+            
             var b = predefined.FirstOrDefault(f => f.Name == Name);
             if (b == null)
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"Unexpected error. Function failed to override: {Name}.", value));
@@ -168,6 +175,19 @@ namespace TastyScript.Lang
                     $"Invalid Operation. Cannot override Sealed function: {Name}.", value));
             }
             Base = b;
+            //get top level anonymous functions before everything else
+            var anonRegex = new Regex(Compiler.ScopeRegex(@"=>"), RegexOptions.IgnorePatternWhitespace);
+            var anonRegexMatches = anonRegex.Matches(value);
+            foreach (var a in anonRegexMatches)
+            {
+                var func = new AnonymousFunction(a.ToString(), true);
+                func.Base = Base;
+                TokenParser.FunctionList.Add(func);
+                value = value.Replace(a.ToString(), $"\"{func.Name}\"");
+            }
+            //
+            Value = value;
+            ExpectedArgs = value.Split('(')[1].Split(')')[0].Split(',');
         }
         public virtual void TryParse(TFunction caller)
         {
@@ -187,17 +207,20 @@ namespace TastyScript.Lang
             //combine expected args and given args and add them to variabel pool
             if (caller != null && caller.Arguments != null && ExpectedArgs != null && ExpectedArgs.Length > 0)
             {
-                    ProvidedArgs = new List<Token>();
-                    var args = caller.ReturnArgsArray();
-                    if (args.Length > 0)
+                ProvidedArgs = new List<Token>();
+                var args = caller.ReturnArgsArray();
+                if (ExpectedArgs.Length > 0)
+                {
+                    for (var i = 0; i < ExpectedArgs.Length; i++)
                     {
-                        for (var i = 0; i < args.Length; i++)
-                        {
-                            var exp = ExpectedArgs[i].Replace("var ", "").Replace(" ", "");
+                        var exp = ExpectedArgs[i].Replace("var ", "").Replace(" ", "");
+                        if (args.ElementAtOrDefault(i) == null)
+                            ProvidedArgs.Add(new Token(exp, "null", caller.Line));
+                        else
                             ProvidedArgs.Add(new Token(exp, args[i], caller.Line));
-                        }
                     }
-                
+                }
+
             }
             var guts = Value.Split('{')[1].Split('}');
             var lines = guts[0].Split(';');
@@ -220,14 +243,18 @@ namespace TastyScript.Lang
             {
                 ProvidedArgs = new List<Token>();
                 var args = caller.ReturnArgsArray();
-                if (args.Length > 0)
+                if (ExpectedArgs.Length > 0)
                 {
-                    for (var i = 0; i < args.Length; i++)
+                    for (var i = 0; i < ExpectedArgs.Length; i++)
                     {
                         var exp = ExpectedArgs[i].Replace("var ", "").Replace(" ", "");
-                        ProvidedArgs.Add(new Token(exp, args[i], caller.Line));
+                        if (args.ElementAtOrDefault(i) == null)
+                            ProvidedArgs.Add(new Token(exp, "null", caller.Line));
+                        else
+                            ProvidedArgs.Add(new Token(exp, args[i], caller.Line));
                     }
                 }
+
             }
             var guts = Value.Split('{')[1].Split('}');
             var lines = guts[0].Split(';');

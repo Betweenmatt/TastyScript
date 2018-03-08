@@ -90,14 +90,11 @@ namespace TastyScript.Lang
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException, $"Your script is missing a 'Start' function."));
             var startCollection = FunctionList.Where(w => w.Name == "Start");
             if(startCollection.Count() != 2)
-                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException, $"There can only be one `Start` function. Please remove {startCollection.Count() - 2} `Start` functions"));
+                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException,
+                    $"There must only be one `Start` function. Please remove {startCollection.Count() - 2} `Start` functions"));
             //remove the start override from the stack
             var startIndex = FunctionList.IndexOf(startScope);
             FunctionList.RemoveAt(startIndex);
-
-            //foreach (var x in FunctionList)
-            //    Console.WriteLine(x.Name);
-            //Stop = true;
 
             startScope.TryParse(null);
         }

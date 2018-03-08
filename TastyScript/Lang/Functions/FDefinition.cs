@@ -45,10 +45,13 @@ namespace TastyScript.Lang.Functions
             }
             if (caller != null && caller.Arguments != null && ExpectedArgs != null && ExpectedArgs.Length > 0)
             {
+                
                 ProvidedArgs = new List<Token>();
                 var args = caller.ReturnArgsArray();
                 if (args.Length > 0)
                 {
+                    if (args.Length > ExpectedArgs.Length)
+                        Compiler.ExceptionListener.Throw($"The arguments supplied do not match the arguments expected!");
                     for (var i = 0; i < args.Length; i++)
                     {
                         var exp = ExpectedArgs[i].Replace("var ", "").Replace(" ", "");
@@ -73,6 +76,8 @@ namespace TastyScript.Lang.Functions
                 var args = caller.ReturnArgsArray();
                 if (args.Length > 0)
                 {
+                    if (args.Length > ExpectedArgs.Length)
+                        Compiler.ExceptionListener.Throw($"The arguments supplied do not match the arguments expected!");
                     for (var i = 0; i < args.Length; i++)
                     {
                         var exp = ExpectedArgs[i].Replace("var ", "").Replace(" ", "");
@@ -90,17 +95,20 @@ namespace TastyScript.Lang.Functions
                 Compiler.ExceptionListener.ThrowSilent(new ExceptionHandler(ExceptionType.CompilerException,
                     $"The function [{this.Name}] is marked obsolete. Please check the documentation on future use of this function!", LineValue));
             }
-            if (!TokenParser.Stop)
+            if (!ReturnFlag)
             {
-                if (Tracer == null || (!Tracer.Continue && !Tracer.Break))
+                if (!TokenParser.Stop)
+                {
+                    if (Tracer == null || (!Tracer.Continue && !Tracer.Break))
+                        return CallBase();
+
+                }
+
+                else if (TokenParser.Stop && BlindExecute)
+                {
                     return CallBase();
-
+                }
             }
-            else if (TokenParser.Stop && BlindExecute)
-            {
-                return CallBase();
-            }
-
             return "";
 
         }
