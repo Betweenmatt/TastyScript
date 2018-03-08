@@ -17,12 +17,13 @@ namespace TastyScript.Lang
         string LineValue { get; }
         bool BlindExecute { get; set; }
         LoopTracer Tracer { get; }
+        bool Obsolete { get; }
         bool Invoking { get; }
         string Value { get; }
         string[] GetInvokeProperties();
         void SetInvokeProperties(string[] args);
         void TryParse(TFunction caller);
-        void SetProperties(string name, string[] args, bool invoking, bool isSealed);
+        void SetProperties(string name, string[] args, bool invoking, bool isSealed, bool obsolete);
         bool Sealed { get; }
         List<Token> LocalVariables { get; set; }
         Token ReturnBubble { get; set; }
@@ -49,6 +50,7 @@ namespace TastyScript.Lang
         public List<EDefinition> Extensions { get { return _extensions; } set { _extensions = value; } }
         public List<Line> Lines { get; set; }
         public string LineValue { get; protected set; }
+        public bool Obsolete { get; private set; }
         public IBaseFunction Base { get; protected set; }
         public bool BlindExecute { get; set; }
         protected string[] invokeProperties;
@@ -83,12 +85,13 @@ namespace TastyScript.Lang
             else
                 return invokeProperties;
         }
-        public void SetProperties(string name, string[] args, bool invoking, bool isSealed)
+        public void SetProperties(string name, string[] args, bool invoking, bool isSealed, bool obsolete)
         {
             Name = name;
             ExpectedArgs = args;
             Invoking = invoking;
             Sealed = isSealed;
+            Obsolete = obsolete;
         }
         public AnonymousFunction() { }
         //standard constructor

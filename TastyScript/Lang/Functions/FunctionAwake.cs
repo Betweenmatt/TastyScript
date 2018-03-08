@@ -8,7 +8,7 @@ using TastyScript.Lang.Tokens;
 
 namespace TastyScript.Lang.Functions
 {
-    [Function("Awake", FunctionObsolete: true)]
+    [Function("Awake", depricated: true)]
     internal class FunctionAwake : FDefinition
     {
         public override void TryParse(TFunction caller)

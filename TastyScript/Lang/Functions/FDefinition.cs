@@ -85,6 +85,11 @@ namespace TastyScript.Lang.Functions
 
         public override string Parse()
         {
+            if (Obsolete)
+            {
+                Compiler.ExceptionListener.ThrowSilent(new ExceptionHandler(ExceptionType.CompilerException,
+                    $"The function [{this.Name}] is marked obsolete. Please check the documentation on future use of this function!", LineValue));
+            }
             if (!TokenParser.Stop)
             {
                 if (Tracer == null || (!Tracer.Continue && !Tracer.Break))

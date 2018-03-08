@@ -11,7 +11,8 @@ namespace TastyScript.Lang.Extensions
         string Name { get; }
         string Arguments { get; }
         bool Invoking { get; }
-        void SetProperties(string name, string[] args, bool invoking = false);
+        bool Obsolete { get; }
+        void SetProperties(string name, string[] args, bool invoking, bool obsolete);
         void SetInvokeProperties(string args);
         void SetInvokeProperties(string[] args);
         string GetInvokeProperties();
@@ -25,11 +26,30 @@ namespace TastyScript.Lang.Extensions
         //public TParameter ProvidedArgs { get; protected set; }
         public string Arguments { get; set; }
         public bool Invoking { get; protected set; }
+        public bool Obsolete { get; private set; }
         private string invokeProperties;
         public virtual string[] Extend()
         {
+            ObsoleteWarning();
+            return Execute();
+        }
+        public virtual Token Extend(Token input)
+        {
+            ObsoleteWarning();
+            return Execute(input);
+        }
+        private void ObsoleteWarning()
+        {
+            if (Obsolete)
+            {
+                Compiler.ExceptionListener.ThrowSilent(new ExceptionHandler(ExceptionType.CompilerException,
+                    $"The extension [{this.Name}] has been marked obsolete. Please check the documentation for future use."));
+            }
+        }
+        protected virtual string[] Execute()
+        {
             var commaRegex = new Regex(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
-            var reg =  commaRegex.Split(Arguments);
+            var reg = commaRegex.Split(Arguments);
             for (var i = 0; i < reg.Length; i++)
             {
                 //get them quotes outta here!
@@ -37,15 +57,16 @@ namespace TastyScript.Lang.Extensions
             }
             return reg;
         }
-        public virtual Token Extend(Token input)
+        protected virtual Token Execute(Token input)
         {
             return null;
         }
-        public void SetProperties(string name, string[] args, bool invoking = false)
+        public void SetProperties(string name, string[] args, bool invoking, bool obsolete)
         {
             Name = name;
             ExpectedArgs = args;
             Invoking = invoking;
+            Obsolete = obsolete;
         }
         public void SetArguments(string args)
         {

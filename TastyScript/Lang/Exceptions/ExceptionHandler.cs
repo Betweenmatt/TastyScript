@@ -51,7 +51,7 @@ namespace TastyScript.Lang
             //trying something different
             if(line == null && line == "" || line == "{0}")
                 line = Compiler.ExceptionListener.CurrentLine;
-            if (line.Contains("AnonymousFunction"))
+            if (line != null && line.Contains("AnonymousFunction"))
             {
                 var anonlist = TokenParser.FunctionList.Where(w => w.Name.Contains("AnonymousFunction"));
                 foreach(var x in anonlist)

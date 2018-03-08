@@ -370,8 +370,8 @@ namespace TastyScript
                             var func = System.Type.GetType(type.ToString());
                             var inst = Activator.CreateInstance(func) as IBaseFunction;
                             var attt = type.GetCustomAttribute(typeof(Function), true) as Function;
-                            inst.SetProperties(attt.Name, attt.ExpectedArgs,attt.Invoking,attt.Sealed);
-                            if (!attt.Obsolete)
+                            inst.SetProperties(attt.Name, attt.ExpectedArgs,attt.Invoking,attt.Sealed,attt.Obsolete);
+                            if (!attt.Depricated)
                                 temp.Add(inst);
                         }
             return temp;
@@ -392,8 +392,8 @@ namespace TastyScript
                             {
                                 var func = System.Type.GetType(type.ToString());
                                 var inst = Activator.CreateInstance(func) as IBaseFunction;
-                                inst.SetProperties(attt.Name, attt.ExpectedArgs, attt.Invoking, attt.Sealed);
-                                if (!attt.Obsolete)
+                                inst.SetProperties(attt.Name, attt.ExpectedArgs, attt.Invoking, attt.Sealed,attt.Obsolete);
+                                if (!attt.Depricated)
                                     temp = (inst);
                             }
                         }
@@ -413,8 +413,8 @@ namespace TastyScript
                             var func = System.Type.GetType(type.ToString());
                             var inst = Activator.CreateInstance(func) as EDefinition;
                             var attt = type.GetCustomAttribute(typeof(Extension), true) as Extension;
-                            inst.SetProperties(attt.Name, attt.ExpectedArgs,attt.Invoking);
-                            if (!attt.Obsolete)
+                            inst.SetProperties(attt.Name, attt.ExpectedArgs,attt.Invoking,attt.Obsolete);
+                            if (!attt.Depricated)
                                 temp.Add(inst);
                         }
             return temp;
