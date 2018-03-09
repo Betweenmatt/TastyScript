@@ -27,7 +27,7 @@ namespace TastyScript.Lang
         public Compiler(string filename, string file, List<IBaseFunction> predefined)
         {
             LoopTracerStack = new List<LoopTracer>();
-            TokenParser.FunctionList = new List<IBaseFunction>();//clear this every run
+            FunctionStack.Clear();//clear this every run
             Files = new Dictionary<string, string>();
             Files.Add(filename, file);
             _compileStack = GetScopes(file, predefined);

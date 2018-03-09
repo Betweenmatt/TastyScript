@@ -17,7 +17,7 @@ namespace TastyScript.Lang.Functions
     {
         public static void Sleep(double ms, TFunction caller)
         {
-            var sleep = TokenParser.FunctionList.First(f => f.Name == "Sleep");
+            var sleep = FunctionStack.First("Sleep");
             var func = new TFunction(sleep, new List<EDefinition>(), ms.ToString() , caller.CallingFunction);
             sleep.TryParse(func);
             //Utilities.Sleep((int)ms);

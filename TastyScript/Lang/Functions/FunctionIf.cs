@@ -8,7 +8,7 @@ using TastyScript.Lang.Tokens;
 
 namespace TastyScript.Lang.Functions
 {
-    [Function("If", new string[] { "bool" }, isSealed: true)]
+    [Function("If", new string[] { "bool" }, isSealed: true, alias:new string[] { "if" })]
     internal class FunctionIf : FDefinition
     {
         public override string CallBase()
@@ -60,7 +60,7 @@ namespace TastyScript.Lang.Functions
                 if (findThen != null)
                 {
                     string[] thenFunc = findThen.Extend();
-                    var func = TokenParser.FunctionList.FirstOrDefault(f => f.Name == thenFunc[0].ToString());
+                    var func = FunctionStack.First(thenFunc[0].ToString());
                     if (func == null)
                         Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException,
                             $"Cannot find the invoked function.", LineValue));
@@ -81,7 +81,7 @@ namespace TastyScript.Lang.Functions
                 if (findElse != null)
                 {
                     string[] elseFunc = findElse.Extend();
-                    var func = TokenParser.FunctionList.FirstOrDefault(f => f.Name == elseFunc[0].ToString());
+                    var func = FunctionStack.First(elseFunc[0].ToString());
                     if (func == null)
                         Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException,
                             $"Cannot find the invoked function.", LineValue));

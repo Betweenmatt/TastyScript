@@ -216,7 +216,7 @@ namespace TastyScript.Lang
                     
                     var fext = ParseExtensions(param);
                     var fcheckSplit = param.Split(new string[] { "->" }, StringSplitOptions.None);
-                    var fcheck = TokenParser.FunctionList.FirstOrDefault(f => f.Name == fcheckSplit[0]);
+                    var fcheck = FunctionStack.First(fcheckSplit[0]);
                     if(fcheck != null)
                         param = ParseFunctions(param, fext);
                     
@@ -305,7 +305,7 @@ namespace TastyScript.Lang
                     var secondSplit = first.Split(new string[] { "->" }, StringSplitOptions.None);
                     if (secondSplit.Length != 2)
                         Compiler.ExceptionListener.Throw("[160]Extensions must provide arguments",ExceptionType.SyntaxException);
-                    var original = TokenParser.Extensions.FirstOrDefault(f => f.Name == secondSplit[0]);
+                    var original = ExtensionStack.First(secondSplit[0]);
                     if (original == null)
                         Compiler.ExceptionListener.Throw($"[310]Cannot find extension [{secondSplit[0]}]");
                     //Console.WriteLine(secondSplit[0] + " " + secondSplit[1]);
@@ -318,7 +318,7 @@ namespace TastyScript.Lang
                         var invokeFuncName = param[0].ToString();
                         if (invokeFuncName.Contains("AnonymousFunction"))
                         {
-                            var functionToInvoke = TokenParser.FunctionList.FirstOrDefault(f => f.Name == invokeFuncName.Replace("\"",""));
+                            var functionToInvoke = FunctionStack.First(invokeFuncName.Replace("\"",""));
                             
                             if (functionToInvoke != null)
                             {
@@ -345,7 +345,7 @@ namespace TastyScript.Lang
             string val = value;
             var firstSplit = value.Split('|')[0];
             var secondSplit = firstSplit.Split(new string[] { "->" }, StringSplitOptions.None);
-            var func = TokenParser.FunctionList.FirstOrDefault(f => f.Name == secondSplit[0]);
+            var func = FunctionStack.First(secondSplit[0]);
             if (func == null)
             {
                 if (safelook)
@@ -362,7 +362,7 @@ namespace TastyScript.Lang
                 var invokeFuncName = param[0].ToString();
                 if (invokeFuncName.Contains("AnonymousFunction"))
                 {
-                    var functionToInvoke = TokenParser.FunctionList.FirstOrDefault(f => f.Name == invokeFuncName.Replace("\"", ""));
+                    var functionToInvoke = FunctionStack.First(invokeFuncName.Replace("\"", ""));
                     if (functionToInvoke != null)
                     {
                         var args = GetTokens(functionToInvoke.ExpectedArgs, true, true);
@@ -685,7 +685,7 @@ namespace TastyScript.Lang
                 {
                     var fext = ParseExtensions(x);
                     var fcheckSplit = x.Split(new string[] { "->" }, StringSplitOptions.None);
-                    var fcheck = TokenParser.FunctionList.FirstOrDefault(f => f.Name == fcheckSplit[0]);
+                    var fcheck = FunctionStack.First(fcheckSplit[0]);
                     if (fcheck != null)
                         x = ParseFunctions(x, fext);
                 }

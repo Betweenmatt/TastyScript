@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TastyScript.Lang.Extensions
 {
-    [Extension("Then", new string[] { "invoke" }, invoking: true)]
+    [Extension("Then", new string[] { "invoke" }, invoking: true, alias:new string[] { "then" })]
     [Serializable]
     internal class ExtensionThen : EDefinition { }
 }

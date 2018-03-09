@@ -7,7 +7,7 @@ using TastyScript.Lang.Tokens;
 
 namespace TastyScript.Lang.Functions
 {
-    [Function("Continue", isSealed: true)]
+    [Function("Continue", isSealed: true, alias: new string[] { "continue" })]
     internal class FunctionContinue : FDefinition
     {
         public override string CallBase()

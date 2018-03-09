@@ -106,6 +106,9 @@
     <Compile Include="Lang\Attributes.cs" />
     <Compile Include="Lang\Commands.cs" />
     <Compile Include="Lang\Compiler.cs" />
+    <Compile Include="Lang\Containers\ExtensionStack.cs" />
+    <Compile Include="Lang\Containers\FunctionStack.cs" />
+    <Compile Include="Lang\Containers\StaticList.cs" />
     <Compile Include="Lang\Exceptions\ExceptionHandler.cs" />
     <Compile Include="Lang\Exceptions\IExceptionListener.cs" />
     <Compile Include="Lang\Extensions\ExtensionAnd.cs" />
@@ -139,7 +142,7 @@
     <Compile Include="Lang\Functions\FunctionLoop.cs" />
     <Compile Include="Lang\Functions\FunctionPrint.cs" />
     <Compile Include="Lang\Functions\FunctionPrintLine.cs" />
-    <Compile Include="Lang\Functions\FunctionReturn.cs" />
+    <Compile Include="Lang\Functions\Internal\FunctionReturn.cs" />
     <Compile Include="Lang\Functions\FunctionSendText.cs" />
     <Compile Include="Lang\Functions\FunctionSetDefaultSleep.cs" />
     <Compile Include="Lang\Functions\FunctionSleep.cs" />

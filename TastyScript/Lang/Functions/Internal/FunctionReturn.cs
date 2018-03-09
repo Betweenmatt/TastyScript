@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TastyScript.Lang.Functions
 {
-    [Function("Return", new string[]{"value"},isSealed:true)]
+    [Function("Return", new string[]{"value"},isSealed:true, alias: new string[] { "return" })]
     internal class FunctionReturn : FDefinition
     {
         public override string CallBase()

@@ -53,7 +53,7 @@ namespace TastyScript.Lang
                 line = Compiler.ExceptionListener.CurrentLine;
             if (line != null && line.Contains("AnonymousFunction"))
             {
-                var anonlist = TokenParser.FunctionList.Where(w => w.Name.Contains("AnonymousFunction"));
+                var anonlist = FunctionStack.WhereContains("AnonymousFunction");
                 foreach(var x in anonlist)
                 {
                     line = line.Replace("\""+x.Name+"\"", "=" + x.Value);

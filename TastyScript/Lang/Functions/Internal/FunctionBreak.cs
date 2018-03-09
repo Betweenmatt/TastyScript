@@ -7,7 +7,7 @@ using TastyScript.Lang.Tokens;
 
 namespace TastyScript.Lang.Functions
 {
-    [Function("Break", isSealed: true)]
+    [Function("Break", isSealed: true, alias: new string[] { "break" })]
     internal class FunctionBreak : FDefinition
     {
         public override string CallBase()

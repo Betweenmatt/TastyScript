@@ -12,7 +12,8 @@ namespace TastyScript.Lang.Extensions
         string Arguments { get; }
         bool Invoking { get; }
         bool Obsolete { get; }
-        void SetProperties(string name, string[] args, bool invoking, bool obsolete, bool varext);
+        string[] Alias { get; }
+        void SetProperties(string name, string[] args, bool invoking, bool obsolete, bool varext, string[] alias);
         void SetInvokeProperties(string args);
         void SetInvokeProperties(string[] args);
         string GetInvokeProperties();
@@ -25,6 +26,7 @@ namespace TastyScript.Lang.Extensions
         public string[] ExpectedArgs { get; protected set; }
         //public TParameter ProvidedArgs { get; protected set; }
         public string Arguments { get; set; }
+        public string[] Alias { get; protected set; }
         public bool Invoking { get; protected set; }
         public bool Obsolete { get; private set; }
         /// <summary>
@@ -62,10 +64,11 @@ namespace TastyScript.Lang.Extensions
             }
             return reg;
         }
-        public void SetProperties(string name, string[] args, bool invoking, bool obsolete, bool varext)
+        public void SetProperties(string name, string[] args, bool invoking, bool obsolete, bool varext, string[] alias)
         {
             Name = name;
             ExpectedArgs = args;
+            Alias = alias;
             Invoking = invoking;
             Obsolete = obsolete;
             VariableExtension = varext;

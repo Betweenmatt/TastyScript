@@ -10,7 +10,6 @@ namespace TastyScript.Lang
 {
     internal class TokenParser
     {
-        public static List<IBaseFunction> FunctionList;
         /// <summary>
         /// The default sleep timer for android commands in milliseconds
         /// </summary>
@@ -29,7 +28,6 @@ namespace TastyScript.Lang
         //saving the halt function for later calling
         public static IBaseFunction HaltFunction { get; private set; }
         public static IBaseFunction GuaranteedHaltFunction { get; private set; }
-        public static List<EDefinition> Extensions = new List<EDefinition>();
         
         private static bool _stop;
         public static bool Stop {
@@ -55,7 +53,7 @@ namespace TastyScript.Lang
         public TokenParser(List<IBaseFunction> functionList)
         {
             CancellationTokenSource = new CancellationTokenSource();
-            FunctionList.AddRange(functionList);
+            FunctionStack.AddRange(functionList);
             AnonymousTokens = new List<Token>();
             GlobalVariables = new List<Token>()
             {
@@ -71,30 +69,28 @@ namespace TastyScript.Lang
         private void StartParse()
         {
             //start function is an inherit for easier override implementation down the line
-            var startScope = FunctionList.FirstOrDefault(f => f.Name == "Start");
-            var awakeScope = FunctionList.FirstOrDefault(f => f.Name == "Awake");
-            HaltFunction = FunctionList.FirstOrDefault(f => f.Name == "Halt");
-            GuaranteedHaltFunction = FunctionList.FirstOrDefault(f => f.Name == "GuaranteedHalt");
+            var startScope = FunctionStack.First("Start");
+            var awakeScope = FunctionStack.First("Awake");
+            HaltFunction = FunctionStack.First("Halt");
+            GuaranteedHaltFunction = FunctionStack.First("GuaranteedHalt");
 
             if (awakeScope != null)
             {
-                foreach (var x in FunctionList)
+                var awakecollection = FunctionStack.Where("Awake");
+                foreach (var x in awakecollection)
                 {
-                    if (x.Name == "Awake")
-                    {
-                        x.TryParse(null);
-                    }
+                    x.TryParse(null);
                 }
             }
             if (startScope == null)
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException, $"Your script is missing a 'Start' function."));
-            var startCollection = FunctionList.Where(w => w.Name == "Start");
+            var startCollection = FunctionStack.Where("Start");
             if(startCollection.Count() != 2)
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException,
                     $"There must only be one `Start` function. Please remove {startCollection.Count() - 2} `Start` functions"));
             //remove the start override from the stack
-            var startIndex = FunctionList.IndexOf(startScope);
-            FunctionList.RemoveAt(startIndex);
+            var startIndex = FunctionStack.IndexOf(startScope);
+            FunctionStack.RemoveAt(startIndex);
 
             startScope.TryParse(null);
         }

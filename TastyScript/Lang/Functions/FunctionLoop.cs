@@ -17,7 +17,7 @@ namespace TastyScript.Lang.Functions
             var prov = ProvidedArgs.FirstOrDefault(f => f.Name == "invoke");
             if (prov == null)
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"[247]Invoke function cannot be null.", LineValue));
-            var func = TokenParser.FunctionList.FirstOrDefault(f => f.Name == prov.ToString());
+            var func = FunctionStack.First(prov.ToString());
             if (func == null)
             {
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"[250]Invoke function cannot be null.", LineValue));

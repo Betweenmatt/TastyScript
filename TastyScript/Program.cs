@@ -40,7 +40,8 @@ namespace TastyScript
             //on load set predefined functions and extensions to mitigate load from reflection
             predefinedFunctions = GetPredefinedFunctions();
             Compiler.PredefinedList = predefinedFunctions;
-            TokenParser.Extensions = GetExtensions();
+            //TokenParser.Extensions = GetExtensions();
+            GetExtensions();
             Compiler.ExceptionListener = new ExceptionListener();
             //
             IO.Output.Print(WelcomeMessage());
@@ -370,7 +371,7 @@ namespace TastyScript
                             var func = System.Type.GetType(type.ToString());
                             var inst = Activator.CreateInstance(func) as IBaseFunction;
                             var attt = type.GetCustomAttribute(typeof(Function), true) as Function;
-                            inst.SetProperties(attt.Name, attt.ExpectedArgs,attt.Invoking,attt.Sealed,attt.Obsolete);
+                            inst.SetProperties(attt.Name, attt.ExpectedArgs,attt.Invoking,attt.Sealed,attt.Obsolete,attt.Alias);
                             if (!attt.Depricated)
                                 temp.Add(inst);
                         }
@@ -392,14 +393,14 @@ namespace TastyScript
                             {
                                 var func = System.Type.GetType(type.ToString());
                                 var inst = Activator.CreateInstance(func) as IBaseFunction;
-                                inst.SetProperties(attt.Name, attt.ExpectedArgs, attt.Invoking, attt.Sealed,attt.Obsolete);
+                                inst.SetProperties(attt.Name, attt.ExpectedArgs, attt.Invoking, attt.Sealed,attt.Obsolete,attt.Alias);
                                 if (!attt.Depricated)
                                     temp = (inst);
                             }
                         }
             return temp;
         }
-        private static List<EDefinition> GetExtensions()
+        private static void GetExtensions()
         {
             List<EDefinition> temp = new List<EDefinition>();
             string definedIn = typeof(Extension).Assembly.GetName().Name;
@@ -413,11 +414,12 @@ namespace TastyScript
                             var func = System.Type.GetType(type.ToString());
                             var inst = Activator.CreateInstance(func) as EDefinition;
                             var attt = type.GetCustomAttribute(typeof(Extension), true) as Extension;
-                            inst.SetProperties(attt.Name, attt.ExpectedArgs,attt.Invoking,attt.Obsolete, attt.VariableExtension);
+                            inst.SetProperties(attt.Name, attt.ExpectedArgs,attt.Invoking,attt.Obsolete, attt.VariableExtension,attt.Alias);
                             if (!attt.Depricated)
                                 temp.Add(inst);
                         }
-            return temp;
+            ExtensionStack.Clear();
+            ExtensionStack.AddRange(temp);
         }
         /// <summary>
         /// Checks both absolute and relative, as well as pre-set directories

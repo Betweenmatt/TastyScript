@@ -7,6 +7,7 @@ namespace TastyScript.Lang
     {
         public string Name { get; }
         public string[] ExpectedArgs { get; }
+        public string[] Alias { get; }
         public bool Invoking { get; }
         /// <summary>
         /// functions marked sealed cannot be overriden
@@ -20,22 +21,24 @@ namespace TastyScript.Lang
         /// functions marked depricated get ignored by the compiler when adding to function stack
         /// </summary>
         public bool Depricated { get; }
-        public Function(string name, bool isSealed = false, bool invoking = false, bool depricated = false, bool obsolete = false)
+        public Function(string name, bool isSealed = false, bool invoking = false, bool depricated = false, bool obsolete = false, string[] alias = null)
         {
             Sealed = isSealed;
             Obsolete = obsolete;
             Depricated = depricated;
             Name = name;
             Invoking = invoking;
+                Alias = alias;
             ExpectedArgs = new string[] { };
         }
-        public Function(string name, string[] args, bool isSealed = false, bool invoking = false, bool depricated = false, bool obsolete = false)
+        public Function(string name, string[] args, bool isSealed = false, bool invoking = false, bool depricated = false, bool obsolete = false, string[] alias = null)
         {
             Sealed = isSealed;
             Obsolete = obsolete;
             Depricated = depricated;
             Name = name;
             Invoking = invoking;
+                Alias = alias;
             ExpectedArgs = args;
         }
     }
@@ -48,6 +51,7 @@ namespace TastyScript.Lang
         /// </summary>
         public bool Sealed { get; }
         public string[] ExpectedArgs { get; }
+        public string[] Alias { get; }
         public bool Invoking { get; }
         /// <summary>
         /// functions marked obsolete get ignored by the compiler when adding to function stack
@@ -62,7 +66,7 @@ namespace TastyScript.Lang
         /// since function extensions are triggered using a different method.
         /// </summary>
         public bool VariableExtension { get; }
-        public Extension(string name, bool isSealed = false, bool invoking = false, bool depricated = false, bool obsolete = false, bool varExtension = false)
+        public Extension(string name, bool isSealed = false, bool invoking = false, bool depricated = false, bool obsolete = false, bool varExtension = false, string[] alias = null)
         {
             Sealed = isSealed;
             Depricated = depricated;
@@ -70,9 +74,10 @@ namespace TastyScript.Lang
             VariableExtension = varExtension;
             Name = name;
             Invoking = invoking;
+                Alias = alias;
             ExpectedArgs = new string[] { };
         }
-        public Extension(string name, string[] args, bool isSealed = false, bool invoking = false, bool depricated = false, bool obsolete = false, bool varExtension = false)
+        public Extension(string name, string[] args, bool isSealed = false, bool invoking = false, bool depricated = false, bool obsolete = false, bool varExtension = false, string[] alias = null)
         {
             Sealed = isSealed;
             Obsolete = obsolete;
@@ -80,6 +85,7 @@ namespace TastyScript.Lang
             Depricated = depricated;
             Name = name;
             Invoking = invoking;
+                Alias = alias;
             ExpectedArgs = args;
         }
     }

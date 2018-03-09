@@ -23,8 +23,8 @@ namespace TastyScript.Lang.Functions
             {
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.NullReferenceException, $"Invoke function cannot be null.", LineValue));
             }
-            var sf = TokenParser.FunctionList.FirstOrDefault(f => f.Name == succFunc.ToString());
-            var ff = TokenParser.FunctionList.FirstOrDefault(f => f.Name == failFunc.ToString());
+            var sf = FunctionStack.First(succFunc.ToString());
+            var ff = FunctionStack.First(failFunc.ToString());
             if (sf == null || ff == null)
             {
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException,

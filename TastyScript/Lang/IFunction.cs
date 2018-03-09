@@ -18,12 +18,13 @@ namespace TastyScript.Lang
         bool BlindExecute { get; set; }
         LoopTracer Tracer { get; }
         bool Obsolete { get; }
+        string[] Alias { get; }
         bool Invoking { get; }
         string Value { get; }
         string[] GetInvokeProperties();
         void SetInvokeProperties(string[] args, List<Token> vars);
         void TryParse(TFunction caller);
-        void SetProperties(string name, string[] args, bool invoking, bool isSealed, bool obsolete);
+        void SetProperties(string name, string[] args, bool invoking, bool isSealed, bool obsolete, string[] alias);
         bool Sealed { get; }
         List<Token> LocalVariables { get; set; }
         Token ReturnBubble { get; set; }
@@ -66,6 +67,7 @@ namespace TastyScript.Lang
         public string LineValue { get; protected set; }
         public bool Obsolete { get; private set; }
         public IBaseFunction Base { get; protected set; }
+        public string[] Alias { get; protected set; }
         public bool BlindExecute { get; set; }
         protected string[] invokeProperties;
         public LoopTracer Tracer { get; protected set; }
@@ -102,13 +104,14 @@ namespace TastyScript.Lang
             else
                 return invokeProperties;
         }
-        public void SetProperties(string name, string[] args, bool invoking, bool isSealed, bool obsolete)
+        public void SetProperties(string name, string[] args, bool invoking, bool isSealed, bool obsolete, string[] alias)
         {
             Name = name;
             ExpectedArgs = args;
             Invoking = invoking;
             Sealed = isSealed;
             Obsolete = obsolete;
+            Alias = alias;
         }
         public AnonymousFunction() { }
         //standard constructor
@@ -132,7 +135,7 @@ namespace TastyScript.Lang
             {
                 var func = new AnonymousFunction(a.ToString(), true);
                 func.Base = Base;
-                TokenParser.FunctionList.Add(func);
+                FunctionStack.Add(func);
                 value = value.Replace(a.ToString(), $"\"{func.Name}\"");
             }
             //
@@ -152,7 +155,7 @@ namespace TastyScript.Lang
             {
                 var func = new AnonymousFunction(a.ToString(), true);
                 func.Base = Base;
-                TokenParser.FunctionList.Add(func);
+                FunctionStack.Add(func);
                 value = value.Replace(a.ToString(), $"\"{func.Name}\"");
             }
             Value = value;
@@ -185,7 +188,7 @@ namespace TastyScript.Lang
             {
                 var func = new AnonymousFunction(a.ToString(), true);
                 func.Base = Base;
-                TokenParser.FunctionList.Add(func);
+                FunctionStack.Add(func);
                 value = value.Replace(a.ToString(), $"\"{func.Name}\"");
             }
             //
