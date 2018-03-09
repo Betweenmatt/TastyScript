@@ -63,6 +63,7 @@ namespace TastyScript.Lang.Functions
                         {
                             passed = new string[] { x.ToString() };
                         }
+                        func.SetInvokeProperties(new string[] { }, Caller.CallingFunction.LocalVariables);
                         func.TryParse(new TFunction(Caller.Function, new List<EDefinition>(), passed, Caller.CallingFunction));
                     }
                     else
@@ -110,6 +111,7 @@ namespace TastyScript.Lang.Functions
                         {
                             passed = new string[] { x.ToString() };
                         }
+                        func.SetInvokeProperties(new string[] { }, Caller.CallingFunction.LocalVariables);
                         func.TryParse(new TFunction(Caller.Function, new List<EDefinition>(), passed, Caller.CallingFunction));
                         x++;
                     }

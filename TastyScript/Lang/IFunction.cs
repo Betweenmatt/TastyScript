@@ -21,7 +21,7 @@ namespace TastyScript.Lang
         bool Invoking { get; }
         string Value { get; }
         string[] GetInvokeProperties();
-        void SetInvokeProperties(string[] args);
+        void SetInvokeProperties(string[] args, List<Token> vars);
         void TryParse(TFunction caller);
         void SetProperties(string name, string[] args, bool invoking, bool isSealed, bool obsolete);
         bool Sealed { get; }
@@ -88,9 +88,12 @@ namespace TastyScript.Lang
                 return _generatedTokensIndex;
             }
         }
-        public void SetInvokeProperties(string[] args)
+        public void SetInvokeProperties(string[] args, List<Token> vars)
         {
             invokeProperties = args;
+            if (LocalVariables == null)
+                LocalVariables = new List<Token>();
+            LocalVariables.AddRange(vars);
         }
         public string[] GetInvokeProperties()
         {

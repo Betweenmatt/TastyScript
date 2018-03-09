@@ -371,7 +371,7 @@ namespace TastyScript.Lang
                         {
                             argsarr.Add(x.ToString());
                         }
-                        func.SetInvokeProperties(argsarr.ToArray());
+                        func.SetInvokeProperties(argsarr.ToArray(), _reference.LocalVariables);
                     }
                 }
             }
@@ -390,7 +390,7 @@ namespace TastyScript.Lang
             return "null";
         }
 
-        private List<Token> GetTokens(string[] names, bool safe = false, bool returnInput = false, bool nullable = false)
+        private List<Token> GetTokens(string[] names, bool safe = false, bool returnInput = false)
         {
             List<Token> temp = new List<Token>();
             foreach (var n in names)
@@ -425,7 +425,7 @@ namespace TastyScript.Lang
                 {
                     //temp.Add(new Token(stripws, stripws, Value));
                     double number = 0;
-                    bool isNumeric = double.TryParse("123", out number);
+                    bool isNumeric = double.TryParse(stripws, out number);
                     if (isNumeric)
                         temp.Add(new Tokens.Token(stripws, stripws, Value));
                     else if (stripws.Contains("\""))

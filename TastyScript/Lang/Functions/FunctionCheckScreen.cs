@@ -30,6 +30,8 @@ namespace TastyScript.Lang.Functions
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException,
                     $"[198]Invoke function cannot be found.", LineValue));
             }
+            sf.SetInvokeProperties(new string[] { }, Caller.CallingFunction.LocalVariables);
+            ff.SetInvokeProperties(new string[] { }, Caller.CallingFunction.LocalVariables);
             //check for threshold extension
             var threshExt = Extensions.FirstOrDefault(f => f.Name == "Threshold") as ExtensionThreshold;
             int thresh = 90;
