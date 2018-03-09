@@ -390,7 +390,7 @@ namespace TastyScript.Lang
             return "null";
         }
 
-        private List<Token> GetTokens(string[] names, bool safe = false, bool returnInput = false)
+        private List<Token> GetTokens(string[] names, bool safe = false, bool returnInput = false, bool nullable = false)
         {
             List<Token> temp = new List<Token>();
             foreach (var n in names)
@@ -423,7 +423,15 @@ namespace TastyScript.Lang
                 }
                 if (returnInput)
                 {
-                    temp.Add(new Token(stripws, stripws, Value));
+                    //temp.Add(new Token(stripws, stripws, Value));
+                    double number = 0;
+                    bool isNumeric = double.TryParse("123", out number);
+                    if (isNumeric)
+                        temp.Add(new Tokens.Token(stripws, stripws, Value));
+                    else if (stripws.Contains("\""))
+                        temp.Add(new Tokens.Token(stripws, stripws, Value));
+                    else
+                        temp.Add(new Tokens.Token(stripws, "null", Value));
                 }
             }
 
@@ -593,53 +601,23 @@ namespace TastyScript.Lang
                 //get extensions
                 var ext = ParseExtensions(value);
                 //get object to be extended
-                var strip = value.Split(new string[] { "<-" },StringSplitOptions.None);
+                var strip = value.Split(new string[] { "<-" }, StringSplitOptions.None);
                 var objLeft = strip[0];
                 var objRemoveKeywords = objLeft.Split(new string[] { "+=", "-=", "++", "--", "=" }, StringSplitOptions.RemoveEmptyEntries);
                 var obj = objRemoveKeywords[objRemoveKeywords.Length - 1];
-                var objVar = GetTokens(new string[] { obj.Replace("|","") }, true).FirstOrDefault();
+                var objVar = GetTokens(new string[] { obj.Replace("|", "") }, true).FirstOrDefault();
                 if (objVar != null)
                 {
                     foreach (var e in ext)
                     {
-                        if (e is ExtensionGetItem)
+                        if (e.VariableExtension)
                         {
                             string tokenname = "{AnonGeneratedToken" + TokenParser.AnonymousTokensIndex + "}";
-                            var thisExt = (e) as ExtensionGetItem;
-                            var extend = thisExt.Extend(objVar);
-                            TokenParser.AnonymousTokens.Add(
-                                new Token(tokenname, extend.Value, Value));
-                            //replace the old token with the new token, and remove the extension
-                            value = value.Replace(obj + "<-" + strip[1], tokenname);
-                            //value = value.Replace(obj, tokenname);
-                            //value = value.Replace("." + strip[1], "");
-                        }
-                        if (e is ExtensionSetItem)
-                        {
-                            string tokenname = "{AnonGeneratedToken" + TokenParser.AnonymousTokensIndex + "}";
-                            var thisExt = (e) as ExtensionSetItem;
-                            var extend = thisExt.Extend(objVar) as TArray;
-                            if (extend == null)
-                                Compiler.ExceptionListener.Throw("SetItem() can only be used on an array", ExceptionType.SyntaxException, Value);
-                            TokenParser.AnonymousTokens.Add(
-                                new TArray(tokenname, extend.Arguments, Value));
-                            //replace the old token with the new token, and remove the extension
-                            value = value.Replace(obj + "<-" + strip[1], tokenname);
-                            //if self-assigning ommitting left hand
-                            if (!value.Contains("="))
-                            {
-                                //creates the assignment line to compensate from left hand ommission
-                                //value = $"var%{obj}={tokenname}";
-                            }
-                        }
-                        if (e is ExtensionGetIndex)
-                        {
-                            string tokenname = "{AnonGeneratedToken" + TokenParser.AnonymousTokensIndex + "}";
-                            var thisExt = (e) as ExtensionGetIndex;
-                            var extend = thisExt.Extend(objVar);
-                            TokenParser.AnonymousTokens.Add(
-                                new Token(tokenname, extend.Value, Value));
-                            //replace the old token with the new token, and remove the extension
+                            var extobj = e.Extend(objVar);
+                            if (extobj == null)
+                                Compiler.ExceptionListener.Throw($"[610]Unexpected error compiling extension [{e.Name}]");
+                            extobj.SetName(tokenname);
+                            TokenParser.AnonymousTokens.Add(extobj);
                             value = value.Replace(obj + "<-" + strip[1], tokenname);
                         }
                     }

@@ -57,19 +57,26 @@ namespace TastyScript.Lang
         /// functions marked obsolete are still called, but a warning is sent on use
         /// </summary>
         public bool Obsolete { get; }
-        public Extension(string name, bool isSealed = false, bool invoking = false, bool depricated = false, bool obsolete = false)
+        /// <summary>
+        /// This flag indicates if the extension is meant for a variable,
+        /// since function extensions are triggered using a different method.
+        /// </summary>
+        public bool VariableExtension { get; }
+        public Extension(string name, bool isSealed = false, bool invoking = false, bool depricated = false, bool obsolete = false, bool varExtension = false)
         {
             Sealed = isSealed;
             Depricated = depricated;
             Obsolete = obsolete;
+            VariableExtension = varExtension;
             Name = name;
             Invoking = invoking;
             ExpectedArgs = new string[] { };
         }
-        public Extension(string name, string[] args, bool isSealed = false, bool invoking = false, bool depricated = false, bool obsolete = false)
+        public Extension(string name, string[] args, bool isSealed = false, bool invoking = false, bool depricated = false, bool obsolete = false, bool varExtension = false)
         {
             Sealed = isSealed;
             Obsolete = obsolete;
+            VariableExtension = varExtension;
             Depricated = depricated;
             Name = name;
             Invoking = invoking;

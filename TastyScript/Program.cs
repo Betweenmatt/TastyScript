@@ -350,7 +350,7 @@ namespace TastyScript
         private static bool StartScript(string path, string file)
         {
             Compiler c = new Compiler(path, file, predefinedFunctions);
-            TokenParser.Stop = true;
+            SendStopScript();
             Thread.Sleep(2000);//sleep for 2 seconds after finishing the script
             return true;
         }
@@ -413,7 +413,7 @@ namespace TastyScript
                             var func = System.Type.GetType(type.ToString());
                             var inst = Activator.CreateInstance(func) as EDefinition;
                             var attt = type.GetCustomAttribute(typeof(Extension), true) as Extension;
-                            inst.SetProperties(attt.Name, attt.ExpectedArgs,attt.Invoking,attt.Obsolete);
+                            inst.SetProperties(attt.Name, attt.ExpectedArgs,attt.Invoking,attt.Obsolete, attt.VariableExtension);
                             if (!attt.Depricated)
                                 temp.Add(inst);
                         }

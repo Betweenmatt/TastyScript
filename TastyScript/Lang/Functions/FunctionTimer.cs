@@ -9,7 +9,7 @@ using TastyScript.Lang.Tokens;
 
 namespace TastyScript.Lang.Functions
 {
-    [Function("Timer", isSealed: true)]
+    [Function("Timer", new string[] { "type" }, isSealed: true)]
     internal class FunctionTimer : FDefinition
     {
         private static Stopwatch _watch;
@@ -17,6 +17,7 @@ namespace TastyScript.Lang.Functions
         {
             if (_watch != null)
                 _watch.Stop();
+            _watch = null;
         }
         public override string CallBase()
         {
@@ -53,7 +54,15 @@ namespace TastyScript.Lang.Functions
             }
             if(_watch != null)
             {
-                ReturnBubble = new Tokens.Token("timems", _watch.ElapsedMilliseconds.ToString(), Caller.Line);
+                long output = _watch.ElapsedMilliseconds;
+                var trytype = ProvidedArgs.FirstOrDefault(f => f.Name == "type");
+                if(trytype != null)
+                {
+                    if (trytype.ToString() == "ticks")
+                        output = _watch.ElapsedTicks;   
+                }
+
+                ReturnBubble = new Tokens.Token("timems", output.ToString(), Caller.Line);
             }
             return "";
         }

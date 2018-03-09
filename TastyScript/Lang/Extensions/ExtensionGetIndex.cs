@@ -7,7 +7,7 @@ using TastyScript.Lang.Tokens;
 
 namespace TastyScript.Lang.Extensions
 {
-    [Extension("GetIndex")]
+    [Extension("GetIndex",new string[] { "item" },varExtension:true)]
     [Serializable]
     internal class ExtensionGetIndex : EDefinition
     {
