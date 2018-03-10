@@ -371,7 +371,7 @@ namespace TastyScript.Lang
                         {
                             argsarr.Add(x.ToString());
                         }
-                        func.SetInvokeProperties(argsarr.ToArray(), _reference.LocalVariables);
+                        func.SetInvokeProperties(argsarr.ToArray(), _reference.LocalVariables.List);
                     }
                 }
             }
@@ -396,26 +396,26 @@ namespace TastyScript.Lang
             foreach (var n in names)
             {
                 var stripws = n.Replace(" ", "");
-                var tryLocal = _reference.LocalVariables.FirstOrDefault(f => f.Name == stripws);
+                var tryLocal = _reference.LocalVariables.First(stripws);
                 if (tryLocal != null)
                 {
                     temp.Add(new Token(stripws, tryLocal.ToString(),Value));
                     continue;
                 }
-                var tryGlobal = TokenParser.GlobalVariables.FirstOrDefault(f => f.Name == stripws);
+                var tryGlobal = TokenParser.GlobalVariables.First(stripws);
                 if (tryGlobal != null)
                 {
                     temp.Add(new Token(stripws, tryGlobal.ToString(), Value));
                     continue;
                 }
-                var tryAnon = TokenParser.AnonymousTokens.FirstOrDefault(f => f.Name == stripws);
+                var tryAnon = TokenParser.AnonymousTokens.First(stripws);
                 if (tryAnon != null)
                 {
                     temp.Add(new Token(stripws, tryAnon.ToString(), Value));
                     continue;
                 }
                 //try params?
-                var tryParams = _reference.ProvidedArgs.FirstOrDefault(f => f.Name == stripws);
+                var tryParams = _reference.ProvidedArgs.First(stripws);
                 if(tryParams != null)
                 {
                     temp.Add(new Token(stripws, tryParams.ToString(), Value));
@@ -628,7 +628,7 @@ namespace TastyScript.Lang
         private string EvaluateVar(string value)
         {
             //get the var scope
-            List<Token> varList = null;
+            TokenStack varList = null;
             if (value.Contains("$var%"))
                 varList = TokenParser.GlobalVariables;
             else if (value.Contains("var%"))
@@ -653,7 +653,7 @@ namespace TastyScript.Lang
 
             //get the left hand
             var leftHand = assign[0].Replace(" ", "");
-            var varRef = varList.FirstOrDefault(f => f.Name == leftHand);
+            var varRef = varList.First(leftHand);
             if (varRef != null && varRef.Locked)
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
                     $"[282]Cannot re-assign a sealed variable!", Value));
@@ -783,21 +783,6 @@ namespace TastyScript.Lang
                     b.Extensions = t.Extensions;
                 if (t.Function.BlindExecute)
                     b.BlindExecute = true;
-                /* ommitting this with the change to nested scope and multi parameter overrides
-                 * 
-                ///This is the whitelist for passing extensions to the Base function
-                ///
-                if (_reference.Extensions != null)
-                {
-                    foreach (var x in _reference.Extensions)
-                    {
-                        if (x.Name == "Concat" ||
-                            x.Name == "Color" ||
-                            x.Name == "Threshold")
-                            b.Extensions.Add(x);
-                    }
-                }
-                */
                 b.TryParse(t);
                 return b.ReturnBubble;
             }

@@ -15,10 +15,10 @@ namespace TastyScript.Lang.Functions
     {
         public override string CallBase()
         {
-            var succFunc = ProvidedArgs.FirstOrDefault(f => f.Name == "succFunc");
-            var failFunc = ProvidedArgs.FirstOrDefault(f => f.Name == "failFunc");
-            var succPath = ProvidedArgs.FirstOrDefault(f => f.Name == "succPath");
-            var failPath = ProvidedArgs.FirstOrDefault(f => f.Name == "failPath");
+            var succFunc = ProvidedArgs.First("succFunc");
+            var failFunc = ProvidedArgs.First("failFunc");
+            var succPath = ProvidedArgs.First("succPath");
+            var failPath = ProvidedArgs.First("failPath");
             if (succFunc == null || failFunc == null || succPath == null)
             {
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.NullReferenceException, $"Invoke function cannot be null.", LineValue));
@@ -30,8 +30,8 @@ namespace TastyScript.Lang.Functions
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException,
                     $"[198]Invoke function cannot be found.", LineValue));
             }
-            sf.SetInvokeProperties(new string[] { }, Caller.CallingFunction.LocalVariables);
-            ff.SetInvokeProperties(new string[] { }, Caller.CallingFunction.LocalVariables);
+            sf.SetInvokeProperties(new string[] { }, Caller.CallingFunction.LocalVariables.List);
+            ff.SetInvokeProperties(new string[] { }, Caller.CallingFunction.LocalVariables.List);
             //check for threshold extension
             var threshExt = Extensions.FirstOrDefault(f => f.Name == "Threshold") as ExtensionThreshold;
             int thresh = 90;

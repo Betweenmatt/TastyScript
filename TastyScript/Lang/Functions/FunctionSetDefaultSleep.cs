@@ -13,7 +13,7 @@ namespace TastyScript.Lang.Functions
     {
         public override string CallBase()
         {
-            var sleep = (ProvidedArgs.FirstOrDefault(f => f.Name == "sleep"));
+            var sleep = (ProvidedArgs.First("sleep"));
             double sleepnum = double.Parse(sleep.ToString());
             TokenParser.SleepDefaultTime = sleepnum;
             return "";

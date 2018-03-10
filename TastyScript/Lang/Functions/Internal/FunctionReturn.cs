@@ -11,7 +11,7 @@ namespace TastyScript.Lang.Functions
     {
         public override string CallBase()
         {
-            var argsList = ProvidedArgs.FirstOrDefault(f => f.Name == "value");
+            var argsList = ProvidedArgs.First("value");
             if (argsList == null)
             {
                 Caller.CallingFunction.ReturnBubble = new Tokens.Token("null", "null", "");

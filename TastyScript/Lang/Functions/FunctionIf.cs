@@ -13,7 +13,7 @@ namespace TastyScript.Lang.Functions
     {
         public override string CallBase()
         {
-            var prov = ProvidedArgs.FirstOrDefault(f => f.Name == "bool");
+            var prov = ProvidedArgs.First("bool");
             if (prov == null)
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException,
                     $"Arguments cannot be null.", LineValue));
@@ -65,7 +65,7 @@ namespace TastyScript.Lang.Functions
                         Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException,
                             $"Cannot find the invoked function.", LineValue));
                     //pass in invoke properties. shouldnt break with null
-                    func.SetInvokeProperties(new string[] { }, Caller.CallingFunction.LocalVariables);
+                    func.SetInvokeProperties(new string[] { }, Caller.CallingFunction.LocalVariables.List);
                     func.TryParse(new TFunction(Caller.Function, new List<EDefinition>(), findThen.GetInvokeProperties(), Caller.CallingFunction));
                 }
                 else
@@ -85,7 +85,7 @@ namespace TastyScript.Lang.Functions
                     if (func == null)
                         Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException,
                             $"Cannot find the invoked function.", LineValue));
-                    func.SetInvokeProperties(new string[] { }, Caller.CallingFunction.LocalVariables);
+                    func.SetInvokeProperties(new string[] { }, Caller.CallingFunction.LocalVariables.List);
                     func.TryParse(new TFunction(Caller.Function, new List<EDefinition>(), findElse.GetInvokeProperties(), Caller.CallingFunction));
                 }
             }

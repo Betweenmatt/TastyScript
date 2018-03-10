@@ -12,8 +12,8 @@ namespace TastyScript.Lang.Functions
     {
         public override string CallBase()
         {
-            var x = (ProvidedArgs.FirstOrDefault(f => f.Name == "intX"));
-            var y = (ProvidedArgs.FirstOrDefault(f => f.Name == "intY"));
+            var x = (ProvidedArgs.First("intX"));
+            var y = (ProvidedArgs.First("intY"));
             if (x == null || y == null)
             {
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.NullReferenceException,
@@ -26,9 +26,9 @@ namespace TastyScript.Lang.Functions
             else
                 Commands.Tap((int)intX, (int)intY);
             double sleep = TokenParser.SleepDefaultTime;
-            if (ProvidedArgs.Count > 2)
+            if (ProvidedArgs.List.Count > 2)
             {
-                sleep = double.Parse((ProvidedArgs.FirstOrDefault(f => f.Name == "sleep")).ToString());
+                sleep = double.Parse((ProvidedArgs.First("sleep")).ToString());
             }
             FunctionHelpers.Sleep(sleep, Caller);
             return "";

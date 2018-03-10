@@ -12,7 +12,7 @@ namespace TastyScript.Lang.Functions
     {
         public override string CallBase()
         {
-            var argsList = ProvidedArgs.FirstOrDefault(f => f.Name == "s");
+            var argsList = ProvidedArgs.First("s");
             if (argsList == null)
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.NullReferenceException, "Arguments cannot be null.", LineValue));
 

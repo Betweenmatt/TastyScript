@@ -14,7 +14,7 @@ namespace TastyScript.Lang.Functions
     {
         public override string CallBase()
         {
-            var path = ProvidedArgs.FirstOrDefault(f => f.Name == "path");
+            var path = ProvidedArgs.First("path");
             if (path == null)
             {
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.NullReferenceException, $"Path must be specified", LineValue));

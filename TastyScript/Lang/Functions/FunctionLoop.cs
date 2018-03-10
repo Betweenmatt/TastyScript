@@ -14,7 +14,7 @@ namespace TastyScript.Lang.Functions
     {
         public override string CallBase()
         {
-            var prov = ProvidedArgs.FirstOrDefault(f => f.Name == "invoke");
+            var prov = ProvidedArgs.First("invoke");
             if (prov == null)
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"[247]Invoke function cannot be null.", LineValue));
             var func = FunctionStack.First(prov.ToString());
@@ -63,7 +63,7 @@ namespace TastyScript.Lang.Functions
                         {
                             passed = new string[] { x.ToString() };
                         }
-                        func.SetInvokeProperties(new string[] { }, Caller.CallingFunction.LocalVariables);
+                        func.SetInvokeProperties(new string[] { }, Caller.CallingFunction.LocalVariables.List);
                         func.TryParse(new TFunction(Caller.Function, new List<EDefinition>(), passed, Caller.CallingFunction));
                     }
                     else
@@ -111,7 +111,7 @@ namespace TastyScript.Lang.Functions
                         {
                             passed = new string[] { x.ToString() };
                         }
-                        func.SetInvokeProperties(new string[] { }, Caller.CallingFunction.LocalVariables);
+                        func.SetInvokeProperties(new string[] { }, Caller.CallingFunction.LocalVariables.List);
                         func.TryParse(new TFunction(Caller.Function, new List<EDefinition>(), passed, Caller.CallingFunction));
                         x++;
                     }

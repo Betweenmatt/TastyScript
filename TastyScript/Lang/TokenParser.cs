@@ -14,8 +14,8 @@ namespace TastyScript.Lang
         /// The default sleep timer for android commands in milliseconds
         /// </summary>
         public static double SleepDefaultTime;
-        public static List<Token> GlobalVariables;
-        public static List<Token> AnonymousTokens;
+        public static TokenStack GlobalVariables;
+        public static TokenStack AnonymousTokens;
         private static int _anonymousTokensIndex = -1;
         public static int AnonymousTokensIndex
         {
@@ -54,15 +54,16 @@ namespace TastyScript.Lang
         {
             CancellationTokenSource = new CancellationTokenSource();
             FunctionStack.AddRange(functionList);
-            AnonymousTokens = new List<Token>();
-            GlobalVariables = new List<Token>()
+            AnonymousTokens = new TokenStack();
+            GlobalVariables = new TokenStack();
+            GlobalVariables.AddRange(new List<Token>()
             {
             new Token("DateTime",()=>{return DateTime.Now.ToString(); }, "{0}", locked:true),
             new Token("Date",()=>{return DateTime.Now.ToShortDateString(); },"{0}", locked:true),
             new Token("Time",()=>{return DateTime.Now.ToShortTimeString(); },"{0}", locked:true),
             new TArray("GetVersion", StrVersion(),"{0}", locked:true),
             new Token("null","null","{0}", locked:true)
-            };
+            });
             StartParse();
         }
 

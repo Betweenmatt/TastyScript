@@ -12,11 +12,11 @@ namespace TastyScript.Lang.Functions
     {
         public override string CallBase()
         {
-            var x1 = (ProvidedArgs.FirstOrDefault(f => f.Name == "intX1") );
-            var y1 = (ProvidedArgs.FirstOrDefault(f => f.Name == "intY1") );
-            var x2 = (ProvidedArgs.FirstOrDefault(f => f.Name == "intX2") );
-            var y2 = (ProvidedArgs.FirstOrDefault(f => f.Name == "intY2") );
-            var dur = (ProvidedArgs.FirstOrDefault(f => f.Name == "duration"));
+            var x1 = (ProvidedArgs.First("intX1") );
+            var y1 = (ProvidedArgs.First("intY1") );
+            var x2 = (ProvidedArgs.First("intX2") );
+            var y2 = (ProvidedArgs.First("intY2") );
+            var dur = (ProvidedArgs.First("duration"));
             if (x1 == null || y1 == null || x2 == null || y2 == null || dur == null)
             {
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.NullReferenceException,
@@ -32,9 +32,9 @@ namespace TastyScript.Lang.Functions
             else
                 Commands.Swipe((int)intX1, (int)intY1, (int)intX2, (int)intY2, (int)duration);
             double sleep = TokenParser.SleepDefaultTime;
-            if (ProvidedArgs.Count > 5)
+            if (ProvidedArgs.List.Count > 5)
             {
-                sleep = double.Parse((ProvidedArgs.FirstOrDefault(f => f.Name == "sleep")).ToString());
+                sleep = double.Parse((ProvidedArgs.First("sleep")).ToString());
             }
             FunctionHelpers.Sleep(sleep, Caller);
             return "";

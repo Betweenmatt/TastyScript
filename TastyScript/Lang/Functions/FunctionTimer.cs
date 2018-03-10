@@ -55,7 +55,7 @@ namespace TastyScript.Lang.Functions
             if(_watch != null)
             {
                 long output = _watch.ElapsedMilliseconds;
-                var trytype = ProvidedArgs.FirstOrDefault(f => f.Name == "type");
+                var trytype = ProvidedArgs.First("type");
                 if(trytype != null)
                 {
                     if (trytype.ToString() == "ticks")

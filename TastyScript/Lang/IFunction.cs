@@ -11,7 +11,7 @@ namespace TastyScript.Lang
 {
     internal interface IBaseFunction : IBaseToken
     {
-        List<Token> ProvidedArgs { get; }
+        TokenStack ProvidedArgs { get; }
         string[] ExpectedArgs { get; }
         IBaseFunction Base { get; }
         string LineValue { get; }
@@ -26,7 +26,7 @@ namespace TastyScript.Lang
         void TryParse(TFunction caller);
         void SetProperties(string name, string[] args, bool invoking, bool isSealed, bool obsolete, string[] alias);
         bool Sealed { get; }
-        List<Token> LocalVariables { get; set; }
+        TokenStack LocalVariables { get; set; }
         Token ReturnBubble { get; set; }
         bool ReturnFlag { get; set; }
     }
@@ -45,7 +45,7 @@ namespace TastyScript.Lang
         public string Value { get; private set; }
         public string[] ExpectedArgs { get; protected set; }
         public bool Locked { get; protected set; }
-        public List<Token> ProvidedArgs { get; protected set; }
+        public TokenStack ProvidedArgs { get; protected set; }
         public string Arguments { get; set; }
         public List<EDefinition> _extensions;
         public List<EDefinition> Extensions
@@ -74,7 +74,7 @@ namespace TastyScript.Lang
         private int _generatedTokensIndex = -1;
         public bool Invoking { get; protected set; }
         public bool Sealed { get; private set; }
-        public List<Token> LocalVariables { get; set; }
+        public TokenStack LocalVariables { get; set; }
         public TFunction Caller { get; protected set; }
         public Token ReturnBubble { get;  set; }
         public bool ReturnFlag { get;  set; }
@@ -94,7 +94,7 @@ namespace TastyScript.Lang
         {
             invokeProperties = args;
             if (LocalVariables == null)
-                LocalVariables = new List<Token>();
+                LocalVariables = new TokenStack();
             LocalVariables.AddRange(vars);
         }
         public string[] GetInvokeProperties()
@@ -117,8 +117,8 @@ namespace TastyScript.Lang
         //standard constructor
         public AnonymousFunction(string value)
         {
-            ProvidedArgs = new List<Token>();
-            LocalVariables = new List<Token>();
+            ProvidedArgs = new TokenStack();
+            LocalVariables = new TokenStack();
             
             Name = value.Split('.')[1].Split('(')[0];
             var b = Compiler.PredefinedList.FirstOrDefault(f => f.Name == Name);
@@ -145,8 +145,8 @@ namespace TastyScript.Lang
         //this constructor is when function is anonomysly named
         public AnonymousFunction(string value, bool anon)
         {
-            ProvidedArgs = new List<Token>();
-            LocalVariables = new List<Token>();
+            ProvidedArgs = new TokenStack();
+            LocalVariables = new TokenStack();
             //get top level anonymous functions before everything else
             value = value.Substring(1);
             var anonRegex = new Regex(Compiler.ScopeRegex(@"=>"), RegexOptions.IgnorePatternWhitespace);
@@ -166,8 +166,8 @@ namespace TastyScript.Lang
         //this is the constructor used when function is an override
         public AnonymousFunction(string value, List<IBaseFunction> predefined)
         {
-            ProvidedArgs = new List<Token>();
-            LocalVariables = new List<Token>();
+            ProvidedArgs = new TokenStack();
+            LocalVariables = new TokenStack();
             
             
             Name = value.Split('.')[1].Split('(')[0];
@@ -213,7 +213,7 @@ namespace TastyScript.Lang
             //combine expected args and given args and add them to variabel pool
             if (caller != null && caller.Arguments != null && ExpectedArgs != null && ExpectedArgs.Length > 0)
             {
-                ProvidedArgs = new List<Token>();
+                ProvidedArgs = new TokenStack();
                 var args = caller.ReturnArgsArray();
                 if (ExpectedArgs.Length > 0)
                 {
@@ -247,7 +247,7 @@ namespace TastyScript.Lang
             //combine expected args and given args and add them to variabel pool
             if (caller != null && caller.Arguments != null && ExpectedArgs != null && ExpectedArgs.Length > 0)
             {
-                ProvidedArgs = new List<Token>();
+                ProvidedArgs = new TokenStack();
                 var args = caller.ReturnArgsArray();
                 if (ExpectedArgs.Length > 0)
                 {

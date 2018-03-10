@@ -12,7 +12,7 @@ namespace TastyScript.Lang.Functions
     {
         public override string CallBase()
         {
-            var time = double.Parse((ProvidedArgs.FirstOrDefault(f => f.Name == "time")).ToString());
+            var time = double.Parse((ProvidedArgs.First("time")).ToString());
             //changed to utilities sleep for cancelations
             Utilities.Sleep((int)Math.Ceiling(time));
             return "";

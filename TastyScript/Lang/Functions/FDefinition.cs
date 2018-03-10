@@ -46,7 +46,7 @@ namespace TastyScript.Lang.Functions
             if (caller != null && caller.Arguments != null && ExpectedArgs != null && ExpectedArgs.Length > 0)
             {
                 
-                ProvidedArgs = new List<Token>();
+                ProvidedArgs = new TokenStack();
                 var args = caller.ReturnArgsArray();
                 if (args.Length > 0)
                 {
@@ -72,7 +72,7 @@ namespace TastyScript.Lang.Functions
             }
             if (caller != null && caller.Arguments != null && ExpectedArgs != null && ExpectedArgs.Length > 0)
             {
-                ProvidedArgs = new List<Token>();
+                ProvidedArgs = new TokenStack();
                 var args = caller.ReturnArgsArray();
                 if (args.Length > 0)
                 {

@@ -30,7 +30,7 @@ namespace TastyScript.Lang.Functions
         {
             Concat();
             var print = "";
-            var argsList = ProvidedArgs.FirstOrDefault(f => f.Name == "s");
+            var argsList = ProvidedArgs.First("s");
             if (argsList != null)
                 print = argsList.ToString();
             //color extension check

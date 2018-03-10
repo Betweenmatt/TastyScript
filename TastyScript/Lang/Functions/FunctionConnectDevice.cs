@@ -16,7 +16,7 @@ namespace TastyScript.Lang.Functions
         public override string CallBase()
         {
             var print = "";
-            var argsList = ProvidedArgs.FirstOrDefault(f => f.Name == "serial");
+            var argsList = ProvidedArgs.First("serial");
             if (argsList != null)
                 print = argsList.ToString();
             Commands.Connect(print);
