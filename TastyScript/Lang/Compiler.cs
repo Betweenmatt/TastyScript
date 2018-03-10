@@ -48,7 +48,7 @@ namespace TastyScript.Lang
                     {
                         try
                         {
-                            var fileContents = Program.GetFileFromPath(path);
+                            var fileContents = Utilities.GetFileFromPath(path);
                             Files.Add(path, fileContents);
                             //add functions first
                             temp.AddRange(GetScopes(fileContents, predefined));

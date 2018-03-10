@@ -34,7 +34,7 @@ namespace TastyScript.Android
                 Action action = null;
                 Thread th = new Thread(() =>
                 {
-                    if (CheckScreen(Program.GetImageFromPath(success), thresh))
+                    if (CheckScreen(Utilities.GetImageFromPath(success), thresh))
                         action = successAction;
                     else
                         action = failureAction;
@@ -78,9 +78,9 @@ namespace TastyScript.Android
                 bool fail = false;
                 Thread th = new Thread(() =>
                 {
-                    if (CheckScreen(Program.GetImageFromPath(success), thresh))
+                    if (CheckScreen(Utilities.GetImageFromPath(success), thresh))
                         action = successAction;
-                    else if (CheckScreen(Program.GetImageFromPath(failure), thresh))
+                    else if (CheckScreen(Utilities.GetImageFromPath(failure), thresh))
                         action = failureAction;
                     else
                     {

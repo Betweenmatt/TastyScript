@@ -22,7 +22,7 @@ namespace TastyScript.Lang.Exceptions
         public void Throw(ExceptionHandler ex)
         {
             TokenParser.Stop = true;
-            if(Program.LogLevel == "warn" || Program.LogLevel == "error")
+            if(Settings.LogLevel == "warn" || Settings.LogLevel == "error")
                 IO.Output.Print($"\n[ERROR] ({ex.Type.ToString()}) {ex.Message} File: {ex.Line}\nCode Snippet:\n{ex.Snippet}", ConsoleColor.Red);
             throw new CompilerControledException();
         }
@@ -35,7 +35,7 @@ namespace TastyScript.Lang.Exceptions
         {
             if ((!once) || (once && _onceList.FirstOrDefault(f => f.Message == ex.Message) == null))
             {
-                if (Program.LogLevel == "warn")
+                if (Settings.LogLevel == "warn")
                     IO.Output.Print($"[SILENT ERROR] ({ex.Type.ToString()}) {ex.Message} File: {ex.Line}", ConsoleColor.DarkYellow);
                 if (once)
                 {
