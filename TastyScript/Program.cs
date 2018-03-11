@@ -10,11 +10,6 @@ using TastyScript.Lang.Exceptions;
 using System.Threading.Tasks;
 using Microsoft.Owin.Hosting;
 using Owin;
-using System.IO;
-using System.Runtime.InteropServices;
-using System.Drawing;
-using TastyScript.Lang.Extensions;
-using TastyScript.Lang.Tokens;
 
 namespace TastyScript
 {
@@ -35,7 +30,6 @@ namespace TastyScript
             //on load set predefined functions and extensions to mitigate load from reflection
             predefinedFunctions = Utilities.GetPredefinedFunctions();
             Compiler.PredefinedList = predefinedFunctions;
-            //TokenParser.Extensions = GetExtensions();
             Utilities.GetExtensions();
             Compiler.ExceptionListener = new ExceptionListener();
             //
@@ -55,8 +49,6 @@ namespace TastyScript
                 _consoleCommand = "";
                 IO.Output.Print("\nSet your game to correct screen and then type run 'file/directory'\n", ConsoleColor.Green);
                 IO.Output.Print('>', false);
-
-                //var r = IO.Input.ReadLine();
                 var r = "";
                 try
                 {
@@ -64,12 +56,10 @@ namespace TastyScript
                     r = Reader.ReadLine(_cancelSource.Token);
                 }
                 catch (OperationCanceledException e)
-                {
-                    //Console.WriteLine("thread has been poked");
-                }
+                {}
                 catch(Exception e)
                 {
-                    Console.WriteLine(e);
+                    ExceptionListener.LogThrow("Unexpected error", e);
                 }
                 if (_consoleCommand != "")
                     r = _consoleCommand;
@@ -140,7 +130,7 @@ namespace TastyScript
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                ExceptionListener.LogThrow("Unexpected error", e);
             }
         }
         private static void CommandApp(string r)
@@ -156,7 +146,7 @@ namespace TastyScript
                     Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.DriverException, "Device must be defined"));
                 }
             }
-            catch (Exception e) { if (!(e is CompilerControledException) || Settings.LogLevel == "throw") { IO.Output.Print(e, ConsoleColor.DarkRed); } }
+            catch (Exception e) { if (!(e is CompilerControledException) || Settings.LogLevel == "throw") { ExceptionListener.LogThrow("Unexpected error", e); } }
         }
         private static void CommandConnect(string r)
         {
@@ -164,7 +154,7 @@ namespace TastyScript
             {
                 AndroidDriver = new Driver(r);
             }
-            catch (Exception e) { if (!(e is CompilerControledException) || Settings.LogLevel == "throw") { IO.Output.Print(e, ConsoleColor.DarkRed); } }
+            catch (Exception e) { if (!(e is CompilerControledException) || Settings.LogLevel == "throw") { ExceptionListener.LogThrow("Unexpected error", e); } }
         }
         private static void CommandDevices(string r)
         {
@@ -190,7 +180,7 @@ namespace TastyScript
                 TokenParser.Stop = false;
                 StartScript(path, file);
             }
-            catch (Exception e) { if (!(e is CompilerControledException) || Settings.LogLevel == "throw") { IO.Output.Print(e, ConsoleColor.DarkRed); } }
+            catch (Exception e) { if (!(e is CompilerControledException) || Settings.LogLevel == "throw") { ExceptionListener.LogThrow("Unexpected error", e); } }
 
         }
         private static void CommandHelp(string r)
@@ -261,8 +251,7 @@ namespace TastyScript
                 //only for debugging srs issues
                 if (!(e is CompilerControledException) || Settings.LogLevel == "throw")
                 {
-                    //need a better way to handle this lol
-                    IO.Output.Print(e, ConsoleColor.DarkRed);
+                    ExceptionListener.LogThrow("Unexpected error", e);
                 }
             }
         }
@@ -280,7 +269,7 @@ namespace TastyScript
                     Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.DriverException, "Device must be defined"));
                 }
             }
-            catch (Exception e) { if (!(e is CompilerControledException) || Settings.LogLevel == "throw") { IO.Output.Print(e, ConsoleColor.DarkRed); } }
+            catch (Exception e) { if (!(e is CompilerControledException) || Settings.LogLevel == "throw") { ExceptionListener.LogThrow("Unexpected error", e); } }
         }
         private static void CommandShell(string r)
         {
@@ -295,7 +284,7 @@ namespace TastyScript
                     Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.DriverException, "Device must be defined"));
                 }
             }
-            catch (Exception e) { if (!(e is CompilerControledException) || Settings.LogLevel == "throw") { IO.Output.Print(e, ConsoleColor.DarkRed); } }
+            catch (Exception e) { if (!(e is CompilerControledException) || Settings.LogLevel == "throw") { ExceptionListener.LogThrow("Unexpected error", e); } }
         }
 
         private static void ListenForEscape()
@@ -352,7 +341,8 @@ namespace TastyScript
         private static string WelcomeMessage()
         {
             return $"Welcome to {Title}!\nCredits:\n@TastyGod - https://github.com/TastyGod " +
-                $"\nAforge - www.aforge.net\nSharpADB - https://github.com/quamotion/madb \n\n" + 
+                $"\nAforge - www.aforge.net\nSharpADB - https://github.com/quamotion/madb" + 
+                $"\nLog4Net - https://logging.apache.org/log4net \n\n" +
                 $"Enter -h for a list of commands!\n";
         }
         
