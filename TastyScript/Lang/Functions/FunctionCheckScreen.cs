@@ -53,8 +53,7 @@ namespace TastyScript.Lang.Functions
                         Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.DriverException,
                             $"File could not be found: {succPath.ToString()}, {failPath.ToString()}"));
                     }
-                    Console.WriteLine(e);
-                    Compiler.ExceptionListener.Throw(new ExceptionHandler(""));
+                    Compiler.ExceptionListener.Throw(new ExceptionHandler("[57]Unexpected error with CheckScreen()"));
                 }
             }
             else
@@ -70,8 +69,7 @@ namespace TastyScript.Lang.Functions
                         Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.DriverException,
                             $"File could not be found: {succPath.ToString()}"));
                     }
-                    Console.WriteLine(e);
-                    Compiler.ExceptionListener.Throw(new ExceptionHandler(""));
+                    Compiler.ExceptionListener.Throw(new ExceptionHandler("[73]Unexpected error with CheckScreen()"));
                 }
             }
 

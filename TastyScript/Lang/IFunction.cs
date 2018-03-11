@@ -14,6 +14,7 @@ namespace TastyScript.Lang
         TokenStack ProvidedArgs { get; }
         string[] ExpectedArgs { get; }
         IBaseFunction Base { get; }
+        bool Async { get; }
         string LineValue { get; }
         bool BlindExecute { get; set; }
         LoopTracer Tracer { get; }
@@ -45,6 +46,7 @@ namespace TastyScript.Lang
         public string Value { get; private set; }
         public string[] ExpectedArgs { get; protected set; }
         public bool Locked { get; protected set; }
+        public bool Async { get; set; }
         public TokenStack ProvidedArgs { get; protected set; }
         public string Arguments { get; set; }
         public List<EDefinition> _extensions;
@@ -168,8 +170,6 @@ namespace TastyScript.Lang
         {
             ProvidedArgs = new TokenStack();
             LocalVariables = new TokenStack();
-            
-            
             Name = value.Split('.')[1].Split('(')[0];
             
             var b = predefined.FirstOrDefault(f => f.Name == Name);
@@ -226,7 +226,6 @@ namespace TastyScript.Lang
                             ProvidedArgs.Add(new Token(exp, args[i], caller.Line));
                     }
                 }
-
             }
             var guts = Value.Split('{')[1].Split('}');
             var lines = guts[0].Split(';');

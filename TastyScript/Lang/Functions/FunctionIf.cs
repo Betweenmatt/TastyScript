@@ -43,7 +43,6 @@ namespace TastyScript.Lang.Functions
                 {
                     var and = a as ExtensionAnd;
                     string[] param = and.Extend();
-                    //Console.WriteLine(param.Value.Value[0].ToString());
                     bool paramFlag = (param[0].ToString() == "True") ? true : false;
                     if (!paramFlag)
                     {

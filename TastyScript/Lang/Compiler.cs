@@ -75,7 +75,6 @@ namespace TastyScript.Lang
 
             //add functions first
             var scopeRegex = new Regex(ScopeRegex(@"\bfunction\.\b"),RegexOptions.IgnorePatternWhitespace);
-            //var scopeRegex = new Regex(@"\bfunction\.\b([^}]*)\}");
             var scopes = scopeRegex.Matches(file);
             foreach (var s in scopes)
             {
@@ -84,12 +83,21 @@ namespace TastyScript.Lang
             //add inherits second
             var _inheritStack = new List<IBaseFunction>();
             var inheritRegex = new Regex(ScopeRegex(@"\boverride\.\b"), RegexOptions.IgnorePatternWhitespace);
-            //var inheritRegex = new Regex(@"\boverride\.\b([^}]*)\}");
             var inherits = inheritRegex.Matches(file);
             foreach (var i in inherits)
             {
                 var obj = new AnonymousFunction(i.ToString(), predefined);
                 _inheritStack.Add(obj);
+            }
+            //add async
+            var _asyncStack = new List<IBaseFunction>();
+            var asyncRegex = new Regex(ScopeRegex(@"\basync\.\b"), RegexOptions.IgnorePatternWhitespace);
+            var asyncs = asyncRegex.Matches(file);
+            foreach (var i in asyncs)
+            {
+                var obj = new AnonymousFunction(i.ToString());
+                obj.Async = true;
+                _asyncStack.Add(obj);
             }
             //add imports
             var imports = new List<IBaseFunction>();
@@ -100,6 +108,7 @@ namespace TastyScript.Lang
                 imports.AddRange(GetImports(splitImport, predefined));
             }
             temp.AddRange(_inheritStack);
+            temp.AddRange(_asyncStack);
             temp.AddRange(imports);
             return temp;
         }

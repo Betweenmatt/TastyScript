@@ -557,7 +557,6 @@ namespace TastyScript.Lang
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException, $"Unexpected input: {line}"));
             }
 

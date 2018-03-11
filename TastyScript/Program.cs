@@ -156,7 +156,7 @@ namespace TastyScript
                     Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.DriverException, "Device must be defined"));
                 }
             }
-            catch (Exception e) { if (!(e is CompilerControledException || Settings.LogLevel == "throw")) { IO.Output.Print(e, ConsoleColor.DarkRed); } }
+            catch (Exception e) { if (!(e is CompilerControledException) || Settings.LogLevel == "throw") { IO.Output.Print(e, ConsoleColor.DarkRed); } }
         }
         private static void CommandConnect(string r)
         {
@@ -164,7 +164,7 @@ namespace TastyScript
             {
                 AndroidDriver = new Driver(r);
             }
-            catch (Exception e) { if (!(e is CompilerControledException || Settings.LogLevel == "throw")) { IO.Output.Print(e, ConsoleColor.DarkRed); } }
+            catch (Exception e) { if (!(e is CompilerControledException) || Settings.LogLevel == "throw") { IO.Output.Print(e, ConsoleColor.DarkRed); } }
         }
         private static void CommandDevices(string r)
         {
@@ -190,7 +190,7 @@ namespace TastyScript
                 TokenParser.Stop = false;
                 StartScript(path, file);
             }
-            catch (Exception e) { if (!(e is CompilerControledException || Settings.LogLevel == "throw")) { IO.Output.Print(e, ConsoleColor.DarkRed); } }
+            catch (Exception e) { if (!(e is CompilerControledException) || Settings.LogLevel == "throw") { IO.Output.Print(e, ConsoleColor.DarkRed); } }
 
         }
         private static void CommandHelp(string r)
@@ -215,6 +215,7 @@ namespace TastyScript
                 if (r == "warn" || r == "error" || r == "none" || r == "throw")
                 {
                     Settings.SetLogLevel(r);
+                    IO.Output.Print($"LogLevel: {Settings.LogLevel}");
                 }
                 else
                 {
@@ -258,7 +259,7 @@ namespace TastyScript
             {
                 //if loglevel is throw, then compilerControledException gets printed as well
                 //only for debugging srs issues
-                if (!(e is CompilerControledException || Settings.LogLevel == "throw"))
+                if (!(e is CompilerControledException) || Settings.LogLevel == "throw")
                 {
                     //need a better way to handle this lol
                     IO.Output.Print(e, ConsoleColor.DarkRed);
@@ -279,7 +280,7 @@ namespace TastyScript
                     Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.DriverException, "Device must be defined"));
                 }
             }
-            catch (Exception e) { if (!(e is CompilerControledException || Settings.LogLevel == "throw")) { IO.Output.Print(e, ConsoleColor.DarkRed); } }
+            catch (Exception e) { if (!(e is CompilerControledException) || Settings.LogLevel == "throw") { IO.Output.Print(e, ConsoleColor.DarkRed); } }
         }
         private static void CommandShell(string r)
         {
@@ -294,7 +295,7 @@ namespace TastyScript
                     Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.DriverException, "Device must be defined"));
                 }
             }
-            catch (Exception e) { if (!(e is CompilerControledException || Settings.LogLevel == "throw")) { IO.Output.Print(e, ConsoleColor.DarkRed); } }
+            catch (Exception e) { if (!(e is CompilerControledException) || Settings.LogLevel == "throw") { IO.Output.Print(e, ConsoleColor.DarkRed); } }
         }
 
         private static void ListenForEscape()
@@ -341,7 +342,8 @@ namespace TastyScript
         private static bool StartScript(string path, string file)
         {
             Compiler c = new Compiler(path, file, predefinedFunctions);
-            SendStopScript();
+            if(!TokenParser.Stop)
+                SendStopScript();
             Thread.Sleep(2000);//sleep for 2 seconds after finishing the script
             return true;
         }
