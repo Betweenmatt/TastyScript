@@ -8,9 +8,9 @@
 * [Order of Operations](#order-of-operations)
  
 # Introduction
-Welcome to **1.2.2**!
+Welcome to **1.3.0**!
 
-TastyScript is a very simple command based language. Every script comprises of *Functions* which execute in their own scope on command. Functions can be extended with *Extensions* for even more customization. **Every main script(not imported!) must override the Start() function!** Like this:
+TastyScript is a very simple command based language. Every script comprises of *Functions* which execute in their own scope on command. Functions can be extended with *Extensions* for even more customization. **Every main script(not imported) must override the Start() function! And can only have one Start() function** Like this:
 
 ```
 #comments are prepended with the hash symbol!
@@ -109,7 +109,7 @@ function.Test1(){
 
 Instead either use the `Loop()` function or use the `.For()` extension. Use the `Loop()` function if you want to get the current iteration at runtime. The performance difference between the two functions is the same.
 
-the `Loop()` function requires a `string`, which is the name of the function to Invoke. ***NEW:*** With version 1.2.2 you can alternatively use the [Lambda Expression](/Wiki/LambdaExpressions.md) to create an anonymous function to be invoked. Check out example2:
+the `Loop()` function requires a `string`, which is the name of the function to Invoke. ***NEW:*** With version 1.2.2+ you can alternatively use the [Lambda Expression](/Wiki/LambdaExpressions.md) to create an anonymous function to be invoked. Check out example2:
 
 ```
 #example1
@@ -133,7 +133,7 @@ override.Start(){
 ```
 
 # Variables
-***NEW:*** Variables are now much more flexible in 1.2.2! You can now assign both local *and* global variables, as well as reassignment in both scopes. 
+***NEW:*** Variables are now much more flexible in 1.2.2+! You can now assign both local *and* global variables, as well as reassignment in both scopes. 
 
 To assign a local variable use the keyword `var` like so:
 
@@ -143,6 +143,24 @@ To assign a global variable use the `$var` keyword:
 
 `$var GlobalVariable = "I am a global variable!";`
 
+With 1.3.0 you can also assign a functions return value, as well as concatenation via the `+` operand!
+
+```
+override.Start(){
+    var version = VersionString();
+    PrintLine(version);
+    #alternatively you can input the function directly in the PrintLine parameters!
+    PrintLine(VersionString());
+}
+function.VersionString(){
+    var version = "V" + GetVersion.GetItem(0) + "."
+		+ GetVersion.GetItem(1) + "."
+		+ GetVersion.GetItem(2) + "."
+		+ GetVersion.GetItem(3);
+	Return(version);
+}
+```
+
 Both assignment and reassignment of variables must be prepended with the `var` or `$var` keyword. Available types are `string`, `number`, another variable, or a [Mathematical Expression](/Wiki/MathExpressions.md).
 
 Variables can be called by just their name. `PrintLine(GlobalVariable)` would print `I am a global variable!`.
@@ -150,13 +168,15 @@ Variables can be called by just their name. `PrintLine(GlobalVariable)` would pr
 # Order of Operations
 The Order of Operations, or what I like to call the OoO, works in a predictable and sensible way. The compiler parses scripts with a multi-pass system so functions *don't* have to be created before they're called or vise versa. The position of a function in a script *does* make a difference though, but only when there are multiple functions with the same name.
 
+***Note:*** this is slightly outdated, I will update the order of operations when I get the chance!
+
 * The main script is parsed from top to bottom
    1) All Functions are put into the stack
    2) All Overrides are put into the stack
    3) All imports are parsed from top to bottom, following the above two points
    4) All the pre-defined functions are put into the stack
    1) The Awake function(s) are executed in the order of first in the stack
-   2) The Start override is executed\
+   2) The Start override is executed
 * When a function is called from the stack it is parsed from top to bottom, on a line by line basis.
    1) All strings are found and a token is created
    2) All numbers are found and a token is created

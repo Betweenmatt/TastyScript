@@ -1,12 +1,12 @@
 # Welcome!
 
-TastyScript is a very basic language I originally created for rapid prototyping automated gaming on my Android phone, since my computer cannot run Nox. This version of TastyScript connects to your phone via ADB, and allows you to communicate touch locations, (some)hard buttons, and take screenshots. There are many more features I'd like to add so I make updates frequently!
+TastyScript is a very basic language I originally created for rapid prototyping automated gaming on my Android phone, since my computer cannot run Nox. This version of TastyScript connects to your phone via ADB, and allows you to communicate touch locations, ([most](/Wiki/Functions.md#keyevent))hard buttons, and take screenshots and more! There are many more features I'd like to add so I make updates frequently!
 
 Check the documentation at the [Wiki](/Wiki) to learn about the core concepts of the language, as well as full documentation on functionality.   
  
 On a side note, this was my very first language. It does not use any complex parsing frameworks, only regex and and some string manipulation. I plan on replacing my work with ANTLR in the future, when I have time to sit down and learn how to use it!
 
-If you have any questions, you can DM me on discord `TastyGod#0859` or open a new issue!  
+If you have any questions or issues, you can DM me on discord `TastyGod#0859` or open a new issue!  
 
 # How to install
 * First, download the [latest release](https://github.com/TastyGod/TastyScript/releases) or compile from the source.
@@ -17,7 +17,7 @@ If you have any questions, you can DM me on discord `TastyGod#0859` or open a ne
 
 **Note:** ADB must be started and your device connected for TastyScript to work! If you restart your computer, or close the ADB process you will need to start it again.
 
-Now you're good to run any scripts you choose! Take a look at the [Examples](/Examples) folder or the [How To tutorial](https://github.com/TastyGod/TastyScript/wiki/Tutorial:-How-To-Create-a-Functional-Script) for ideas/help etc on creating your own script. Note: the touch locations in the examples will most likely fail on your phone! You need to use the pixel locations that work for your phone's aspect ratio/resolution
+Now you're good to run any scripts you choose! Take a look at the [Examples](/Examples) folder or the [How To tutorial](https://github.com/TastyGod/TastyScript/blob/master/Wiki/Tutorial-how-to-create-a-functioning-script.md) for ideas/help etc on creating your own script. Note: the touch locations in the examples will most likely fail on your phone! You need to use the pixel locations that work for your phone's aspect ratio/resolution
 
 For a list of console commands check out the [Wiki](/Wiki/ConsoleCommands.md).
 
@@ -41,7 +41,7 @@ Both can be found as Nuget packages
 # ToDo List
 *Support*
 - [ ] Commands sent to an app instead of relying on ADB(wishful thinking!)
-- [ ] IPhone Support
+- [ ] IPhone Support(not looking so good ;( )
 - [ ] MacOS Support
 
 *Functionality*
