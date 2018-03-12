@@ -29,5 +29,16 @@ namespace TastyScript.Lang.Containers
         {
             _tlist.RemoveAt(index);
         }
+        public static void Remove(T item)
+        {
+            _tlist.Remove(item);
+        }
+        public static void MoveTo(T item, int index)
+        {
+            var oldindex = _tlist.IndexOf(item);
+            _tlist.RemoveAt(oldindex);
+            if (index > oldindex) index--;
+            _tlist.Insert(index, item);
+        }
     }
 }

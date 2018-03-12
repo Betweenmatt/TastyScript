@@ -39,6 +39,7 @@ namespace TastyScript.Lang
             else
                 return _tlist.LastOrDefault(f => f.Name == name || (f.Alias != null && f.Alias.Contains(name)));
         }
+        
     }
     
 }

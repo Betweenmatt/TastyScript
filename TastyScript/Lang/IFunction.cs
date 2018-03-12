@@ -30,6 +30,10 @@ namespace TastyScript.Lang
         TokenStack LocalVariables { get; set; }
         Token ReturnBubble { get; set; }
         bool ReturnFlag { get; set; }
+        Dictionary<string, string> Directives { get; }
+        bool Override { get; }
+        void SetBase(IBaseFunction func);
+        void SetSealed(bool flag);
     }
     internal interface IFunction : IBaseFunction
     {
@@ -80,6 +84,8 @@ namespace TastyScript.Lang
         public TFunction Caller { get; protected set; }
         public Token ReturnBubble { get;  set; }
         public bool ReturnFlag { get;  set; }
+        public Dictionary<string,string> Directives { get; protected set; }
+        public bool Override { get; protected set; }
         public object GetValue()
         {
             throw new NotImplementedException();
@@ -98,6 +104,14 @@ namespace TastyScript.Lang
             if (LocalVariables == null)
                 LocalVariables = new TokenStack();
             LocalVariables.AddRange(vars);
+        }
+        public void SetBase(IBaseFunction func)
+        {
+            Base = func;
+        }
+        public void SetSealed(bool flag)
+        {
+            Sealed = flag;
         }
         public string[] GetInvokeProperties()
         {
@@ -143,6 +157,7 @@ namespace TastyScript.Lang
             //
             Value = value;
             ExpectedArgs = value.Split('(')[1].Split(')')[0].Split(',');
+            ParseDirectives(value);
         }
         //this constructor is when function is anonomysly named
         public AnonymousFunction(string value, bool anon)
@@ -163,6 +178,7 @@ namespace TastyScript.Lang
             Value = value;
             Name = "AnonymousFunction"+Compiler.AnonymousFunctionIndex;
             ExpectedArgs = value.Split('(')[1].Split(')')[0].Split(',');
+            ParseDirectives(value);
             //Name = value.Split('.')[1].Split('(')[0];
         }
         //this is the constructor used when function is an override
@@ -170,6 +186,7 @@ namespace TastyScript.Lang
         {
             ProvidedArgs = new TokenStack();
             LocalVariables = new TokenStack();
+            Override = true;
             Name = value.Split('.')[1].Split('(')[0];
 
             var b = predefined.FirstOrDefault(f => f.Name == Name);
@@ -194,6 +211,33 @@ namespace TastyScript.Lang
             //
             Value = value;
             ExpectedArgs = value.Split('(')[1].Split(')')[0].Split(',');
+            ParseDirectives(value);
+        }
+        private void ParseDirectives(string value)
+        {
+            if (value.Contains(".") && value.Contains("{"))
+            {
+                var findPretext = value.Split('.')[1].Split('{')[0];
+                if (findPretext.Contains(":"))
+                {
+                    var dirs = findPretext.Split(':');
+                    if (dirs.Length > 0)
+                    {
+                        var temp = new Dictionary<string, string>();
+                        for (var i = 1; i < dirs.Length; i++)
+                        {
+                            var preParen = dirs[i].Split('(');
+                            if (preParen[0].Contains("Where"))
+                            {
+                                var inParen = preParen[1].Split(')')[0];
+                                var postParen = preParen[1].Split('=')[1];
+                                temp[inParen] = postParen;
+                            }
+                        }
+                        Directives = temp;
+                    }
+                }
+            }
         }
         public virtual void TryParse(TFunction caller)
         {
