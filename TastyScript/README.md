@@ -1,5 +1,16 @@
 ﻿# ChangeLog
 
+## ~~v1.2.3~~ v1.3.0
+
+* `ConnectDevice()` and `AppPackage()` now accept null values, which will find the first device/app found.
+* Support for array and string manipulation with the `array()` variable setter, and [Variable Extensions](../Wiki/VariableExtensions.md).
+* Incremental variable support via ++ / --
+* Added deeper variable support and string manipulation with -= += and + operands 
+* Added `Break()` and `Continue()` functions for use inside loops
+* Added  `Return()` function to return values from custom functions.
+* Added aliases for certain functions and extensions: `If(), if(); Then(), then(); Else(), else(); Break(), break(); Continue(), continue(); Return(), return()`. It is up to you if you wish to use the aliases.
+* Adjusted the order of operations slightly, but shouldnt affect any scripts from previous versions.
+
 ## v1.2.2
 
 * Fixed the issue where objects such as DateTime were having their instance referenced, instead of their return data.

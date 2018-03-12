@@ -18,7 +18,7 @@
 ---
 
 ## AppPackage
- AppPackage(*PackageName*) | |  | |
+ AppPackage(*PackageName*) | AppPackage() |  | |
 :---:|:---:|:---:|:---:
 *Expected Arguments* | *PackageName*(string) | 
 *Extensions* |  | 
@@ -27,6 +27,9 @@
 Sets the current App Package. When an App Package has been set, the Driver commands will not be sent if the App Package is not the current focus. This must be called after the `ConnectDevice()` function.
 
 **Side Note:** Technically you don't need the full package name, or you could even use the package name plus the activity name; whichever floats your boat. The focus check works by calling the adb shell command `dumpsys window windows | grep -E 'mCurrentFocus'` and checks if the result contains the `AppPackage()` you have set. If it does, it continues to call the command; if it doesn't, it stops all commands and re-checks for the package every 5 seconds.
+
+***v1.3.0+*** You can now omit the arguments for this function, and the driver will set the AppPackage() to whatever the current focus is. Just make sure you have your game on focus when you start the script!
+
 #### Examples
 `AppPackage("com.vespainteractive.KingsRad");`
 
@@ -79,6 +82,8 @@ ConnectDevice(*SerialNumber*) | | | |
 *Override* | sealed | |
 #### Description
 Connects to the first device found with the given *SerialNumber*.
+
+***v1.3.0+*** You can now omit the arguments for this function, and the driver will set the device to whatever the first device in the list is. Just make sure you only have one device connected to ADB, or your desired device is first in the list!
 #### Examples
 `ConnectDevice("DEVICE");`
 
@@ -307,6 +312,25 @@ Swipes the currently connected device at the given location for *Duration* amoun
 Takes a screenshot of the connected device, and saves it to the path provided. *Path given must use the file extension '.png'*
 #### Examples
 `TakeScreenshot("SS/testimg.png");`
+
+---
+
+## Timer
+ Timer() |  |  | |
+:---:|:---:|:---:|:---:
+*Expected Arguments* |  |
+*Extensions* | .Start() | .Stop() | .Print() 
+*Override* | sealed | 
+#### Description
+A simple static performance timer. Use `.Start()` to start the timer, and to print the current value use either the `.Print()` extension or use it as the arguments in a `PrintLine()`. Make sure you call `.Stop()` when you're done with the timer!
+#### Examples
+```
+override.Start(){
+    Timer.Start();
+    PrintLine(Timer());
+    Timer.Stop();    
+}
+```
 
 ---
 

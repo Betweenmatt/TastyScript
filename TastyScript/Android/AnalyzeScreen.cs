@@ -10,7 +10,7 @@ using System.Diagnostics;
 
 namespace TastyScript.Android
 {
-    public class AnalyzeScreen
+    internal class AnalyzeScreen
     {
         private static Bitmap _screen;
         public AnalyzeScreen()
@@ -29,95 +29,18 @@ namespace TastyScript.Android
         }
         public void Analyze(string success, Action successAction, Action failureAction, int thresh)
         {
-            try
-            {
-                Action action = null;
-                Thread th = new Thread(() =>
-                {
-                    if (CheckScreen(Program.GetImageFromPath(success), thresh))
-                        action = successAction;
-                    else
-                        action = failureAction;
-                });
-                th.Start();
-                Stopwatch watch = new Stopwatch();
-                watch.Start();
-                while (action == null)
-                {
-                    Thread.Sleep(1000);//sleep for 1 second before checking again
-                                       //if 30 seconds go by, then break and kill the thread
-                    if (watch.Elapsed.TotalMilliseconds >= 30000)
-                    {
-                        action = failureAction;
-                        Compiler.ExceptionListener.ThrowSilent(new ExceptionHandler(ExceptionType.SystemException,
-                            $"CheckScreen() timed out.", success));
-                        //smash the thread and move on. we dont care about that data anyway
-                        try { th.Abort(); } catch (Exception e) { if (!(e is ThreadAbortException)) throw; }
-                        break;
-                    }
-                }
-                watch.Stop();
-                action();
-            }
-            catch
-            {
-                Compiler.ExceptionListener.ThrowSilent(new ExceptionHandler("[63]Image check failed to execute. Continuing with failure function"));
+            if (CheckScreen(Utilities.GetImageFromPath(success), thresh))
+                successAction();
+            else
                 failureAction();
-            }
         }
         public void Analyze(string success, string failure, Action successAction, Action failureAction, int thresh)
         {
-            //since now the constructor can return null without throwing an exceptiong, added this
-            //to make sure parsing doesn't continue with an innapropriate check result.
-            if (_screen == null)
-                Compiler.ExceptionListener.Throw(new ExceptionHandler($"[63]Unexpected error saving image on CheckScreen() overload."));
-            
-            try
-            {
-                Action action = null;
-                bool fail = false;
-                Thread th = new Thread(() =>
-                {
-                    if (CheckScreen(Program.GetImageFromPath(success), thresh))
-                        action = successAction;
-                    else if (CheckScreen(Program.GetImageFromPath(failure), thresh))
-                        action = failureAction;
-                    else
-                    {
-                        fail = true;
-                        action = failureAction;
-                    }
-                });
-                th.Start();
-                Stopwatch watch = new Stopwatch();
-                watch.Start();
-                while (action == null)
-                {
-                    Thread.Sleep(1000);//sleep for 1 second before checking again
-                                       //if 30 seconds go by, then break and kill the thread
-                    if (watch.Elapsed.TotalMilliseconds >= 30000)
-                    {
-                        action = failureAction;
-                        Compiler.ExceptionListener.ThrowSilent(new ExceptionHandler(ExceptionType.SystemException,
-                            $"CheckScreen() timed out.", success));
-                        //smash the thread and move on. we dont care about that data anyway
-                        try { th.Abort(); } catch (Exception e) { if (!(e is ThreadAbortException)) throw; }
-                        break;
-                    }
-                }
-                watch.Stop();
-                if (!fail)
-                    action();
-                else
-                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException,
-                            $"Image Recognition error. Neither images matched."));
-
-            }
-            catch
-            {
-                Compiler.ExceptionListener.Throw(new ExceptionHandler("[112]Image check failed to execute."));
+            if (CheckScreen(Utilities.GetImageFromPath(success), thresh))
+                successAction();
+            else if (CheckScreen(Utilities.GetImageFromPath(failure), thresh))
                 failureAction();
-            }
+            else Compiler.ExceptionListener.Throw("Neither the success nor the failure image passed the check.");
         }
         public void Analyze(Bitmap success, Action successAction, Action failureAction, int thresh)
         {

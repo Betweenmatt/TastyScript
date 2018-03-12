@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TastyScript.Android
 {
-    public enum AndroidKeyCode
+    internal enum AndroidKeyCode
     {
         Menu = 1,
         SoftRight = 2,

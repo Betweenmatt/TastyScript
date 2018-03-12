@@ -64,6 +64,10 @@
       <HintPath>..\packages\AForge.Math.2.2.5\lib\AForge.Math.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.Owin, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Owin.4.0.0\lib\net451\Microsoft.Owin.dll</HintPath>
       <Private>True</Private>
@@ -104,16 +108,64 @@
     <Compile Include="Android\Driver.cs" />
     <Compile Include="IO.cs" />
     <Compile Include="Lang\Attributes.cs" />
+    <Compile Include="Lang\Commands.cs" />
     <Compile Include="Lang\Compiler.cs" />
+    <Compile Include="Lang\Containers\ExtensionStack.cs" />
+    <Compile Include="Lang\Containers\FunctionStack.cs" />
+    <Compile Include="Lang\Containers\TokenStack.cs" />
+    <Compile Include="Lang\Containers\StaticList.cs" />
+    <Compile Include="Lang\Directives.cs" />
     <Compile Include="Lang\Exceptions\ExceptionHandler.cs" />
     <Compile Include="Lang\Exceptions\IExceptionListener.cs" />
-    <Compile Include="Lang\Function\ExtensionDefinitions.cs" />
-    <Compile Include="Lang\Function\FunctionDefinitions.cs" />
-    <Compile Include="Lang\Function\IFunction.cs" />
-    <Compile Include="Lang\Function\Line.cs" />
+    <Compile Include="Lang\Extensions\ExtensionAnd.cs" />
+    <Compile Include="Lang\Extensions\ExtensionColor.cs" />
+    <Compile Include="Lang\Extensions\ExtensionConcat.cs" />
+    <Compile Include="Lang\Extensions\ExtensionElse.cs" />
+    <Compile Include="Lang\Extensions\ExtensionFor.cs" />
+    <Compile Include="Lang\Extensions\ExtensionGetIndex.cs" />
+    <Compile Include="Lang\Extensions\ExtensionGetItem.cs" />
+    <Compile Include="Lang\Extensions\ExtensionLength.cs" />
+    <Compile Include="Lang\Extensions\ExtensionOr.cs" />
+    <Compile Include="Lang\Extensions\ExtensionPrint.cs" />
+    <Compile Include="Lang\Extensions\ExtensionReplace.cs" />
+    <Compile Include="Lang\Extensions\ExtensionSetItem.cs" />
+    <Compile Include="Lang\Extensions\ExtensionSplit.cs" />
+    <Compile Include="Lang\Extensions\ExtensionStart.cs" />
+    <Compile Include="Lang\Extensions\ExtensionStop.cs" />
+    <Compile Include="Lang\Extensions\ExtensionThen.cs" />
+    <Compile Include="Lang\Extensions\ExtensionThreshold.cs" />
+    <Compile Include="Lang\Functions\FunctionAppPackage.cs" />
+    <Compile Include="Lang\Functions\FunctionStartAsync.cs" />
+    <Compile Include="Lang\Functions\Internal\FunctionAwake.cs" />
+    <Compile Include="Lang\Functions\Internal\FunctionBase.cs" />
+    <Compile Include="Lang\Functions\Internal\FunctionBreak.cs" />
+    <Compile Include="Lang\Functions\FunctionCheckScreen.cs" />
+    <Compile Include="Lang\Functions\FunctionConnectDevice.cs" />
+    <Compile Include="Lang\Functions\Internal\FunctionContinue.cs" />
+    <Compile Include="Lang\Functions\Internal\FunctionGuaranteedHalt.cs" />
+    <Compile Include="Lang\Functions\Internal\FunctionHalt.cs" />
+    <Compile Include="Lang\Functions\FunctionIf.cs" />
+    <Compile Include="Lang\Functions\FunctionKeyEvent.cs" />
+    <Compile Include="Lang\Functions\FunctionLongTouch.cs" />
+    <Compile Include="Lang\Functions\FunctionLoop.cs" />
+    <Compile Include="Lang\Functions\FunctionPrint.cs" />
+    <Compile Include="Lang\Functions\FunctionPrintLine.cs" />
+    <Compile Include="Lang\Functions\Internal\FunctionReturn.cs" />
+    <Compile Include="Lang\Functions\FunctionSendText.cs" />
+    <Compile Include="Lang\Functions\FunctionSetDefaultSleep.cs" />
+    <Compile Include="Lang\Functions\FunctionSleep.cs" />
+    <Compile Include="Lang\Functions\Internal\FunctionStart.cs" />
+    <Compile Include="Lang\Functions\FunctionSwipe.cs" />
+    <Compile Include="Lang\Functions\FunctionTakeScreenshot.cs" />
+    <Compile Include="Lang\Functions\FunctionTimer.cs" />
+    <Compile Include="Lang\Functions\FunctionTouch.cs" />
+    <Compile Include="Lang\Extensions\EDefinition.cs" />
+    <Compile Include="Lang\Functions\FDefinition.cs" />
+    <Compile Include="Lang\IFunction.cs" />
+    <Compile Include="Lang\Line.cs" />
     <Compile Include="Lang\TokenParser.cs" />
     <Compile Include="Lang\Token\IToken.cs" />
-    <Compile Include="Lang\Utilities.cs" />
+    <Compile Include="Utilities.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
@@ -121,9 +173,13 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="Settings.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="log4net.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="README.md" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
@@ -149,7 +205,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties BuildVersion_StartDate="2018/2/5" BuildVersion_UseGlobalSettings="True" BuildVersion_BuildVersioningStyle="None.None.None.DeltaBaseDateInDays" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_UpdateFileVersion="True" BuildVersion_AssemblyInfoFilename="Properties\AssemblyInfo.cs" />
+      <UserProperties BuildVersion_AssemblyInfoFilename="Properties\AssemblyInfo.cs" BuildVersion_UpdateFileVersion="True" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_BuildVersioningStyle="None.None.None.DeltaBaseDateInDays" BuildVersion_UseGlobalSettings="True" BuildVersion_StartDate="2018/2/5" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

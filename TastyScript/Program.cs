@@ -5,41 +5,32 @@ using System.Reflection;
 using System.Collections.Generic;
 using System.Linq;
 using TastyScript.Android;
-using TastyScript.Lang.Func;
 using TastyScript.Lang;
 using TastyScript.Lang.Exceptions;
 using System.Threading.Tasks;
 using Microsoft.Owin.Hosting;
 using Owin;
-using System.IO;
-using System.Runtime.InteropServices;
-using System.Drawing;
 
 namespace TastyScript
 {
-    class Program
+    internal class Program
     {
         public static Driver AndroidDriver;
         private static List<IBaseFunction> predefinedFunctions;
         public static string Title = $"TastyScript v{Assembly.GetExecutingAssembly().GetName().Version.ToString()} Beta";
-        public static string LogLevel;
         private static CancellationTokenSource _cancelSource;
-        private static string _quickDirectory;
         private static string _consoleCommand = "";
-        private static bool _remoteActive; 
 
         static void Main(string[] args) 
         {
-            _quickDirectory = Properties.Settings.Default.dir;
-            LogLevel = Properties.Settings.Default.loglevel;
-            _remoteActive = Properties.Settings.Default.remote;
-            if(_remoteActive)
+            Settings.LoadSettings();
+            if(Settings.RemoteToggle)
                 StartRemote();
             Console.Title = Title;
             //on load set predefined functions and extensions to mitigate load from reflection
-            predefinedFunctions = GetPredefinedFunctions();
+            predefinedFunctions = Utilities.GetPredefinedFunctions();
             Compiler.PredefinedList = predefinedFunctions;
-            TokenParser.Extensions = GetExtensions();
+            Utilities.GetExtensions();
             Compiler.ExceptionListener = new ExceptionListener();
             //
             IO.Output.Print(WelcomeMessage());
@@ -58,8 +49,6 @@ namespace TastyScript
                 _consoleCommand = "";
                 IO.Output.Print("\nSet your game to correct screen and then type run 'file/directory'\n", ConsoleColor.Green);
                 IO.Output.Print('>', false);
-
-                //var r = IO.Input.ReadLine();
                 var r = "";
                 try
                 {
@@ -67,12 +56,10 @@ namespace TastyScript
                     r = Reader.ReadLine(_cancelSource.Token);
                 }
                 catch (OperationCanceledException e)
-                {
-                    Console.WriteLine("thread has been poked");
-                }
+                {}
                 catch(Exception e)
                 {
-                    Console.WriteLine(e);
+                    ExceptionListener.LogThrow("Unexpected error", e);
                 }
                 if (_consoleCommand != "")
                     r = _consoleCommand;
@@ -139,12 +126,11 @@ namespace TastyScript
             try
             {
                 var cmd = r.Replace("adb ", "");
-                //Driver.Test(cmd);
                 IO.Output.Print("This command does not currently work as expected.");
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                ExceptionListener.LogThrow("Unexpected error", e);
             }
         }
         private static void CommandApp(string r)
@@ -160,7 +146,7 @@ namespace TastyScript
                     Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.DriverException, "Device must be defined"));
                 }
             }
-            catch (Exception e) { if (!(e is CompilerControledException || LogLevel == "throw")) { IO.Output.Print(e, ConsoleColor.DarkRed); } }
+            catch (Exception e) { if (!(e is CompilerControledException) || Settings.LogLevel == "throw") { ExceptionListener.LogThrow("Unexpected error", e); } }
         }
         private static void CommandConnect(string r)
         {
@@ -168,7 +154,7 @@ namespace TastyScript
             {
                 AndroidDriver = new Driver(r);
             }
-            catch (Exception e) { if (!(e is CompilerControledException || LogLevel == "throw")) { IO.Output.Print(e, ConsoleColor.DarkRed); } }
+            catch (Exception e) { if (!(e is CompilerControledException) || Settings.LogLevel == "throw") { ExceptionListener.LogThrow("Unexpected error", e); } }
         }
         private static void CommandDevices(string r)
         {
@@ -178,11 +164,10 @@ namespace TastyScript
         {
             if (r != "")
             {
-                _quickDirectory = r;
-                Properties.Settings.Default.dir = _quickDirectory;
-                Properties.Settings.Default.Save();
+                Settings.SetQuickDirectory(r);
+                
             }
-            IO.Output.Print("Directory: " + _quickDirectory);
+            IO.Output.Print("Directory: " + Settings.QuickDirectory);
         }
         private static void CommandExec(string r)
         {
@@ -195,7 +180,7 @@ namespace TastyScript
                 TokenParser.Stop = false;
                 StartScript(path, file);
             }
-            catch (Exception e) { if (!(e is CompilerControledException || LogLevel == "throw")) { IO.Output.Print(e, ConsoleColor.DarkRed); } }
+            catch (Exception e) { if (!(e is CompilerControledException) || Settings.LogLevel == "throw") { ExceptionListener.LogThrow("Unexpected error", e); } }
 
         }
         private static void CommandHelp(string r)
@@ -214,14 +199,13 @@ namespace TastyScript
             {
                 if (r == "")
                 {
-                    IO.Output.Print($"LogLevel: {LogLevel}");
+                    IO.Output.Print($"LogLevel: {Settings.LogLevel}");
                     return;
                 }
                 if (r == "warn" || r == "error" || r == "none" || r == "throw")
                 {
-                    LogLevel = r;
-                    Properties.Settings.Default.loglevel = r;
-                    Properties.Settings.Default.Save();
+                    Settings.SetLogLevel(r);
+                    IO.Output.Print($"LogLevel: {Settings.LogLevel}");
                 }
                 else
                 {
@@ -237,16 +221,15 @@ namespace TastyScript
         {
             if (r != "")
             {
-                var set = Properties.Settings.Default.remote = (r == "True" || r == "true") ? true : false;
-                Properties.Settings.Default.Save();
+                var set = (r == "True" || r == "true") ? true : false;
                 //check if remote was off before starting again
-                if(!_remoteActive && set)
+                if(!Settings.RemoteToggle && set)
                 {
                     StartRemote();
                 }
-                _remoteActive = set;
+                Settings.SetRemoteToggle(set);
             }
-            IO.Output.Print("Remote Active: " + _remoteActive);
+            IO.Output.Print("Remote Active: " + Settings.RemoteToggle);
         }
         
         private static void CommandRun(string r)
@@ -254,7 +237,7 @@ namespace TastyScript
             try
             {
                 var path = r.Replace("\'", "").Replace("\"", "");
-                var file = GetFileFromPath(path);
+                var file = Utilities.GetFileFromPath(path);
                 TokenParser.SleepDefaultTime = 1200;
                 TokenParser.Stop = false;
                 Thread esc = new Thread(ListenForEscape);
@@ -266,10 +249,9 @@ namespace TastyScript
             {
                 //if loglevel is throw, then compilerControledException gets printed as well
                 //only for debugging srs issues
-                if (!(e is CompilerControledException || LogLevel == "throw"))
+                if (!(e is CompilerControledException) || Settings.LogLevel == "throw")
                 {
-                    //need a better way to handle this lol
-                    IO.Output.Print(e, ConsoleColor.DarkRed);
+                    ExceptionListener.LogThrow("Unexpected error", e);
                 }
             }
         }
@@ -287,7 +269,7 @@ namespace TastyScript
                     Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.DriverException, "Device must be defined"));
                 }
             }
-            catch (Exception e) { if (!(e is CompilerControledException || LogLevel == "throw")) { IO.Output.Print(e, ConsoleColor.DarkRed); } }
+            catch (Exception e) { if (!(e is CompilerControledException) || Settings.LogLevel == "throw") { ExceptionListener.LogThrow("Unexpected error", e); } }
         }
         private static void CommandShell(string r)
         {
@@ -302,7 +284,7 @@ namespace TastyScript
                     Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.DriverException, "Device must be defined"));
                 }
             }
-            catch (Exception e) { if (!(e is CompilerControledException || LogLevel == "throw")) { IO.Output.Print(e, ConsoleColor.DarkRed); } }
+            catch (Exception e) { if (!(e is CompilerControledException) || Settings.LogLevel == "throw") { ExceptionListener.LogThrow("Unexpected error", e); } }
         }
 
         private static void ListenForEscape()
@@ -321,18 +303,27 @@ namespace TastyScript
         //stops the script, announces the halting and executes Halt() function if it exist
         private static void SendStopScript()
         {
-            //halt the script
-            TokenParser.Stop = true;
-            IO.Output.Print("\nScript execution is halting. Please wait.\n", ConsoleColor.Yellow);
-            if (TokenParser.HaltFunction != null)
+            try
             {
-                TokenParser.HaltFunction.BlindExecute = true;
-                TokenParser.HaltFunction.TryParse(null,null);
+                //halt the script
+                TokenParser.Stop = true;
+                IO.Output.Print("\nScript execution is halting. Please wait.\n", ConsoleColor.Yellow);
+                if (TokenParser.HaltFunction != null)
+                {
+                    TokenParser.HaltFunction.BlindExecute = true;
+                    TokenParser.HaltFunction.TryParse(null);
+                }
+                if (TokenParser.GuaranteedHaltFunction != null)
+                {
+                    TokenParser.GuaranteedHaltFunction.BlindExecute = true;
+                    TokenParser.GuaranteedHaltFunction.TryParse(null);
+                }
             }
-            if(TokenParser.GuaranteedHaltFunction != null)
+            catch
             {
-                TokenParser.GuaranteedHaltFunction.BlindExecute = true;
-                TokenParser.GuaranteedHaltFunction.TryParse(null, null);
+                Compiler.ExceptionListener.ThrowSilent(new ExceptionHandler(ExceptionType.SystemException,
+                    $"Unknown error with halt thread, aborting all execution."));
+                TokenParser.Stop = true;
             }
 
         }
@@ -340,125 +331,18 @@ namespace TastyScript
         private static bool StartScript(string path, string file)
         {
             Compiler c = new Compiler(path, file, predefinedFunctions);
-            TokenParser.Stop = true;
+            if(!TokenParser.Stop)
+                SendStopScript();
             Thread.Sleep(2000);//sleep for 2 seconds after finishing the script
             return true;
         }
 
-        //uses reflection to get all the IBaseFunction classes with the attribute [Function]
-        private static List<IBaseFunction> GetPredefinedFunctions()
-        {
-            List<IBaseFunction> temp = new List<IBaseFunction>();
-            string definedIn = typeof(Function).Assembly.GetName().Name;
-            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
-                // Note that we have to call GetName().Name.  Just GetName() will not work.  The following
-                // if statement never ran when I tried to compare the results of GetName().
-                if ((!assembly.GlobalAssemblyCache) && ((assembly.GetName().Name == definedIn) || assembly.GetReferencedAssemblies().Any(a => a.Name == definedIn)))
-                    foreach (System.Type type in assembly.GetTypes())
-                        if (type.GetCustomAttributes(typeof(Function), true).Length > 0)
-                        {
-                            var func = System.Type.GetType(type.ToString());
-                            var inst = Activator.CreateInstance(func) as IBaseFunction;
-                            var attt = type.GetCustomAttribute(typeof(Function), true) as Function;
-                            inst.SetProperties(attt.Name, attt.ExpectedArgs,attt.Invoking,attt.Sealed);
-                            if (!attt.Obsolete)
-                                temp.Add(inst);
-                        }
-            return temp;
-        }
-        //i guess a quick way to essentially deep clone base functions on demand.
-        //idk how much this will kill performance but i cant think of another way
-        public static IBaseFunction CopyFunctionReference(string funcName)
-        {
-            IBaseFunction temp = null;
-            string definedIn = typeof(Function).Assembly.GetName().Name;
-            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
-                if ((!assembly.GlobalAssemblyCache) && ((assembly.GetName().Name == definedIn) || assembly.GetReferencedAssemblies().Any(a => a.Name == definedIn)))
-                    foreach (System.Type type in assembly.GetTypes())
-                        if (type.GetCustomAttributes(typeof(Function), true).Length > 0)
-                        {
-                            var attt = type.GetCustomAttribute(typeof(Function), true) as Function;
-                            if (attt.Name == funcName)
-                            {
-                                var func = System.Type.GetType(type.ToString());
-                                var inst = Activator.CreateInstance(func) as IBaseFunction;
-                                inst.SetProperties(attt.Name, attt.ExpectedArgs, attt.Invoking, attt.Sealed);
-                                if (!attt.Obsolete)
-                                    temp = (inst);
-                            }
-                        }
-            return temp;
-        }
-        private static List<IExtension> GetExtensions()
-        {
-            List<IExtension> temp = new List<IExtension>();
-            string definedIn = typeof(Extension).Assembly.GetName().Name;
-            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
-                // Note that we have to call GetName().Name.  Just GetName() will not work.  The following
-                // if statement never ran when I tried to compare the results of GetName().
-                if ((!assembly.GlobalAssemblyCache) && ((assembly.GetName().Name == definedIn) || assembly.GetReferencedAssemblies().Any(a => a.Name == definedIn)))
-                    foreach (System.Type type in assembly.GetTypes())
-                        if (type.GetCustomAttributes(typeof(Extension), true).Length > 0)
-                        {
-                            var func = System.Type.GetType(type.ToString());
-                            var inst = Activator.CreateInstance(func) as IExtension;
-                            var attt = type.GetCustomAttribute(typeof(Extension), true) as Extension;
-                            inst.SetProperties(attt.Name, attt.ExpectedArgs,attt.Invoking);
-                            if (!attt.Obsolete)
-                                temp.Add(inst);
-                        }
-            return temp;
-        }
-        /// <summary>
-        /// Checks both absolute and relative, as well as pre-set directories
-        /// </summary>
-        /// <param name="path"></param>
-        /// <returns></returns>
-        public static string GetFileFromPath(string path)
-        {
-            var file = "";
-            //check if its a full path
-            if (File.Exists(path))
-                file = System.IO.File.ReadAllText(path);
-            //check if the path is local to the app directory
-            else if (File.Exists(AppDomain.CurrentDomain.BaseDirectory + path))
-                file = System.IO.File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + path);
-            //check for quick directory
-            else if (File.Exists(_quickDirectory + "/" + path))
-                file = System.IO.File.ReadAllText(_quickDirectory + "/" + path);
-            //check for quick directory
-            else if (File.Exists(AppDomain.CurrentDomain.BaseDirectory + "/" + _quickDirectory + "/" + path))
-                file = System.IO.File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "/" + _quickDirectory + "/" + path);
-            //or fail
-            else
-            {
-                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException,
-                    $"Could not find path: {path}"));
-            }
-            return file;
-        }
-        public static Bitmap GetImageFromPath(string path)
-        {
-            Bitmap file = null;
-            if (File.Exists(path))
-                file = (Bitmap)Bitmap.FromFile(path);
-            else if(File.Exists(AppDomain.CurrentDomain.BaseDirectory + path))
-                file = (Bitmap)Bitmap.FromFile(AppDomain.CurrentDomain.BaseDirectory + path);
-            else if (File.Exists(_quickDirectory + "/" + path))
-                file = (Bitmap)Bitmap.FromFile(_quickDirectory + "/" + path);
-            else if (File.Exists(AppDomain.CurrentDomain.BaseDirectory + "/" + _quickDirectory + "/" + path))
-                file = (Bitmap)Bitmap.FromFile(AppDomain.CurrentDomain.BaseDirectory + "/" + _quickDirectory + "/" + path);
-            else
-            {
-                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException,
-                    $"Could not find path: {path}"));
-            }
-            return file;
-        }
+        
         private static string WelcomeMessage()
         {
             return $"Welcome to {Title}!\nCredits:\n@TastyGod - https://github.com/TastyGod " +
-                $"\nAforge - www.aforge.net\nSharpADB - https://github.com/quamotion/madb \n\n" + 
+                $"\nAforge - www.aforge.net\nSharpADB - https://github.com/quamotion/madb" + 
+                $"\nLog4Net - https://logging.apache.org/log4net \n\n" +
                 $"Enter -h for a list of commands!\n";
         }
         
@@ -467,16 +351,14 @@ namespace TastyScript
             const string Url = "http://localhost:8080/";
             using (WebApp.Start(Url, ConfigureApplication))
             {
-                //Console.WriteLine("Press [Esc] to close the Tcp Listener");
-                //while(Console.ReadKey(true).Key != ConsoleKey.Escape) { }
-                while (_remoteActive) { };
+                while (Settings.RemoteToggle) { };
             }
         }
         private static void ConfigureApplication(IAppBuilder app)
         {
             app.Use((ctx, next) =>
             {
-                if (_remoteActive)
+                if (Settings.RemoteToggle)
                 {
                     //remove pretext
                     var split = ctx.Request.Path.ToString().Split('/');

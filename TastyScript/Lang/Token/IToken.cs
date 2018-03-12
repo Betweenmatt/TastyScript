@@ -2,99 +2,285 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
-using TastyScript.Lang.Func;
+using System.Text.RegularExpressions;
+using TastyScript.Lang.Extensions;
 
-namespace TastyScript.Lang.Token
+namespace TastyScript.Lang.Tokens
 {
     [Serializable]
-    public class TFunction : Token<IBaseFunction>
+    internal class Token
     {
-        protected override string _name { get; set; }
-        protected override BaseValue<IBaseFunction> _value { get; set; }
-        public TFunction(string name, IBaseFunction val)
-        {
-            _name = name;
-            _value = new BaseValue<IBaseFunction>(val);
-        }
-    }
-    [Serializable]
-    public class TObject : Token<object>
-    {
-        protected override string _name { get; set; }
-        protected override BaseValue<object> _value { get; set; }
-        //override value to use action if it is not null
-        public override BaseValue<object> Value
+        public string Name { get; protected set; }
+        protected string _value = "[Type.Token]";
+        public string Value
         {
             get
             {
-                if (_action == null)
-                {
-                    return _value;
-                }
-                else
-                {
-                    return new BaseValue<object>(_action());
-                }
+                if (_action != null)
+                    return _action();
+                return _value;
             }
         }
-        private Func<object> _action;
-        public TObject(string name, object val, bool locked = false)
+        public List<EDefinition> Extensions { get; set; }
+        public string Line { get; protected set; }
+        public bool Locked { get; protected set; }
+        protected Func<string> _action;
+        /// <summary>
+        /// line param is the line reference for the exception handler to track down
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="val"></param>
+        /// <param name="line"></param>
+        public Token() { }
+        public Token(string name, string val, string line, bool locked = false)
         {
+            Name = name;
+            _value = val;
+            Line = line;
             Locked = locked;
-            _name = name;
-            _value = new BaseValue<object>(val);
         }
-        public TObject(string name, Func<object> action, bool locked = false)
+        public Token(string name, Func<string> action, string line, bool locked = false)
         {
-            Locked = locked;
-            _name = name;
+            Name = name;
             _action = action;
+            _value = "[Type.TAction]";
+            Line = line;
+            Locked = locked;
         }
-        public void SetValue(string val)
+        public void SetValue(string value)
         {
-            _value = new BaseValue<object>(val);
+            _value = value;
+        }
+        public void SetLine(string line)
+        {
+            Line = line;
+        }
+        public void SetName(string name)
+        {
+            Name = name;
+        }
+        public string[] ToArray()
+        {
+            var commaRegex = new Regex(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+            return commaRegex.Split(Value);
+        }
+        public override string ToString()
+        {
+            //return public to get the action response when used 
+            return Value;
         }
     }
-    [Serializable]
-    public class TParameter : Token<List<IBaseToken>>
+    internal class TArray : Token
     {
-        protected override string _name { get; set; }
-        protected override BaseValue<List<IBaseToken>> _value { get; set; }
-        public TParameter(string name, List<IBaseToken> value)
+        public string[] Arguments { get; private set; }
+        public TArray(string name, string[] val, string line, bool locked = false)
         {
-            _name = name;
-            _value = new BaseValue<List<IBaseToken>>(value);
+            Name = name;
+            _value = "[Type.TArray]";
+            Arguments = val;
+            Line = line;
+            Locked = locked;
+        }
+        public TArray(string name, string val, string line, bool locked = false)
+        {
+            Name = name;
+            _value = "[Type.TArray]";
+            Arguments = ReturnArgsArray(val.Substring(1, val.Length-2));
+            Line = line;
+            Locked = locked;
+        }
+        public string[] Add(string s)
+        {
+            Arguments = (Arguments ?? Enumerable.Empty<string>()).Concat(Enumerable.Repeat(s, 1)).ToArray();
+            return Arguments;
+        }
+        public override string ToString()
+        {
+            return "{" + $"{string.Join(",",Arguments)}" + "}";
+        }
+        public string[] ReturnArgsArray()
+        {
+            return Arguments;
+        }
+        private string[] ReturnArgsArray(string args)
+        {
+            if (args == null)
+                return new string[] { };
+            //Console.WriteLine(Arguments);
+            var output = args;
+            var index = 0;
+            Dictionary<string, string> stringParts = new Dictionary<string, string>();
+            Dictionary<string, string> parenParts = new Dictionary<string, string>();
+            if (args.Contains("\""))
+            {
+                var stringRegex = new Regex("\"([^\"\"]*)\"", RegexOptions.Multiline);
+                foreach (var s in stringRegex.Matches(output))
+                {
+                    var token = "{AutoGeneratedToken" + index + "}";
+                    stringParts.Add(token, s.ToString());
+                    output = output.Replace(s.ToString(), token);
+                    index++;
+                }
+            }
+            if (args.Contains("[") && args.Contains("]"))
+            {
+                var reg = new Regex(@"(?:(?:\[(?>[^\[\]]+|\[(?<number>)|\](?<-number>))*(?(number)(?!))\])|[^[]])+");
+                foreach (var x in reg.Matches(output))
+                {
+                    var token = "{AutoGeneratedToken" + index + "}";
+                    parenParts.Add(token, x.ToString());
+                    output = output.Replace(x.ToString(), token);
+                    index++;
+                }
+            }
+            var splode = output.Split(',');
+            //List<string> returnParens = new List<string>();
+
+            for (var i = 0; i < splode.Length; i++)
+            {
+                foreach (var p in parenParts)
+                {
+                    if (splode[i].Contains(p.Key))
+                        splode[i] = splode[i].Replace(p.Key, p.Value);
+                }
+            }
+            for (var i = 0; i < splode.Length; i++)
+            {
+                foreach (var p in stringParts)
+                {
+                    if (splode[i].Contains(p.Key))
+                        splode[i] = splode[i].Replace(p.Key, p.Value).Replace("\"", "");
+                }
+            }
+            return splode;
         }
     }
 
+    internal class TFunction : Token
+    {
+        public IBaseFunction Function { get; private set; }
+        public string[] Arguments { get; private set; }
+        public IBaseFunction CallingFunction { get; private set; }
+        public bool BlindExecute { get; set; }
+        public LoopTracer Tracer { get; }
+        public TFunction(IBaseFunction func, List<EDefinition> ext, string args, IBaseFunction callingFunction)
+        {
+            Name = func.Name;
+            Function = func;
+            _value = "[Type.TFunction]";
+            Extensions = ext;
+            Arguments = ReturnArgsArray(args);
+            CallingFunction = callingFunction;
+        }
+        public TFunction(IBaseFunction func, List<EDefinition> ext, string[] args, IBaseFunction callingFunction)
+        {
+            Name = func.Name;
+            Function = func;
+            _value = "[Type.TFunction]";
+            Extensions = ext;
+            Arguments = args;
+            CallingFunction = callingFunction;
+        }
+        public string[] ReturnArgsArray()
+        {
+            return Arguments;
+        }
+        private string[] ReturnArgsArray(string args)
+        {
+            if (args == null)
+                return new string[] { };
+            //Console.WriteLine(Arguments);
+            var output = args;
+            var index = 0;
+            Dictionary<string, string> stringParts = new Dictionary<string, string>();
+            Dictionary<string, string> parenParts = new Dictionary<string, string>();
+            if (args.Contains("\""))
+            {
+                var stringRegex = new Regex("\"([^\"\"]*)\"", RegexOptions.Multiline);
+                foreach (var s in stringRegex.Matches(output))
+                {
+                    var token = "{AutoGeneratedToken" + index + "}";
+                    stringParts.Add(token, s.ToString());
+                    output = output.Replace(s.ToString(), token);
+                    index++;
+                }
+            }
+            if (args.Contains("{") && args.Contains("}"))
+            {
+                //var reg = new Regex(@"(?:(?:\[(?>[^\[\]]+|\[(?<number>)|\](?<-number>))*(?(number)(?!))\])|[^[]])+");
+                var reg = new Regex(@"(?:(?:{(?>[^{}]+|{(?<number>)|}(?<-number>))*(?(number)(?!))})|{^{}})+");
+                foreach (var x in reg.Matches(output))
+                {
+                    var token = "{AutoGeneratedToken" + index + "}";
+                    parenParts.Add(token, x.ToString());
+                    output = output.Replace(x.ToString(), token);
+                    index++;
+                }
+            }
+            var splode = output.Split(',');
+            //List<string> returnParens = new List<string>();
+            
+            for (var i = 0; i < splode.Length; i++) 
+            {
+                foreach(var p in parenParts)
+                {
+                    if (splode[i].Contains(p.Key))
+                        splode[i] = splode[i].Replace(p.Key, p.Value);//.Substring(1,p.Value.Length-2));
+                }
+            }
+            for (var i = 0; i < splode.Length; i++)
+            {
+                foreach (var p in stringParts)
+                {
+                    if (splode[i].Contains(p.Key))
+                        splode[i] = splode[i].Replace(p.Key, p.Value).Replace("\"","");
+                }
+            }
+            //foreach (var x in splode)
+             //   Console.WriteLine("   " + x);
+            return splode;
+        }
+    }
+    //
+    //OLD VVVV
+    //
     [Serializable]
-    public abstract class Token<T> : IToken<T>
+    internal abstract class Token<T> : IToken<T>
     {
         protected abstract string _name { get; set; }
         public string Name { get { return _name; } }
         protected abstract BaseValue<T> _value { get; set; }
         public virtual BaseValue<T> Value { get { return _value; } }
-        public TParameter Arguments { get; set; }
-        public List<IExtension> Extensions { get; set; }
+        //public TParameter Arguments { get; set; }
+        public List<EDefinition> Extensions { get; set; }
         public bool Locked { get; protected set; }
         public override string ToString()
         {
             return Value.ToString();
         }
-        public System.Type GetMemberType()
+        public object GetValue()
         {
-            return typeof(T);
+            return Value.Value;
         }
     }
-    public interface IBaseToken { bool Locked { get; } string Name { get; } TParameter Arguments { get; set; } System.Type GetMemberType(); List<IExtension> Extensions { get; set; } }
-
-    public interface IToken<T> : IBaseToken
+    internal interface IBaseToken
+    {
+        bool Locked { get; }
+        string Name { get; }
+        //TParameter Arguments { get; set; }
+        object GetValue();
+        List<EDefinition> Extensions { get; set; }
+    }
+    [Obsolete]
+    internal interface IToken<T> : IBaseToken
     {
         BaseValue<T> Value { get; }
     }
-    public class IBaseValue { }
+    [Obsolete]
+    internal class IBaseValue { }
     [Serializable]
-    public class BaseValue<T> : IBaseValue
+    [Obsolete]
+    internal class BaseValue<T> : IBaseValue
     {
         public T Value { get; private set; }
 

@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TastyScript.Lang.Exceptions
+namespace TastyScript.Lang
 {
-    public enum ExceptionType
+    internal enum ExceptionType
     {
         DriverException,
         SystemException,
@@ -14,16 +14,19 @@ namespace TastyScript.Lang.Exceptions
         CompilerException,
         NullReferenceException
     }
-    public class ExceptionHandler
+    internal class ExceptionHandler
     {
         private string _line = "0";
         public string Line { get { return _line; } }
+        private string _snippet;
+        public string Snippet { get { return _snippet; } }
         public string Message { get; }
         public ExceptionType Type { get; }
         public ExceptionHandler(string msg)
         {
             Type = ExceptionType.CompilerException;
             Message = msg;
+            SetLine("");
         }
         public ExceptionHandler(string msg, string line)
         {
@@ -35,6 +38,7 @@ namespace TastyScript.Lang.Exceptions
         {
             Type = type;
             Message = msg;
+            SetLine("");
         }
         public ExceptionHandler(ExceptionType type, string msg, string line)
         {
@@ -44,23 +48,38 @@ namespace TastyScript.Lang.Exceptions
         }
         private void SetLine(string line)
         {
+            //trying something different
+            if(line == null && line == "" || line == "{0}")
+                line = Compiler.ExceptionListener.CurrentLine;
+            if (line != null && line.Contains("AnonymousFunction"))
+            {
+                var anonlist = FunctionStack.WhereContains("AnonymousFunction");
+                foreach(var x in anonlist)
+                {
+                    line = line.Replace("\""+x.Name+"\"", "=" + x.Value);
+                }
+            }
+            _snippet = line;
             if (line != null)
             {
                 var firstLine = line.Split('\n').FirstOrDefault(f=>!String.IsNullOrWhiteSpace(f));
-                foreach (var file in Compiler.Files)
+                if (firstLine != null)
                 {
-                    var sp = file.Value.Split('\n');
-                    var index = 0;
-                    foreach (var x in sp)
+                    foreach (var file in Compiler.Files)
                     {
-                        index++;
-                        if (x.Contains(firstLine))
+                        var sp = file.Value.Split('\n');
+                        var index = 0;
+                        foreach (var x in sp)
+                        {
+                            index++;
+                            if (x != null && x.Contains(firstLine))
+                                break;
+                        }
+                        if (index != sp.Length)
+                        {
+                            _line = $"{file.Key}:{index}";
                             break;
-                    }
-                    if (index != sp.Length)
-                    {
-                        _line = $"{file.Key}:{index}";
-                        break;
+                        }
                     }
                 }
             }
