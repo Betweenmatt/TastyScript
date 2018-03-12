@@ -107,6 +107,9 @@ namespace TastyScript.Lang
         }
         public void SetBase(IBaseFunction func)
         {
+            if(func.Sealed)
+                Compiler.ExceptionListener.Throw(
+                            $"Cannot override function [{func.Name}] because it is sealed.");
             Base = func;
         }
         public void SetSealed(bool flag)
