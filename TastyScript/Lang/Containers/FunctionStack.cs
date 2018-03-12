@@ -32,6 +32,13 @@ namespace TastyScript.Lang
             else
                 return _tlist.Where(w => w.Name.Contains(name) || (w.Alias != null && w.Alias.FirstOrDefault(f => f.Contains(name)) != null));
         }
+        public static IBaseFunction Last(string name, bool useAlias = true)
+        {
+            if (!useAlias)
+                return _tlist.LastOrDefault(f => f.Name == name);
+            else
+                return _tlist.LastOrDefault(f => f.Name == name || (f.Alias != null && f.Alias.Contains(name)));
+        }
     }
     
 }

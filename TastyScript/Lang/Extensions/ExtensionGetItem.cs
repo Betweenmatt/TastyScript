@@ -30,18 +30,18 @@ namespace TastyScript.Lang.Extensions
                     Compiler.ExceptionListener.Throw($"{this.Name} arguments must be a whole number.",
                         ExceptionType.CompilerException, input.Line);
             }
-
+            
             var inputAsTobj = new TArray("arr", input.Value, input.Line);
             if (inputAsTobj == null)
                 Compiler.ExceptionListener.Throw($"Cannot find Token [{input.Name}]",
                     ExceptionType.CompilerException, input.Line);
-
+                    
             var ele = inputAsTobj.Arguments.ElementAtOrDefault(index);
             if (ele == null)
                 Compiler.ExceptionListener.Throw($"The element at [{index}] is null.",
                     ExceptionType.NullReferenceException, input.Line);
-            inputAsTobj.Arguments[index] = args[0];
-
+            //inputAsTobj.Arguments[index] = args[0];
+            
             return new Token("arr", ele, input.Line);
         }
         

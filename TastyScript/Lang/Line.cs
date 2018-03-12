@@ -786,7 +786,9 @@ namespace TastyScript.Lang
                 return b.ReturnBubble;
             }
             //change this plz
-
+            if (t.Name == _reference.Name)
+                Compiler.ExceptionListener.Throw("Cannot call function from itself. Please use `Base()` if this is an override."
+                    ,ExceptionType.SystemException);
             var z = t.Function;
             if (t.Extensions != null)
             {

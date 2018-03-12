@@ -171,7 +171,7 @@ namespace TastyScript.Lang
             ProvidedArgs = new TokenStack();
             LocalVariables = new TokenStack();
             Name = value.Split('.')[1].Split('(')[0];
-            
+
             var b = predefined.FirstOrDefault(f => f.Name == Name);
             if (b == null)
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"Unexpected error. Function failed to override: {Name}.", value));
@@ -197,6 +197,8 @@ namespace TastyScript.Lang
         }
         public virtual void TryParse(TFunction caller)
         {
+            ReturnBubble = null;
+            ReturnFlag = false;
             if (caller != null)
             {
                 BlindExecute = caller.BlindExecute;
@@ -237,6 +239,8 @@ namespace TastyScript.Lang
         //this overload is when the function is called with the for extension
         public virtual void TryParse(TFunction caller, bool forFlag)
         {
+            ReturnBubble = null;
+            ReturnFlag = false;
             if (caller != null)
             {
                 BlindExecute = caller.BlindExecute;

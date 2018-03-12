@@ -17,13 +17,20 @@ namespace TastyScript.Lang.Extensions
             if (input == null)
                 Compiler.ExceptionListener.Throw($"Cannot find Token [{input.Name}]",
                     ExceptionType.CompilerException, input.Line);
-            if (args == null || args.ElementAtOrDefault(0) == null)
-                Compiler.ExceptionListener.Throw($"{this.Name} arguments cannot be null.",
-                    ExceptionType.CompilerException, input.Line);
-
-            var outstr = input.Value.Split(new string[] { args[0] }, StringSplitOptions.None);
-            var outtok = new TArray("AnonArr", outstr, input.Line);
-            return outtok;
+            if (args == null || args.ElementAtOrDefault(0) == null || args[0] == "")
+            {
+                //Compiler.ExceptionListener.Throw($"{this.Name} arguments cannot be null.",
+                //  ExceptionType.CompilerException, input.Line);
+                var outstr = input.Value.CleanString().ToCharArray().Select(c => c.ToString()).ToArray();
+                var outtok = new TArray("AnonArr", outstr, input.Line);
+                return outtok;
+            }
+            else
+            {
+                var outstr = input.Value.Split(new string[] { args[0] }, StringSplitOptions.None);
+                var outtok = new TArray("AnonArr", outstr, input.Line);
+                return outtok;
+            }
         }
     }
 }

@@ -30,11 +30,96 @@ namespace TastyScript.Lang
             FunctionStack.Clear();//clear this every run
             Files = new Dictionary<string, string>();
             Files.Add(filename, file);
-            _compileStack = GetScopes(file, predefined);
+            var onefile = ParseImports(file);
+            _compileStack = ParseScopes(onefile, predefined);
             _compileStack.AddRange(predefined);
             StartScope(_compileStack);
         }
+        private string ParseImports(string file)
+        {
+            var output = file;
+            //add imports
+            var imports = new List<IBaseFunction>();
+            var splitEndImport = file.Split(new string[] { "@end" }, StringSplitOptions.None);
+            if (splitEndImport.Length > 1)
+            {
+                var splitImport = splitEndImport[0].Split(new string[] { "@import " }, StringSplitOptions.None);
+                foreach(var x in splitImport)
+                {
+                    var ifile = x.Split(';')[0];
+                    if (ifile != "")
+                    {
+                        var path = ifile.Replace("\'", "").Replace("\"", "");
+                        if (!Files.ContainsKey(path))
+                        {
+                            try
+                            {
+                                var fileContents = Utilities.GetFileFromPath(path);
+                                Files.Add(path, fileContents);
+                                //add functions first
+                                output += ParseImports(fileContents);
+                            }
+                            catch
+                            {
+                                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException, $"Error importing {file}."));
+                            }
+                        }
+                        else
+                        {
+                            Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException,
+                                $"Cannot import file: {path} because it has already been imported", file));
+                        }
+                    }
+                }
+            }
+            return output;
+        }
+        private List<IBaseFunction> ParseScopes(string file, List<IBaseFunction> predefined)
+        {
+            var temp = new List<IBaseFunction>();
+            //remove all comments
+            var commRegex = new Regex(@"#([^\n]+)$", RegexOptions.Multiline);
+            file = commRegex.Replace(file, "");
 
+            //add functions first
+            var _functionStack = new List<IBaseFunction>();
+            var scopeRegex = new Regex(ScopeRegex(@"\bfunction\.\b"), RegexOptions.IgnorePatternWhitespace);
+            var scopes = scopeRegex.Matches(file);
+            foreach (var s in scopes)
+            {
+                _functionStack.Add(new AnonymousFunction(s.ToString()));
+            }
+            //add inherits second
+            var _inheritStack = new List<IBaseFunction>();
+            var inheritRegex = new Regex(ScopeRegex(@"\boverride\.\b"), RegexOptions.IgnorePatternWhitespace);
+            var inherits = inheritRegex.Matches(file);
+            var tempfunctionstack = new List<IBaseFunction>();
+            tempfunctionstack.AddRange(_functionStack);
+            tempfunctionstack.AddRange(predefined);
+            for (var i = inherits.Count - 1; i >= 0; i--) 
+            {
+                var inherit = inherits[i];
+                var obj = new AnonymousFunction(inherit.ToString(), tempfunctionstack);
+                _inheritStack.Add(obj);
+                tempfunctionstack.Insert(0,obj);
+            }
+            //add async
+            var _asyncStack = new List<IBaseFunction>();
+            var asyncRegex = new Regex(ScopeRegex(@"\basync\.\b"), RegexOptions.IgnorePatternWhitespace);
+            var asyncs = asyncRegex.Matches(file);
+            foreach (var i in asyncs)
+            {
+                var obj = new AnonymousFunction(i.ToString());
+                obj.Async = true;
+                _asyncStack.Add(obj);
+            }
+            temp.AddRange(_inheritStack.Reverse<IBaseFunction>());
+            temp.AddRange(_functionStack);
+            temp.AddRange(_asyncStack);
+            return temp;
+        }
+
+        [Obsolete]
         private List<IBaseFunction> GetImports(string[] imports, List<IBaseFunction> predefined)
         {
             var temp = new List<IBaseFunction>();
@@ -66,6 +151,7 @@ namespace TastyScript.Lang
             }
             return temp;
         }
+        [Obsolete]
         private List<IBaseFunction> GetScopes(string file, List<IBaseFunction> predefined)
         {
             var temp = new List<IBaseFunction>();

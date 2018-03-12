@@ -23,12 +23,12 @@ namespace TastyScript.Lang.Functions
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"[250]Invoke function cannot be null.", LineValue));
             }
             var findFor = Extensions.FirstOrDefault(f => f.Name == "For") as ExtensionFor;
-            if (findFor != null)
+            if (findFor != null && findFor.Extend() != null && findFor.Extend().ElementAtOrDefault(0) != null && findFor.Extend()[0] != "")
             {
                 string[] forNumber = findFor.Extend();
                 int forNumberAsNumber = int.Parse(forNumber[0].ToString());
-                if (forNumberAsNumber == 0)
-                    forNumberAsNumber = int.MaxValue;
+                //if (forNumberAsNumber == 0)
+                //    forNumberAsNumber = int.MaxValue;
                 LoopTracer tracer = new LoopTracer();
                 Compiler.LoopTracerStack.Add(tracer);
                 Tracer = tracer;

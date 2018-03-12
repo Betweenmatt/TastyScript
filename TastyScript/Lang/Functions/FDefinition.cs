@@ -29,6 +29,8 @@ namespace TastyScript.Lang.Functions
         public virtual string CallBase() { return ""; }
         public override void TryParse(TFunction caller)
         {
+            ReturnBubble = null;
+            ReturnFlag = false;
             if (caller != null)
             {
                 BlindExecute = caller.BlindExecute;
@@ -63,6 +65,8 @@ namespace TastyScript.Lang.Functions
         }
         public override void TryParse(TFunction caller, bool forFlag)
         {
+            ReturnBubble = null;
+            ReturnFlag = false;
             if (caller != null)
             {
                 BlindExecute = caller.BlindExecute;
