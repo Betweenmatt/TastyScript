@@ -2,6 +2,7 @@
 
 ## ~~v1.2.3~~ v1.3.0
 
+* Added support for overriding custom functions. Calling `Base()` will work the same way as with pre-defined functions, and `Base()` will return what the base function returns.
 * `ConnectDevice()` and `AppPackage()` now accept null values, which will find the first device/app found.
 * Support for array and string manipulation with the `array()` variable setter, and [Variable Extensions](../Wiki/VariableExtensions.md).
 * Incremental variable support via ++ / --
