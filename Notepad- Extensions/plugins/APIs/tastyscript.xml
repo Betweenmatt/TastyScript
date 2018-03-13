@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="Windows-1252" ?>
+<NotepadPlus>
+	<AutoComplete>
+		<Environment ignoreCase="no" startFunc="(" stopFunc=")" paramSeparator="," terminal=";" additionalWordChar="." />
+		
+		<KeyWord name=".And" />
+		
+		<KeyWord name="AppPackage" func="yes" >
+           <Overload retVal="Function<null>" descr="Sets the AppPackage to the device's current focus. Requires a connected device." >
+           </Overload>
+		   <Overload retVal="Function<null>" descr="Sets the AppPackage to {p}. Requires a connected device." >
+			<Param name="p (string)"/>
+		   </Overload>
+        </KeyWord>
+		
+		<KeyWord name="Base" />
+		
+		<KeyWord name="Break" />
+		
+		<KeyWord name="CheckScreen" func="yes" >
+           <Overload retVal="Function<null>" descr="Checks the current screen against {t} and invokes {s} if it passes or {f} if it fails" >
+			<Param name="s (Function)"/>
+			<Param name="f (Function)"/>
+			<Param name="t (string)"/>
+           </Overload>
+		   <Overload retVal="Function<null>" descr="Checks the current screen against {t} and invokes {s} if it passes or {f} if it fails" >
+			<Param name="s (Function)"/>
+			<Param name="f (Function)"/>
+			<Param name="t (string)"/>
+			<Param name="ft (string"/>
+           </Overload>
+        </KeyWord>
+		
+		<KeyWord name=".Color" func="yes" >
+           <Overload retVal="Extension<null>" descr="Print() and PrintLine() extension, which changes the color of the text printed in the console" >
+			<Param name="color (string)"/>
+           </Overload>
+        </KeyWord>
+		
+		<KeyWord name=".Concat" func="yes" >
+           <Overload retVal="Extension<null>" descr="Print() and PrintLine() extension, which appends {t} to the end of the printed text" >
+			<Param name="t (string)"/>
+           </Overload>
+        </KeyWord>
+		
+		<KeyWord name="ConnectDevice" func="yes" >
+           <Overload retVal="Function<null>" descr="Connects to the first device found" >
+           </Overload>
+		   <Overload retVal="Function<null>" descr="Connects to the device {d}" >
+			<Param name="d (string)"/>
+		   </Overload>
+        </KeyWord>
+		
+		<KeyWord name="Continue" />
+		
+		<KeyWord name=".Else" />
+		
+		<KeyWord name=".For" func="yes" >
+           <Overload retVal="Extension<null>" descr="Loops the extended function by {iterations} times" >
+			<Param name="iterations (int)"/>
+           </Overload>
+        </KeyWord>
+		
+		<KeyWord name=".GetIndex" func="yes" >
+           <Overload retVal="Extension<int>" descr="Gets the index of {item} in an array" >
+			<Param name="item (string)"/>
+           </Overload>
+        </KeyWord>
+		
+		<KeyWord name=".GetItem" func="yes" >
+           <Overload retVal="Extension<string>" descr="Gets the item at index {i} in an array" >
+			<Param name="i (int)"/>
+           </Overload>
+        </KeyWord>
+		
+		<KeyWord name="If" />
+		
+		<KeyWord name="KeyEvent" func="yes" >
+           <Overload retVal="Function<null>" descr="KeyEvent {e} is sent to the device" >
+			<Param name="e (string)"/>
+           </Overload>
+        </KeyWord>
+		
+		<KeyWord name=".Length" func="yes" >
+           <Overload retVal="Extension<int>" descr="Returns the length of the array" >
+           </Overload>
+        </KeyWord>
+		
+		<KeyWord name="LongTouch" func="yes" >
+           <Overload retVal="Function<null>" descr="LongTouch event at {x} {y} with default sleep timer and {d} duration" >
+               <Param name="x (int)" />
+			   <Param name="y (int)" />
+			   <Param name="d (int)" />
+           </Overload>
+		   <Overload retVal="Function<null>" descr="LongTouch event at {x} {y} with {s} sleep timer and {d} duration" >
+               <Param name="x (int)" />
+			   <Param name="y (int)" />
+			   <Param name="s (int)" />
+			   <Param name="d (int)" />
+           </Overload>
+        </KeyWord>
+		
+		<KeyWord name="Loop" func="yes" >
+           <Overload retVal="Function<null>" descr="Loops {f} infinitely unless .For() extension provided" >
+               <Param name="f (Function)" />
+           </Overload>
+        </KeyWord>
+		
+		<KeyWord name=".Or" />
+		
+		<KeyWord name="Print" func="yes" >
+           <Overload retVal="Function<null>" descr="Print {t} to the console" >
+               <Param name="t (string)" />
+           </Overload>
+        </KeyWord>
+		
+		<KeyWord name=".Print" func="yes" >
+           <Overload retVal="Extension<string>" descr="Prints the current elapsed milliseconds in the timer" >
+           </Overload>
+        </KeyWord>
+		
+		<KeyWord name="PrintLine" func="yes" >
+           <Overload retVal="Function<null>" descr="Print {t} to the console, followed by a new line" >
+               <Param name="t (string)" />
+           </Overload>
+        </KeyWord>
+		
+		<KeyWord name=".Replace" func="yes" >
+           <Overload retVal="Extension<string>" descr="Replaces {find} with {replace} in the extended string, and returns the result" >
+			<Param name="find (string)"/>
+			<Param name="replace (string"/>
+           </Overload>
+        </KeyWord>
+		
+		<KeyWord name="Return" />
+		
+		<KeyWord name="SendText" func="yes" >
+           <Overload retVal="Function<null>" descr="Sends text {t} to the device" >
+			<Param name="t (string)"/>
+           </Overload>
+        </KeyWord>
+		
+		<KeyWord name="SetDefaultSleep" func="yes" >
+           <Overload retVal="Function<null>" descr="Sets the default sleep timer to {s} for touch functions" >
+			<Param name="s (int)"/>
+           </Overload>
+        </KeyWord>
+		
+		<KeyWord name=".SetItem" func="yes" >
+           <Overload retVal="Extension<array>" descr="Adds the item {item} to the array" >
+			<Param name="item (string, int, array)"/>
+           </Overload>
+		   <Overload retVal="Extension<array>" descr="Replaces the item at {index} in the array with the item {i}" >
+			<Param name="item (string, int, array)"/>
+			<Param name="index (int)"/>
+           </Overload>
+        </KeyWord>
+		
+		<KeyWord name="Sleep" func="yes" >
+           <Overload retVal="Function<null>" descr="Sleeps for {s} milliseconds" >
+			<Param name="s (int)"/>
+           </Overload>
+        </KeyWord>
+		
+		<KeyWord name=".Split" func="yes" >
+           <Overload retVal="Extension<array>" descr="Splits the extended string by {d} and returns the subsequent array" >
+			<Param name="d (string, int, char)"/>
+           </Overload>
+        </KeyWord>
+		
+		<KeyWord name=".Start" func="yes" >
+           <Overload retVal="Extension<string>" descr="Starts the extended timer." >
+           </Overload>
+        </KeyWord>
+		
+		<KeyWord name=".Stop" func="yes" >
+           <Overload retVal="Extension<string>" descr="Stops the extended timer." >
+           </Overload>
+        </KeyWord>
+		
+		<KeyWord name="Swipe" func="yes" >
+           <Overload retVal="Function<null>" descr="Swipe from {x1}{y1} to {x2}{y2} with {d} as the duration" >
+               <Param name="x1 (int)" />
+			   <Param name="y1 (int)" />
+			   <Param name="x2 (int)" />
+			   <Param name="y2 (int)" />
+			   <Param name="d (int)" />
+           </Overload>
+		   <Overload retVal="Function<null>" descr="Swipe from {x1}{y1} to {x2}{y2} with {d} as the duration" >
+               <Param name="x1 (int)" />
+			   <Param name="y1 (int)" />
+			   <Param name="x2 (int)" />
+			   <Param name="y2 (int)" />
+			   <Param name="d (int)" />
+			   <Param name="s (int)" />
+           </Overload>
+        </KeyWord>
+		
+		<KeyWord name="TakeScreenshot" func="yes" >
+           <Overload retVal="Function<null>" descr="Takes a screenshot of the current screen and saves it at {p} path" >
+			<Param name="p (string)"/>
+           </Overload>
+        </KeyWord>
+		
+		<KeyWord name=".Then" />
+		
+		<KeyWord name=".Threshold" func="yes" >
+           <Overload retVal="Extension<null>" descr="Changes the CheckScreen() threshold. Default 90" >
+			<Param name="t (int)"/>
+           </Overload>
+        </KeyWord>
+		
+		<KeyWord name="Timer" func="yes" >
+           <Overload retVal="Function<int>" descr="Prints the timer's elapsed time in milliseconds" >
+           </Overload>
+        </KeyWord>
+		
+		<KeyWord name="Touch" func="yes" >
+           <Overload retVal="Function<null>" descr="Touch event at {x} {y} with default sleep timer" >
+               <Param name="x (int)" />
+			   <Param name="y (int)" />
+           </Overload>
+		   <Overload retVal="Function<null>" descr="Touch event at {x} {y} with {s} milliseconds sleep timer" >
+               <Param name="x (int)" />
+			   <Param name="y (int)" />
+			   <Param name="s (int)" />
+           </Overload>
+        </KeyWord>
+	   
+	</AutoComplete>
+</NotepadPlus>
