@@ -38,7 +38,7 @@ namespace TastyScript.Lang.Functions
                 */
                 Thread th = new Thread(() =>
                 {
-                    func.SetInvokeProperties(new string[] { }, Caller.CallingFunction.LocalVariables.List);
+                    func.SetInvokeProperties(new string[] { }, Caller.CallingFunction.LocalVariables.List, Caller.CallingFunction.ProvidedArgs.List);
                     func.TryParse(new TFunction(Caller.Function, new List<EDefinition>(), this.GetInvokeProperties(), Caller.CallingFunction));
                 });
                 th.Start();

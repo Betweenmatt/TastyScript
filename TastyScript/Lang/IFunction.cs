@@ -22,8 +22,9 @@ namespace TastyScript.Lang
         string[] Alias { get; }
         bool Invoking { get; }
         string Value { get; }
+        bool IsAnonymous { get; }
         string[] GetInvokeProperties();
-        void SetInvokeProperties(string[] args, List<Token> vars);
+        void SetInvokeProperties(string[] args, List<Token> vars, List<Token> oldargs);
         void TryParse(TFunction caller);
         void SetProperties(string name, string[] args, bool invoking, bool isSealed, bool obsolete, string[] alias);
         bool Sealed { get; }
@@ -34,6 +35,9 @@ namespace TastyScript.Lang
         bool Override { get; }
         void SetBase(IBaseFunction func);
         void SetSealed(bool flag);
+        //this method sets the return flag and value, and tries to return
+        //from the calling function if it is also anonymous
+        void ReturnToTopOfBubble(Token value);
     }
     internal interface IFunction : IBaseFunction
     {
@@ -51,6 +55,7 @@ namespace TastyScript.Lang
         public string[] ExpectedArgs { get; protected set; }
         public bool Locked { get; protected set; }
         public bool Async { get; set; }
+        public bool IsAnonymous { get; private set; }
         public TokenStack ProvidedArgs { get; protected set; }
         public string Arguments { get; set; }
         public List<EDefinition> _extensions;
@@ -98,12 +103,16 @@ namespace TastyScript.Lang
                 return _generatedTokensIndex;
             }
         }
-        public void SetInvokeProperties(string[] args, List<Token> vars)
+        public void SetInvokeProperties(string[] args, List<Token> vars, List<Token> oldargs)
         {
             invokeProperties = args;
-            if (LocalVariables == null)
-                LocalVariables = new TokenStack();
+            //if (LocalVariables == null)
+            //trying emptying local vars each invoke, it might break things tho
+            LocalVariables = new TokenStack();
+            vars.RemoveAll(r => r.Name == "");
+            oldargs.RemoveAll(r => r.Name == "");
             LocalVariables.AddRange(vars);
+            LocalVariables.AddRange(oldargs);//add the parameters from the calling function to this functions local var stack
         }
         public void SetBase(IBaseFunction func)
         {
@@ -131,6 +140,18 @@ namespace TastyScript.Lang
             Sealed = isSealed;
             Obsolete = obsolete;
             Alias = alias;
+        }
+        //sets the return flag and the return value to bubble up.
+        //if this function is anonymously named, then it calls this method
+        //in the parent function as well all the way to the top named function
+        //i dont like the method name but at least its descriptive
+        public void ReturnToTopOfBubble(Token value)
+        {
+            ReturnBubble = value;
+            ReturnFlag = true;
+            if (Caller != null)
+                if (IsAnonymous)
+                    Caller.CallingFunction.ReturnToTopOfBubble(value);
         }
         public AnonymousFunction() { }
         //standard constructor
@@ -168,6 +189,7 @@ namespace TastyScript.Lang
             ProvidedArgs = new TokenStack();
             LocalVariables = new TokenStack();
             Base = callerBase;
+            IsAnonymous = true;
             //get top level anonymous functions before everything else
             value = value.Substring(1);
             var anonRegex = new Regex(Compiler.ScopeRegex(@"=>"), RegexOptions.IgnorePatternWhitespace);

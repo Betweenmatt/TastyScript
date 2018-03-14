@@ -373,7 +373,7 @@ namespace TastyScript.Lang
                         {
                             argsarr.Add(x.ToString());
                         }
-                        func.SetInvokeProperties(argsarr.ToArray(), _reference.LocalVariables.List);
+                        func.SetInvokeProperties(argsarr.ToArray(), _reference.LocalVariables.List, _reference.ProvidedArgs.List);
                     }
                 }
             }
