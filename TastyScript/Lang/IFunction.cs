@@ -152,7 +152,7 @@ namespace TastyScript.Lang
             var anonRegexMatches = anonRegex.Matches(value);
             foreach (var a in anonRegexMatches)
             {
-                var func = new AnonymousFunction(a.ToString(), true);
+                var func = new AnonymousFunction(a.ToString(), true, Base);
                 func.Base = Base;
                 FunctionStack.Add(func);
                 value = value.Replace(a.ToString(), $"\"{func.Name}\"");
@@ -163,18 +163,18 @@ namespace TastyScript.Lang
             ParseDirectives(value);
         }
         //this constructor is when function is anonomysly named
-        public AnonymousFunction(string value, bool anon)
+        public AnonymousFunction(string value, bool anon, IBaseFunction callerBase)
         {
             ProvidedArgs = new TokenStack();
             LocalVariables = new TokenStack();
+            Base = callerBase;
             //get top level anonymous functions before everything else
             value = value.Substring(1);
             var anonRegex = new Regex(Compiler.ScopeRegex(@"=>"), RegexOptions.IgnorePatternWhitespace);
             var anonRegexMatches = anonRegex.Matches(value);
             foreach (var a in anonRegexMatches)
             {
-                var func = new AnonymousFunction(a.ToString(), true);
-                func.Base = Base;
+                var func = new AnonymousFunction(a.ToString(), true, Base);
                 FunctionStack.Add(func);
                 value = value.Replace(a.ToString(), $"\"{func.Name}\"");
             }
@@ -206,8 +206,7 @@ namespace TastyScript.Lang
             var anonRegexMatches = anonRegex.Matches(value);
             foreach (var a in anonRegexMatches)
             {
-                var func = new AnonymousFunction(a.ToString(), true);
-                func.Base = Base;
+                var func = new AnonymousFunction(a.ToString(), true,Base);
                 FunctionStack.Add(func);
                 value = value.Replace(a.ToString(), $"\"{func.Name}\"");
             }

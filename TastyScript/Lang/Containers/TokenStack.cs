@@ -7,6 +7,7 @@ using TastyScript.Lang.Tokens;
 
 namespace TastyScript.Lang
 {
+    [Serializable]
     internal class TokenStack : ObjectStack<Token>
     {
         public List<Token> List { get { return _tlist; } }
@@ -23,6 +24,7 @@ namespace TastyScript.Lang
             return _tlist.Where(w => w.Name.Contains(name));
         }
     }
+    [Serializable]
     internal abstract class ObjectStack<T>
     {
         protected List<T> _tlist;

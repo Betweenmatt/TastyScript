@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TastyScript.Lang.Extensions;
 using TastyScript.Lang.Tokens;
+using Newtonsoft.Json;
 
 namespace TastyScript.Lang
 {
@@ -110,6 +111,7 @@ namespace TastyScript.Lang
         }
         private void WalkTree(string value)
         {
+            value = RuntimeDebugger(value);
             //value = value.Replace("\r", "").Replace("\n", "").Replace("\t", "");
             value = value.ReplaceFirst("var ", "var%");
             value = ReplaceAllNotInStringWhiteSpace(value);
@@ -797,6 +799,67 @@ namespace TastyScript.Lang
 
             z.TryParse(t);
             return z.ReturnBubble;
+        }
+
+        private string RuntimeDebugger(string value)
+        {
+            var val = value;
+            if (val.Contains("!DEBUG"))
+            {
+                if (val.Contains("!DEBUG_LOCVARS"))
+                {
+                    var localVars = JsonConvert.SerializeObject(_reference.LocalVariables, Formatting.Indented);
+                    IO.Output.Print($"{val}:\t{localVars}", ConsoleColor.DarkYellow);
+                    return "";
+                }
+                else if (val.Contains("!DEBUG_ANONVARS"))
+                {
+                    var anonVars = JsonConvert.SerializeObject(TokenParser.AnonymousTokens, Formatting.Indented);
+                    IO.Output.Print($"{val}:\t{anonVars}", ConsoleColor.DarkYellow);
+                    return "";
+                }
+                else if (val.Contains("!DEBUG_GLOBVARS"))
+                {
+                    var globalVars = JsonConvert.SerializeObject(TokenParser.GlobalVariables, Formatting.Indented);
+                    IO.Output.Print($"!{val}:\t{globalVars}", ConsoleColor.DarkYellow);
+                    return "";
+                }
+                else if (val.Contains("!DEBUG_PARAMVARS"))
+                {
+                    var paramVars = JsonConvert.SerializeObject(_reference.ProvidedArgs, Formatting.Indented);
+                    IO.Output.Print($"!{val}:\t{paramVars}", ConsoleColor.DarkYellow);
+                    return "";
+                }
+                else if (val.Contains("!DEBUG_GETBASE"))
+                {
+                    if (val.Contains("."))
+                    {
+                        try
+                        {
+                            var ext = val.Split('.')[1];
+                            var paramVars = JsonConvert.SerializeObject(GetPropValue(_reference.Base, ext), Formatting.Indented);
+                            IO.Output.Print($"!{val}:\t{paramVars}", ConsoleColor.DarkYellow);
+                        }
+                        catch
+                        {
+                            Compiler.ExceptionListener.Throw($"Cannot find property {val}");
+                        }
+                        return "";
+                    }
+                    else
+                    {
+                        var paramVars = JsonConvert.SerializeObject(_reference.Base, Formatting.Indented);
+                        IO.Output.Print($"{val}:\t{paramVars}", ConsoleColor.DarkYellow);
+                        return "";
+                    }
+                }
+
+            }
+            return val;
+        }
+        private static object GetPropValue(object src, string propName)
+        {
+            return src.GetType().GetProperty(propName).GetValue(src, null);
         }
     }
     public static class StringExtensionMethods
