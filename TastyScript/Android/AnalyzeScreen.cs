@@ -17,7 +17,7 @@ namespace TastyScript.Android
         {
             try
             {
-                var ss = Program.AndroidDriver.GetScreenshot();
+                var ss = Main.AndroidDriver.GetScreenshot();
                 _screen = (Bitmap)ss.Result;
             }
             catch (Exception e)

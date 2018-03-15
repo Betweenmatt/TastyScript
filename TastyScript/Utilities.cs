@@ -77,13 +77,32 @@ namespace TastyScript
                         }
             return temp;
         }
+        public static EDefinition CopyExtensionReference(string funcName)
+        {
+            EDefinition temp = null;
+            string definedIn = typeof(Extension).Assembly.GetName().Name;
+            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+                if ((!assembly.GlobalAssemblyCache) && ((assembly.GetName().Name == definedIn) || assembly.GetReferencedAssemblies().Any(a => a.Name == definedIn)))
+                    foreach (System.Type type in assembly.GetTypes())
+                        if (type.GetCustomAttributes(typeof(Extension), true).Length > 0)
+                        {
+                            var attt = type.GetCustomAttribute(typeof(Extension), true) as Extension;
+                            if (attt.Name == funcName)
+                            {
+                                var func = System.Type.GetType(type.ToString());
+                                var inst = Activator.CreateInstance(func) as EDefinition;
+                                inst.SetProperties(attt.Name, attt.ExpectedArgs, attt.Invoking, attt.Sealed, attt.Obsolete, attt.Alias);
+                                if (!attt.Depricated)
+                                    temp = (inst);
+                            }
+                        }
+            return temp;
+        }
         public static void GetExtensions()
         {
             List<EDefinition> temp = new List<EDefinition>();
             string definedIn = typeof(Extension).Assembly.GetName().Name;
             foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
-                // Note that we have to call GetName().Name.  Just GetName() will not work.  The following
-                // if statement never ran when I tried to compare the results of GetName().
                 if ((!assembly.GlobalAssemblyCache) && ((assembly.GetName().Name == definedIn) || assembly.GetReferencedAssemblies().Any(a => a.Name == definedIn)))
                     foreach (System.Type type in assembly.GetTypes())
                         if (type.GetCustomAttributes(typeof(Extension), true).Length > 0)

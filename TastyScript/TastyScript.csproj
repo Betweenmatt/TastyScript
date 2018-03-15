@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{C70629EC-08C3-4616-BABB-B18613C42434}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>TastyScript</RootNamespace>
     <AssemblyName>TastyScript</AssemblyName>
@@ -50,6 +50,9 @@
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>icon.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="AForge, Version=2.2.5.0, Culture=neutral, PublicKeyToken=c1db6ff4eaa06aeb, processorArchitecture=MSIL">
@@ -106,6 +109,7 @@
     <Compile Include="Android\AnalyzeScreen.cs" />
     <Compile Include="Android\AndroidKeyCode.cs" />
     <Compile Include="Android\Driver.cs" />
+    <Compile Include="IIOStream.cs" />
     <Compile Include="IO.cs" />
     <Compile Include="Lang\Attributes.cs" />
     <Compile Include="Lang\Commands.cs" />
@@ -165,6 +169,8 @@
     <Compile Include="Lang\Line.cs" />
     <Compile Include="Lang\TokenParser.cs" />
     <Compile Include="Lang\Token\IToken.cs" />
+    <Compile Include="Main.cs" />
+    <Compile Include="ObjectExtensions.cs" />
     <Compile Include="Utilities.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -205,7 +211,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties BuildVersion_AssemblyInfoFilename="Properties\AssemblyInfo.cs" BuildVersion_UpdateFileVersion="True" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_BuildVersioningStyle="None.None.None.DeltaBaseDateInDays" BuildVersion_UseGlobalSettings="True" BuildVersion_StartDate="2018/2/5" />
+      <UserProperties BuildVersion_StartDate="2018/2/5" BuildVersion_UseGlobalSettings="True" BuildVersion_BuildVersioningStyle="None.None.None.DeltaBaseDateInDays" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_UpdateFileVersion="True" BuildVersion_AssemblyInfoFilename="Properties\AssemblyInfo.cs" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

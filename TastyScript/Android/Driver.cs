@@ -12,7 +12,7 @@ using TastyScript.Lang.Exceptions;
 
 namespace TastyScript.Android
 {
-    internal class Driver
+    public class Driver
     {
         public DeviceData Device { get; private set; }
         private string _appPackage = "";
@@ -30,7 +30,8 @@ namespace TastyScript.Android
                     return;
                 }
                 IO.Output.Print($"Device {input} has been connected", ConsoleColor.DarkGreen);
-                Console.Title = Program.Title + $" | Device {Device.Serial}";
+                if(Main.IsConsole)
+                    Console.Title = Main.Title + $" | Device {Device.Serial}";
                 _cancelationToken = new CancellationTokenSource();
             }
             else
@@ -43,7 +44,8 @@ namespace TastyScript.Android
                     return;
                 }
                 IO.Output.Print($"Device first device found has been connected", ConsoleColor.DarkGreen);
-                Console.Title = Program.Title + $" | Device {Device.Serial}";
+                if (Main.IsConsole)
+                    Console.Title = Main.Title + $" | Device {Device.Serial}";
                 _cancelationToken = new CancellationTokenSource();
             }
         }

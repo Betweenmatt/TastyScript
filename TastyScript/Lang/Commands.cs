@@ -19,39 +19,39 @@ namespace TastyScript.Lang
     {
         public static void Connect(string i)
         {
-            Program.AndroidDriver = new Android.Driver(i.CleanString());
+            Main.AndroidDriver = new Android.Driver(i.CleanString());
         }
         public static void Tap(int x, int y)
         {
-            Program.AndroidDriver.SendCommand($"input tap {x} {y}");
+            Main.AndroidDriver.SendCommand($"input tap {x} {y}");
         }
         public static void LongTap(int x, int y, int duration)
         {
-            Program.AndroidDriver.SendCommand($"input swipe {x} {y} {x} {y} {duration}");
+            Main.AndroidDriver.SendCommand($"input swipe {x} {y} {x} {y} {duration}");
         }
         public static void Swipe(int x1, int y1, int x2, int y2, int duration)
         {
-            Program.AndroidDriver.SendCommand($"input swipe {x1} {y1} {x2} {y2} {duration}");
+            Main.AndroidDriver.SendCommand($"input swipe {x1} {y1} {x2} {y2} {duration}");
         }
         public static void KeyEvent(AndroidKeyCode code)
         {
-            Program.AndroidDriver.SendCommand($"input keyevent {(int)code}");
+            Main.AndroidDriver.SendCommand($"input keyevent {(int)code}");
         }
         public static void SendText(string text)
         {
-            Program.AndroidDriver.SendCommand($"input text {text.CleanString().Replace(" ", "%s")}");
+            Main.AndroidDriver.SendCommand($"input text {text.CleanString().Replace(" ", "%s")}");
         }
         public static Image GetScreenshot()
         {
-            return Program.AndroidDriver.GetScreenshot().Result;
+            return Main.AndroidDriver.GetScreenshot().Result;
         }
         public static void SetAppPackage(string pkg)
         {
-            Program.AndroidDriver.SetAppPackage(pkg.CleanString());
+            Main.AndroidDriver.SetAppPackage(pkg.CleanString());
         }
         public static bool CheckFocus()
         {
-            return Program.AndroidDriver.CheckFocusedApp();
+            return Main.AndroidDriver.CheckFocusedApp();
         }
         public static void AnalyzeScreen(string success, IBaseFunction successAction, IBaseFunction failureAction, int thresh, TFunction caller = null)
         {

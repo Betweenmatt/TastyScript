@@ -17,7 +17,7 @@ namespace TastyScript.Lang.Functions
             if (argsList == null)
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.NullReferenceException, "Arguments cannot be null.", LineValue));
 
-            if (Program.AndroidDriver != null)
+            if (Main.AndroidDriver != null)
             {
                 //FunctionHelpers.AndroidBack();
                 AndroidKeyCode newcol = AndroidKeyCode.A;

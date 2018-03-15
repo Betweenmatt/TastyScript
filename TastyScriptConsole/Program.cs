@@ -1,5 +1,4 @@
-﻿/*
-using System;
+﻿using System;
 using System.Threading;
 using System.Drawing.Imaging;
 using System.Reflection;
@@ -11,35 +10,34 @@ using TastyScript.Lang.Exceptions;
 using System.Threading.Tasks;
 using Microsoft.Owin.Hosting;
 using Owin;
+using TastyScript;
 
-namespace TastyScript
+namespace TastyScriptConsole
 {
     internal class Program
     {
-        public static Driver AndroidDriver;
-        private static List<IBaseFunction> predefinedFunctions;
-        public static string Title = $"TastyScript v{Assembly.GetExecutingAssembly().GetName().Version.ToString()} Beta";
+        
         private static CancellationTokenSource _cancelSource;
         private static string _consoleCommand = "";
+        private static string Title = TastyScript.Main.Title;
 
         static void Main(string[] args)
         {
-            Settings.LoadSettings();
-            if (Settings.RemoteToggle)
+            //TastyScript.Main.DirectInit("../scripts/langex.ts", new IOStream());
+            //return;//test
+
+            TastyScript.Main.IO = new IOStream();
+            TastyScript.Main.Init();
+            if(Settings.RemoteToggle)
                 StartRemote();
             Console.Title = Title;
-            //on load set predefined functions and extensions to mitigate load from reflection
-            predefinedFunctions = Utilities.GetPredefinedFunctions();
-            Compiler.PredefinedList = predefinedFunctions;
-            Utilities.GetExtensions();
-            Compiler.ExceptionListener = new ExceptionListener();
-            //
-            IO.Output.Print(WelcomeMessage());
+
+            TastyScript.Main.IO.Print(WelcomeMessage());
             NewWaitForCommand();
         }
         private static void StartRemote()
         {
-            IO.Output.Print("Starting remote listener.");
+            TastyScript.Main.IO.Print("Starting remote listener.");
             Thread remote = new Thread(TcpListen);
             remote.Start();
         }
@@ -48,8 +46,8 @@ namespace TastyScript
             while (true)
             {
                 _consoleCommand = "";
-                IO.Output.Print("\nSet your game to correct screen and then type run 'file/directory'\n", ConsoleColor.Green);
-                IO.Output.Print('>', false);
+                TastyScript.Main.IO.Print("\nSet your game to correct screen and then type run 'file/directory'\n", ConsoleColor.Green);
+                TastyScript.Main.IO.Print('>', false);
                 var r = "";
                 try
                 {
@@ -57,8 +55,8 @@ namespace TastyScript
                     r = Reader.ReadLine(_cancelSource.Token);
                 }
                 catch (OperationCanceledException e)
-                { }
-                catch (Exception e)
+                {}
+                catch(Exception e)
                 {
                     ExceptionListener.LogThrow("Unexpected error", e);
                 }
@@ -90,7 +88,7 @@ namespace TastyScript
                         break;
                     case ("-e"):
                     case ("exec"):
-                        CommandExec(userInput);
+                        TastyScript.Main.CommandExec(userInput);
                         break;
                     case ("-h"):
                     case ("help"):
@@ -105,7 +103,7 @@ namespace TastyScript
                         break;
                     case ("-r"):
                     case ("run"):
-                        CommandRun(userInput);
+                        TastyScript.Main.CommandRun(userInput);
                         break;
                     case ("-ss"):
                     case ("screenshot"):
@@ -116,7 +114,7 @@ namespace TastyScript
                         CommandShell(userInput);
                         break;
                     default:
-                        IO.Output.Print("Enter '-h' for a list of commands!");
+                        TastyScript.Main.IO.Print("Enter '-h' for a list of commands!");
                         break;
                 }
             }
@@ -127,7 +125,7 @@ namespace TastyScript
             try
             {
                 var cmd = r.Replace("adb ", "");
-                IO.Output.Print("This command does not currently work as expected.");
+                TastyScript.Main.IO.Print("This command does not currently work as expected.");
             }
             catch (Exception e)
             {
@@ -138,13 +136,13 @@ namespace TastyScript
         {
             try
             {
-                if (AndroidDriver != null)
+                if (TastyScript.Main.AndroidDriver != null)
                 {
-                    AndroidDriver.SetAppPackage(r);
+                    TastyScript.Main.AndroidDriver.SetAppPackage(r);
                 }
                 else
                 {
-                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.DriverException, "Device must be defined"));
+                    TastyScript.Main.Throw(new ExceptionHandler(ExceptionType.DriverException, "Device must be defined"));
                 }
             }
             catch (Exception e) { if (!(e is CompilerControledException) || Settings.LogLevel == "throw") { ExceptionListener.LogThrow("Unexpected error", e); } }
@@ -153,7 +151,7 @@ namespace TastyScript
         {
             try
             {
-                AndroidDriver = new Driver(r);
+                TastyScript.Main.AndroidDriver = new Driver(r);
             }
             catch (Exception e) { if (!(e is CompilerControledException) || Settings.LogLevel == "throw") { ExceptionListener.LogThrow("Unexpected error", e); } }
         }
@@ -166,24 +164,11 @@ namespace TastyScript
             if (r != "")
             {
                 Settings.SetQuickDirectory(r);
-
+                
             }
-            IO.Output.Print("Directory: " + Settings.QuickDirectory);
+            TastyScript.Main.IO.Print("Directory: " + Settings.QuickDirectory);
         }
-        private static void CommandExec(string r)
-        {
-            try
-            {
-                var cmd = r.Replace("exec ", "").Replace("-e ", "");
-                var file = "override.Start(){\n" + cmd + "}";
-                var path = "AnonExecCommand.ts";
-                TokenParser.SleepDefaultTime = 1200;
-                TokenParser.Stop = false;
-                StartScript(path, file);
-            }
-            catch (Exception e) { if (!(e is CompilerControledException) || Settings.LogLevel == "throw") { ExceptionListener.LogThrow("Unexpected error", e); } }
-
-        }
+        
         private static void CommandHelp(string r)
         {
             string output = $"Commands:\nrun 'path'\t\t|\tRuns the script at the given path\n" +
@@ -192,7 +177,7 @@ namespace TastyScript
                 $"screenshot 'path'\t|\tTakes a screenshot of the device and\n\t\t\t\t saves it to the given path\n" +
                 $"loglevel 'type'\t\t|\tSets the logging level to warn, error, or none" +
                 $"app 'appPackage'\t\t|\tSets the current app package.";
-            IO.Output.Print(output);
+            TastyScript.Main.IO.Print(output);
         }
         private static void CommandLogLevel(string r)
         {
@@ -200,22 +185,22 @@ namespace TastyScript
             {
                 if (r == "")
                 {
-                    IO.Output.Print($"LogLevel: {Settings.LogLevel}");
+                    TastyScript.Main.IO.Print($"LogLevel: {Settings.LogLevel}");
                     return;
                 }
                 if (r == "warn" || r == "error" || r == "none" || r == "throw")
                 {
                     Settings.SetLogLevel(r);
-                    IO.Output.Print($"LogLevel: {Settings.LogLevel}");
+                    TastyScript.Main.IO.Print($"LogLevel: {Settings.LogLevel}");
                 }
                 else
                 {
-                    IO.Output.Print($"{r} is not a valid entry. Must be warn, error, throw, or none");
+                    TastyScript.Main.IO.Print($"{r} is not a valid entry. Must be warn, error, throw, or none");
                 }
             }
             catch
             {
-                IO.Output.Print($"this is not a valid entry. Must be warn, error, throw, or none");
+                TastyScript.Main.IO.Print($"this is not a valid entry. Must be warn, error, throw, or none");
             }
         }
         private static void CommandRemote(string r)
@@ -224,50 +209,28 @@ namespace TastyScript
             {
                 var set = (r == "True" || r == "true") ? true : false;
                 //check if remote was off before starting again
-                if (!Settings.RemoteToggle && set)
+                if(!Settings.RemoteToggle && set)
                 {
                     StartRemote();
                 }
                 Settings.SetRemoteToggle(set);
             }
-            IO.Output.Print("Remote Active: " + Settings.RemoteToggle);
+            TastyScript.Main.IO.Print("Remote Active: " + Settings.RemoteToggle);
         }
-
-        private static void CommandRun(string r)
-        {
-            try
-            {
-                var path = r.Replace("\'", "").Replace("\"", "");
-                var file = Utilities.GetFileFromPath(path);
-                TokenParser.SleepDefaultTime = 1200;
-                TokenParser.Stop = false;
-                Thread esc = new Thread(ListenForEscape);
-                esc.Start();
-                StartScript(path, file);
-
-            }
-            catch (Exception e)
-            {
-                //if loglevel is throw, then compilerControledException gets printed as well
-                //only for debugging srs issues
-                if (!(e is CompilerControledException) || Settings.LogLevel == "throw")
-                {
-                    ExceptionListener.LogThrow("Unexpected error", e);
-                }
-            }
-        }
+        
+        
         private static void CommandScreenshot(string r)
         {
             try
             {
-                if (AndroidDriver != null)
+                if (TastyScript.Main.AndroidDriver != null)
                 {
-                    var ss = AndroidDriver.GetScreenshot();
+                    var ss = TastyScript.Main.AndroidDriver.GetScreenshot();
                     ss.Result.Save(r, ImageFormat.Png);
                 }
                 else
                 {
-                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.DriverException, "Device must be defined"));
+                    TastyScript.Main.Throw(new ExceptionHandler(ExceptionType.DriverException, "Device must be defined"));
                 }
             }
             catch (Exception e) { if (!(e is CompilerControledException) || Settings.LogLevel == "throw") { ExceptionListener.LogThrow("Unexpected error", e); } }
@@ -276,77 +239,29 @@ namespace TastyScript
         {
             try
             {
-                if (AndroidDriver != null)
+                if (TastyScript.Main.AndroidDriver != null)
                 {
-                    IO.Output.Print($"Result: {AndroidDriver.SendShellCommand(r.Replace("shell ", "").Replace("-sh ", ""))}");
+                    TastyScript.Main.IO.Print($"Result: {TastyScript.Main.AndroidDriver.SendShellCommand(r.Replace("shell ", "").Replace("-sh ", ""))}");
                 }
                 else
                 {
-                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.DriverException, "Device must be defined"));
+                    TastyScript.Main.Throw(new ExceptionHandler(ExceptionType.DriverException, "Device must be defined"));
                 }
             }
             catch (Exception e) { if (!(e is CompilerControledException) || Settings.LogLevel == "throw") { ExceptionListener.LogThrow("Unexpected error", e); } }
         }
 
-        private static void ListenForEscape()
-        {
-            IO.Output.Print("Press ENTER to stop");
-            while (Console.ReadKey(true).Key != ConsoleKey.Enter)
-            {
-                if (TokenParser.Stop)
-                    break;
-            }
-            if (!TokenParser.Stop)
-            {
-                SendStopScript();
-            }
-        }
-        //stops the script, announces the halting and executes Halt() function if it exist
-        private static void SendStopScript()
-        {
-            try
-            {
-                //halt the script
-                TokenParser.Stop = true;
-                IO.Output.Print("\nScript execution is halting. Please wait.\n", ConsoleColor.Yellow);
-                if (TokenParser.HaltFunction != null)
-                {
-                    TokenParser.HaltFunction.BlindExecute = true;
-                    TokenParser.HaltFunction.TryParse(null);
-                }
-                if (TokenParser.GuaranteedHaltFunction != null)
-                {
-                    TokenParser.GuaranteedHaltFunction.BlindExecute = true;
-                    TokenParser.GuaranteedHaltFunction.TryParse(null);
-                }
-            }
-            catch
-            {
-                Compiler.ExceptionListener.ThrowSilent(new ExceptionHandler(ExceptionType.SystemException,
-                    $"Unknown error with halt thread, aborting all execution."));
-                TokenParser.Stop = true;
-            }
+        
 
-        }
-
-        private static bool StartScript(string path, string file)
-        {
-            Compiler c = new Compiler(path, file, predefinedFunctions);
-            if (!TokenParser.Stop)
-                SendStopScript();
-            Thread.Sleep(2000);//sleep for 2 seconds after finishing the script
-            return true;
-        }
-
-
+        
         private static string WelcomeMessage()
         {
             return $"Welcome to {Title}!\nCredits:\n@TastyGod - https://github.com/TastyGod " +
-                $"\nAforge - www.aforge.net\nSharpADB - https://github.com/quamotion/madb" +
+                $"\nAforge - www.aforge.net\nSharpADB - https://github.com/quamotion/madb" + 
                 $"\nLog4Net - https://logging.apache.org/log4net \n\n" +
                 $"Enter -h for a list of commands!\n";
         }
-
+        
         public static void TcpListen()
         {
             const string Url = "http://localhost:8080/";
@@ -374,14 +289,13 @@ namespace TastyScript
                             _cancelSource.Cancel();
                             break;
                         case ("stop"):
-                            SendStopScript();
+                            TastyScript.Main.SendStopScript();
                             break;
                     }
                 }
                 return next();
-
+                
             });
         }
     }
 }
-*/

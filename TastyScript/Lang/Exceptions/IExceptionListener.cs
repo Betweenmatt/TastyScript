@@ -4,35 +4,59 @@ using System.Linq;
 
 namespace TastyScript.Lang.Exceptions
 {
-    internal interface IExceptionListener
+    public interface IExceptionListener
     {
         string CurrentLine { get; }
         void Throw(ExceptionHandler ex);
         void Throw(string msg, ExceptionType type = ExceptionType.CompilerException, string lineref = "{0}");
         void ThrowSilent(ExceptionHandler ex, bool once = false);
+        /// <summary>
+        /// Prints the debug messagage in the console as DarkYellow color
+        /// and logs the message in debug.log
+        /// </summary>
+        /// <param name="msg"></param>
+        void ThrowDebug(string msg);
         void SetCurrentLine(string s);
     }
-    internal class ExceptionListener : IExceptionListener
+    public class ExceptionListener : IExceptionListener
     {
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         private string _currentLine = "";
         public string CurrentLine { get { return _currentLine; } }
         private List<ExceptionHandler> _onceList = new List<ExceptionHandler>();
+        //i think this fixes my stupid mistake that was breaking as an assembly
+        public static bool stupidFix;
+        public static void LogDebug(string message)
+        {
+            if (!stupidFix)
+                log.Debug(message);
+        }
         public static void LogInfo(string message)
         {
-            log.Info(message);
+            if (!stupidFix)
+                log.Info(message);
         }
         public static void LogWarn(string message)
         {
-            log.Warn(message);
+            if (!stupidFix)
+                log.Warn(message);
         }
         public static void LogError(string message)
         {
-            log.Error(message);
+            if (!stupidFix)
+                log.Error(message);
         }
         public static void LogThrow(string message, Exception e)
         {
-            log.Fatal(message, e);
+            if (!stupidFix)
+                log.Fatal(message, e);
+            else
+                IO.Output.Print(message + e, ConsoleColor.DarkRed);
+        }
+        public void ThrowDebug(string msg)
+        {
+            LogDebug(msg);
+            IO.Output.Print(msg, ConsoleColor.DarkYellow);
         }
         public void Throw(ExceptionHandler ex)
         {
@@ -75,7 +99,7 @@ namespace TastyScript.Lang.Exceptions
     /// This is a ghetto way to silently stop the script from running when
     /// hitting an compiler controlled exception.
     /// </summary>
-    internal class CompilerControledException : Exception
+    public class CompilerControledException : Exception
     {
     }
 }

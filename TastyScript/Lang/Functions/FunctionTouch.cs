@@ -21,7 +21,7 @@ namespace TastyScript.Lang.Functions
             }
             double intX = double.Parse(x.ToString());
             double intY = double.Parse(y.ToString());
-            if (Program.AndroidDriver == null)
+            if (Main.AndroidDriver == null)
                 IO.Output.Print($"[DRIVERLESS] Touch x:{intX} y:{intY}");
             else
                 Commands.Tap((int)intX, (int)intY);

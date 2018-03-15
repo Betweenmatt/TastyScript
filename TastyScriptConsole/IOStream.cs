@@ -1,46 +1,40 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using TastyScript;
 
-namespace TastyScript
+namespace TastyScriptConsole
 {
-    /// <summary>
-    /// This is a wrapper for Console.Write/ReadLine. I changed all input to this
-    /// in case i wanted to use a different output than console.writeline later on down the road
-    /// </summary>
-    internal class IO
+    public class IOStream : IIOStream
     {
-        internal class Output
+        public void Print(object o, bool line = true)
         {
-            public static void Print(object o, bool line = true)
-            {/*
-                if (line)
-                    Console.WriteLine(o);
-                else
-                    Console.Write(o);*/
-                Main.IO.Print(o, line);
-            }
-            public static void Print(object o, ConsoleColor color, bool line = true)
-            {/*
-                Console.ForegroundColor = color;
-                if (line)
-                    Console.WriteLine(o);
-                else
-                    Console.Write(o);
-                Console.ResetColor();
-                */
-                Main.IO.Print(o, color, line);
-            }
+            if (line)
+                Console.WriteLine(o);
+            else
+                Console.Write(o);
         }
-        internal class Input
+        public void Print(object o, ConsoleColor color, bool line = true)
         {
-            public static string ReadLine()
-            {
-                return Console.ReadLine();
-            }
+            Console.ForegroundColor = color;
+            if (line)
+                Console.WriteLine(o);
+            else
+                Console.Write(o);
+            Console.ResetColor();
+        }
+        public string Read()
+        {
+            return Console.ReadLine();
+        }
+        public ConsoleKeyInfo ReadKey(bool intercept)
+        {
+            return Console.ReadKey(intercept);
         }
     }
-
     internal class Reader
     {
         private static Thread inputThread;
@@ -69,7 +63,7 @@ namespace TastyScript
         }
 
         // omit the parameter to read a line without a timeout
-        public static string ReadLine(CancellationToken token,int timeOutMillisecs = Timeout.Infinite)
+        public static string ReadLine(CancellationToken token, int timeOutMillisecs = Timeout.Infinite)
         {
             getInput.Set();
             //bool success = gotInput.WaitOne(timeOutMillisecs);
