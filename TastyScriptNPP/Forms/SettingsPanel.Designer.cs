@@ -43,6 +43,8 @@
             this.saveButton = new System.Windows.Forms.Button();
             this.colorOverrideBox = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
+            this.loglevelCombo = new System.Windows.Forms.ComboBox();
+            this.label6 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.bgColorPicture)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.defaultTextPicture)).BeginInit();
             this.SuspendLayout();
@@ -100,7 +102,7 @@
             // boldCheck
             // 
             this.boldCheck.AutoSize = true;
-            this.boldCheck.Location = new System.Drawing.Point(218, 59);
+            this.boldCheck.Location = new System.Drawing.Point(301, 33);
             this.boldCheck.Name = "boldCheck";
             this.boldCheck.Size = new System.Drawing.Size(47, 17);
             this.boldCheck.TabIndex = 5;
@@ -110,7 +112,7 @@
             // italicCheck
             // 
             this.italicCheck.AutoSize = true;
-            this.italicCheck.Location = new System.Drawing.Point(277, 59);
+            this.italicCheck.Location = new System.Drawing.Point(301, 56);
             this.italicCheck.Name = "italicCheck";
             this.italicCheck.Size = new System.Drawing.Size(48, 17);
             this.italicCheck.TabIndex = 6;
@@ -119,22 +121,22 @@
             // 
             // fontSize
             // 
-            this.fontSize.Location = new System.Drawing.Point(165, 57);
+            this.fontSize.Location = new System.Drawing.Point(191, 37);
             this.fontSize.Name = "fontSize";
             this.fontSize.Size = new System.Drawing.Size(33, 20);
             this.fontSize.TabIndex = 7;
             // 
             // fontName
             // 
-            this.fontName.Location = new System.Drawing.Point(165, 27);
+            this.fontName.Location = new System.Drawing.Point(191, 7);
             this.fontName.Name = "fontName";
-            this.fontName.Size = new System.Drawing.Size(108, 20);
+            this.fontName.Size = new System.Drawing.Size(130, 20);
             this.fontName.TabIndex = 8;
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(104, 30);
+            this.label3.Location = new System.Drawing.Point(130, 10);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(55, 13);
             this.label3.TabIndex = 9;
@@ -144,7 +146,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(104, 60);
+            this.label4.Location = new System.Drawing.Point(130, 40);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(54, 13);
             this.label4.TabIndex = 10;
@@ -163,27 +165,48 @@
             // 
             // colorOverrideBox
             // 
-            this.colorOverrideBox.Location = new System.Drawing.Point(191, 98);
+            this.colorOverrideBox.Location = new System.Drawing.Point(178, 122);
             this.colorOverrideBox.Multiline = true;
             this.colorOverrideBox.Name = "colorOverrideBox";
-            this.colorOverrideBox.Size = new System.Drawing.Size(149, 110);
+            this.colorOverrideBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.colorOverrideBox.Size = new System.Drawing.Size(170, 86);
             this.colorOverrideBox.TabIndex = 12;
             // 
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(188, 82);
+            this.label5.Location = new System.Drawing.Point(175, 106);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(85, 13);
             this.label5.TabIndex = 13;
             this.label5.Text = "Color Overrides: ";
             this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
+            // loglevelCombo
+            // 
+            this.loglevelCombo.FormattingEnabled = true;
+            this.loglevelCombo.Location = new System.Drawing.Point(191, 74);
+            this.loglevelCombo.Name = "loglevelCombo";
+            this.loglevelCombo.Size = new System.Drawing.Size(121, 21);
+            this.loglevelCombo.TabIndex = 14;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(130, 77);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(54, 13);
+            this.label6.TabIndex = 15;
+            this.label6.Text = "LogLevel:";
+            this.label6.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
             // SettingsPanel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(351, 263);
+            this.Controls.Add(this.label6);
+            this.Controls.Add(this.loglevelCombo);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.colorOverrideBox);
             this.Controls.Add(this.saveButton);
@@ -224,5 +247,7 @@
         private System.Windows.Forms.Button saveButton;
         private System.Windows.Forms.TextBox colorOverrideBox;
         private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.ComboBox loglevelCombo;
+        private System.Windows.Forms.Label label6;
     }
 }

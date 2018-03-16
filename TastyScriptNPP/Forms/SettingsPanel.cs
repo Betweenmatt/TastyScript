@@ -19,7 +19,11 @@ namespace TastyScriptNPP.Forms
         public SettingsPanel()
         {
             InitializeComponent();
-            this.aboutLabel.Text = "TastyScript - Matthew Andrews 2018\ngithub.com/TastyGod/TastyScript\n" + TastyScript.Main.Title;
+
+            this.loglevelCombo.Items.Clear();
+            this.loglevelCombo.Items.AddRange(new string[]{ "warn","error","throw","none" });
+
+            this.aboutLabel.Text = "Developed by Matthew Andrews 2018\ngithub.com/TastyGod/TastyScript\n" + TastyScript.Main.Title;
             this.bgColorPicture.BackColor = Settings.OutputPanel.DefaultBGColor;
             currentBgColor = Settings.OutputPanel.DefaultBGColor;
             this.defaultTextPicture.BackColor = Settings.OutputPanel.DefaultTextColor;
@@ -28,6 +32,7 @@ namespace TastyScriptNPP.Forms
             this.italicCheck.Checked = Settings.OutputPanel.Italic;
             this.fontName.Text = Settings.OutputPanel.FontName;
             this.fontSize.Text = Settings.OutputPanel.FontSize.ToString();
+            this.loglevelCombo.SelectedIndex = this.loglevelCombo.FindStringExact(Settings.OutputPanel.LogLevel);
             this.colorOverrideBox.Text = Settings.OutputPanel.ColorOverrides;
         }
         private void saveButton_Click(object sender, EventArgs e)
@@ -36,6 +41,7 @@ namespace TastyScriptNPP.Forms
             Settings.OutputPanel.DefaultTextColor = currentTextColor;
             Settings.OutputPanel.Bold = this.boldCheck.Checked;
             Settings.OutputPanel.Italic = this.italicCheck.Checked;
+            Settings.OutputPanel.LogLevel = this.loglevelCombo.Text;
             try
             {
                 Settings.OutputPanel.FontSize = int.Parse(this.fontSize.Text);
@@ -74,7 +80,6 @@ namespace TastyScriptNPP.Forms
                 this.defaultTextPicture.BackColor = currentTextColor;
             }
         }
-
         
     }
 }

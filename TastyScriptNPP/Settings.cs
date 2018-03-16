@@ -16,6 +16,7 @@ namespace TastyScriptNPP
             public static bool Bold;
             public static bool Italic;
             public static int FontSize;
+            public static string LogLevel;
             public static string FontName;
             private static string _colorOverrides;
             public static string ColorOverrides

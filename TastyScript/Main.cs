@@ -139,13 +139,13 @@ namespace TastyScript
 
         //these are for starting and stoppign the script from an external source like
         //notepad++
-        public static void DirectInit(string f, string dir, IIOStream io, IExceptionListener listener)
+        public static void DirectInit(string f, string dir, string ll, IIOStream io, IExceptionListener listener)
         {
             IsConsole = false;
             IO = io;
             Init(listener);
             Settings.SetQuickDirectory(dir);
-            Settings.SetLogLevel("warn");
+            Settings.SetLogLevel(ll);
             DirectRun(f);
         }
         private static void DirectRun(string r)

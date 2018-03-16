@@ -60,6 +60,10 @@ namespace Kbg.NppPluginNET
                 "DarkMagenta,DarkMagenta;DarkRed,DarkRed;DarkYellow,YellowGreen;Green,Green;Magenta,Magenta;Red,Red;White,White;Yellow,Yellow;";
             Win32.GetPrivateProfileString("OutputPanel", "ColorOverrides", coloroverridedefault, colorOverrides, 32767, iniFilePath);
             Settings.OutputPanel.ColorOverrides = colorOverrides.ToString();
+            StringBuilder llStrBuilder = new StringBuilder(32767);
+            Win32.GetPrivateProfileString("OutputPanel", "LogLevel", "warn", llStrBuilder, 32767, iniFilePath);
+            Settings.OutputPanel.LogLevel = llStrBuilder.ToString();
+
 
             PluginBase.SetCommand(0, "Run/Stop Script", RunStopTS, new ShortcutKey(false, false, false, Keys.None));
             PluginBase.SetCommand(1, "Output Panel", OutputDockableDialog); outputDialogId = 1;
@@ -84,6 +88,7 @@ namespace Kbg.NppPluginNET
             Win32.WritePrivateProfileString("OutputPanel", "FontSize", Settings.OutputPanel.FontSize.ToString(), iniFilePath);
             Win32.WritePrivateProfileString("OutputPanel", "FontName", Settings.OutputPanel.FontName, iniFilePath);
             Win32.WritePrivateProfileString("OutputPanel", "ColorOverrides", Settings.OutputPanel.ColorOverrides, iniFilePath);
+            Win32.WritePrivateProfileString("OutputPanel", "LogLevel", Settings.OutputPanel.LogLevel, iniFilePath);
         }
         internal static void RunStopTS()
         {
@@ -112,13 +117,13 @@ namespace Kbg.NppPluginNET
                     IsRunning = true;
                     StringBuilder path = new StringBuilder(Win32.MAX_PATH);
                     Win32.SendMessage(PluginBase.nppData._nppHandle, (uint)NppMsg.NPPM_GETFULLCURRENTPATH, 0, path);
-                    str.Print("File Path : " + path,Color.Gray);
+                    str.Print("File Path : " + path, ConsoleColor.DarkGray);
                     StringBuilder dir = new StringBuilder(Win32.MAX_PATH);
                     Win32.SendMessage(PluginBase.nppData._nppHandle, (uint)NppMsg.NPPM_GETCURRENTDIRECTORY, 0, dir);
-                    str.Print("Directory : " + dir, Color.Gray);
+                    str.Print("Directory : " + dir, ConsoleColor.DarkGray);
                     Thread th = new Thread(() =>
                     {
-                        TastyScript.Main.DirectInit(path.ToString(), dir.ToString(), str, new ExceptionListener());
+                        TastyScript.Main.DirectInit(path.ToString(), dir.ToString(), Settings.OutputPanel.LogLevel, str, new ExceptionListener());
                         str.Print("Execution is complete.", ConsoleColor.Green);
                         IsRunning = false;
                     });
@@ -147,7 +152,7 @@ namespace Kbg.NppPluginNET
                     colorMap[0].NewColor = Color.FromKnownColor(KnownColor.ButtonFace);
                     ImageAttributes attr = new ImageAttributes();
                     attr.SetRemapTable(colorMap);
-                    g.DrawImage(consoleButton, new Rectangle(0, 0, 16, 16), 0, 0, 16, 16, GraphicsUnit.Pixel, attr);
+                    g.DrawImage(playButton, new Rectangle(0, 0, 16, 16), 0, 0, 16, 16, GraphicsUnit.Pixel, attr);
                     tbIcon = Icon.FromHandle(newBmp.GetHicon());
                 }
 
@@ -184,7 +189,7 @@ namespace Kbg.NppPluginNET
                     colorMap[0].NewColor = Color.FromKnownColor(KnownColor.ButtonFace);
                     ImageAttributes attr = new ImageAttributes();
                     attr.SetRemapTable(colorMap);
-                    g.DrawImage(consoleButton, new Rectangle(0, 0, 16, 16), 0, 0, 16, 16, GraphicsUnit.Pixel, attr);
+                    g.DrawImage(playButton, new Rectangle(0, 0, 16, 16), 0, 0, 16, 16, GraphicsUnit.Pixel, attr);
                     tbIcon = Icon.FromHandle(newBmp.GetHicon());
                 }
 
