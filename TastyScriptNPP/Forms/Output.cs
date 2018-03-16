@@ -59,7 +59,7 @@ namespace Kbg.NppPluginNET
                 this.outTextBox.SelectionColor = color;
                 
                 this.outTextBox.SelectionLength = 0; // clear
-                outTextBox.Selectable = false;
+                outTextBox.Selectable = true;
             });
         }
         public void Clear()
