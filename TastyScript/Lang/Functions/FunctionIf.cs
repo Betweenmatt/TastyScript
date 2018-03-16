@@ -17,7 +17,7 @@ namespace TastyScript.Lang.Functions
             if (prov == null)
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException,
                     $"Arguments cannot be null.", LineValue));
-            bool flag = (prov.ToString() == "True") ? true : false;
+            bool flag = (prov.ToString() == "True" || prov.ToString() == "true") ? true : false;
             var andFlag = Extensions.FirstOrDefault(f => f.Name == "And");
             var orFlag = Extensions.FirstOrDefault(f => f.Name == "Or");
 
@@ -28,7 +28,7 @@ namespace TastyScript.Lang.Functions
                 {
                     var or = o as ExtensionOr;
                     string[] param = or.Extend();
-                    bool paramFlag = (param[0].ToString() == "True") ? true : false;
+                    bool paramFlag = (param[0].ToString() == "True" || param[0].ToString() == "true") ? true : false;
                     if (paramFlag)
                     {
                         flag = true;
@@ -43,7 +43,7 @@ namespace TastyScript.Lang.Functions
                 {
                     var and = a as ExtensionAnd;
                     string[] param = and.Extend();
-                    bool paramFlag = (param[0].ToString() == "True") ? true : false;
+                    bool paramFlag = (param[0].ToString() == "True" || param[0].ToString() == "true") ? true : false;
                     if (!paramFlag)
                     {
                         flag = false;
