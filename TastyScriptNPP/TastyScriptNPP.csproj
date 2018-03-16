@@ -77,6 +77,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\GlobalAssemblyInfo.cs">
+      <Link>GlobalAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="ExceptionListener.cs" />
     <Compile Include="Forms\SettingsPanel.cs">
       <SubType>Form</SubType>
@@ -87,7 +90,7 @@
     <Compile Include="RTBToggleSelect.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="IIOStream.cs" />
+    <Compile Include="IOStream.cs" />
     <Compile Include="PluginInfrastructure\ClikeStringArray.cs" />
     <Compile Include="PluginInfrastructure\DllExport\DllExportAttribute.cs" />
     <Compile Include="Forms\Output.cs">

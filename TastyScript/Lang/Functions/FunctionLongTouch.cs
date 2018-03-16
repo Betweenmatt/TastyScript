@@ -24,7 +24,7 @@ namespace TastyScript.Lang.Functions
             double intY = double.Parse(y.ToString());
             double duration = double.Parse(dur.ToString());
             if (Main.AndroidDriver == null)
-                IO.Output.Print($"[DRIVERLESS] LongTouch x:{intX} y:{intY} duration:{duration}");
+                Main.IO.Print($"[DRIVERLESS] LongTouch x:{intX} y:{intY} duration:{duration}");
             else
                 Commands.LongTap((int)intX, (int)intY, (int)duration);
             double sleep = TokenParser.SleepDefaultTime;

@@ -51,12 +51,12 @@ namespace TastyScript.Lang.Exceptions
             if (!stupidFix)
                 log.Fatal(message, e);
             else
-                IO.Output.Print(message + e, ConsoleColor.DarkRed);
+                Main.IO.Print(message + e, ConsoleColor.DarkRed);
         }
         public void ThrowDebug(string msg)
         {
             LogDebug(msg);
-            IO.Output.Print(msg, ConsoleColor.DarkYellow);
+            Main.IO.Print(msg, ConsoleColor.DarkYellow);
         }
         public void Throw(ExceptionHandler ex)
         {
@@ -65,7 +65,7 @@ namespace TastyScript.Lang.Exceptions
             LogError(msg);
             if (Settings.LogLevel == "warn" || Settings.LogLevel == "error" || Settings.LogLevel == "throw")
             {
-                IO.Output.Print(msg, ConsoleColor.Red);
+                Main.IO.Print(msg, ConsoleColor.Red);
             }
             throw new CompilerControledException();
         }
@@ -82,7 +82,7 @@ namespace TastyScript.Lang.Exceptions
                 LogWarn(msg);
                 if (Settings.LogLevel == "warn")
                 {
-                    IO.Output.Print(msg, ConsoleColor.DarkYellow);
+                    Main.IO.Print(msg, ConsoleColor.DarkYellow);
                 }
                 if (once)
                 {

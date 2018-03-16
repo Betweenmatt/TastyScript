@@ -22,7 +22,7 @@ namespace TastyScript.Lang.Functions
             }
             else
             {
-                IO.Output.Print($"[DRIVERLESS] text {argsList.ToString()}");
+                Main.IO.Print($"[DRIVERLESS] text {argsList.ToString()}");
             }
             return "";
         }

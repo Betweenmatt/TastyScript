@@ -63,7 +63,7 @@ namespace Kbg.NppPluginNET
             Settings.OutputPanel.ColorOverrides = colorOverrides.ToString();
 
             PluginBase.SetCommand(0, "Run/Stop", RunStopTS, new ShortcutKey(false, false, false, Keys.None));
-            PluginBase.SetCommand(1, "Output", OutputDockableDialog); outputDialogId = 1;
+            PluginBase.SetCommand(1, "Output Panel", OutputDockableDialog); outputDialogId = 1;
             PluginBase.SetCommand(2, "---", null);
             PluginBase.SetCommand(3, "Settings", SettingsDialog);
         }

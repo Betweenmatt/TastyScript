@@ -29,9 +29,10 @@ namespace TastyScript.Android
                         $"The device {input} could not be found. Make sure your adb client is loaded!\n Type the command 'devices' to see all the connected devices"));
                     return;
                 }
-                IO.Output.Print($"Device {input} has been connected", ConsoleColor.DarkGreen);
-                if(Main.IsConsole)
-                    Console.Title = Main.Title + $" | Device {Device.Serial}";
+                Main.IO.Print($"Device {input} has been connected", ConsoleColor.DarkGreen);
+                //if(Main.IsConsole)
+                //    Console.Title = Main.Title + $" | Device {Device.Serial}";
+                Main.IO.ChangeConsoleTitle($"Device: {Device.Serial}");
                 _cancelationToken = new CancellationTokenSource();
             }
             else
@@ -43,9 +44,10 @@ namespace TastyScript.Android
                         $"The device could not be found. Make sure your adb client is loaded!\n Type the command 'devices' to see all the connected devices"));
                     return;
                 }
-                IO.Output.Print($"Device first device found has been connected", ConsoleColor.DarkGreen);
-                if (Main.IsConsole)
-                    Console.Title = Main.Title + $" | Device {Device.Serial}";
+                Main.IO.Print($"The first device found has been connected", ConsoleColor.DarkGreen);
+                //if (Main.IsConsole)
+                //    Console.Title = Main.Title + $" | Device {Device.Serial}";
+                Main.IO.ChangeConsoleTitle($"Device: {Device.Serial}");
                 _cancelationToken = new CancellationTokenSource();
             }
         }
@@ -54,7 +56,7 @@ namespace TastyScript.Android
             if (appPackage != "")
             {
                 _appPackage = appPackage;
-                IO.Output.Print($"App Package set to {appPackage}", ConsoleColor.DarkGreen);
+                Main.IO.Print($"App Package set to {appPackage}", ConsoleColor.DarkGreen);
             }
             else
             {
@@ -63,7 +65,7 @@ namespace TastyScript.Android
                 AdbClient.Instance.ExecuteRemoteCommand(command, Device, receiver);
                 var echo = receiver.ToString();
                 _appPackage = echo;
-                IO.Output.Print($"App Package set to the currently opened app.", ConsoleColor.DarkGreen);
+                Main.IO.Print($"App Package set to the currently opened app.", ConsoleColor.DarkGreen);
             }
         }
         //all compile time shell commands(tap/getscreenshot/etc) check for app package before continuing
@@ -107,7 +109,7 @@ namespace TastyScript.Android
             {
                 socket.SendAdbRequest(cmd);
                 var response = socket.ReadAdbResponse();
-                IO.Output.Print(response.Message,ConsoleColor.Magenta);
+                Main.IO.Print(response.Message,ConsoleColor.Magenta);
             }
         }
 
@@ -165,7 +167,7 @@ namespace TastyScript.Android
             var devices = AdbClient.Instance.GetDevices();
             foreach (var device in devices)
             {
-                IO.Output.Print(device.Serial);
+                Main.IO.Print(device.Serial);
             }
             
         }

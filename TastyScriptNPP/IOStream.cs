@@ -55,43 +55,10 @@ namespace TastyScriptNPP
                 return Color.Black;
             return Color.FromName(first.Value);
             
-            switch (e)
-            {
-                case (ConsoleColor.Black):
-                    return Color.LightGray;
-                case (ConsoleColor.Blue):
-                    return Color.Blue;
-                case (ConsoleColor.Cyan):
-                    return Color.Cyan;
-                case (ConsoleColor.DarkBlue):
-                    return Color.DarkBlue;
-                case (ConsoleColor.DarkCyan):
-                    return Color.DarkCyan;
-                case (ConsoleColor.DarkGray):
-                    return Color.DarkGray;
-                case (ConsoleColor.DarkGreen):
-                    return Color.DarkGreen;
-                case (ConsoleColor.DarkMagenta):
-                    return Color.DarkMagenta;
-                case (ConsoleColor.DarkRed):
-                    return Color.DarkRed;
-                case (ConsoleColor.DarkYellow):
-                    return Color.YellowGreen;
-                case (ConsoleColor.Gray):
-                    return Settings.OutputPanel.DefaultTextColor;
-                case (ConsoleColor.Green):
-                    return Color.Green;
-                case (ConsoleColor.Magenta):
-                    return Color.Magenta;
-                case (ConsoleColor.Red):
-                    return Color.Red;
-                case (ConsoleColor.White):
-                    return Color.White;
-                case (ConsoleColor.Yellow):
-                    return Color.Yellow;
-                default:
-                    return Color.Black;
-            }
+        }
+        public void ChangeConsoleTitle(string append)
+        {
+
         }
         public string Read()
         {

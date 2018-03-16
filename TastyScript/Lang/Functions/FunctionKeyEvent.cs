@@ -29,7 +29,7 @@ namespace TastyScript.Lang.Functions
             }
             else
             {
-                IO.Output.Print($"[DRIVERLESS] Keyevent {argsList.ToString()}");
+                Main.IO.Print($"[DRIVERLESS] Keyevent {argsList.ToString()}");
             }
             return "";
         }
