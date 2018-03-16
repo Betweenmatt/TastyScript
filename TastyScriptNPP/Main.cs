@@ -16,7 +16,6 @@ namespace Kbg.NppPluginNET
 {
     class Main
     {
-        public const string Version = "1.3.1.38"; 
         internal const string PluginName = "TastyScriptNPP";
         static string iniFilePath = null;
         internal static Output output = null;
@@ -78,8 +77,8 @@ namespace Kbg.NppPluginNET
         }
         internal static void PluginCleanUp()
         {
-            Win32.WritePrivateProfileString("OuputPanel", "BackgroundColor", Settings.OutputPanel.DefaultBGColor.ToArgb().ToString(), iniFilePath);
-            Win32.WritePrivateProfileString("OuputPanel", "DefaultTextColor", Settings.OutputPanel.DefaultTextColor.ToArgb().ToString(), iniFilePath);
+            Win32.WritePrivateProfileString("OutputPanel", "BackgroundColor", Settings.OutputPanel.DefaultBGColor.ToArgb().ToString(), iniFilePath);
+            Win32.WritePrivateProfileString("OutputPanel", "DefaultTextColor", Settings.OutputPanel.DefaultTextColor.ToArgb().ToString(), iniFilePath);
             Win32.WritePrivateProfileString("OutputPanel", "BoldStyle", Settings.OutputPanel.Bold ? "1" : "0", iniFilePath);
             Win32.WritePrivateProfileString("OutputPanel", "ItalicStyle", Settings.OutputPanel.Italic ? "1" : "0", iniFilePath);
             Win32.WritePrivateProfileString("OutputPanel", "FontSize", Settings.OutputPanel.FontSize.ToString(), iniFilePath);
@@ -209,6 +208,7 @@ namespace Kbg.NppPluginNET
         internal static void HideSettings()
         {
             Win32.SendMessage(PluginBase.nppData._nppHandle, (uint)NppMsg.NPPM_DMMHIDE, 0, settings.Handle);
+            PluginCleanUp();
         }
     }
 }

@@ -145,6 +145,7 @@ namespace TastyScript
             IO = io;
             Init(listener);
             Settings.SetQuickDirectory(dir);
+            Settings.SetLogLevel("warn");
             DirectRun(f);
         }
         private static void DirectRun(string r)

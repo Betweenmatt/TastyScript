@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TastyScript.Lang;
+using TastyScript.Lang.Exceptions;
 
 namespace TastyScriptNPP
 {
@@ -52,5 +53,4 @@ namespace TastyScriptNPP
             }
         }
     }
-    public class CompilerControledException : Exception { }
 }

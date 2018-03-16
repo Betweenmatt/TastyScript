@@ -22,7 +22,13 @@ namespace TastyScript.Android
         {
             if (input != "")
             {
+                try { 
                 Device = AdbClient.Instance.GetDevices().FirstOrDefault(f => f.Serial == input);
+                }
+                catch
+                {
+                    Compiler.ExceptionListener.Throw($"There was an error with the driver. Make sure ADB has been started, and your device is connected!", ExceptionType.DriverException);
+                }
                 if (Device == null)
                 {
                     Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.DriverException,
@@ -37,7 +43,14 @@ namespace TastyScript.Android
             }
             else
             {
-                Device = AdbClient.Instance.GetDevices().FirstOrDefault();
+                try
+                {
+                    Device = AdbClient.Instance.GetDevices().FirstOrDefault();
+                }
+                catch
+                {
+                    Compiler.ExceptionListener.Throw($"There was an error with the driver. Make sure ADB has been started, and your device is connected!", ExceptionType.DriverException);
+                }
                 if (Device == null)
                 {
                     Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.DriverException,
@@ -173,9 +186,19 @@ namespace TastyScript.Android
         }
         public bool CheckFocusedApp()
         {
+            
             string command = $"dumpsys window windows | grep -E 'mCurrentFocus'";
             var receiver = new ConsoleOutputReceiver();
-            AdbClient.Instance.ExecuteRemoteCommand(command, Device, receiver);
+            try
+            {
+                AdbClient.Instance.ExecuteRemoteCommand(command, Device, receiver);
+            }
+            catch
+            {
+                Compiler.ExceptionListener.ThrowSilent(new ExceptionHandler(ExceptionType.DriverException,
+                    $"Focus check timed out. Please check your device connection."),true);
+                return false;
+            }
             var echo = receiver.ToString();
             if (echo.Contains(AppPackage))
             {

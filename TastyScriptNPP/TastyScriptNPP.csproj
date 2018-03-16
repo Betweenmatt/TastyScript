@@ -72,8 +72,7 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="TastyScript">
-      <HintPath>..\..\..\..\Visual Studio 2015\Projects\TastyScript\TastyScriptConsole\bin\Debug\TastyScript.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\TastyScript\bin\Debug\TastyScript.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -157,7 +156,7 @@
   <Import Project="..\packages\MSBuild.ILMerge.Task.1.0.5\build\MSBuild.ILMerge.Task.targets" Condition="Exists('..\packages\MSBuild.ILMerge.Task.1.0.5\build\MSBuild.ILMerge.Task.targets')" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties BuildVersion_UseGlobalSettings="True" BuildVersion_AssemblyInfoFilename="..\GlobalAssemblyInfo.cs" BuildVersion_UpdateFileVersion="True" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_BuildVersioningStyle="None.None.None.DeltaBaseDateInDays" BuildVersion_DetectChanges="True" BuildVersion_IncrementBeforeBuild="True" BuildVersion_StartDate="2018/2/5" />
+      <UserProperties BuildVersion_StartDate="2018/2/5" BuildVersion_IncrementBeforeBuild="True" BuildVersion_DetectChanges="True" BuildVersion_BuildVersioningStyle="None.None.None.DeltaBaseDateInDays" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_UpdateFileVersion="True" BuildVersion_AssemblyInfoFilename="..\GlobalAssemblyInfo.cs" BuildVersion_UseGlobalSettings="True" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
