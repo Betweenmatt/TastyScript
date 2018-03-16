@@ -21,8 +21,6 @@ namespace TastyScriptNPP
         {
             string msg = $"\n[ERROR] ({ex.Type.ToString()}) {ex.Message} File: {ex.Line}\nCode Snippet:\n{ex.Snippet}";
 
-
-
             IOStream.Instance.Print(msg, ConsoleColor.Red);
 
             throw new CompilerControledException();

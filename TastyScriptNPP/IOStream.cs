@@ -58,7 +58,7 @@ namespace TastyScriptNPP
         }
         public void ChangeConsoleTitle(string append)
         {
-
+            Print(append, ConsoleColor.DarkCyan);
         }
         public string Read()
         {

@@ -92,7 +92,7 @@ namespace TastyScript.Lang
                             output += "&amp;";
                             break;
                         case (','):
-                            output += "&comma;";
+                            output += "&coma;";
                             break;
                         default:
                             output += value[i];
@@ -899,6 +899,7 @@ namespace TastyScript.Lang
                     Compiler.ExceptionListener.Throw($"You broke the debugger! Function [{val}]");
                     return "";
                 }
+                return "";
             }
             return val;
         }
@@ -920,7 +921,8 @@ namespace TastyScript.Lang
         }
         public static string CleanString(this string input)
         {
-            return input.Replace("&comma;", ",")
+            return input
+                .Replace("&coma;", ",")
                 .Replace("&plus;", "+")
                 .Replace("&neg;", "-")
                 .Replace("&eq;", "=")

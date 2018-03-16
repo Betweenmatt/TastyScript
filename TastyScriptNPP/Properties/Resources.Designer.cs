@@ -73,9 +73,9 @@ namespace TastyScriptNPP.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap Game_reset_24 {
+        internal static System.Drawing.Bitmap icoRaw {
             get {
-                object obj = ResourceManager.GetObject("Game_reset_24", resourceCulture);
+                object obj = ResourceManager.GetObject("icoRaw", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

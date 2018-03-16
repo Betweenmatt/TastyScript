@@ -23,7 +23,7 @@ namespace Kbg.NppPluginNET
         static int outputDialogId = -1;
         //static Bitmap tbBmp = TastyScriptNPP.Properties.Resources.star;
         //static Bitmap tbBmp_tbTab = TastyScriptNPP.Properties.Resources.star_bmp;
-        static Bitmap playButton = TastyScriptNPP.Properties.Resources.Game_reset_24;
+        static Bitmap playButton = TastyScriptNPP.Properties.Resources.icoRaw;
         static Bitmap consoleButton = TastyScriptNPP.Properties.Resources.console_24;
         static Icon tbIcon = null;
         static bool IsRunning;
@@ -62,7 +62,7 @@ namespace Kbg.NppPluginNET
             Win32.GetPrivateProfileString("OutputPanel", "ColorOverrides", coloroverridedefault, colorOverrides, 32767, iniFilePath);
             Settings.OutputPanel.ColorOverrides = colorOverrides.ToString();
 
-            PluginBase.SetCommand(0, "Run/Stop", RunStopTS, new ShortcutKey(false, false, false, Keys.None));
+            PluginBase.SetCommand(0, "Run/Stop Script", RunStopTS, new ShortcutKey(false, false, false, Keys.None));
             PluginBase.SetCommand(1, "Output Panel", OutputDockableDialog); outputDialogId = 1;
             PluginBase.SetCommand(2, "---", null);
             PluginBase.SetCommand(3, "Settings", SettingsDialog);
@@ -90,7 +90,6 @@ namespace Kbg.NppPluginNET
         {
             if (!IsRunning)
             {
-                IsRunning = true;
                 OutputDockableDialog();
                 if (output != null)
                 {
@@ -111,7 +110,7 @@ namespace Kbg.NppPluginNET
                             return;
                         }
                     }
-
+                    IsRunning = true;
                     StringBuilder path = new StringBuilder(Win32.MAX_PATH);
                     Win32.SendMessage(PluginBase.nppData._nppHandle, (uint)NppMsg.NPPM_GETFULLCURRENTPATH, 0, path);
                     str.Print("File Path : " + path,Color.Gray);
