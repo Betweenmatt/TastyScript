@@ -1,16 +1,17 @@
-﻿using System.Reflection;
+﻿using Kbg.NppPluginNET;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("TastyScript")]
+[assembly: AssemblyTitle("TastyScriptNPP")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Microsoft")]
-[assembly: AssemblyProduct("TastyScript")]
-[assembly: AssemblyCopyright("Copyright © Microsoft 2018")]
+[assembly: AssemblyCompany("MyName")]
+[assembly: AssemblyProduct("TastyScriptNPP")]
+[assembly: AssemblyCopyright("Copyright © MyName 2011")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +21,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("c70629ec-08c3-4616-babb-b18613c42434")]
+[assembly: Guid("31492674-6fe0-485c-91f0-2e17244588ff")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -32,6 +33,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.3.1.38")]
-[assembly: AssemblyFileVersion("1.3.1.38")]
-[assembly: log4net.Config.XmlConfigurator(ConfigFile = "log4net.config")]
+[assembly: AssemblyVersion(Main.Version)]
+[assembly: AssemblyFileVersion(Main.Version)]
