@@ -4,7 +4,7 @@
 
 TastyScript is an open source procedural programming language designed to automate Android devices via location based touch events. The main purpose was to achieve support for game automation on native Android devices with a lightweight and robust system.
 
-At the core, TastyScript sends simple commands to an ADB Shell (`input tap x y`), which are then sent to the device and executed. As of writing this(v1.3.1), TastyScript supports Touch, LongTouch, Swipe, SendText, KeyEvent, and a couple of screen shot features(CheckScreen and TakeScreenshot) which utilize the FrameBuffer to grab the screen directly from the device(without leaving screen shots on your device).
+At the core, TastyScript sends simple commands to an ADB Shell (`input tap x y`), which are then sent to the device and executed. As of writing this(v1.3.1), TastyScript supports Touch, LongTouch, Swipe, SendText, KeyEvent, and a couple of screen shot features(CheckScreen and TakeScreenshot) which utilize the FrameBuffer to grab the screen directly from the device(without leaving screen shots on your device). 
 
 ## Getting Started
 
