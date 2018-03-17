@@ -62,6 +62,7 @@ namespace TastyScript.Lang
             new Token("Date",()=>{return DateTime.Now.ToShortDateString(); },"{0}", locked:true),
             new Token("Time",()=>{return DateTime.Now.ToShortTimeString(); },"{0}", locked:true),
             new TArray("GetVersion", StrVersion(),"{0}", locked:true),
+            new TArray("ScreenSize", new string[] { Main.AndroidDriver.ScreenWidth, Main.AndroidDriver.ScreenHeight },"{0}",locked:true),
             new Token("null","null","{0}", locked:true)
             });
             StartParse();

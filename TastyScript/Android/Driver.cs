@@ -18,12 +18,19 @@ namespace TastyScript.Android
         private string _appPackage = "";
         public string AppPackage { get { return _appPackage; } }
         private CancellationTokenSource _cancelationToken;
+        //generic constant data about the device that may be called during script execution
+        public string ScreenWidth { get; private set; }
+        public string ScreenHeight { get; private set; }
+
+
         public Driver(string input)
         {
             if (input != "")
             {
-                try { 
-                Device = AdbClient.Instance.GetDevices().FirstOrDefault(f => f.Serial == input);
+                try
+                {
+                    Device = AdbClient.Instance.GetDevices().FirstOrDefault(f => f.Serial == input);
+                    FetchDeviceData();
                 }
                 catch
                 {
@@ -46,6 +53,7 @@ namespace TastyScript.Android
                 try
                 {
                     Device = AdbClient.Instance.GetDevices().FirstOrDefault();
+                    FetchDeviceData();
                 }
                 catch
                 {
@@ -80,6 +88,16 @@ namespace TastyScript.Android
                 _appPackage = echo;
                 Main.IO.Print($"App Package set to the currently opened app.", ConsoleColor.DarkGreen);
             }
+        }
+        /// <summary>
+        /// This method fetches static device information that might be needed at runtime like screen size
+        /// </summary>
+        private void FetchDeviceData()
+        {
+            var width = SendShellCommand("dumpsys display | grep -E 'mDisplayWidth'");
+            ScreenWidth = width.Split('=').ElementAtOrDefault(1);
+            var height = SendShellCommand("dumpsys display | grep -E 'mDisplayHeight'");
+            ScreenHeight = height.Split('=').ElementAtOrDefault(1);
         }
         //all compile time shell commands(tap/getscreenshot/etc) check for app package before continuing
         private void CheckAppPackage()
