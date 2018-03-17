@@ -8,52 +8,24 @@
 * [Order of Operations](#order-of-operations)
  
 # Introduction
-Welcome to **1.3.0**!
+Welcome to **1.3.1**!
 
-TastyScript is a very simple command based language. Every script comprises of *Functions* which execute in their own scope on command. Functions can be extended with *Extensions* for even more customization. **Every main script(not imported) must override the Start() function! And can only have one Start() function** Like this:
+TastyScript is a simple procedural programming language which uses top level *functions* to execute lower level *commands*. Functions can call other functions, and you can *override* functions to build on top of their functionality with a modular approach.
 
-```
-#comments are prepended with the hash symbol!
-#this is your entry point into the script
-override.Start(){
-   PrintLine("Script is starting....");
-   TestFunction();
-}
-function.TestFunction(){
-   PrintLine("Hello, World!");
-}
-```
-
-The example above can be run and would print:
-
-`Script is starting....`
-
-`Hello, World!`
-
-And then complete.
-
-A list of all the functions available to you can be found [Here](/Wiki/Functions.md).
-
-Custom *Functions* can also have parameters to make reusing code much easier!
+Every script must have exactly one `Start()` function which is the entry point into your script.
 
 ```
-override.Start(){
-   Select(12,24);
-}
-function.Select(x,y){
-   Touch(x,y,3000);
-   Touch(223,654,3000);
+function.Start(){
+	PrintLine("Hello, World!");
 }
 ```
-
-As you see in the above example, the custom function required an *x* and a *y* parameter, which it then used in the *Touch()* function.
 
 # Extensions
 
-Extensions are a very basic way to add optional functionality to some predefined *Functions* You can find the list of Extensions [Here](/Wiki/Extensions.md). Extensions are prepended with a period\(.\) and, like *Functions*, always require arguments.
+Extensions are a very basic way to add optional functionality to some [Predefined Functions](/Functions.md) You can find the list of Extensions [Here](/Extensions.md). Extensions are prepended with a period\(.\) and, like *Functions*, always require arguments.
 
 ```
-override.Start(){
+function.Start(){
    PrintLine("Hello, World").Color("Red");
 }
 ```
@@ -87,13 +59,21 @@ You can override pre-defined functions with the `override` tag. Overriding is us
 override.Start(){
    PrintLine("Hello, World!");
 }
-override.PrintLine(args[]){
+override.PrintLine(args){
    Print(DateTime).Concat(": ");
-   Base(args[]);
+   Base(args);
 }
 ```
 
-The example above would print `2/20/18 4:46:44: Hello, World!`. **Note:** the override parameters must be `args[]` because the compiler evaluates the arguments differently. Currently you can not change the number of parameters needed in a pre-defined function via overrides.
+The example above would print `2/20/18 4:46:44: Hello, World!`. Another example:
+
+```
+override.Touch(x,y){
+	var out = "X:" + x + " Y:" + y;
+	PrintLine(out);
+	Base(x,y);
+}
+```
 
 # Looping
 
@@ -114,8 +94,9 @@ the `Loop()` function requires a `string`, which is the name of the function to 
 ```
 #example1
 override.Start(){
-   Loop("LoopExample").For(1000);
-   ForExample().For(0);
+   Loop("LoopExample").For(1000);#loops 1000 times
+   ForExample().For(0);#infinite loop
+   Loop("LoopExample");#infinite loop
 }
 function.LoopExample(i){
    PrintLine("I'm looping!").Concat(i).Concat(" Times");
@@ -131,6 +112,8 @@ override.Start(){
     }).For(1000);
 }
 ```
+
+With v1.3.0 you can now use `Break()` and `Continue()` inside of loops, to skip iterations or break from the loop completely.
 
 # Variables
 ***NEW:*** Variables are now much more flexible in 1.2.2+! You can now assign both local *and* global variables, as well as reassignment in both scopes. 
@@ -166,28 +149,19 @@ Both assignment and reassignment of variables must be prepended with the `var` o
 Variables can be called by just their name. `PrintLine(GlobalVariable)` would print `I am a global variable!`.
 
 # Order of Operations
-The Order of Operations, or what I like to call the OoO, works in a predictable and sensible way. The compiler parses scripts with a multi-pass system so functions *don't* have to be created before they're called or vise versa. The position of a function in a script *does* make a difference though, but only when there are multiple functions with the same name.
+The Order of Operations, or what I like to call the OoO, works in a predictable and sensible way. The compiler first gets all the functions from your script and assigns them for later reference. Then it proceeds with the `Awake()` and then the `Start()` function, going line by line evaluating your commands. 
 
-***Note:*** this is slightly outdated, I will update the order of operations when I get the chance!
+The order a line of code is parsed to find the correct token:
 
-* The main script is parsed from top to bottom
-   1) All Functions are put into the stack
-   2) All Overrides are put into the stack
-   3) All imports are parsed from top to bottom, following the above two points
-   4) All the pre-defined functions are put into the stack
-   1) The Awake function(s) are executed in the order of first in the stack
-   2) The Start override is executed
-* When a function is called from the stack it is parsed from top to bottom, on a line by line basis.
-   1) All strings are found and a token is created
-   2) All numbers are found and a token is created
-   3) All Mathematical Expressions are determined
-   3) All parameters are found and a token is created
-   4) All variables are assigned and a token is created
-   5) All functions are found and a token is created. The parameters are added to the function token.
-   6) All extensions are found and a token is created. The parameters are added to the extension token, and then the extension is added to the function token it is attached to.
+1) Mathematical expressions\*
+1) Arrays\*\*
+2) Parameters\*\*
+4) Followed by strings then numbers
+5) Extensions and last, functions.
 
-Because of the way that the parser finds things, Syntax errors are generally found either immediately, or once the function has started. Compiler errors generally aren't found until they're trying to be called.
-   
+*\* Mathematical Expressions search for any variables before evaluating the expression*
+
+*\*\*Arrays and Parameters parse somewhat recursively, allowing you to put functions and extensions directly in parameters instead of assigning variables for each one*
 
 Here are some examples: 
 
