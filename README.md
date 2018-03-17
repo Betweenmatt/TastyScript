@@ -1,6 +1,6 @@
 # TastyScript
 [![version](https://img.shields.io/badge/Version-1.3.1-brightgreen.svg)](https://github.com/TastyGod/TastyScript/releases)
-[![donate](https://img.shields.io/badge/Donate-PayPal-ff69b4.svg)](paypal.me/MatthewAndrews88/5)
+[![donate](https://img.shields.io/badge/Donate-PayPal-ff69b4.svg)](https://paypal.me/MatthewAndrews88/5)
 
 TastyScript is an open source procedural programming language designed to automate Android devices via location based touch events. The main purpose was to achieve support for game automation on native Android devices with a lightweight and robust system.
 
