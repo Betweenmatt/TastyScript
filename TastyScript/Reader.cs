@@ -5,40 +5,9 @@ using TastyScript;
 namespace TastyScript
 {
     /// <summary>
-    /// This is a wrapper for Console.Write/ReadLine. I changed all input to this
-    /// in case i wanted to use a different output than console.writeline later on down the road
+    /// Workaround for making Console.ReadLine cancelable
     /// </summary>
-    internal class IO
-    {
-        internal class Output
-        {
-            public static void Print(object o, bool line = true)
-            {
-                if (line)
-                    Console.WriteLine(o);
-                else
-                    Console.Write(o);
-            }
-            public static void Print(object o, ConsoleColor color, bool line = true)
-            {
-                Console.ForegroundColor = color;
-                if (line)
-                    Console.WriteLine(o);
-                else
-                    Console.Write(o);
-                Console.ResetColor();
-            }
-        }
-        internal class Input
-        {
-            public static string ReadLine()
-            {
-                return Console.ReadLine();
-            }
-        }
-    }
-
-    internal class Reader
+    public class Reader
     {
         private static Thread inputThread;
         private static AutoResetEvent getInput;

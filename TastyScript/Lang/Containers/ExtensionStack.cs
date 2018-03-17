@@ -8,6 +8,7 @@ using TastyScript.Lang.Extensions;
 
 namespace TastyScript.Lang
 {
+    [Serializable]
     internal class ExtensionStack : StaticList<EDefinition>
     {
         public static List<EDefinition> List { get { return _tlist; } }

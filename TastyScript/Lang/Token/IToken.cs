@@ -70,6 +70,7 @@ namespace TastyScript.Lang.Tokens
             return Value;
         }
     }
+    [Serializable]
     internal class TArray : Token
     {
         public string[] Arguments { get; private set; }
@@ -155,7 +156,7 @@ namespace TastyScript.Lang.Tokens
             return splode;
         }
     }
-
+    [Serializable]
     internal class TFunction : Token
     {
         public IBaseFunction Function { get; private set; }

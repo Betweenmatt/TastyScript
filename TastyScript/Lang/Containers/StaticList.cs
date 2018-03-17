@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace TastyScript.Lang.Containers
 {
+    [Serializable]
     internal abstract class StaticList<T>
     {
         protected static List<T> _tlist = new List<T>();

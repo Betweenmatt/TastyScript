@@ -1,5 +1,12 @@
 ﻿# ChangeLog
 
+## v1.3.1
+
+* Fixed the issue where `Base()` wasn't working in double nested functions.
+* Fixed the issue where `Return()` wasn't working in nested functions.
+* Added Notepad++ plugin support. Check [here](../TastyScriptNPP/README.md) for information about the plugin.
+* Fixed some misc things that werent working quite the way they were supposed to be.
+
 ## ~~v1.2.3~~ v1.3.0
 
 * Added support for overriding custom functions. Calling `Base()` will work the same way as with pre-defined functions, and `Base()` will return what the base function returns.

@@ -44,7 +44,7 @@ namespace TastyScript.Lang.Functions
                         if (nofail)
                             color = newcol;
                     }
-                    IO.Output.Print(elapsedMs, color, false);
+                    Main.IO.Print(elapsedMs, color, false);
                 }
             }
             if (tryStop != null)

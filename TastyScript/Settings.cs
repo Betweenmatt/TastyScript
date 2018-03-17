@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TastyScript
 {
-    internal class Settings
+    public class Settings
     {
         private static string quickDir;
         public static string QuickDirectory { get { return quickDir; } }

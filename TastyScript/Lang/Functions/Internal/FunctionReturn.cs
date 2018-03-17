@@ -14,12 +14,10 @@ namespace TastyScript.Lang.Functions
             var argsList = ProvidedArgs.First("value");
             if (argsList == null)
             {
-                Caller.CallingFunction.ReturnBubble = new Tokens.Token("null", "null", "");
-                Caller.CallingFunction.ReturnFlag = true;
+                Caller.CallingFunction.ReturnToTopOfBubble(new Tokens.Token("null", "null", ""));
                 return "";
             }
-            Caller.CallingFunction.ReturnBubble = argsList;
-            Caller.CallingFunction.ReturnFlag = true;
+            Caller.CallingFunction.ReturnToTopOfBubble(argsList);
             return "";
         }
     }

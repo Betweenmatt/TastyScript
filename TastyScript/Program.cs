@@ -1,4 +1,5 @@
-﻿using System;
+﻿/*
+using System;
 using System.Threading;
 using System.Drawing.Imaging;
 using System.Reflection;
@@ -21,10 +22,10 @@ namespace TastyScript
         private static CancellationTokenSource _cancelSource;
         private static string _consoleCommand = "";
 
-        static void Main(string[] args) 
+        static void Main(string[] args)
         {
             Settings.LoadSettings();
-            if(Settings.RemoteToggle)
+            if (Settings.RemoteToggle)
                 StartRemote();
             Console.Title = Title;
             //on load set predefined functions and extensions to mitigate load from reflection
@@ -56,8 +57,8 @@ namespace TastyScript
                     r = Reader.ReadLine(_cancelSource.Token);
                 }
                 catch (OperationCanceledException e)
-                {}
-                catch(Exception e)
+                { }
+                catch (Exception e)
                 {
                     ExceptionListener.LogThrow("Unexpected error", e);
                 }
@@ -165,7 +166,7 @@ namespace TastyScript
             if (r != "")
             {
                 Settings.SetQuickDirectory(r);
-                
+
             }
             IO.Output.Print("Directory: " + Settings.QuickDirectory);
         }
@@ -223,7 +224,7 @@ namespace TastyScript
             {
                 var set = (r == "True" || r == "true") ? true : false;
                 //check if remote was off before starting again
-                if(!Settings.RemoteToggle && set)
+                if (!Settings.RemoteToggle && set)
                 {
                     StartRemote();
                 }
@@ -231,7 +232,7 @@ namespace TastyScript
             }
             IO.Output.Print("Remote Active: " + Settings.RemoteToggle);
         }
-        
+
         private static void CommandRun(string r)
         {
             try
@@ -243,7 +244,7 @@ namespace TastyScript
                 Thread esc = new Thread(ListenForEscape);
                 esc.Start();
                 StartScript(path, file);
-                
+
             }
             catch (Exception e)
             {
@@ -297,7 +298,7 @@ namespace TastyScript
             }
             if (!TokenParser.Stop)
             {
-                SendStopScript();   
+                SendStopScript();
             }
         }
         //stops the script, announces the halting and executes Halt() function if it exist
@@ -331,21 +332,21 @@ namespace TastyScript
         private static bool StartScript(string path, string file)
         {
             Compiler c = new Compiler(path, file, predefinedFunctions);
-            if(!TokenParser.Stop)
+            if (!TokenParser.Stop)
                 SendStopScript();
             Thread.Sleep(2000);//sleep for 2 seconds after finishing the script
             return true;
         }
 
-        
+
         private static string WelcomeMessage()
         {
             return $"Welcome to {Title}!\nCredits:\n@TastyGod - https://github.com/TastyGod " +
-                $"\nAforge - www.aforge.net\nSharpADB - https://github.com/quamotion/madb" + 
+                $"\nAforge - www.aforge.net\nSharpADB - https://github.com/quamotion/madb" +
                 $"\nLog4Net - https://logging.apache.org/log4net \n\n" +
                 $"Enter -h for a list of commands!\n";
         }
-        
+
         public static void TcpListen()
         {
             const string Url = "http://localhost:8080/";
@@ -378,8 +379,9 @@ namespace TastyScript
                     }
                 }
                 return next();
-                
+
             });
         }
     }
 }
+*/

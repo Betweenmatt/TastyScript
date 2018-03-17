@@ -21,7 +21,18 @@ namespace TastyScript.Lang.Functions
                 return null;
             }
             var ss = Commands.GetScreenshot();
-            ss.Save(path.ToString(), ImageFormat.Png);
+            try
+            {
+                ss.Save(path.ToString(), ImageFormat.Png);
+            }
+            catch
+            {
+                Compiler.ExceptionListener.ThrowSilent(new ExceptionHandler(ExceptionType.CompilerException,
+                    $"Unexpected error saving screenshot to path {path.ToString()}", ""));
+                ReturnBubble = new Token("bool", "False", "");
+                return "";
+            }
+            ReturnBubble = new Token("bool", "True","");
             return "";
         }
     }

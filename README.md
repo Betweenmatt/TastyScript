@@ -1,63 +1,92 @@
-# Welcome!
+# TastyScript
+[![version](https://img.shields.io/badge/Version-1.3.1-brightgreen.svg)](https://github.com/TastyGod/TastyScript/releases)
+[![donate](https://img.shields.io/badge/Donate-PayPal-ff69b4.svg)](https://paypal.me/MatthewAndrews88/5)
 
-TastyScript is a very basic language I originally created for rapid prototyping automated gaming on my Android phone, since my computer cannot run Nox. This version of TastyScript connects to your phone via ADB, and allows you to communicate touch locations, ([most](/Wiki/Functions.md#keyevent))hard buttons, and take screenshots and more! There are many more features I'd like to add so I make updates frequently!
+TastyScript is an open source procedural programming language designed to automate Android devices via location based touch events. The main purpose was to achieve support for game automation on native Android devices with a lightweight and robust system.
 
-Check the documentation at the [Wiki](/Wiki) to learn about the core concepts of the language, as well as full documentation on functionality.   
+At the core, TastyScript sends simple commands to an ADB Shell (`input tap x y`), which are then sent to the device and executed. As of writing this(v1.3.1), TastyScript supports Touch, LongTouch, Swipe, SendText, KeyEvent, and a couple of screen shot features(CheckScreen and TakeScreenshot) which utilize the FrameBuffer to grab the screen directly from the device(without leaving screen shots on your device).
 
-If you have any questions or issues, you can DM me on discord `TastyGod#0859` or open a new issue!  
+## Getting Started
 
-# How to install
-* First, download the [latest release](https://github.com/TastyGod/TastyScript/releases) or compile from the source.
-* [Download the ADB server](https://developer.android.com/studio/releases/platform-tools.html)
-* Turn on USB debugging on your device. Go to `Settings->Developer Options` and you will find a toggle for `USB Debugging`. If you don't have Developer Options menu in your settings google your device model and "Developer Options" and you will find out how to enable it.
-* Connect your phone to your computer via usb cable, start the ADB server and connect your device. [Read this documentation to learn how to use ADB, or to learn how to connect to ADB via Wifi](https://developer.android.com/studio/command-line/adb.html)
-* Run the TastyScript.exe file you downloaded first
+These instructions will get you a copy of the project up and running on your local machine.
 
-**Note:** ADB must be started and your device connected for TastyScript to work! If you restart your computer, or close the ADB process you will need to start it again.
+### Prerequisites
 
-Now you're good to run any scripts you choose! Take a look at the [Examples](/Examples) folder or the [How To tutorial](https://github.com/TastyGod/TastyScript/blob/master/Wiki/Tutorial-how-to-create-a-functioning-script.md) for ideas/help etc on creating your own script. ~~Note: the touch locations in the examples will most likely fail on your phone! You need to use the pixel locations that work for your phone's aspect ratio/resolution~~ Note: I recently added a helper function in the [tools](/Examples/tools.ts) import script that converts my scripts to whatever resolution you are using! Check out the comment above the function to see how to use it!
+[The latest TastyScript release](https://github.com/TastyGod/TastyScript/releases)
 
-For a list of console commands check out the [Wiki](/Wiki/ConsoleCommands.md).
+[Android ADB](https://developer.android.com/studio/releases/platform-tools.html)
 
-[Connecting to Nox on ADB](https://stackoverflow.com/a/47151050/3496006)
+Windows 7+ with .Net 4.5 or above
 
-# Requirements
-Windows computer with .Net 4.5
+Android phone/tablet/emulator
 
-[Android ADB which can be found here](https://developer.android.com/studio/releases/platform-tools.html)
+[Notepad++](https://notepad-plus-plus.org/) If you wish to use the Notepad++ plugin and extensions(such as the syntax highlighter and Function ToolTips)
 
-Android phone/emulator
+### Installing
 
-[Notepad++](https://notepad-plus-plus.org/) if you want to use the [Notepad++ Extensions](https://github.com/TastyGod/TastyScript/tree/master/Notepad-%20Extensions)
+1) Unzip the Android ADB file you downloaded.
+2) Open up a Command Prompt in the directory you unzipped to and type in `adb devices` to make sure your device shows up.
+3) Unzip the TastyScript release you downloaded.
+4) Double click the `TastyScriptConsole.exe` and type in `devices` to make sure your device shows up.
 
-# Source code requirements
-[AForge Image Processing](https://github.com/andrewkirillov/AForge.NET)
+And thats all there is to installation! I suggest you make a folder inside the TastyScript release folder called `scripts` where you can keep all your script files. To run a script, type in the TastyScript console `run {scriptname.ts}`.
 
-[SharpADB by quomotion](https://github.com/quamotion/madb)
+To install the [Notepad++](https://notepad-plus-plus.org/) plugin, follow above 1-3,
 
-[Owin](http://owin.org/) - needed for remote, you can just comment out the relevant code in Program.cs if you dont want to use this package.
+4) Make sure your Notepad++ is up to date!
+5) Open the `plugins` folder inside the TastyScript release folder, and open either `x86` or `x64` depending on if your Notepad++ version is 32 bit or 64 bit.
+6) Copy the dll in the folder(called `TastyScriptNPP.dll`) and paste it in your Notepad++ plugins folder(most likely `C:/ProgramFiles/Notepad++/plugins`)
+7) Restart Notepad++ and you're good to go!
 
-[Log4Net](https://logging.apache.org/log4net/)
+***Note:*** The Notepad++ plugin is entirely self contained, so if you update your TastyScript version in the future, you will have to replace the dll in your Notepad++ plugins folder.
 
-These can be found as Nuget packages
+## Running a script
 
-# ToDo List
-*Support*
-- [ ] Commands sent to an app instead of relying on ADB(wishful thinking!)
-- [ ] IPhone Support(not looking so good ;( )
-- [ ] MacOS Support
+To get you started, here is a simple test script that ensures a device is connected, and executes an arbitrary touch. Comments are lines opened with a `#`.
 
-*Functionality*
-- [ ] Remote control
-- [x] Conditional evaluation
-- [x] Nested scopes
-- [x] Custom variable support
-- [x] Basic math evaluation
-- [ ] Better error handling (getting there!)
+```
+function.Start(){
+	# connects to the first device found.
+	ConnectDevice();
+	
+	PrintLine("Hello, World!");
+	
+	Touch(250,250);
+}
+```
 
-# Credits
-[AForge Image Processing](https://github.com/andrewkirillov/AForge.NET) for their amazing image processing framework!
+If you run this script, the first device found will be connected, the console will print `Hello, World!`, and then the location `250,250` will be touched on your phone.
 
-[SharpADB by quomotion](https://github.com/quamotion/madb) for this beautiful ADB wrapper! Saved me a *ton* of work!
+For a more detailed introduction into the TastyScript language, as well as full documentation on functions, visit the [Documentation](/Wiki).
 
-[Log4Net](https://logging.apache.org/log4net/)
+## Features
+Here is a list of features that TastyScript can handle
+
+* Simulate touch, swipe, keystrokes, and hard keys on an Android device/emulator
+* Take screenshots and run screen comparisons so that your script only performs an action on the correct screen.
+* Easy to master syntax, with detailed documentation and support.
+* Extremely lightweight program.
+* Modular capabilities with functions and overrides.
+* Standard programming functionality such as Loops, Conditional statements, variables and more!
+* Feature requests are happily accepted!
+
+## Built With
+
+* [AForge.net](https://github.com/andrewkirillov/AForge.NET) - The image manipulation framework used for analyzing screen shots with the `CheckScreen()` function.
+* [SharpAdb](https://github.com/quamotion/madb) - A simple C# ADB wrapper
+* [Log4Net](https://logging.apache.org/log4net/) - For detailed error logging
+* [Owin](http://owin.org/) - The TCP framework being used in remote access(not fully implemented yet, but still present)
+* [Notepad++PluginPack](https://github.com/kbilsted/NotepadPlusPlusPluginPack.Net) - The C# template used in making the Notepad++ plugin.
+
+## Authors
+
+* **Matthew Andrews**  - [TastyGod](https://github.com/TastyGod)
+
+## License
+
+This project is licensed under the GPL-3.0 License - see the [LICENSE.md](LICENSE.md) file for details
+
+## Contact
+
+You can always reach me on Discord `TastyGod#0859`.
+

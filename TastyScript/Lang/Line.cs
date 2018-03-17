@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TastyScript.Lang.Extensions;
 using TastyScript.Lang.Tokens;
+using Newtonsoft.Json;
 
 namespace TastyScript.Lang
 {
@@ -91,7 +92,7 @@ namespace TastyScript.Lang
                             output += "&amp;";
                             break;
                         case (','):
-                            output += "&comma;";
+                            output += "&coma;";
                             break;
                         default:
                             output += value[i];
@@ -110,6 +111,7 @@ namespace TastyScript.Lang
         }
         private void WalkTree(string value)
         {
+            value = RuntimeDebugger(value);
             //value = value.Replace("\r", "").Replace("\n", "").Replace("\t", "");
             value = value.ReplaceFirst("var ", "var%");
             value = ReplaceAllNotInStringWhiteSpace(value);
@@ -309,7 +311,7 @@ namespace TastyScript.Lang
                     if (original == null)
                         Compiler.ExceptionListener.Throw($"[310]Cannot find extension [{secondSplit[0]}]");
                     //Console.WriteLine(secondSplit[0] + " " + secondSplit[1]);
-                    var clone = DeepCopy<EDefinition>(original);
+                    var clone = DeepCopy(original);
                     var param = GetTokens(new string[] { secondSplit[1].Replace("|", "") });
                     if (param.Count != 1)
                         Compiler.ExceptionListener.Throw("[166]Extensions must provide arguments", ExceptionType.SyntaxException);
@@ -371,7 +373,7 @@ namespace TastyScript.Lang
                         {
                             argsarr.Add(x.ToString());
                         }
-                        func.SetInvokeProperties(argsarr.ToArray(), _reference.LocalVariables.List);
+                        func.SetInvokeProperties(argsarr.ToArray(), _reference.LocalVariables.List, _reference.ProvidedArgs.List);
                     }
                 }
             }
@@ -568,8 +570,22 @@ namespace TastyScript.Lang
             Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException, $"Can not compare more or less than 2 values", line));
         }
         #endregion
+        /*
+        public static EDefinition DeepCopy(EDefinition obj)
+        {
+            return JsonConvert.DeserializeObject<EDefinition>(JsonConvert.SerializeObject(obj));
+        }
+        
+        public static IBaseFunction DeepCopy(IBaseFunction obj)
+        {
+            return Object.MemberWiseClone();
+        }
+        */
+
         public static T DeepCopy<T>(T obj)
         {
+            return obj.Copy<T>();
+            /*
             if (!typeof(T).IsSerializable)
             {
                 throw new Exception("The source object must be serializable");
@@ -589,6 +605,7 @@ namespace TastyScript.Lang
                 memoryStream.Close();
             }
             return result;
+            */
 
         }
 
@@ -798,6 +815,98 @@ namespace TastyScript.Lang
             z.TryParse(t);
             return z.ReturnBubble;
         }
+
+        private string RuntimeDebugger(string value)
+        {
+            var val = value;
+            if (val.Contains("!DEBUG"))
+            {
+                val = val.Replace("\t", "").Replace("\n", "").Replace("\r", "");
+                try
+                {
+                    if (val.Contains("!DEBUG_DUMP_LOCVARS"))
+                    {
+                        var localVars = JsonConvert.SerializeObject(_reference.LocalVariables, Formatting.Indented);
+                        Compiler.ExceptionListener.ThrowDebug($"{val}:\t{localVars}");
+                        return "";
+                    }
+                    else if (val.Contains("!DEBUG_DUMP_ANONVARS"))
+                    {
+                        var anonVars = JsonConvert.SerializeObject(TokenParser.AnonymousTokens, Formatting.Indented);
+                        Compiler.ExceptionListener.ThrowDebug($"{val}:\t{anonVars}");
+                        return "";
+                    }
+                    else if (val.Contains("!DEBUG_DUMP_GLOBVARS"))
+                    {
+                        var globalVars = JsonConvert.SerializeObject(TokenParser.GlobalVariables, Formatting.Indented);
+                        Compiler.ExceptionListener.ThrowDebug($"!{val}:\t{globalVars}");
+                        return "";
+                    }
+                    else if (val.Contains("!DEBUG_DUMP_PARAMVARS"))
+                    {
+                        var paramVars = JsonConvert.SerializeObject(_reference.ProvidedArgs, Formatting.Indented);
+                        Compiler.ExceptionListener.ThrowDebug($"!{val}:\t{paramVars}");
+                        return "";
+                    }
+                    else if (val.Contains("!DEBUG_DUMP_BASE"))
+                    {
+                        if (val.Contains("."))
+                        {
+                            try
+                            {
+                                var ext = val.Split('.')[1];
+                                var paramVars = JsonConvert.SerializeObject(GetPropValue(_reference.Base, ext), Formatting.Indented);
+                                Compiler.ExceptionListener.ThrowDebug($"!{val}:\t{paramVars}");
+                            }
+                            catch
+                            {
+                                Compiler.ExceptionListener.Throw($"Cannot find property {val}");
+                            }
+                            return "";
+                        }
+                        else
+                        {
+                            var paramVars = JsonConvert.SerializeObject(_reference.Base, Formatting.Indented);
+                            Compiler.ExceptionListener.ThrowDebug($"{val}:\t{paramVars}");
+                            return "";
+                        }
+                    }
+                    else if (val.Contains("!DEBUG_DUMP_FUNC"))
+                    {
+                        if (val.Contains("."))
+                        {
+                            try
+                            {
+                                var ext = val.Split('.')[1];
+                                var paramVars = JsonConvert.SerializeObject(GetPropValue(_reference, ext), Formatting.Indented);
+                                Compiler.ExceptionListener.ThrowDebug($"!{val}:\t{paramVars}");
+                            }
+                            catch
+                            {
+                                Compiler.ExceptionListener.Throw($"Cannot find property {val}");
+                            }
+                            return "";
+                        }
+                        else
+                        {
+                            var paramVars = JsonConvert.SerializeObject(_reference, Formatting.Indented);
+                            Compiler.ExceptionListener.ThrowDebug($"{val}:\t{paramVars}");
+                            return "";
+                        }
+                    }
+                }catch
+                {
+                    Compiler.ExceptionListener.Throw($"You broke the debugger! Function [{val}]");
+                    return "";
+                }
+                return "";
+            }
+            return val;
+        }
+        private static object GetPropValue(object src, string propName)
+        {
+            return src.GetType().GetProperty(propName).GetValue(src, null);
+        }
     }
     public static class StringExtensionMethods
     {
@@ -812,7 +921,8 @@ namespace TastyScript.Lang
         }
         public static string CleanString(this string input)
         {
-            return input.Replace("&comma;", ",")
+            return input
+                .Replace("&coma;", ",")
                 .Replace("&plus;", "+")
                 .Replace("&neg;", "-")
                 .Replace("&eq;", "=")

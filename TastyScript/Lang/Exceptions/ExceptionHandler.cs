@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TastyScript.Lang
 {
-    internal enum ExceptionType
+    public enum ExceptionType
     {
         DriverException,
         SystemException,
@@ -14,7 +14,7 @@ namespace TastyScript.Lang
         CompilerException,
         NullReferenceException
     }
-    internal class ExceptionHandler
+    public class ExceptionHandler
     {
         private string _line = "0";
         public string Line { get { return _line; } }
