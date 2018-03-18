@@ -30,6 +30,10 @@ namespace TastyScript.Lang.Containers
         {
             _tlist.RemoveAt(index);
         }
+        public static bool Contains(T item)
+        {
+            return _tlist.Contains(item);
+        }
         public static void Remove(T item)
         {
             _tlist.Remove(item);

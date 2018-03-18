@@ -11,6 +11,7 @@ namespace TastyScript.Lang
 {
     internal interface IBaseFunction : IBaseToken
     {
+        int UID { get; }
         TokenStack ProvidedArgs { get; }
         string[] ExpectedArgs { get; }
         IBaseFunction Base { get; }
@@ -50,6 +51,8 @@ namespace TastyScript.Lang
     }
     internal class AnonymousFunction : IFunction
     {
+        public int UID { get; protected set; }
+        private static int _uidIndex = -1;
         public string Name { get; protected set; }
         public string Value { get; private set; }
         public string[] ExpectedArgs { get; protected set; }
@@ -77,7 +80,19 @@ namespace TastyScript.Lang
         public List<Line> Lines { get; set; }
         public string LineValue { get; protected set; }
         public bool Obsolete { get; private set; }
-        public IBaseFunction Base { get; protected set; }
+        private IBaseFunction _base;
+        public IBaseFunction Base {
+            get
+            {
+                if (IsAnonymous)
+                    return Caller.CallingFunction.Base;
+                return _base;
+            }
+            protected set
+            {
+                _base = value;
+            }
+        }
         public string[] Alias { get; protected set; }
         public bool BlindExecute { get; set; }
         protected string[] invokeProperties;
@@ -153,13 +168,20 @@ namespace TastyScript.Lang
                 if (IsAnonymous)
                     Caller.CallingFunction.ReturnToTopOfBubble(value);
         }
-        public AnonymousFunction() { }
-        //standard constructor
-        public AnonymousFunction(string value)
+        private int GetUID()
+        {
+            _uidIndex++;
+            return _uidIndex;
+        }
+        public AnonymousFunction()
         {
             ProvidedArgs = new TokenStack();
             LocalVariables = new TokenStack();
-            
+            UID = GetUID();
+        }
+        //standard constructor
+        public AnonymousFunction(string value) : this()
+        {
             Name = value.Split('.')[1].Split('(')[0];
             var b = Compiler.PredefinedList.FirstOrDefault(f => f.Name == Name);
             if (b != null)
@@ -173,7 +195,7 @@ namespace TastyScript.Lang
             var anonRegexMatches = anonRegex.Matches(value);
             foreach (var a in anonRegexMatches)
             {
-                var func = new AnonymousFunction(a.ToString(), true, Base);
+                var func = new AnonymousFunction(a.ToString(), true, _base);
                 func.Base = Base;
                 FunctionStack.Add(func);
                 value = value.Replace(a.ToString(), $"\"{func.Name}\"");
@@ -184,10 +206,8 @@ namespace TastyScript.Lang
             ParseDirectives(value);
         }
         //this constructor is when function is anonomysly named
-        public AnonymousFunction(string value, bool anon, IBaseFunction callerBase)
+        public AnonymousFunction(string value, bool anon, IBaseFunction callerBase) : this()
         {
-            ProvidedArgs = new TokenStack();
-            LocalVariables = new TokenStack();
             Base = callerBase;
             IsAnonymous = true;
             //get top level anonymous functions before everything else
@@ -196,7 +216,7 @@ namespace TastyScript.Lang
             var anonRegexMatches = anonRegex.Matches(value);
             foreach (var a in anonRegexMatches)
             {
-                var func = new AnonymousFunction(a.ToString(), true, Base);
+                var func = new AnonymousFunction(a.ToString(), true, _base);
                 FunctionStack.Add(func);
                 value = value.Replace(a.ToString(), $"\"{func.Name}\"");
             }
@@ -207,10 +227,8 @@ namespace TastyScript.Lang
             //Name = value.Split('.')[1].Split('(')[0];
         }
         //this is the constructor used when function is an override
-        public AnonymousFunction(string value, List<IBaseFunction> predefined)
+        public AnonymousFunction(string value, List<IBaseFunction> predefined) : this()
         {
-            ProvidedArgs = new TokenStack();
-            LocalVariables = new TokenStack();
             Override = true;
             Name = value.Split('.')[1].Split('(')[0];
 
@@ -228,7 +246,7 @@ namespace TastyScript.Lang
             var anonRegexMatches = anonRegex.Matches(value);
             foreach (var a in anonRegexMatches)
             {
-                var func = new AnonymousFunction(a.ToString(), true,Base);
+                var func = new AnonymousFunction(a.ToString(), true, _base);
                 FunctionStack.Add(func);
                 value = value.Replace(a.ToString(), $"\"{func.Name}\"");
             }

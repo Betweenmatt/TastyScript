@@ -113,6 +113,7 @@
     <Compile Include="Android\AndroidKeyCode.cs" />
     <Compile Include="Android\Driver.cs" />
     <Compile Include="IIOStream.cs" />
+    <Compile Include="Lang\Functions\FunctionScreenSize.cs" />
     <Compile Include="Reader.cs" />
     <Compile Include="Lang\Attributes.cs" />
     <Compile Include="Lang\Commands.cs" />

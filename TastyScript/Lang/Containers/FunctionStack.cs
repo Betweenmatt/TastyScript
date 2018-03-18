@@ -19,6 +19,10 @@ namespace TastyScript.Lang
             else
                 return _tlist.FirstOrDefault(f => f.Name == name || (f.Alias != null && f.Alias.Contains(name)));
         }
+        public static IBaseFunction First(int uid)
+        {
+            return _tlist.FirstOrDefault(f => f.UID == uid);
+        }
         public static IEnumerable<IBaseFunction> Where(string name, bool useAlias = true)
         {
             if (!useAlias)
@@ -39,6 +43,10 @@ namespace TastyScript.Lang
                 return _tlist.LastOrDefault(f => f.Name == name);
             else
                 return _tlist.LastOrDefault(f => f.Name == name || (f.Alias != null && f.Alias.Contains(name)));
+        }
+        public static IBaseFunction Last(int uid)
+        {
+            return _tlist.LastOrDefault(l => l.UID == uid);
         }
         
     }
