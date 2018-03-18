@@ -15,6 +15,8 @@ namespace TastyScript.Lang.Functions
     {
         public override string CallBase()
         {
+            if (Main.AndroidDriver == null)
+                Compiler.ExceptionListener.Throw("Cannot check screen without a connected device");
             var succFunc = ProvidedArgs.First("succFunc");
             var failFunc = ProvidedArgs.First("failFunc");
             var succPath = ProvidedArgs.First("succPath");

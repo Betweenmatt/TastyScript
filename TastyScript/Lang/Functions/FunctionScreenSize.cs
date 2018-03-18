@@ -12,6 +12,8 @@ namespace TastyScript.Lang.Functions
     {
         public override string CallBase()
         {
+            if (Main.AndroidDriver == null)
+                Compiler.ExceptionListener.Throw("Cannot get screen size without a connected device");
             ReturnBubble = new TArray("ScreenSize", new string[] { Main.AndroidDriver.ScreenWidth, Main.AndroidDriver.ScreenHeight }, "{0}");
             return "";
         }
