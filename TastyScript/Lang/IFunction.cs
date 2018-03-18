@@ -391,7 +391,6 @@ namespace TastyScript.Lang
                     if (tracer.Continue)
                     {
                         tracer.SetContinue(false);//reset continue
-                        continue;
                     }
                     TryParse(caller, true);
                 }

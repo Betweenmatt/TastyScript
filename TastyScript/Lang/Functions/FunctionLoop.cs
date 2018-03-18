@@ -44,7 +44,6 @@ namespace TastyScript.Lang.Functions
                         if (tracer.Continue)
                         {
                             tracer.SetContinue(false);//reset continue
-                            continue;
                         }
                         var passed = this.GetInvokeProperties();
                         if (passed != null)
@@ -92,7 +91,6 @@ namespace TastyScript.Lang.Functions
                         if (tracer.Continue)
                         {
                             tracer.SetContinue(false);//reset continue
-                            continue;
                         }
                         var passed = this.GetInvokeProperties();
                         if (passed != null)
