@@ -393,7 +393,6 @@ namespace TastyScript.Lang
                         tracer.SetContinue(false);//reset continue
                         continue;
                     }
-
                     TryParse(caller, true);
                 }
                 else
