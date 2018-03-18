@@ -478,7 +478,61 @@ namespace TastyScript.Lang
             return 0;
         }
         #region Comparison
-        enum Operator { EQ, NOTEQ, GT, LT, GTEQ, LTEQ }
+        enum Operator { EQ, NOTEQ, GT, LT, GTEQ, LTEQ, NOT, NULL, NOTNULL }
+        private string SingleSideComparisonCheck(string line)
+        {
+            string output = "";
+            if (line.Contains("!?"))
+                output = FindSingleSideComparisonOperation(Operator.NOTNULL, line);
+            else if (line.Contains("!"))
+                output = FindSingleSideComparisonOperation(Operator.NOT, line);
+            else if (line.Contains("?"))
+                output = FindSingleSideComparisonOperation(Operator.NULL, line);
+            return output;
+        }
+        private string FindSingleSideComparisonOperation(Operator op, string line)
+        {
+            string output = "";
+            string opString = "";
+            switch (op)
+            {
+                case (Operator.NOTNULL):
+                    opString = "!?";
+                    break;
+                case (Operator.NOT):
+                    opString = "!";
+                    break;
+                case (Operator.NULL):
+                    opString = "?";
+                    break;
+            }
+            var splitop = line.Split(new string[] { opString }, StringSplitOptions.None);
+            var lr = GetTokens(new string[] { splitop[1] }, true, true);
+            if (lr.Count != 1)
+                Compiler.ExceptionListener.Throw("One side operators can only have 1 token.",
+                    ExceptionType.SyntaxException);
+            var token = lr[0].ToString().Replace("\"", "");
+            try
+            {
+                switch (op)
+                {
+                    case (Operator.NOTNULL):
+                        output = (token != null && token.ToString() != "" && token.ToString() != "null") 
+                            ? "True" : "False";
+                        break;
+                    case (Operator.NULL):
+                        output = (token == null || token.ToString() == "" || token.ToString() == "null")
+                            ? "True" : "False";
+                        break;
+                    case (Operator.NOT):
+                        output = (token != null && (token.ToString() == "false" || token.ToString() == "False"))
+                            ? "True" : "False";
+                        break;
+                }
+            }
+            catch { Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException, $"Unexpected input: {line}")); }
+            return output;
+        }
         private string ComparisonCheck(string line)
         {
             string output = "";
@@ -494,6 +548,8 @@ namespace TastyScript.Lang
                 output = FindOperation(Operator.GT, line);
             else if (line.Contains("<"))
                 output = FindOperation(Operator.LT, line);
+            else
+                output = SingleSideComparisonCheck(line);
             return output;
         }
         //the heavy lifting for comparison check
@@ -527,37 +583,39 @@ namespace TastyScript.Lang
             if (lr.Count != 2)
                 Compiler.ExceptionListener.Throw("There must be one left-hand and one right-hand in comparison objects.",
                     ExceptionType.SyntaxException);
+            var left = lr[0].ToString().Replace("\"", "");
+            var right = lr[1].ToString().Replace("\"", "");
             try
             {
                 switch (op)
                 {
                     case (Operator.EQ):
-                        output = (lr[0].ToString() == lr[1].ToString())
+                        output = (left == right)
                             ? "True" : "False";
                         break;
                     case (Operator.NOTEQ):
-                        output = (lr[0].ToString() != lr[1].ToString())
+                        output = (left != right)
                             ? "True" : "False";
                         break;
                     case (Operator.GT):
-                        output = (double.Parse(lr[0].ToString()) > double.Parse(lr[1].ToString()))
+                        output = (double.Parse(left) > double.Parse(right))
                             ? "True" : "False";
                         break;
                     case (Operator.LT):
-                        output = (double.Parse(lr[0].ToString()) < double.Parse(lr[1].ToString()))
+                        output = (double.Parse(left) < double.Parse(right))
                             ? "True" : "False";
                         break;
                     case (Operator.GTEQ):
-                        output = (double.Parse(lr[0].ToString()) >= double.Parse(lr[1].ToString()))
+                        output = (double.Parse(left) >= double.Parse(right))
                             ? "True" : "False";
                         break;
                     case (Operator.LTEQ):
-                        output = (double.Parse(lr[0].ToString()) <= double.Parse(lr[1].ToString()))
+                        output = (double.Parse(left) <= double.Parse(right))
                             ? "True" : "False";
                         break;
                 }
             }
-            catch (Exception e)
+            catch
             {
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException, $"Unexpected input: {line}"));
             }
