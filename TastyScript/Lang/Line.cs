@@ -212,6 +212,7 @@ namespace TastyScript.Lang
                 var param = a.ToString().Substring(1, a.ToString().Length - 2);
                 if(param.Contains("(") && param.Contains(")"))
                 {
+                    param = ParseArrays(param);
                     param = ParseParameters(param);
                     param = param.Replace(".", "<-").Replace("\n", "").Replace("\r", "").Replace("\t", "");
                     param = EvaluateVarExtensions(param);
@@ -258,12 +259,29 @@ namespace TastyScript.Lang
             if (val.Contains("array("))
             {
                 //first we have to find all the arrays
-                var arrayRegex = new Regex(@"\barray\(([^()]*)\)", RegexOptions.Multiline);
+                var rstr = @"(?:(?:\barray\((?>[^()]+|\((?<number>)|\)(?<-number>))*(?(number)(?!))\))|{^()\))+";
+                //var arrayRegex = new Regex(@"\barray\(([^()]*)\)", RegexOptions.Multiline);
+                var arrayRegex = new Regex(rstr, RegexOptions.Multiline);
                 var arrayMatches = arrayRegex.Matches(val);
                 foreach (var a in arrayMatches)
                 {
+                    var param = a.ToString().Substring(6, a.ToString().Length - 7);
+                    if (param.Contains("(") && param.Contains(")"))
+                    {
+                        param = ParseArrays(param);
+                        param = ParseParameters(param);
+                        param = param.Replace(".", "<-").Replace("\n", "").Replace("\r", "").Replace("\t", "");
+                        param = EvaluateVarExtensions(param);
+
+                        var fext = ParseExtensions(param);
+                        var fcheckSplit = param.Split(new string[] { "->" }, StringSplitOptions.None);
+                        var fcheck = FunctionStack.First(fcheckSplit[0]);
+                        if (fcheck != null)
+                            param = ParseFunctions(param, fext);
+
+                    }
                     string tokenname = "{AnonGeneratedToken" + TokenParser.AnonymousTokensIndex + "}";
-                    var param = a.ToString().Replace("array(", "").Replace(")", "");
+                    //var param = a.ToString().Replace("array(", "").Replace(")", "");
                     var compCheck = ComparisonCheck(param);
                     if (compCheck != "")
                     {
@@ -410,11 +428,18 @@ namespace TastyScript.Lang
                     temp.Add(new Token(stripws, tryGlobal.ToString(), Value));
                     continue;
                 }
-                var tryAnon = TokenParser.AnonymousTokens.First(stripws);
-                if (tryAnon != null)
+                if (stripws.Contains("{AnonGeneratedToken"))
                 {
-                    temp.Add(new Token(stripws, tryAnon.ToString(), Value));
-                    continue;
+                    var tryAnon = TokenParser.AnonymousTokens.First(stripws);
+                    if (tryAnon != null)
+                    {
+                        temp.Add(new Token(stripws, tryAnon.ToString(), Value));
+                        continue;
+                    }
+                    else
+                    {
+                        Compiler.ExceptionListener.Throw("[441]Unexpected error finding token.",ExceptionType.SyntaxException);
+                    }
                 }
                 //try params?
                 var tryParams = _reference.ProvidedArgs.First(stripws);
