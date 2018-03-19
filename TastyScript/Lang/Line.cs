@@ -416,6 +416,12 @@ namespace TastyScript.Lang
             foreach (var n in names)
             {
                 var stripws = n.Replace(" ", "");
+                var tryParams = _reference.ProvidedArgs.First(stripws);
+                if (tryParams != null)
+                {
+                    temp.Add(new Token(stripws, tryParams.ToString(), Value));
+                    continue;
+                }
                 var tryLocal = _reference.LocalVariables.First(stripws);
                 if (tryLocal != null)
                 {
@@ -440,13 +446,6 @@ namespace TastyScript.Lang
                     {
                         Compiler.ExceptionListener.Throw("[441]Unexpected error finding token.",ExceptionType.SyntaxException);
                     }
-                }
-                //try params?
-                var tryParams = _reference.ProvidedArgs.First(stripws);
-                if(tryParams != null)
-                {
-                    temp.Add(new Token(stripws, tryParams.ToString(), Value));
-                    continue;
                 }
                 if (returnInput)
                 {

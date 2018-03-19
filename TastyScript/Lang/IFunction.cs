@@ -321,6 +321,8 @@ namespace TastyScript.Lang
             {
                 new Line(l, this);
             }
+            //clear local var stack after use
+            LocalVariables = new TokenStack();
         }
         //this overload is when the function is called with the for extension
         public virtual void TryParse(TFunction caller, bool forFlag)
@@ -355,6 +357,8 @@ namespace TastyScript.Lang
             var lines = guts[0].Split(';');
             foreach (var l in lines)
                 new Line(l, this);
+            //clear local var stack after use
+            LocalVariables = new TokenStack();
         }
         public virtual string Parse()
         {
@@ -375,9 +379,8 @@ namespace TastyScript.Lang
         {
             string[] forNumber = findFor.Extend();
             int forNumberAsNumber = int.Parse(forNumber[0]);
-            LoopTracer tracer = new LoopTracer();
+            var tracer = new LoopTracer();
             Compiler.LoopTracerStack.Add(tracer);
-            Tracer = tracer;
             if (forNumberAsNumber <= 0)
                 forNumberAsNumber = int.MaxValue;
             for (var x = 0; x < forNumberAsNumber; x++)
@@ -392,6 +395,7 @@ namespace TastyScript.Lang
                     {
                         tracer.SetContinue(false);//reset continue
                     }
+                    caller.SetTracer(tracer);
                     TryParse(caller, true);
                 }
                 else

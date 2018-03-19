@@ -12,7 +12,7 @@ namespace TastyScript.Lang.Functions
     {
         public override string CallBase()
         {
-            var tracer = Compiler.LoopTracerStack.LastOrDefault();
+            var tracer = Tracer;
             if (tracer != null)
                 tracer.SetContinue(true);
             else

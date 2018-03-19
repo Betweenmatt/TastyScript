@@ -171,7 +171,7 @@ namespace TastyScript.Lang.Tokens
         /// <param name="ext"></param>
         /// <param name="args"></param>
         /// <param name="callingFunction"></param>
-        public TFunction(IBaseFunction func, List<EDefinition> ext, string args, IBaseFunction callingFunction)
+        public TFunction(IBaseFunction func, List<EDefinition> ext, string args, IBaseFunction callingFunction, LoopTracer t = null)
         {
             Name = func.Name;
             Function = func;
@@ -179,7 +179,10 @@ namespace TastyScript.Lang.Tokens
             Extensions = ext;
             Arguments = ReturnArgsArray(args);
             CallingFunction = callingFunction;
-            Tracer = CallingFunction.Tracer;
+            if (t != null)
+                Tracer = t;
+            else
+                Tracer = callingFunction.Tracer;
         }/// <summary>
          /// callingFunction is the function that is calling(usually `this`), func is the function being called
          /// </summary>
@@ -187,7 +190,7 @@ namespace TastyScript.Lang.Tokens
          /// <param name="ext"></param>
          /// <param name="args"></param>
          /// <param name="callingFunction"></param>
-        public TFunction(IBaseFunction func, List<EDefinition> ext, string[] args, IBaseFunction callingFunction)
+        public TFunction(IBaseFunction func, List<EDefinition> ext, string[] args, IBaseFunction callingFunction, LoopTracer t = null)
         {
             Name = func.Name;
             Function = func;
@@ -195,7 +198,10 @@ namespace TastyScript.Lang.Tokens
             Extensions = ext;
             Arguments = args;
             CallingFunction = callingFunction;
-            Tracer = CallingFunction.Tracer;
+            if (t != null)
+                Tracer = t;
+            else
+                Tracer = callingFunction.Tracer;
         }
         public void SetTracer(LoopTracer t)
         {
