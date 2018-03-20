@@ -110,9 +110,12 @@
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Android\AnalyzeScreen.cs" />
+    <Compile Include="Android\AnalyzeScreenOLD.cs" />
     <Compile Include="Android\AndroidKeyCode.cs" />
     <Compile Include="Android\Driver.cs" />
     <Compile Include="IIOStream.cs" />
+    <Compile Include="Lang\Extensions\ExtensionProp.cs" />
+    <Compile Include="Lang\Extensions\ExtensionSave.cs" />
     <Compile Include="Lang\Functions\FunctionImageLocation.cs" />
     <Compile Include="Lang\Functions\FunctionScreenSize.cs" />
     <Compile Include="Reader.cs" />

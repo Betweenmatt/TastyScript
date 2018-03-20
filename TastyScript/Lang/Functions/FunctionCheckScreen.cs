@@ -35,18 +35,12 @@ namespace TastyScript.Lang.Functions
             sf.SetInvokeProperties(new string[] { }, Caller.CallingFunction.LocalVariables.List, Caller.CallingFunction.ProvidedArgs.List);
             ff.SetInvokeProperties(new string[] { }, Caller.CallingFunction.LocalVariables.List, Caller.CallingFunction.ProvidedArgs.List);
             //check for threshold extension
-            var threshExt = Extensions.FirstOrDefault(f => f.Name == "Threshold") as ExtensionThreshold;
-            int thresh = 90;
-            if (threshExt != null)
-            {
-                var param = threshExt.Extend();
-                var nofail = int.TryParse(param[0].ToString(), out thresh);
-            }
+            var prop = CheckProperty();
             if (failPath != null)
             {
                 try
                 {
-                    Commands.AnalyzeScreen(succPath.ToString(), failPath.ToString(), sf, ff, thresh, this.Caller);
+                    Commands.AnalyzeScreen(succPath.ToString(), failPath.ToString(), sf, ff, prop, this.Caller);
                 }
                 catch (Exception e)
                 {
@@ -62,7 +56,7 @@ namespace TastyScript.Lang.Functions
             {
                 try
                 {
-                    Commands.AnalyzeScreen(succPath.ToString(), sf, ff, thresh, this.Caller);
+                    Commands.AnalyzeScreen(succPath.ToString(), sf, ff, prop, this.Caller);
                 }
                 catch (Exception e)
                 {
@@ -76,6 +70,22 @@ namespace TastyScript.Lang.Functions
             }
 
             return "";
+        }
+        private string[] CheckProperty()
+        {
+            var prop = Extensions.FirstOrDefault(f => f.Name == "Prop") as ExtensionProp;
+            var save = Extensions.FirstOrDefault(f => f.Name == "Save") as ExtensionSave;
+            if (prop != null)
+            {
+                var props = prop.Extend().ToList();
+                if (save != null && save.Extend().ElementAtOrDefault(0) != null)
+                    props.Add(save.Extend().ElementAtOrDefault(0));
+                return props.ToArray();
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }

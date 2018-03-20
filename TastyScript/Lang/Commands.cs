@@ -53,13 +53,13 @@ namespace TastyScript.Lang
         {
             return Main.AndroidDriver.CheckFocusedApp();
         }
-        public static double[] GetImageCoordinates(string path, int thresh)
+        public static double[] GetImageCoordinates(string path, string[] prop)
         {
             AnalyzeScreen a = new AnalyzeScreen();
-            var ret = a.GetScreenCoords(path.CleanString(), thresh);
+            var ret = a.GetScreenCoords(path.CleanString(), prop);
             return ret;
         }
-        public static void AnalyzeScreen(string success, IBaseFunction successAction, IBaseFunction failureAction, int thresh, TFunction caller = null)
+        public static void AnalyzeScreen(string success, IBaseFunction successAction, IBaseFunction failureAction, string[] prop, TFunction caller = null)
         {
             var tfunc = new TFunction(caller.Function, new List<EDefinition>(), string.Join(",", caller.Function.GetInvokeProperties()), caller.CallingFunction);
             try
@@ -72,7 +72,7 @@ namespace TastyScript.Lang
                     ascreen.Analyze(success.CleanString(),
                         () => { finished = true; func = true; },
                         () => { finished = true; },
-                        thresh
+                        prop
                     );
                 });
                 th.Start();
@@ -105,7 +105,7 @@ namespace TastyScript.Lang
                 failureAction.TryParse(tfunc);
             }
         }
-        public static void AnalyzeScreen(string success, string failure, IBaseFunction successAction, IBaseFunction failureAction, int thresh, TFunction caller = null)
+        public static void AnalyzeScreen(string success, string failure, IBaseFunction successAction, IBaseFunction failureAction, string[] prop, TFunction caller = null)
         {
             var tfunc = new TFunction(caller.Function, new List<EDefinition>(), string.Join(",", caller.Function.GetInvokeProperties()), caller.CallingFunction);
             try
@@ -118,7 +118,7 @@ namespace TastyScript.Lang
                     ascreen.Analyze(success.CleanString(), failure.CleanString(),
                             () => { finished = true; func = true; },
                             () => { finished = true; },
-                            thresh
+                            prop
                         );
                 });
                 th.Start();

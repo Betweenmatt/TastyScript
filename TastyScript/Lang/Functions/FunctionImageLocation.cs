@@ -21,16 +21,10 @@ namespace TastyScript.Lang.Functions
             {
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.NullReferenceException, $"Invoke function cannot be null.", LineValue));
             }
-            var threshExt = Extensions.FirstOrDefault(f => f.Name == "Threshold") as ExtensionThreshold;
-            int thresh = 90;
-            if (threshExt != null)
-            {
-                var param = threshExt.Extend();
-                var nofail = int.TryParse(param[0].ToString(), out thresh);
-            }
+            var prop = CheckProperty();
             try
             {
-                var ret = Commands.GetImageCoordinates(path.ToString(), thresh);
+                var ret = Commands.GetImageCoordinates(path.ToString(), prop);
                 if (ret == null)
                 {
                     ReturnBubble = new Tokens.Token("null", "null", "");
@@ -47,9 +41,26 @@ namespace TastyScript.Lang.Functions
                     Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.DriverException,
                         $"File could not be found: {path.ToString()}"));
                 }
+                Console.WriteLine(e);
                 Compiler.ExceptionListener.Throw(new ExceptionHandler("[73]Unexpected error with CheckScreen()"));
             }
             return "";
+        }
+        private string[] CheckProperty()
+        {
+            var prop = Extensions.FirstOrDefault(f => f.Name == "Prop") as ExtensionProp;
+            var save = Extensions.FirstOrDefault(f => f.Name == "Save") as ExtensionSave;
+            if(prop != null)
+            {
+                var props = prop.Extend().ToList();
+                if (save != null && save.Extend().ElementAtOrDefault(0) != null)
+                    props.Add(save.Extend().ElementAtOrDefault(0));
+                return props.ToArray();
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }
