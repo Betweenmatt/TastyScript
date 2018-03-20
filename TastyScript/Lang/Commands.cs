@@ -53,6 +53,12 @@ namespace TastyScript.Lang
         {
             return Main.AndroidDriver.CheckFocusedApp();
         }
+        public static double[] GetImageCoordinates(string path, int thresh)
+        {
+            AnalyzeScreen a = new AnalyzeScreen();
+            var ret = a.GetScreenCoords(path.CleanString(), thresh);
+            return ret;
+        }
         public static void AnalyzeScreen(string success, IBaseFunction successAction, IBaseFunction failureAction, int thresh, TFunction caller = null)
         {
             var tfunc = new TFunction(caller.Function, new List<EDefinition>(), string.Join(",", caller.Function.GetInvokeProperties()), caller.CallingFunction);
