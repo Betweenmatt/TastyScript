@@ -80,12 +80,19 @@
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="ExceptionListener.cs" />
+    <Compile Include="Forms\FunctionTipsPanel.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FunctionTipsPanel.Designer.cs">
+      <DependentUpon>FunctionTipsPanel.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\SettingsPanel.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\SettingsPanel.Designer.cs">
       <DependentUpon>SettingsPanel.cs</DependentUpon>
     </Compile>
+    <Compile Include="FunctionTips\XmlFunctionTipsObject.cs" />
     <Compile Include="RTBToggleSelect.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -122,6 +129,9 @@
     <Compile Include="Settings.cs" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Forms\FunctionTipsPanel.resx">
+      <DependentUpon>FunctionTipsPanel.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\Output.resx">
       <DependentUpon>Output.cs</DependentUpon>
     </EmbeddedResource>
@@ -140,6 +150,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="ILMergeOrder.txt" />
+    <Content Include="TastyScriptFunctions.xml" />
     <None Include="README.md" />
     <None Include="Resources\icoRaw.png" />
     <None Include="Resources\console-24.png" />
@@ -156,7 +167,7 @@
   <Import Project="..\packages\MSBuild.ILMerge.Task.1.0.5\build\MSBuild.ILMerge.Task.targets" Condition="Exists('..\packages\MSBuild.ILMerge.Task.1.0.5\build\MSBuild.ILMerge.Task.targets')" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties BuildVersion_StartDate="2018/2/5" BuildVersion_IncrementBeforeBuild="True" BuildVersion_DetectChanges="True" BuildVersion_BuildVersioningStyle="None.None.None.DeltaBaseDateInDays" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_UpdateFileVersion="True" BuildVersion_AssemblyInfoFilename="..\GlobalAssemblyInfo.cs" BuildVersion_UseGlobalSettings="False" />
+      <UserProperties BuildVersion_UseGlobalSettings="False" BuildVersion_AssemblyInfoFilename="..\GlobalAssemblyInfo.cs" BuildVersion_UpdateFileVersion="True" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_BuildVersioningStyle="None.None.None.DeltaBaseDateInDays" BuildVersion_DetectChanges="True" BuildVersion_IncrementBeforeBuild="True" BuildVersion_StartDate="2018/2/5" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
