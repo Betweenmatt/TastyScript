@@ -61,6 +61,7 @@ namespace TastyScript.Lang.Tokens
         }
         public string[] ToArray()
         {
+            throw new NotImplementedException();
             var commaRegex = new Regex(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
             return commaRegex.Split(Value);
         }

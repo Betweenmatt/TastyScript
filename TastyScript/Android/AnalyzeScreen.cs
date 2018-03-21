@@ -196,7 +196,7 @@ namespace TastyScript.Android
             //Console.WriteLine(JsonConvert.SerializeObject(opt, Formatting.Indented));
             return TemplateMatch(opt);
         }
-        private TemplateMatchOptions GetOptionsFromStringArray(string[] prop, string template)
+        private static TemplateMatchOptions GetOptionsFromStringArray(string[] prop, string template)
         {
             var opt = new TemplateMatchOptions(template);
             if (prop == null)
@@ -248,17 +248,22 @@ namespace TastyScript.Android
                 opt.CustomWidth = widthint;
             return opt;
         }
+        public static string[] SetDefaultTemplateOptions(string[] prop)
+        {
+            var opt = GetOptionsFromStringArray(prop, "");
+            return TemplateMatchOptions.SetStaticOptions(opt);
+        }
     }
     internal class TemplateMatchOptions
     {
         //defaults
-        public static int DefaultThreshold = 90;
-        public static int DefaultReduction = 10;
-        public static Panel DefaultSplitScreenPanel = Panel.All;
-        public static int DefaultCustomX = 0;
-        public static int DefaultCustomY = 0;
-        public static int DefaultCustomWidth = 0;
-        public static int DefaultCustomHeight = 0;
+        private static int DefaultThreshold = 90;
+        private static int DefaultReduction = 20;
+        private static Panel DefaultSplitScreenPanel = Panel.All;
+        private static int DefaultCustomX = 0;
+        private static int DefaultCustomY = 0;
+        private static int DefaultCustomWidth = 0;
+        private static int DefaultCustomHeight = 0;
         //
         public Bitmap Template { get; }
         //percent of threshold ie a value of 90 = (90 / 100) = .9
@@ -282,7 +287,20 @@ namespace TastyScript.Android
             CustomWidth = DefaultCustomWidth;
             CustomHeight = DefaultCustomHeight;
             SavePath = "";
-            Template = Utilities.GetImageFromPath(template);
+            if(template != "")
+                Template = Utilities.GetImageFromPath(template);
+        }
+        public static string[] SetStaticOptions(TemplateMatchOptions opt)
+        {
+            DefaultThreshold = opt.Threshold;
+            DefaultReduction = opt.Reduction;
+            DefaultSplitScreenPanel = opt.SplitScreenPanel;
+            DefaultCustomX = opt.CustomX;
+            DefaultCustomY = opt.CustomY;
+            DefaultCustomWidth = opt.CustomWidth;
+            DefaultCustomHeight = opt.CustomHeight;
+            return new string[] { DefaultThreshold.ToString(), DefaultReduction.ToString(),DefaultSplitScreenPanel.ToString(),
+            DefaultCustomX.ToString(),DefaultCustomY.ToString(),DefaultCustomWidth.ToString(),DefaultCustomHeight.ToString()};
         }
     }
     enum Panel { All, Top, Left, Right, Bottom, Q1, Q2, Q3, Q4, Custom }
