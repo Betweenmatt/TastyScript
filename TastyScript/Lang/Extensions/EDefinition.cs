@@ -91,4 +91,14 @@ namespace TastyScript.Lang.Extensions
             return invokeProperties;
         }
     }
+    internal class CustomExtension : EDefinition
+    {
+        public IBaseFunction FunctionReference;
+        public override Token Extend(Token input)
+        {
+            Console.WriteLine("derp");
+            FunctionReference.TryParse(new TFunction(FunctionReference, null, new string[] { }, null));
+            return FunctionReference.ReturnBubble;
+        }
+    }
 }

@@ -255,6 +255,43 @@ namespace TastyScript.Lang
             ExpectedArgs = value.Split('(')[1].Split(')')[0].Split(',');
             ParseDirectives(value);
         }
+        //the construction for custom extensions
+        public AnonymousFunction(string value, CustomExtension parent) : this()
+        {
+            Name = value.Split('.')[1].Split('(')[0];
+            
+            //get top level anonymous functions before everything else
+            var anonRegex = new Regex(Compiler.ScopeRegex(@"=>"), RegexOptions.IgnorePatternWhitespace);
+            var anonRegexMatches = anonRegex.Matches(value);
+            foreach (var a in anonRegexMatches)
+            {
+                var func = new AnonymousFunction(a.ToString(), true, _base);
+                func.Base = Base;
+                FunctionStack.Add(func);
+                value = value.Replace(a.ToString(), $"\"{func.Name}\"");
+            }
+            //
+            Value = value;
+            ExpectedArgs = value.Split('(')[1].Split(')')[0].Split(',');
+            var type = ExpectedArgs.ElementAtOrDefault(0);
+            if (type != null && type == "this variable")
+            {
+                parent.SetProperties(Name, new string[] { }, false, false, true, new string[] { });
+            }
+            else if(type != null && type == "this function")
+            {
+                parent.SetProperties(Name, new string[] { }, false, false, false, new string[] { });
+            }
+            else
+            {
+                Compiler.ExceptionListener.Throw("[287]Custom extension must have input parameter of `this variable` or `this function`");
+            }
+            //replace this from the parameter, so it can be called by just `function` or `variable` at runtime
+            //the `this` is only there for definition, to direct the extension parser to look for this extension
+            //in the variable lot or not.
+            ExpectedArgs[0] = ExpectedArgs[0].Replace("this ", "");
+            ParseDirectives(value);
+        }
         private void ParseDirectives(string value)
         {
             if (value.Contains(".") && value.Contains("{"))

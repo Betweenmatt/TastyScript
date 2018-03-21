@@ -182,7 +182,10 @@ namespace TastyScript.Lang.Tokens
             if (t != null)
                 Tracer = t;
             else
+                if (callingFunction != null)
                 Tracer = callingFunction.Tracer;
+            else
+                Tracer = null;
         }/// <summary>
          /// callingFunction is the function that is calling(usually `this`), func is the function being called
          /// </summary>
@@ -201,7 +204,10 @@ namespace TastyScript.Lang.Tokens
             if (t != null)
                 Tracer = t;
             else
+                if (callingFunction != null)
                 Tracer = callingFunction.Tracer;
+            else
+                Tracer = null;
         }
         public void SetTracer(LoopTracer t)
         {

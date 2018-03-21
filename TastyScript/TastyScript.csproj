@@ -118,6 +118,7 @@
     <Compile Include="Lang\Extensions\ExtensionSave.cs" />
     <Compile Include="Lang\Functions\FunctionImageLocation.cs" />
     <Compile Include="Lang\Functions\FunctionScreenSize.cs" />
+    <Compile Include="Lang\Functions\Internal\FunctionThis.cs" />
     <Compile Include="Reader.cs" />
     <Compile Include="Lang\Attributes.cs" />
     <Compile Include="Lang\Commands.cs" />
