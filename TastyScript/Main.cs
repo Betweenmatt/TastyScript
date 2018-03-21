@@ -26,7 +26,6 @@ namespace TastyScript
             //on load set predefined functions and extensions to mitigate load from reflection
             predefinedFunctions = Utilities.GetPredefinedFunctions();
             Compiler.PredefinedList = predefinedFunctions;
-            ExtensionStack.Clear();
             Utilities.GetExtensions();
             Compiler.ExceptionListener = new ExceptionListener();
             //
@@ -38,7 +37,6 @@ namespace TastyScript
             //on load set predefined functions and extensions to mitigate load from reflection
             predefinedFunctions = Utilities.GetPredefinedFunctions();
             Compiler.PredefinedList = predefinedFunctions;
-            ExtensionStack.Clear();
             Utilities.GetExtensions();
             Compiler.ExceptionListener = el;
             ExceptionListener.stupidFix = true;
@@ -56,6 +54,7 @@ namespace TastyScript
         {
             try
             {
+                Init();
                 var cmd = r.Replace("exec ", "").Replace("-e ", "");
                 var file = "override.Start(){\n" + cmd + "}";
                 var path = "AnonExecCommand.ts";
@@ -70,6 +69,7 @@ namespace TastyScript
         {
             try
             {
+                Init();
                 var path = r.Replace("\'", "").Replace("\"", "");
                 var file = Utilities.GetFileFromPath(path);
                 TokenParser.SleepDefaultTime = 1200;

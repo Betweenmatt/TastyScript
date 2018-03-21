@@ -69,7 +69,7 @@ namespace TastyScript.Lang.Functions.Internal
                                 if (get == null)
                                     ReturnBubble = new Token("null", "null", "");
                                 else
-                                    ReturnBubble = new TArray("arr", get.Extend(), "");
+                                    ReturnBubble = new TArray("arr", get.Extend(Caller.CallingFunction), "");
                             }
                             return "";
                     }

@@ -16,7 +16,7 @@ namespace TastyScript.Lang.Containers
         }
         public static void Clear()
         {
-            _tlist = new List<T>();
+            _tlist.Clear();
         }
         public static void AddRange(List<T> range)
         {
