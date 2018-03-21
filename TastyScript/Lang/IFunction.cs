@@ -27,7 +27,7 @@ namespace TastyScript.Lang
         string[] GetInvokeProperties();
         void SetInvokeProperties(string[] args, List<Token> vars, List<Token> oldargs);
         void TryParse(TFunction caller);
-        void SetProperties(string name, string[] args, bool invoking, bool isSealed, bool obsolete, string[] alias);
+        void SetProperties(string name, string[] args, bool invoking, bool isSealed, bool obsolete, string[] alias, bool anon);
         bool Sealed { get; }
         TokenStack LocalVariables { get; set; }
         Token ReturnBubble { get; set; }
@@ -147,7 +147,7 @@ namespace TastyScript.Lang
             else
                 return invokeProperties;
         }
-        public void SetProperties(string name, string[] args, bool invoking, bool isSealed, bool obsolete, string[] alias)
+        public void SetProperties(string name, string[] args, bool invoking, bool isSealed, bool obsolete, string[] alias, bool anon)
         {
             Name = name;
             ExpectedArgs = args;
@@ -155,6 +155,7 @@ namespace TastyScript.Lang
             Sealed = isSealed;
             Obsolete = obsolete;
             Alias = alias;
+            IsAnonymous = anon;
         }
         //sets the return flag and the return value to bubble up.
         //if this function is anonymously named, then it calls this method
@@ -165,8 +166,10 @@ namespace TastyScript.Lang
             ReturnBubble = value;
             ReturnFlag = true;
             if (Caller != null)
+            {
                 if (IsAnonymous)
                     Caller.CallingFunction.ReturnToTopOfBubble(value);
+            }
         }
         private int GetUID()
         {

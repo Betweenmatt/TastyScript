@@ -17,6 +17,9 @@ namespace TastyScript.Lang.Functions
                 Caller.CallingFunction.ReturnToTopOfBubble(new Tokens.Token("null", "null", ""));
                 return "";
             }
+            var tracer = Tracer;
+            if (tracer != null)
+                tracer.SetBreak(true);
             Caller.CallingFunction.ReturnToTopOfBubble(argsList);
             return "";
         }

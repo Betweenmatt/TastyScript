@@ -21,7 +21,8 @@ namespace TastyScript.Lang
         /// functions marked depricated get ignored by the compiler when adding to function stack
         /// </summary>
         public bool Depricated { get; }
-        public Function(string name, bool isSealed = false, bool invoking = false, bool depricated = false, bool obsolete = false, string[] alias = null)
+        public bool IsAnonymous { get; }
+        public Function(string name, bool isSealed = false, bool invoking = false, bool depricated = false, bool obsolete = false, string[] alias = null, bool isanon = false)
         {
             Sealed = isSealed;
             Obsolete = obsolete;
@@ -30,8 +31,9 @@ namespace TastyScript.Lang
             Invoking = invoking;
                 Alias = alias;
             ExpectedArgs = new string[] { };
+            IsAnonymous = isanon;
         }
-        public Function(string name, string[] args, bool isSealed = false, bool invoking = false, bool depricated = false, bool obsolete = false, string[] alias = null)
+        public Function(string name, string[] args, bool isSealed = false, bool invoking = false, bool depricated = false, bool obsolete = false, string[] alias = null, bool isanon = false)
         {
             Sealed = isSealed;
             Obsolete = obsolete;
@@ -40,6 +42,7 @@ namespace TastyScript.Lang
             Invoking = invoking;
                 Alias = alias;
             ExpectedArgs = args;
+            IsAnonymous = isanon;
         }
     }
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]

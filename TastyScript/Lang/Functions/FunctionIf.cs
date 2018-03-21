@@ -8,7 +8,7 @@ using TastyScript.Lang.Tokens;
 
 namespace TastyScript.Lang.Functions
 {
-    [Function("If", new string[] { "bool" }, isSealed: true, alias:new string[] { "if" })]
+    [Function("If", new string[] { "bool" }, isSealed: true, alias:new string[] { "if" }, isanon:true)]
     internal class FunctionIf : FDefinition
     {
         public override string CallBase()
