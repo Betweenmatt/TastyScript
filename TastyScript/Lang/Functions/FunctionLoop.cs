@@ -10,7 +10,7 @@ using TastyScript.Lang.Tokens;
 
 namespace TastyScript.Lang.Functions
 {
-    [Function("Loop", new string[] { "invoke" }, isSealed: true, invoking: true, isanon: true)]
+    [Function("Loop", new string[] { "invoke" }, isSealed: true, invoking: true, isanon: false)]
     internal class FunctionLoop : FDefinition
     {
         public override string CallBase()

@@ -10,7 +10,7 @@ using TastyScript.Lang.Tokens;
 
 namespace TastyScript.Lang.Functions
 {
-    [Function("CheckScreen", new string[] { "succFunc", "failFunc", "succPath", "failPath" }, isSealed: true, isanon: true)]
+    [Function("CheckScreen", new string[] { "succFunc", "failFunc", "succPath", "failPath" }, isSealed: true, isanon: false)]
     internal class FunctionCheckScreen : FDefinition
     {
         public override string CallBase()
