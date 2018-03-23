@@ -59,7 +59,7 @@ function.Start(){
 
 If you run this script, the first device found will be connected, the console will print `Hello, World!`, and then the location `250,250` will be touched on your phone.
 
-For a more detailed introduction into the TastyScript language, as well as full documentation on functions, visit the [Documentation](/Wiki).
+For a more detailed introduction into the TastyScript language, as well as full documentation on functions, visit the [Documentation](Documentation).
 
 ## Features
 Here is a list of features that TastyScript can handle
