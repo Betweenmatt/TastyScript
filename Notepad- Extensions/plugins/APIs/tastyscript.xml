@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252" ?>
 <NotepadPlus>
 	<AutoComplete>
-		<Environment ignoreCase="no" startFunc="(" stopFunc=")" paramSeparator="," terminal=";" additionalWordChar="." />
+		<Environment ignoreCase="no" startFunc="(" stopFunc=")" paramSeparator="," terminal=";" additionalWordChar=". $" />
 		
 		<KeyWord name=".And" />
 		
@@ -54,13 +54,14 @@
 		<KeyWord name="Continue" />
 		
 		<KeyWord name=".Else" />
-		
+		<KeyWord name="extension" />
+		<KeyWord name="false" />
 		<KeyWord name=".For" func="yes" >
            <Overload retVal="Extension<null>" descr="Loops the extended function by {iterations} times" >
 			<Param name="iterations (int)"/>
            </Overload>
         </KeyWord>
-		
+		<KeyWord name="function" />
 		<KeyWord name=".GetIndex" func="yes" >
            <Overload retVal="Extension<int>" descr="Gets the index of {item} in an array" >
 			<Param name="item (string)"/>
@@ -74,7 +75,11 @@
         </KeyWord>
 		
 		<KeyWord name="If" />
-		
+		<KeyWord name="ImageLocation" func="yes" >
+           <Overload retVal="Function<array<int,int>>" descr="Gets the center-point location of the {template path}" >
+			<Param name="template path (string)"/>
+           </Overload>
+        </KeyWord>
 		<KeyWord name="KeyEvent" func="yes" >
            <Overload retVal="Function<null>" descr="KeyEvent {e} is sent to the device" >
 			<Param name="e (string)"/>
@@ -107,7 +112,7 @@
         </KeyWord>
 		
 		<KeyWord name=".Or" />
-		
+		<KeyWord name="override" />
 		<KeyWord name="Print" func="yes" >
            <Overload retVal="Function<null>" descr="Print {t} to the console" >
                <Param name="t (string)" />
@@ -124,7 +129,7 @@
                <Param name="t (string)" />
            </Overload>
         </KeyWord>
-		
+		<KeyWord name=".Prop" />
 		<KeyWord name=".Replace" func="yes" >
            <Overload retVal="Extension<string>" descr="Replaces {find} with {replace} in the extended string, and returns the result" >
 			<Param name="find (string)"/>
@@ -155,7 +160,11 @@
 			<Param name="index (int)"/>
            </Overload>
         </KeyWord>
-		
+		<KeyWord name="SetTemplateDefaultOptions" func="yes" >
+           <Overload retVal="Function<array>" descr="Sets the default options for template matching" >
+			<Param name="a (array)"/>
+           </Overload>
+        </KeyWord>
 		<KeyWord name="Sleep" func="yes" >
            <Overload retVal="Function<null>" descr="Sleeps for {s} milliseconds" >
 			<Param name="s (int)"/>
@@ -203,7 +212,8 @@
         </KeyWord>
 		
 		<KeyWord name=".Then" />
-		
+		<KeyWord name="this" />
+		<KeyWord name="This" />
 		<KeyWord name=".Threshold" func="yes" >
            <Overload retVal="Extension<null>" descr="Changes the CheckScreen() threshold. Default 90" >
 			<Param name="t (int)"/>
@@ -226,6 +236,8 @@
 			   <Param name="s (int)" />
            </Overload>
         </KeyWord>
-	   
+		<KeyWord name="true" />
+	   <KeyWord name="$var" />
+	   <KeyWord name="var" />
 	</AutoComplete>
 </NotepadPlus>
