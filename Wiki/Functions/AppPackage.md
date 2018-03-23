@@ -1,7 +1,3 @@
-| [Back]() |
-
----
-
 # AppPackage
 ***v1.2.0+***
 ## Overloads
@@ -40,4 +36,4 @@ function.Awake(){
 
 
 
-| [Back]() |
+| [Back](README.md) |

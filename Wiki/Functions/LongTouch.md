@@ -1,7 +1,3 @@
-| [Back]() |
-
----
-
 # LongTouch
 ***v1.2.1+***
 ## Overloads
@@ -17,14 +13,14 @@
 | :--- | :--- | 
 | **IsSealed** | *Fals* | 
 | **Return Value** | *Null* |
-| **Extensions** |  | [.For()](../../Extensions.md#for) | 
+| **Extensions** |  | [.For()](../Extensions.md#for) | 
 
 ---
 
 ### Description
 Initiates a long touch on the specified device with X: *number[0]*, Y: *number[1]*, Duration: *number[2]* and with the overload - Sleep: *number[3]*. 
 ### Remarks
-Please refer to [SetDefaultSleep](../SetDefaultSleep.md) for information on the default sleep timer.
+Please refer to [SetDefaultSleep](SetDefaultSleep.md) for information on the default sleep timer.
 ### Example
 ```
 function.Start(){
@@ -34,4 +30,4 @@ function.Start(){
 
 
 
-| [Back]() |
+| [Back](README.md) |

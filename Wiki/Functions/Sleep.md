@@ -1,7 +1,3 @@
-| [Back]() |
-
----
-
 # Sleep
 ***v1.0.0+***
 ## Overloads
@@ -32,4 +28,4 @@ function.Start(){
 
 
 
-| [Back]() |
+| [Back](README.md) |

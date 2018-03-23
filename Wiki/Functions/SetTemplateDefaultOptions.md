@@ -1,7 +1,3 @@
-| [Back]() |
-
----
-
 # SetTemplateDefaultOptions
 ***v1.3.2+***
 ## Overloads
@@ -52,4 +48,4 @@ PrintLine(set);
 
 
 
-| [Back]() |
+| [Back](README.md) |

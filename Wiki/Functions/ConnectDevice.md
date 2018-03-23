@@ -1,7 +1,3 @@
-| [Back]() |
-
----
-
 # ConnectDevice
 ***v1.0.0+***
 ## Overloads
@@ -38,4 +34,4 @@ function.Awake(){
 
 
 
-| [Back]() |
+| [Back](README.md) |

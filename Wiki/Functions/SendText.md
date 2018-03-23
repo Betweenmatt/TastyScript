@@ -1,7 +1,3 @@
-| [Back]() |
-
----
-
 # SendText
 ***v1.2.1+***
 ## Overloads
@@ -16,7 +12,7 @@
 | :--- | :--- | 
 | **IsSealed** | *Fals* | 
 | **Return Value** | *Null* |
-| **Extensions** |  | [.For()](../../Extensions.md#for) | 
+| **Extensions** |  | [.For()](../Extensions.md#for) | 
 
 ---
 
@@ -31,4 +27,4 @@ function.Start(){
 
 
 
-| [Back]() |
+| [Back](README.md) |

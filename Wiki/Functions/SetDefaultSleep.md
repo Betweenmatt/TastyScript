@@ -1,7 +1,3 @@
-| [Back]() |
-
----
-
 # SetDefaultSleep
 ***v1.1.0+***
 ## Overloads
@@ -28,4 +24,4 @@ function.Awake(){
 }
 ```
 
-| [Back]() |
+| [Back](README.md) |

@@ -1,7 +1,3 @@
-| [Back]() |
-
----
-
 # Timer
 ***v1.2.1+***
 ## Overloads
@@ -34,4 +30,4 @@ override.Start(){
 ```
 
 
-| [Back]() |
+| [Back](README.md) |

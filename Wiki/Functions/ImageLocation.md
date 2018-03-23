@@ -1,7 +1,3 @@
-| [Back]() |
-
----
-
 # ImageLocation
 ***v1.3.2+***
 ## Overloads
@@ -16,7 +12,7 @@
 | :--- | :--- | :--- |
 | **IsSealed** | *False* |  |
 | **Return Value** | *array(number,number)* | *null*
-| **Extensions** |  | [.For()](../../Extensions.md#for) | [.Prop()](../../Extensions.md#prop) | 
+| **Extensions** |  | [.For()](../Extensions.md#for) | [.Prop()](../Extensions.md#prop) | 
 
 ---
 
@@ -25,7 +21,7 @@ Gets the center-point location of the given template. If the template does not e
 ### Remarks
 While optional, you should consider using the `.Prop()` extension to maximize the efficiency of this function based on the needs of your template.
 ### Extensions
-`.Prop()` extension is used to fine tune the template matching procedure and is not required. Please refer to [SetTemplateDefaultOptions](../SetTemplateDefaultOptions.md). **Do Not** give this extension an array like its function counterpart.
+`.Prop()` extension is used to fine tune the template matching procedure and is not required. Please refer to [SetTemplateDefaultOptions](SetTemplateDefaultOptions.md). **Do Not** give this extension an array like its function counterpart.
 ### Example
 ```
 function.Awake(){
@@ -41,4 +37,4 @@ function.Awake(){
 
 
 
-| [Back]() |
+| [Back](README.md) |

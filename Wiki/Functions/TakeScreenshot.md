@@ -1,7 +1,3 @@
-| [Back]() |
-
----
-
 # TakeScreenshot
 ***v1.2.0+***
 ## Overloads
@@ -30,4 +26,4 @@ Takes a screenshot of the connected device, and saves it to the path provided. *
 
 
 
-| [Back]() |
+| [Back](README.md) |

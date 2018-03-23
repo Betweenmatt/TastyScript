@@ -1,7 +1,3 @@
-| [Back]() |
-
----
-
 # CheckScreen
 ***v1.1.0+***
 ## Overloads
@@ -17,7 +13,7 @@
 | :--- | :--- | :--- | :--- | 
 | **IsSealed** | *True* |  |  | 
 | **Return Value** | *Null* |  |  | 
-| **Extensions** |  | [.For()](../../Extensions.md#for) | [.Prop()](../../Extensions.md#prop) | 
+| **Extensions** |  | [.For()](../Extensions.md#for) | [.Prop()](../Extensions.md#prop) | 
 
 
 
@@ -30,7 +26,7 @@ Use the overload with path *string[1]* to ensure if neither templates are a matc
 ### Remarks
 For best results, make sure the template is not mono-tone, and has as much pixel to pixel difference as possible. Do not use an inadequate template and just lower the threshold or you will have a lot of false positives.
 ### Extensions
-`.Prop()` extension is used to fine tune the template matching procedure and is not required. Please refer to [SetTemplateDefaultOptions](../SetTemplateDefaultOptions.md). **Do Not** give this extension an array like its function counterpart.
+`.Prop()` extension is used to fine tune the template matching procedure and is not required. Please refer to [SetTemplateDefaultOptions](SetTemplateDefaultOptions.md). **Do Not** give this extension an array like its function counterpart.
 ### Example
 ```
 function.Start(){
@@ -51,4 +47,4 @@ function.Start(){
 
 
 
-| [Back]() |
+| [Back](README.md) |

@@ -1,7 +1,3 @@
-| [Back]() |
-
----
-
 # KeyEvent
 ***v1.2.2+***
 ## Overloads
@@ -39,4 +35,4 @@ function.Start(){
 
 
 
-| [Back]() |
+| [Back](README.md) |

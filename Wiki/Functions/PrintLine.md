@@ -1,7 +1,3 @@
-| [Back]() |
-
----
-
 # PrintLine
 ***v1.0.0+***
 ## Overloads
@@ -16,7 +12,7 @@
 | :--- | :--- | :--- |
 | **IsSealed** | *False* |  |
 | **Return Value** | *Null* | |
-| **Extensions** | [.For()](../../Extensions.md#for) | [.Color()](../../Extensions.md#color) | 
+| **Extensions** | [.For()](../Extensions.md#for) | [.Color()](../Extensions.md#color) | 
 
 ---
 
@@ -31,4 +27,4 @@ function.Start(){
 
 
 
-| [Back]() |
+| [Back](README.md) |
