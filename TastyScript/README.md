@@ -6,6 +6,7 @@
 * Fixed the issue where `Return()` wasn't working in nested functions.
 * Added Notepad++ plugin support. Check [here](../TastyScriptNPP/README.md) for information about the plugin.
 * Fixed some misc things that werent working quite the way they were supposed to be.
+* Added `ScreenSize` predefined TArray which returns [width,height]
 
 ## ~~v1.2.3~~ v1.3.0
 
