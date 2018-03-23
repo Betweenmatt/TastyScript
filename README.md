@@ -42,6 +42,8 @@ To install the [Notepad++](https://notepad-plus-plus.org/) plugin, follow above 
 
 ***Note:*** The Notepad++ plugin is entirely self contained, so if you update your TastyScript version in the future, you will have to replace the dll in your Notepad++ plugins folder.
 
+![notepad++](Images/nppexample.png)
+
 ## Running a script
 
 To get you started, here is a simple test script that ensures a device is connected, and executes an arbitrary touch. Comments are lines opened with a `#`.

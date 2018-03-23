@@ -1,5 +1,12 @@
 ﻿# ChangeLog
 
+## v1.3.2
+* Added custom extensions
+* Added functions `ImageLocation()`, `SetTemplateDefaultOptions()`
+* Added extension `.Prop()`
+* Fixed some unintended behaviour with `Return()` inside loops
+* Fixed some unintended behaviour with `Break()` and `Continue()` in certain situations
+
 ## v1.3.1
 
 * Fixed the issue where `Base()` wasn't working in double nested functions.
