@@ -8,9 +8,9 @@
 * [Order of Operations](#order-of-operations)
  
 # Introduction
-Welcome to **1.3.1**!
+Welcome to **1.3.2**! Please note the documentation is currently being developed. I am trying my best to keep up with each change and new feature so please bear with me!
 
-TastyScript is a simple procedural programming language which uses top level *functions* to execute lower level *commands*. Functions can call other functions, and you can *override* functions to build on top of their functionality with a modular approach.
+TastyScript is a simple programming language which uses top level *functions* to execute lower level *commands*. Functions can call other functions, and you can *override* functions to build on top of their functionality with a modular approach.
 
 Every script must have exactly one `Start()` function which is the entry point into your script.
 
@@ -147,6 +147,31 @@ function.VersionString(){
 Both assignment and reassignment of variables must be prepended with the `var` or `$var` keyword. Available types are `string`, `number`, another variable, or a [Mathematical Expression](/Wiki/MathExpressions.md).
 
 Variables can be called by just their name. `PrintLine(GlobalVariable)` would print `I am a global variable!`.
+
+# Return
+Like many other programming languages, TastyScript supports returning. `Return()` has many uses; the main use is to return a value:
+
+```
+function.Start(){
+	PrintLine(TestReturn());
+}
+function.TestReturn(){
+	Return("Hello, World!");
+}
+```
+
+As you can see, the value gets passed back to where the function was called. You can call `Return()` with no arguments, and `null` will be returned. You don't even need to use the return value!
+
+```
+function.Start(){
+	Loop(=>(var i){
+		If(i > 12).Then(=>(){
+			Return();
+		});
+		PrintLine("i is less than 12");
+	});
+}
+```
 
 # Order of Operations
 The Order of Operations, or what I like to call the OoO, works in a predictable and sensible way. The compiler first gets all the functions from your script and assigns them for later reference. Then it proceeds with the `Awake()` and then the `Start()` function, going line by line evaluating your commands. 

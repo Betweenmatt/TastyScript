@@ -16,7 +16,7 @@ namespace TastyScript.Lang.Containers
         }
         public static void Clear()
         {
-            _tlist = new List<T>();
+            _tlist.Clear();
         }
         public static void AddRange(List<T> range)
         {
@@ -29,6 +29,10 @@ namespace TastyScript.Lang.Containers
         public static void RemoveAt(int index)
         {
             _tlist.RemoveAt(index);
+        }
+        public static bool Contains(T item)
+        {
+            return _tlist.Contains(item);
         }
         public static void Remove(T item)
         {

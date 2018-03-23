@@ -62,7 +62,11 @@ namespace TastyScript.Lang
             new Token("Date",()=>{return DateTime.Now.ToShortDateString(); },"{0}", locked:true),
             new Token("Time",()=>{return DateTime.Now.ToShortTimeString(); },"{0}", locked:true),
             new TArray("GetVersion", StrVersion(),"{0}", locked:true),
-            new Token("null","null","{0}", locked:true)
+            new Token("null","null","{0}", locked:true),
+            new Token("True","True","{0}",locked:true),
+            new Token("true","true","{0}",locked:true),
+            new Token("False","False","{0}",locked:true), 
+            new Token("false","false","{0}",locked:true)
             });
             StartParse();
         }

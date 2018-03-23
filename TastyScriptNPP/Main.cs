@@ -19,7 +19,10 @@ namespace Kbg.NppPluginNET
         internal const string PluginName = "TastyScriptNPP";
         static string iniFilePath = null;
         internal static Output output = null;
+        public static string IniPath { get; private set; }
         static int outputDialogId = -1;
+        static int settingsDialogId = -1;
+        static int funcTipsDialogId = -1;
         //static Bitmap tbBmp = TastyScriptNPP.Properties.Resources.star;
         //static Bitmap tbBmp_tbTab = TastyScriptNPP.Properties.Resources.star_bmp;
         static Bitmap playButton = TastyScriptNPP.Properties.Resources.icoRaw;
@@ -45,6 +48,7 @@ namespace Kbg.NppPluginNET
             Win32.SendMessage(PluginBase.nppData._nppHandle, (uint)NppMsg.NPPM_GETPLUGINSCONFIGDIR, Win32.MAX_PATH, sbIniFilePath);
             iniFilePath = sbIniFilePath.ToString();
             if (!Directory.Exists(iniFilePath)) Directory.CreateDirectory(iniFilePath);
+            IniPath = iniFilePath;
             iniFilePath = Path.Combine(iniFilePath, PluginName + ".ini");
 
             Settings.OutputPanel.SetDefaultBGColor(Win32.GetPrivateProfileInt("OutputPanel", "BackgroundColor",Color.LightGray.ToArgb(),iniFilePath));
@@ -67,8 +71,9 @@ namespace Kbg.NppPluginNET
 
             PluginBase.SetCommand(0, "Run/Stop Script", RunStopTS, new ShortcutKey(false, false, false, Keys.None));
             PluginBase.SetCommand(1, "Output Panel", OutputDockableDialog); outputDialogId = 1;
-            PluginBase.SetCommand(2, "---", null);
-            PluginBase.SetCommand(3, "Settings", SettingsDialog);
+            PluginBase.SetCommand(2, "---", null); funcTipsDialogId = 2;//function tips not implemented yet
+            PluginBase.SetCommand(3, "---", null);
+            PluginBase.SetCommand(4, "Settings", SettingsDialog);settingsDialogId = 4;
         }
         internal static void SetToolBarIcon()
         {
@@ -136,7 +141,43 @@ namespace Kbg.NppPluginNET
                 IsRunning = false;
             }
         }
+        private static FunctionTipsPanel functionTips;
+        internal static void FunctionTipsDockableDialog()
+        {
+            if (functionTips == null)
+            {
+                functionTips = new FunctionTipsPanel();
 
+                using (Bitmap newBmp = new Bitmap(16, 16))
+                {
+                    Graphics g = Graphics.FromImage(newBmp);
+                    ColorMap[] colorMap = new ColorMap[1];
+                    colorMap[0] = new ColorMap();
+                    colorMap[0].OldColor = Color.Fuchsia;
+                    colorMap[0].NewColor = Color.FromKnownColor(KnownColor.ButtonFace);
+                    ImageAttributes attr = new ImageAttributes();
+                    attr.SetRemapTable(colorMap);
+                    g.DrawImage(playButton, new Rectangle(0, 0, 16, 16), 0, 0, 16, 16, GraphicsUnit.Pixel, attr);
+                    tbIcon = Icon.FromHandle(newBmp.GetHicon());
+                }
+
+                NppTbData _nppTbData = new NppTbData();
+                _nppTbData.hClient = functionTips.Handle;
+                _nppTbData.pszName = "Function Tips";
+                _nppTbData.dlgID = funcTipsDialogId;
+                _nppTbData.uMask = NppTbMsg.DWS_DF_CONT_RIGHT | NppTbMsg.DWS_ICONTAB | NppTbMsg.DWS_ICONBAR;
+                _nppTbData.hIconTab = (uint)tbIcon.Handle;
+                _nppTbData.pszModuleName = PluginName;
+                IntPtr _ptrNppTbData = Marshal.AllocHGlobal(Marshal.SizeOf(_nppTbData));
+                Marshal.StructureToPtr(_nppTbData, _ptrNppTbData, false);
+
+                Win32.SendMessage(PluginBase.nppData._nppHandle, (uint)NppMsg.NPPM_DMMREGASDCKDLG, 0, _ptrNppTbData);
+            }
+            else
+            {
+                Win32.SendMessage(PluginBase.nppData._nppHandle, (uint)NppMsg.NPPM_DMMSHOW, 0, functionTips.Handle);
+            }
+        }
         internal static void OutputDockableDialog()
         {
             if (output == null)
@@ -196,7 +237,7 @@ namespace Kbg.NppPluginNET
                 NppTbData _nppTbData = new NppTbData();
                 _nppTbData.hClient = settings.Handle;
                 _nppTbData.pszName = "TastyScript Settings";
-                _nppTbData.dlgID = 3;
+                _nppTbData.dlgID = settingsDialogId;
                 _nppTbData.uMask = NppTbMsg.DWS_DF_CONT_RIGHT | NppTbMsg.DWS_ICONTAB | NppTbMsg.DWS_ICONBAR;
                 _nppTbData.hIconTab = (uint)tbIcon.Handle;
                 _nppTbData.pszModuleName = PluginName;

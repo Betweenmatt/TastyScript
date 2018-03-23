@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -23,11 +24,17 @@ namespace TastyScript.Lang
                     foreach (var d in copylist[i].Directives)
                         switch (d.Key)
                         {
-                            case ("Layer"):
-                                DirectiveLayer(d.Value, FunctionStack.List[i]);
+                            case ("MaxVer"):
+                                DirectiveMaxVer(d.Value, FunctionStack.List[i]);
+                                break;
+                            case ("MinVer"):
+                                DirectiveMinVer(d.Value, FunctionStack.List[i]);
                                 break;
                             case ("Sealed"):
                                 DirectiveSealed(d.Value, FunctionStack.List[i]);
+                                break;
+                            case ("IsBase"):
+                                DirectiveIsBase(d.Value, FunctionStack.List[i]);
                                 break;
                             case ("Omit"):
                                 DirectiveOmit(d.Value, FunctionStack.List[i]);
@@ -37,36 +44,236 @@ namespace TastyScript.Lang
                                 break;
                         }
         }
+        private void DirectiveMinVer(string val, IBaseFunction func)
+        {
+            val = val.Replace(" ", "").Replace("\n", "").Replace("\t", "").Replace("\r", "");
+            string[] splode = val.Split(',');
+            if (splode[0] == "soft")
+            {
+                var maj = splode.ElementAtOrDefault(1);
+                var min = splode.ElementAtOrDefault(2);
+                var build = splode.ElementAtOrDefault(3);
+                var rev = splode.ElementAtOrDefault(4);
+                if (maj == null)
+                    Compiler.ExceptionListener.Throw("MinVer Directive must express a major version");
+                string[] ver = Assembly.GetExecutingAssembly().GetName().Version.ToString().Split('.');
+                int majint = -1;
+                int minint = -1;
+                int buildint = -1;
+                int revint = -1;
+                int.TryParse(maj, out majint);
+                if (min != null)
+                    int.TryParse(min, out minint);
+                if (build != null)
+                    int.TryParse(build, out buildint);
+                if (rev != null)
+                    int.TryParse(rev, out revint);
+                if(majint == -1)
+                    Compiler.ExceptionListener.Throw("MinVer Directive must express a major version as a number");
+                if(int.Parse(ver[0]) < majint)
+                {
+                    Compiler.ExceptionListener.ThrowSilent(new ExceptionHandler($"Function [{func.Name}] did not pass minimum version directive. Expected Major version [{majint}]."));
+                    if(FunctionStack.Contains(func))
+                        FunctionStack.Remove(func);
+                    return;
+                }
+                if (minint != -1 && int.Parse(ver[1]) < minint)
+                {
+                    Compiler.ExceptionListener.ThrowSilent(new ExceptionHandler($"Function [{func.Name}] did not pass minimum version directive. Expected Minor version [{minint}]."));
+                    if (FunctionStack.Contains(func))
+                        FunctionStack.Remove(func);
+                    return;
+                }
+                if (buildint != -1 && int.Parse(ver[2]) < buildint)
+                {
+                    Compiler.ExceptionListener.ThrowSilent(new ExceptionHandler($"Function [{func.Name}] did not pass minimum version directive. Expected Build version [{buildint}]."));
+                    if (FunctionStack.Contains(func))
+                        FunctionStack.Remove(func);
+                    return;
+                }
+                if (revint != -1 && int.Parse(ver[3]) < revint)
+                {
+                    Compiler.ExceptionListener.ThrowSilent(new ExceptionHandler($"Function [{func.Name}] did not pass minimum version directive. Expected Revision version [{revint}]."));
+                    if (FunctionStack.Contains(func))
+                        FunctionStack.Remove(func);
+                    return;
+                }
+            }
+            else
+            {
+                var maj = splode.ElementAtOrDefault(0);
+                var min = splode.ElementAtOrDefault(1);
+                var build = splode.ElementAtOrDefault(2);
+                var rev = splode.ElementAtOrDefault(3);
+                if (maj == null)
+                    Compiler.ExceptionListener.Throw("MinVer Directive must express a major version");
+                string[] ver = Assembly.GetExecutingAssembly().GetName().Version.ToString().Split('.');
+                int majint = -1;
+                int minint = -1;
+                int buildint = -1;
+                int revint = -1;
+                int.TryParse(maj, out majint);
+                if (min != null)
+                    int.TryParse(min, out minint);
+                if (build != null)
+                    int.TryParse(build, out buildint);
+                if (rev != null)
+                    int.TryParse(rev, out revint);
+                if (majint == -1)
+                    Compiler.ExceptionListener.Throw("MinVer Directive must express a major version as a number");
+                if (int.Parse(ver[0]) < majint)
+                    Compiler.ExceptionListener.Throw(new ExceptionHandler($"Function [{func.Name}] did not pass minimum version directive. Expected Major version [{majint}]."));
+                if (minint != -1 && int.Parse(ver[1]) < minint)
+                    Compiler.ExceptionListener.Throw(new ExceptionHandler($"Function [{func.Name}] did not pass minimum version directive. Expected Minor version [{minint}]."));
+                if (buildint != -1 && int.Parse(ver[2]) < buildint)
+                    Compiler.ExceptionListener.Throw(new ExceptionHandler($"Function [{func.Name}] did not pass minimum version directive. Expected Build version [{buildint}]."));
+                if (revint != -1 && int.Parse(ver[3]) < revint)
+                    Compiler.ExceptionListener.Throw(new ExceptionHandler($"Function [{func.Name}] did not pass minimum version directive. Expected Revision version [{revint}]."));
+            }
+        }
+        private void DirectiveMaxVer(string val, IBaseFunction func)
+        {
+            val = val.Replace(" ", "").Replace("\n", "").Replace("\t", "").Replace("\r", "");
+            string[] splode = val.Split(',');
+            if (splode[0] == "soft")
+            {
+                var maj = splode.ElementAtOrDefault(1);
+                var min = splode.ElementAtOrDefault(2);
+                var build = splode.ElementAtOrDefault(3);
+                var rev = splode.ElementAtOrDefault(4);
+                if (maj == null)
+                    Compiler.ExceptionListener.Throw("MinVer Directive must express a major version");
+                string[] ver = Assembly.GetExecutingAssembly().GetName().Version.ToString().Split('.');
+                int majint = -1;
+                int minint = -1;
+                int buildint = -1;
+                int revint = -1;
+                int.TryParse(maj, out majint);
+                if (min != null)
+                    int.TryParse(min, out minint);
+                if (build != null)
+                    int.TryParse(build, out buildint);
+                if (rev != null)
+                    int.TryParse(rev, out revint);
+                if (majint == -1)
+                    Compiler.ExceptionListener.Throw("MinVer Directive must express a major version as a number");
+                if (int.Parse(ver[0]) > majint)
+                {
+                    Compiler.ExceptionListener.ThrowSilent(new ExceptionHandler($"Function [{func.Name}] did not pass minimum version directive. Expected Major version [{majint}]."));
+                    if (FunctionStack.Contains(func))
+                        FunctionStack.Remove(func);
+                    return;
+                }
+                if (minint != -1 && int.Parse(ver[1]) > minint)
+                {
+                    Compiler.ExceptionListener.ThrowSilent(new ExceptionHandler($"Function [{func.Name}] did not pass minimum version directive. Expected Minor version [{minint}]."));
+                    if (FunctionStack.Contains(func))
+                        FunctionStack.Remove(func);
+                    return;
+                }
+                if (buildint != -1 && int.Parse(ver[2]) > buildint)
+                {
+                    Compiler.ExceptionListener.ThrowSilent(new ExceptionHandler($"Function [{func.Name}] did not pass minimum version directive. Expected Build version [{buildint}]."));
+                    if (FunctionStack.Contains(func))
+                        FunctionStack.Remove(func);
+                    return;
+                }
+                if (revint != -1 && int.Parse(ver[3]) > revint)
+                {
+                    Compiler.ExceptionListener.ThrowSilent(new ExceptionHandler($"Function [{func.Name}] did not pass minimum version directive. Expected Revision version [{revint}]."));
+                    if (FunctionStack.Contains(func))
+                        FunctionStack.Remove(func);
+                    return;
+                }
+            }
+            else
+            {
+                var maj = splode.ElementAtOrDefault(0);
+                var min = splode.ElementAtOrDefault(1);
+                var build = splode.ElementAtOrDefault(2);
+                var rev = splode.ElementAtOrDefault(3);
+                if (maj == null)
+                    Compiler.ExceptionListener.Throw("MinVer Directive must express a major version");
+                string[] ver = Assembly.GetExecutingAssembly().GetName().Version.ToString().Split('.');
+                int majint = -1;
+                int minint = -1;
+                int buildint = -1;
+                int revint = -1;
+                int.TryParse(maj, out majint);
+                if (min != null)
+                    int.TryParse(min, out minint);
+                if (build != null)
+                    int.TryParse(build, out buildint);
+                if (rev != null)
+                    int.TryParse(rev, out revint);
+                if (majint == -1)
+                    Compiler.ExceptionListener.Throw("MinVer Directive must express a major version as a number");
+                if (int.Parse(ver[0]) > majint)
+                    Compiler.ExceptionListener.Throw(new ExceptionHandler($"Function [{func.Name}] did not pass minimum version directive. Expected Major version [{majint}]."));
+                if (minint != -1 && int.Parse(ver[1]) > minint)
+                    Compiler.ExceptionListener.Throw(new ExceptionHandler($"Function [{func.Name}] did not pass minimum version directive. Expected Minor version [{minint}]."));
+                if (buildint != -1 && int.Parse(ver[2]) > buildint)
+                    Compiler.ExceptionListener.Throw(new ExceptionHandler($"Function [{func.Name}] did not pass minimum version directive. Expected Build version [{buildint}]."));
+                if (revint != -1 && int.Parse(ver[3]) > revint)
+                    Compiler.ExceptionListener.Throw(new ExceptionHandler($"Function [{func.Name}] did not pass minimum version directive. Expected Revision version [{revint}]."));
+            }
+        }
         private void DirectiveOmit(string val, IBaseFunction func)
         {
             val = val.Replace(" ", "").Replace("\n", "").Replace("\t", "").Replace("\r", "");
             bool value = (val == "true" || val == "True") ? true : false;
             if (value)
             {
-                FunctionStack.Remove(func);
+                if (FunctionStack.Contains(func))
+                    FunctionStack.Remove(func);
             }
         }
+        //sets the override to directly hop to the base when called, while still remaining overridable
+        //only one function per type can be IsBase
+        private void DirectiveIsBase(string val, IBaseFunction func)
+        {
+            val = val.Replace(" ", "").Replace("\n", "").Replace("\t", "").Replace("\r", "");
+            bool value = (val == "true" || val == "True") ? true : false;
+            if (value)
+            {
+                var samelist = FunctionStack.Where(func.Name).ToList();
+                foreach(var x in samelist)
+                {
+                    //check to make sure this is the only IsBase directive of this type
+                    if(x.UID != func.UID && x.Directives != null && x.Directives.ContainsKey("IsBase"))
+                    {
+                        var stripws = x.Directives["IsBase"].Replace(" ", "").Replace("\n", "").Replace("\t", "").Replace("\r", "");
+                        if (stripws == "true" || stripws == "True")
+                            Compiler.ExceptionListener.Throw($"The function [{func.Name}] has already been set IsBase by a directive. Please remove an IsBase directive.");
+                    }
+                }
+                if (FunctionStack.Contains(func))
+                    FunctionStack.First(func.UID).SetBase(samelist[samelist.Count - 1]);
+            }
+        }
+        //seals the function so no more overrides can occur
         private void DirectiveSealed(string val, IBaseFunction func)
         {
             val = val.Replace(" ", "").Replace("\n", "").Replace("\t", "").Replace("\r", "");
             bool value = (val == "true" || val == "True") ? true : false;
             if (value)
             {
-                func.SetSealed(value);
-                FunctionStack.MoveTo(func, 0);
+                //FunctionStack.MoveTo(func, 0);
                 var samelist = FunctionStack.Where(func.Name).ToList();
                 foreach(var x in samelist)
                 {
-                    if(x != func && x.Directives != null && x.Directives.ContainsKey("Sealed"))
+                    if(x.UID != func.UID && x.Directives != null && x.Directives.ContainsKey("Sealed"))
                     {
                         var stripws = x.Directives["Sealed"].Replace(" ", "").Replace("\n", "").Replace("\t", "").Replace("\r", "");
                         if (stripws == "true" || stripws == "True")
                             Compiler.ExceptionListener.Throw($"The function [{func.Name}] has already been sealed by a directive. Please remove a Sealed directive.");
                     }
                 }
-                func.SetBase(samelist[samelist.Count - 1]);
+                func.SetSealed(value);
             }
         }
+        //this is a little to obscure. using other directives to performe similar functionality
+        [Obsolete]
         private void DirectiveLayer(string val, IBaseFunction func)
         {
             int index = 0;

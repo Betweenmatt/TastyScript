@@ -14,6 +14,8 @@ namespace TastyScript.Lang.Functions
     {
         public override string CallBase()
         {
+            if (Main.AndroidDriver == null)
+                Compiler.ExceptionListener.Throw("Cannot take screenshot without a connected device");
             var path = ProvidedArgs.First("path");
             if (path == null)
             {

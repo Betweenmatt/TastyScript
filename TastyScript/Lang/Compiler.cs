@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TastyScript.Lang.Exceptions;
+using TastyScript.Lang.Extensions;
 
 namespace TastyScript.Lang
 {
@@ -103,6 +104,18 @@ namespace TastyScript.Lang
                 _inheritStack.Add(obj);
                 tempfunctionstack.Insert(0,obj);
             }
+            //add custom extensions
+            var _extStack = new List<EDefinition>();
+            var extRegex = new Regex(ScopeRegex(@"\bextension\.\b"), RegexOptions.IgnorePatternWhitespace);
+            var exts = extRegex.Matches(file);
+            for (var i = exts.Count - 1; i >= 0; i--)
+            {
+                var ext = exts[i];
+                var cext = new CustomExtension();
+                cext.FunctionReference = new AnonymousFunction(ext.ToString(), cext);
+                _extStack.Add(cext);
+            }
+            ExtensionStack.AddRange(_extStack);
             //add async
             var _asyncStack = new List<IBaseFunction>();
             var asyncRegex = new Regex(ScopeRegex(@"\basync\.\b"), RegexOptions.IgnorePatternWhitespace);
@@ -211,8 +224,14 @@ namespace TastyScript.Lang
     }
     internal class LoopTracer
     {
+        private static int index = 0;
         public bool Break { get; private set; }
         public bool Continue { get; private set; }
+        public int ID { get; }
+        public LoopTracer()
+        {
+            ID = index++;
+        }
         public void SetBreak(bool _break)
         {
             Break = _break;

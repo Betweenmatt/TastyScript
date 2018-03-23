@@ -54,6 +54,7 @@ namespace TastyScript
         {
             try
             {
+                Init();
                 var cmd = r.Replace("exec ", "").Replace("-e ", "");
                 var file = "override.Start(){\n" + cmd + "}";
                 var path = "AnonExecCommand.ts";
@@ -68,6 +69,7 @@ namespace TastyScript
         {
             try
             {
+                Init();
                 var path = r.Replace("\'", "").Replace("\"", "");
                 var file = Utilities.GetFileFromPath(path);
                 TokenParser.SleepDefaultTime = 1200;

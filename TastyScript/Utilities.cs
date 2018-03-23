@@ -48,7 +48,7 @@ namespace TastyScript
                             var func = System.Type.GetType(type.ToString());
                             var inst = Activator.CreateInstance(func) as IBaseFunction;
                             var attt = type.GetCustomAttribute(typeof(Function), true) as Function;
-                            inst.SetProperties(attt.Name, attt.ExpectedArgs, attt.Invoking, attt.Sealed, attt.Obsolete, attt.Alias);
+                            inst.SetProperties(attt.Name, attt.ExpectedArgs, attt.Invoking, attt.Sealed, attt.Obsolete, attt.Alias,attt.IsAnonymous);
                             if (!attt.Depricated)
                                 temp.Add(inst);
                         }
@@ -70,7 +70,7 @@ namespace TastyScript
                             {
                                 var func = System.Type.GetType(type.ToString());
                                 var inst = Activator.CreateInstance(func) as IBaseFunction;
-                                inst.SetProperties(attt.Name, attt.ExpectedArgs, attt.Invoking, attt.Sealed, attt.Obsolete, attt.Alias);
+                                inst.SetProperties(attt.Name, attt.ExpectedArgs, attt.Invoking, attt.Sealed, attt.Obsolete, attt.Alias, attt.IsAnonymous);
                                 if (!attt.Depricated)
                                     temp = (inst);
                             }

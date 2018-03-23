@@ -1,11 +1,19 @@
 ﻿# ChangeLog
 
+## v1.3.2
+* Added custom extensions
+* Added functions `ImageLocation()`, `SetTemplateDefaultOptions()`
+* Added extension `.Prop()`
+* Fixed some unintended behaviour with `Return()` inside loops
+* Fixed some unintended behaviour with `Break()` and `Continue()` in certain situations
+
 ## v1.3.1
 
 * Fixed the issue where `Base()` wasn't working in double nested functions.
 * Fixed the issue where `Return()` wasn't working in nested functions.
 * Added Notepad++ plugin support. Check [here](../TastyScriptNPP/README.md) for information about the plugin.
 * Fixed some misc things that werent working quite the way they were supposed to be.
+* Added `ScreenSize` predefined TArray which returns [width,height]
 
 ## ~~v1.2.3~~ v1.3.0
 

@@ -45,6 +45,12 @@ namespace TastyScript.Lang.Extensions
             ObsoleteWarning();
             return null;
         }
+        public virtual string[] Extend(IBaseFunction input)
+        {
+            ObsoleteWarning();
+            Compiler.ExceptionListener.Throw("[51]Unexpected error occured.");
+            return null;
+        }
         private void ObsoleteWarning()
         {
             if (Obsolete)
@@ -53,10 +59,21 @@ namespace TastyScript.Lang.Extensions
                     $"The extension [{this.Name}] has been marked obsolete. Please check the documentation for future use."));
             }
         }
-        private string[] Execute()
+        protected string[] Execute()
         {
             var commaRegex = new Regex(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
             var reg = commaRegex.Split(Arguments);
+            for (var i = 0; i < reg.Length; i++)
+            {
+                //get them quotes outta here!
+                reg[i] = reg[i].Replace("\"", "");
+            }
+            return reg;
+        }
+        protected string[] Execute(string str)
+        {
+            var commaRegex = new Regex(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+            var reg = commaRegex.Split(str);
             for (var i = 0; i < reg.Length; i++)
             {
                 //get them quotes outta here!
@@ -89,6 +106,36 @@ namespace TastyScript.Lang.Extensions
         public string GetInvokeProperties()
         {
             return invokeProperties;
+        }
+    }
+    /*
+     * 
+     * Custom extensions with `this function` aren't triggered until the function calles `This("Extension").Prop("Args",{ExtName});`
+     * This is how the extension gets the callers name(which can be retrieved by the `function` var inside the extension. `Return`
+     * can be handled however u want
+     * 
+     * Custom extensions with `this variable` are triggered when parsed, with `variable` var being the variable this extension is attached
+     * to, and the `Return` is the value that is returned since all value types are immutable
+     * 
+     * */
+    internal class CustomExtension : EDefinition
+    {
+        public IBaseFunction FunctionReference;
+        public override string[] Extend(IBaseFunction input)
+        {
+            List<string> temp = new List<string>();
+            temp.Add(input.Name);
+            temp.AddRange(base.Extend());
+            FunctionReference.TryParse(new TFunction(FunctionReference, null, temp.ToArray(), null));
+            return Execute(FunctionReference.ReturnBubble.ToString());
+        }
+        public override Token Extend(Token input)
+        {
+            List<string> temp = new List<string>();
+            temp.Add(input.ToString());
+            temp.AddRange(base.Extend());
+            FunctionReference.TryParse(new TFunction(FunctionReference, null, temp.ToArray(), null));
+            return FunctionReference.ReturnBubble;
         }
     }
 }
