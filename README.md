@@ -1,4 +1,5 @@
-# TastyScript
+![Logo](Images/logo.png)
+
 [![version](https://img.shields.io/badge/Version-1.3.2-brightgreen.svg)](https://github.com/TastyGod/TastyScript/releases)
 [![donate](https://img.shields.io/badge/Donate-PayPal-ff69b4.svg)](https://paypal.me/MatthewAndrews88/5)
 
