@@ -8,9 +8,9 @@
 * [Order of Operations](#order-of-operations)
  
 # Introduction
-Welcome to **1.3.1**!
+Welcome to **1.3.2**!
 
-TastyScript is a simple procedural programming language which uses top level *functions* to execute lower level *commands*. Functions can call other functions, and you can *override* functions to build on top of their functionality with a modular approach.
+TastyScript is a simple programming language which uses top level *functions* to execute lower level *commands*. Functions can call other functions, and you can *override* functions to build on top of their functionality with a modular approach.
 
 Every script must have exactly one `Start()` function which is the entry point into your script.
 

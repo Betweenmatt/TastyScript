@@ -4,12 +4,14 @@
 * [ConnectDevice](#connectdevice)
 * [KeyEvent](#keyevent)
 * [If](#if)
+* [ImageLocation](#imagelocation)
 * [Loop](#loop)
 * [LongTouch](#longtouch)
 * [Print](#print)
 * [PrintLine](#printline)
 * [SendText](#sendtext)
 * [SetDefaultSleep](#setdefaultsleep)
+* [SetTemplateDefaultOptions](#settemplatedefaultoptions)
 * [Sleep](#sleep)
 * [Swipe](#swipe)
 * [TakeScreenshot](#takescreenshot)
@@ -49,6 +51,9 @@ Note: For this function to work correctly, you must provide a part of an image t
 Takes a screenshot of the current device, and compares it to the image at the *SuccessPath*. If the screenshot passes the threshold, Invoke *SuccessFunction*; else Invoke *FailFunction*.
 
 Use the overload to include a fail-check image to compare against. If the image at *SuccessPath* passes the threshold, Invoke *SuccessFunction*; then if the image at *FailPath* passes the threshold, Invoke *FailFunction*; else throws DriverException.
+
+**NOTE*** `.Threshold()` is obsolete with v1.3.2, please start using `.Prop()` extension. `.Prop()` uses the same parameters as [SetTemplateDefaultOptions()](#settemplatedefaultoptions) except you don't add the arguments to an array first.
+
 #### Examples
 ```
 function.Example(){
@@ -136,6 +141,30 @@ override.Start(){
 }
 ```
 
+---
+
+## ImageLocation
+ ***Introduced in v1.3.2***
+ 
+ ImageLocation(*Path*) |  |  | |
+:---:|:---:|:---:|:---:
+*Expected Arguments* | *Path*(string) |  | 
+*Extensions* | [.For()](/Wiki/Extensions.md#for) | [.Prop()]() |  
+*Override* | true | 
+#### Description
+Checks the image at the path given. If the image exists, returns an array `[x,y]`. If the image does not exist, returns `null`.
+
+**NOTE*** `.Prop()` uses the same parameters as [SetTemplateDefaultOptions()](#settemplatedefaultoptions) except you don't add the arguments to an array first.
+
+#### Examples
+```
+var coords = ImageLocation("myimg.png");
+if(!?coords).Then(=>(){
+	var x = coords.GetItem(0);
+	var y = coords.GetItem(1);
+	Touch(x,y);
+});
+```
 ---
 
 ## KeyEvent
@@ -269,6 +298,47 @@ SetDefaultSleep(*Sleep*) | | | |
 Sets the default sleep timer to the number (in milliseconds) provided *Sleep*. Script default is set at 1200.
 #### Examples
 `SetDefaultSleep(3000);#3 seconds`
+
+---
+
+## SetTemplateDefaultOptions
+***Introduced in v1.3.2***
+
+SetTemplateDefaultOptions(*Options*) | | | |
+:---:|:---:|:---:|:---:
+*Expected Arguments* | *Options*(array) |  |
+*Extensions* |  |  | 
+*Override* | true | |
+#### Description
+Sets the default template options for any function utilizing the AnalyzeScreen class(`CheckScreen()`,`ImageLocation()`). The array can 7 items in the order of `Threshold, Reduction, Split, CustomX, CustomY, CustomWidth, CustomHeight`. If you wish to not edit a value, enter `null` as the value.
+
+Defaults:
+
+ * Threshold = 90
+ * Reduction = 20
+ * Split = "All"
+ * CustomX - CustomHeight = 0
+
+Description:
+ 
+ * Threshold is for how close the image match should be. If you have a template that is reporting success when it shouldnt be, turn this up.
+ * Reduction is the percentage the images are reduced to, with a value of 20, the source and template image are reduced to 20% of their actual size. The smaller the size, the faster it takes to evaluate but at the cost of accuracy.
+ * Split takes a string input that must be one of the following: `"All","Top","Bottom","Left","Right","Q1","Q2","Q3","Q4","Custom"` `All` means the source is not split at all. `Top,Bottom,Left,Right` split the source image in half, the selected item is the side the template is checked against. `Q1` is top left, `Q2` top right, `Q3` bottom left, and `Q4` is bottom right. `Custom` lets you define a rectangle to crop by.
+ * CustomX is the `x` location to start the custom crop
+ * CustomY is the `y` location to start the custom crop
+ * CustomWidth is the width of your custom crop
+ * CustomHeight is the width of your custom crop.
+ 
+ By setting Custom, and giving parameters you can have your template checked against a much smaller area of the screen.
+ 
+#### Examples
+```
+var arr = array(null,25,"Q3");#ignore threshold, set reduction and split, ignore everything else
+var set = SetTemplateDefaultOptions(arr);
+PrintLine(set);
+#prints [90,25,Q4,0,0,0,0]
+#*the variable assignment is not required*
+```
 
 ---
 

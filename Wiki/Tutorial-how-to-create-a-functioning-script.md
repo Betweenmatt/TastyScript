@@ -21,6 +21,8 @@ All of your code should remain within the function blocks `{ }`, and any code ou
 
 Lets add a couple functions to your `Start()` function to get you started. First you need to get your device serial number(I'm assuming you already installed everything and got it hooked up by following the How To here*). Type in the console `devices` and your device serial number should be printed in the console. Once you have the serial number, change your `Start()` function to look like this, where `DEVICE SERIAL` is the serial that was printed in the console.:
 
+***Note*** With v1.3.1 you can omit device serial, and the program will choose the first device it finds.
+
 ```
 override.Start(){
    ConnectDevice("DEVICE SERIAL");
@@ -124,6 +126,8 @@ While you're at it, lets add a `ConnectDevice()` function and a `AppPackage()` f
 ![shell get focus example](/Images/shell_getpackage.png)
 
 Find the app package where it says `com.xxx.xxx` followed by a slash and another `com.xxx.xxx`; the section before the slash is the App Package. As you can see in the image above, `com.vespainteractive.KingsRaid` is before the slash, because that is the app I had opened when I took the picture. ***Note:*** You can opt-out of using an App Package name, but I *highly* suggest that you don't. If you don't use one, the bot will continue to run, touch, press buttons no matter what is the current focus; even if you get a phone call, or your boss walks in and you press the home button really fast - the bot will keep going. With setting the correct App Package, the bot checks before it makes any action to see if its on the right focus. Occasionally a touch will get through when dropping focus due to lag between ADB and the device, but with v1.2.1 its pretty rare.
+
+***Note*** With v1.3.1 you can omit the app package parameter, and the program will find the first active app on your device.
 
 So now your `Start()` function will look something like this:
 
