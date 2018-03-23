@@ -29,6 +29,7 @@ namespace TastyScript.Lang
         void TryParse(TFunction caller);
         void SetProperties(string name, string[] args, bool invoking, bool isSealed, bool obsolete, string[] alias, bool anon);
         bool Sealed { get; }
+        bool IsLoop { get; }
         TokenStack LocalVariables { get; set; }
         Token ReturnBubble { get; set; }
         bool ReturnFlag { get; set; }
@@ -106,6 +107,7 @@ namespace TastyScript.Lang
         public bool ReturnFlag { get;  set; }
         public Dictionary<string,string> Directives { get; protected set; }
         public bool Override { get; protected set; }
+        public bool IsLoop { get; protected set; }
         public object GetValue()
         {
             throw new NotImplementedException();
@@ -165,9 +167,15 @@ namespace TastyScript.Lang
         {
             ReturnBubble = value;
             ReturnFlag = true;
+            if (Caller != null && Caller.CallingFunction != null && Caller.CallingFunction.IsLoop)
+            {
+                var tracer = Tracer;
+                if (tracer != null)
+                    tracer.SetBreak(true);
+            }
             if (Caller != null)
             {
-                if (IsAnonymous)
+                if (IsAnonymous || Invoking)
                     Caller.CallingFunction.ReturnToTopOfBubble(value);
             }
         }
@@ -417,6 +425,7 @@ namespace TastyScript.Lang
         /// <param name="findFor"></param>
         protected virtual void ForExtension(TFunction caller, ExtensionFor findFor)
         {
+            this.IsLoop = true;
             string[] forNumber = findFor.Extend();
             int forNumberAsNumber = int.Parse(forNumber[0]);
             var tracer = new LoopTracer();

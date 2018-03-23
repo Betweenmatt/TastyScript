@@ -15,6 +15,7 @@ namespace TastyScript.Lang.Functions
     {
         public override string CallBase()
         {
+            this.IsLoop = true;
             var prov = ProvidedArgs.First("invoke");
             if (prov == null)
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"[247]Invoke function cannot be null.", LineValue));
