@@ -2,8 +2,9 @@
 #start. don't put any heavy data here! only use for initializers/notes
 #all awake functions in the script are executed!!!!
 function.Awake(){
-	ConnectDevice("YOUR DEVICE SERIAL NUMBER HERE");
-	AppPackage("com.vespainteractive.KingsRaid");
+	ConnectDevice();#connects to the first available device
+	AppPackage();#sets the app that is currently in focus
+	SetRes();#set the script resolution to the device resolution
 	Print(DateTime);
 	PrintLine(" : Starting...");
 }
@@ -17,6 +18,18 @@ override.Halt(){
 #this is the accept button for the standard popup in KR
 function.Accept(){
 	Touch(631, 531);
+}
+#Gets the device screen size, and sets the touch override to the size.
+#PLEASE NOTE: ScreenSize() gets the screen size in PORTRAIT, so we swap them
+#on landscape games.
+function.SetRes(){
+	var size = ScreenSize();
+	if(!?size).Then(=>(){
+		$var XRes = size.GetItem(1);
+		$var YRes = size.GetItem(0);
+		var p = "Setting screen size to: " + XRes + " X " + YRes;
+		PrintLine(p);
+	});
 }
 ###
 # This is a helper function which converts the x y coordinates
