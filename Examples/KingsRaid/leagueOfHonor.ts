@@ -1,7 +1,7 @@
-@import tools.ts;
+@import ../tools.ts;
 @end
 override.Start(){
-	MainLoop().For(0);
+	Loop("MainLoop");
 }
 function.MainLoop(){
 	Queue();
