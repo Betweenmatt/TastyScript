@@ -46,14 +46,14 @@ function.MainLoop(var i){
 					#return
 				},=>(){
 					BackArrow();
-				},"/startbattle.png");
+				},"img/startbattle.png");
 			});
 		StartBattle();
 	},=>(){
 		#do this a few times since its short and can help
 		#speed things up
 		ReturnFromBattle().For(5);
-	},"/startbattle.png");
+	},"img/startbattle.png");
 }
 #tries to start the battle, uses a pot if needed
 #and then tries again, and then sleeps for 2 minutes

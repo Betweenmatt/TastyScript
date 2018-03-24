@@ -1,4 +1,4 @@
-@import tools.ts;
+@import ../tools.ts;
 @end
 override.Start(){
 	#slow down the sleep timer on overnight stam burning

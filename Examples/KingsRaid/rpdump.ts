@@ -1,4 +1,4 @@
-@import tools.ts;
+@import ../tools.ts;
 @end
 override.Start(){
 	Loop("RaidScreen");
