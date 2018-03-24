@@ -29,24 +29,27 @@ Now that's a lot easier to manage than the first example! Note the `var i` decla
 override.Start(){
     var mathExp = [2 * 2];
     If(mathExp >= 2)
-        .Then(=>(mathExp){
+        .Then(=>(){
             PrintLine("Math Expression is: ").Concat(mathExp);
         });
 }
 ```
 
-As you can see from the arbitrary example above, `Lambda Expressions` perform the action of defining *and* providing arguments. To use a value from the parent scope in `Lambda Expression`, you must pass it via the arguments `=>(arg1, arg2, arg3)`. This brings me back to the above point about declaring the variable in the parameters; because a variable can't be used in a function without defining it first. An alternative path would be this, if you so choose:
+As you can see from the arbitrary example above, `Lambda Expressions` perform the action of defining *and* providing arguments. ~~To use a value from the parent scope in `Lambda Expression`, you must pass it via the arguments `=>(arg1, arg2, arg3)`. This brings me back to the above point about declaring the variable in the parameters; because a variable can't be used in a function without defining it first. An alternative path would be this, if you so choose:~~
+
+In 1.3.1 now local variables and parameters are automagically passed down through nested functions. Like so:
 
 ```
-override.Start(){
-    var i = 0;
-    Loop(=>(i){
-        PrintLine("I'm an infinate loop!");
-        Sleep(1000);
+function.Start(){
+    var willBePassed = 12;
+    Loop(=>(var i){
+        var willBePassed += i;
+        if(willBePassed > 12).Then(=>(){
+            PrintLine(willBePassed);
+            Break();
+        });
     });
 }
 ```
-
-This would provide the same result as defining `i` inside the parameters.
 
 `Lambda Expression` can be used anywhere that needs to invoke a function via a string, and can be nested as deeply as needed. Please note that extremely deep nested functions may take a performance hit! So use within reason :).
