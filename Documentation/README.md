@@ -22,7 +22,7 @@ function.Start(){
 
 # Extensions
 
-Extensions are a very basic way to add optional functionality to some [Predefined Functions](/Functions.md) You can find the list of Extensions [Here](/Extensions.md). Extensions are prepended with a period\(.\) and, like *Functions*, always require arguments.
+Extensions are a very basic way to add optional functionality to some [Predefined Functions](Functions#functions-table-of-contents) You can find the list of Extensions [Here](/Extensions.md). Extensions are prepended with a period\(.\) and, like *Functions*, always require arguments.
 
 ```
 function.Start(){
@@ -172,6 +172,23 @@ function.Start(){
 	});
 }
 ```
+
+# Operators
+* `=` - A basic assignment operator.
+* `+=` - The addition assignment operator. `x += y` is equivalent to `x = x + y`.
+* `-=` - The negative assignment operator. `x -= y` is equivalent to `x = x - y`.
+* `++` - The positive incremental operator. `x++` is equivalent to `x = x + 1`.
+* `--` - The negative incremental operator. `x--` is equivalent to `x = x - 1`.
+* `==` - The equals comparison operator.
+* `!=` - The not-equals comparison operator.
+* `>` - The greater than comparison operator.
+* `<` - The less than comparison operator.
+* `>=` - The greater than or equals to comparison operator.
+* `<=` - The less than or equals to comparison operator.
+* `!` - The one sided not operator. `!bool` is equivalent to `bool != true`.
+* `?` - The one sided null conditional. `?x` is equivalent to `x == null`.
+* `!?` - The one sided not null conditional. `!?x` is equivalent to `x != null`.
+
 
 # Order of Operations
 The Order of Operations, or what I like to call the OoO, works in a predictable and sensible way. The compiler first gets all the functions from your script and assigns them for later reference. Then it proceeds with the `Awake()` and then the `Start()` function, going line by line evaluating your commands. 
