@@ -53,7 +53,7 @@ The above example would run and print `Hello World!`. **Note:** The import secti
 
 # Overriding
 
-You can override pre-defined functions with the `override` tag. Overriding is useful for adding additional functionality to the pre-defined functions. Note some functions are `Sealed` and cannot be overriden! If you take a look at the [Functions](/Wiki/Functions.md) page you can see which functions are sealed.
+You can override pre-defined functions with the `override` tag. Overriding is useful for adding additional functionality to the pre-defined functions. Note some functions are `Sealed` and cannot be overriden! If you take a look at the [Functions](Functions#functions-table-of-contents) page you can see which functions are sealed.
 
 ```
 override.Start(){
@@ -189,64 +189,3 @@ function.Start(){
 * `?` - The one sided null conditional. `?x` is equivalent to `x == null`.
 * `!?` - The one sided not null conditional. `!?x` is equivalent to `x != null`.
 
-
-# Order of Operations
-The Order of Operations, or what I like to call the OoO, works in a predictable and sensible way. The compiler first gets all the functions from your script and assigns them for later reference. Then it proceeds with the `Awake()` and then the `Start()` function, going line by line evaluating your commands. 
-
-The order a line of code is parsed to find the correct token:
-
-1) Mathematical expressions\*
-1) Arrays\*\*
-2) Parameters\*\*
-4) Followed by strings then numbers
-5) Extensions and last, functions.
-
-*\* Mathematical Expressions search for any variables before evaluating the expression*
-
-*\*\*Arrays and Parameters parse somewhat recursively, allowing you to put functions and extensions directly in parameters instead of assigning variables for each one*
-
-Here are some examples: 
-
-```
-#in this example, First would be printed and Second would be ignored
-override.Start(){
-    DoubleFunctionExample();
-}
-function.DoubleFunctionExample(){
-    PrintLine("First");
-}
-function.DoubleFunctionExample(){
-    PrintLine("Second");
-}
-#in this example, Second would be printed before First.
-#this is because functions are added to the stack before overrides regardless of
-#the order they were created.
-override.Start(){
-   Print("Hello, World!");
-}
-override.Print(args[]){
-    PrintLine("First");
-    PrintLine(args[]);
-}
-function.Print(arg){
-    PrintLine("Second");
-    PrintLine(arg);
-}
-#this example shows the Awake function, and if you were to run it it would print Hello.
-function.Awake(){
-   Print("H");
-}
-function.Awake(){
-   Print("e");
-}
-function.Awake(){
-   Print("l");
-}
-function.Awake(){
-   Print("l");
-}
-function.Awake(){
-   Print("o");
-   PrintLine("");
-}
-```
