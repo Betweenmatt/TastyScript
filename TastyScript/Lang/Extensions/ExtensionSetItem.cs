@@ -11,7 +11,7 @@ namespace TastyScript.Lang.Extensions
     /// Replaces the extended collections object at the given index with the given object
     /// null index adds the given object to the end of the collection
     /// </summary>
-    [Extension("SetItem",new string[] { "arr", "index" }, varExtension:true)]
+    [Extension("SetItem",new string[] { "arr", "index" }, varExtension:true,alias:new string[] { "Add" })]
     [Serializable]
     internal class ExtensionSetItem : EDefinition
     {

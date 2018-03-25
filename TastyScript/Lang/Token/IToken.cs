@@ -99,7 +99,11 @@ namespace TastyScript.Lang.Tokens
         }
         public string[] Add(string s)
         {
-            Arguments = (Arguments ?? Enumerable.Empty<string>()).Concat(Enumerable.Repeat(s, 1)).ToArray();
+            //Arguments = (Arguments ?? Enumerable.Empty<string>()).Concat(Enumerable.Repeat(s, 1)).ToArray();
+            if (Arguments == null || Arguments.Length < 1 || (Arguments.Length == 1 && Arguments[0] == ""))
+                Arguments = new string[] { s };
+            else
+                Arguments = Arguments.Concat(Enumerable.Repeat(s, 1)).ToArray();
             return Arguments;
         }
         public void Remove(int index)
