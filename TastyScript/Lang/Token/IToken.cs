@@ -12,7 +12,7 @@ namespace TastyScript.Lang.Tokens
     {
         public string Name { get; protected set; }
         protected string _value = "[Type.Token]";
-        public string Value
+        public virtual string Value
         {
             get
             {
@@ -75,6 +75,12 @@ namespace TastyScript.Lang.Tokens
     internal class TArray : Token
     {
         public string[] Arguments { get; private set; }
+        public override string Value {
+            get
+            {
+                return ToString();
+            }
+        }
         public TArray(string name, string[] val, string line, bool locked = false)
         {
             Name = name;
@@ -95,6 +101,12 @@ namespace TastyScript.Lang.Tokens
         {
             Arguments = (Arguments ?? Enumerable.Empty<string>()).Concat(Enumerable.Repeat(s, 1)).ToArray();
             return Arguments;
+        }
+        public void Remove(int index)
+        {
+            var newArgs = Arguments.ToList();
+            newArgs.RemoveAt(index);
+            Arguments = newArgs.ToArray();
         }
         public override string ToString()
         {

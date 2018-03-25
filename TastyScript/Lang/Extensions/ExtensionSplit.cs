@@ -21,7 +21,7 @@ namespace TastyScript.Lang.Extensions
             {
                 //Compiler.ExceptionListener.Throw($"{this.Name} arguments cannot be null.",
                 //  ExceptionType.CompilerException, input.Line);
-                var outstr = input.Value.CleanString().ToCharArray().Select(c => c.ToString()).ToArray();
+                var outstr = input.Value.UnCleanString().ToCharArray().Select(c => c.ToString()).ToArray();
                 var outtok = new TArray("AnonArr", outstr, input.Line);
                 return outtok;
             }

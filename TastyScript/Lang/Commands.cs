@@ -19,7 +19,7 @@ namespace TastyScript.Lang
     {
         public static void Connect(string i)
         {
-            Main.AndroidDriver = new Android.Driver(i.CleanString());
+            Main.AndroidDriver = new Android.Driver(i.UnCleanString());
         }
         public static void Tap(int x, int y)
         {
@@ -39,7 +39,7 @@ namespace TastyScript.Lang
         }
         public static void SendText(string text)
         {
-            Main.AndroidDriver.SendCommand($"input text {text.CleanString().Replace(" ", "%s")}");
+            Main.AndroidDriver.SendCommand($"input text {text.UnCleanString().Replace(" ", "%s")}");
         }
         public static Image GetScreenshot()
         {
@@ -47,7 +47,7 @@ namespace TastyScript.Lang
         }
         public static void SetAppPackage(string pkg)
         {
-            Main.AndroidDriver.SetAppPackage(pkg.CleanString());
+            Main.AndroidDriver.SetAppPackage(pkg.UnCleanString());
         }
         public static bool CheckFocus()
         {
@@ -56,7 +56,7 @@ namespace TastyScript.Lang
         public static double[] GetImageCoordinates(string path, string[] prop)
         {
             AnalyzeScreen a = new AnalyzeScreen();
-            var ret = a.GetScreenCoords(path.CleanString(), prop);
+            var ret = a.GetScreenCoords(path.UnCleanString(), prop);
             return ret;
         }
         public static void AnalyzeScreen(string success, IBaseFunction successAction, IBaseFunction failureAction, string[] prop, TFunction caller = null)
@@ -69,7 +69,7 @@ namespace TastyScript.Lang
                 Thread th = new Thread(() =>
                 {
                     AnalyzeScreen ascreen = new AnalyzeScreen();
-                    ascreen.Analyze(success.CleanString(),
+                    ascreen.Analyze(success.UnCleanString(),
                         () => { finished = true; func = true; },
                         () => { finished = true; },
                         prop
@@ -115,7 +115,7 @@ namespace TastyScript.Lang
                 Thread th = new Thread(() =>
                 {
                     AnalyzeScreen ascreen = new AnalyzeScreen();
-                    ascreen.Analyze(success.CleanString(), failure.CleanString(),
+                    ascreen.Analyze(success.UnCleanString(), failure.UnCleanString(),
                             () => { finished = true; func = true; },
                             () => { finished = true; },
                             prop

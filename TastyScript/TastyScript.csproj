@@ -115,7 +115,9 @@
     <Compile Include="Android\Driver.cs" />
     <Compile Include="IIOStream.cs" />
     <Compile Include="Lang\Extensions\ExtensionProp.cs" />
+    <Compile Include="Lang\Extensions\ExtensionRemoveAt.cs" />
     <Compile Include="Lang\Extensions\ExtensionSave.cs" />
+    <Compile Include="Lang\Extensions\ExtensionToString.cs" />
     <Compile Include="Lang\Functions\FunctionImageLocation.cs" />
     <Compile Include="Lang\Functions\FunctionScreenSize.cs" />
     <Compile Include="Lang\Functions\FunctionSetTemplateDefaultOptions.cs" />
@@ -221,7 +223,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties BuildVersion_AssemblyInfoFilename="..\GlobalAssemblyInfo.cs" BuildVersion_UpdateFileVersion="True" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_BuildVersioningStyle="None.None.None.DeltaBaseDateInDays" BuildVersion_UseGlobalSettings="False" BuildVersion_StartDate="2018/2/5" />
+      <UserProperties BuildVersion_StartDate="2018/2/5" BuildVersion_UseGlobalSettings="False" BuildVersion_BuildVersioningStyle="None.None.None.DeltaBaseDateInDays" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_UpdateFileVersion="True" BuildVersion_AssemblyInfoFilename="..\GlobalAssemblyInfo.cs" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

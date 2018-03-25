@@ -94,6 +94,15 @@ namespace TastyScript.Lang
                         case (','):
                             output += "&coma;";
                             break;
+                        case ('\r'):
+                            output += "&CR;";
+                            break;
+                        case ('\n'):
+                            output += "&LF;";
+                            break;
+                        case ('\t'):
+                            output += "&tab;";
+                            break;
                         default:
                             output += value[i];
                             break;
@@ -1003,7 +1012,7 @@ namespace TastyScript.Lang
             }
             return text.Substring(0, pos) + replace + text.Substring(pos + search.Length);
         }
-        public static string CleanString(this string input)
+        public static string UnCleanString(this string input)
         {
             return input
                 .Replace("&coma;", ",")
@@ -1021,8 +1030,35 @@ namespace TastyScript.Lang
                 .Replace("&rbrace;", "}")
                 .Replace("&lchev;", "<")
                 .Replace("&rchev;", ">")
-                .Replace("&period;", ".")
-                .Replace("&amp;", "&");
+                .Replace("&CR;","\r")
+                .Replace("&LF;","\n")
+                .Replace("&tab;","\t")
+                .Replace("&period;", ".");
+                //.Replace("&amp;", "&");
+        }
+        public static string CleanString(this string input)
+        {
+            return input
+                .Replace(",", "&coma;")
+                .Replace("+", "&plus;")
+                .Replace("-", "&neg;")
+                .Replace("=", "&eq;")
+                .Replace("%", "&per;")
+                .Replace("$", "&dollar;")
+                .Replace("!", "&expl;")
+                .Replace("(", "&lparen;")
+                .Replace(")", "&rparen;")
+                .Replace("[", "&lbrack;")
+                .Replace("]", "&rbrack;")
+                .Replace("{", "&lbrace;")
+                .Replace("}", "&rbrace;")
+                .Replace("<", "&lchev;")
+                .Replace(">", "&rchev;")
+                .Replace("\r", "&CR;")
+                .Replace("\n", "&LF;")
+                .Replace("\t", "&tab;")
+                .Replace(".", "&period;");
+                //.Replace("&", "&amp;");
         }
     }
 }
