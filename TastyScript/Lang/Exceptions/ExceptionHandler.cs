@@ -12,7 +12,8 @@ namespace TastyScript.Lang
         SystemException,
         SyntaxException,
         CompilerException,
-        NullReferenceException
+        NullReferenceException,
+        UserCreatedException
     }
     public class ExceptionHandler
     {
