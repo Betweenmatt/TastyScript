@@ -66,5 +66,32 @@ namespace Kbg.NppPluginNET
         {
             this.outTextBox.Clear();
         }
+
+        private void clearButton_Click(object sender, EventArgs e)
+        {
+            Clear();
+        }
+        private void SendLine()
+        {
+            var str = this.inputBox.Text.Replace("\r", "").Replace("\n", "").Replace("\t", "");
+            IOStream.Instance.InputTextRecieved(str);
+        }
+        private void sendButton_Click(object sender, EventArgs e)
+        {
+            SendLine();
+        }
+
+        private void inputBox_TextChanged(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar == (char)Keys.Return)
+            {
+                SendLine();
+            }
+        }
+
+        private void startStopButton_Click(object sender, EventArgs e)
+        {
+            Main.RunStopTS();
+        }
     }
 }
