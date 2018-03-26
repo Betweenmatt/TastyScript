@@ -15,7 +15,10 @@ namespace TastyScript.Lang.Functions
         {
             var argsList = ProvidedArgs.First("keyevent");
             if (argsList == null)
+            {
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.NullReferenceException, "Arguments cannot be null.", LineValue));
+                return null;
+            }
 
             if (Main.AndroidDriver != null)
             {
@@ -23,8 +26,11 @@ namespace TastyScript.Lang.Functions
                 AndroidKeyCode newcol = AndroidKeyCode.A;
                 var nofail = Enum.TryParse<AndroidKeyCode>(argsList.ToString().UnCleanString(), out newcol);
                 if (!nofail)
+                {
                     Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException,
                         $"The Key Event {argsList.ToString()} could not be found.", LineValue));
+                    return null;
+                }
                 Commands.KeyEvent(newcol);
             }
             else

@@ -18,11 +18,15 @@ namespace TastyScript.Lang.Functions
             this.IsLoop = true;
             var prov = ProvidedArgs.First("invoke");
             if (prov == null)
+            {
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"[247]Invoke function cannot be null.", LineValue));
+                return null;
+            }
             var func = FunctionStack.First(prov.ToString());
             if (func == null)
             {
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"[250]Invoke function cannot be null.", LineValue));
+                return null;
             }
             var findFor = Extensions.FirstOrDefault(f => f.Name == "For") as ExtensionFor;
             if (findFor != null && findFor.Extend() != null && findFor.Extend().ElementAtOrDefault(0) != null && findFor.Extend()[0] != "")

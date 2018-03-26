@@ -21,6 +21,7 @@ namespace TastyScript.Lang.Functions
             {
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.NullReferenceException,
                     $"The function [{this.Name}] requires [{ExpectedArgs.Length}] TNumber arguments", LineValue));
+                return null;
             }
             double intX1 = double.Parse(x1.ToString());
             double intY1 = double.Parse(y1.ToString());

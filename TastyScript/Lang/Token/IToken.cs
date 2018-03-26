@@ -67,6 +67,8 @@ namespace TastyScript.Lang.Tokens
         }
         public override string ToString()
         {
+            if (Value == null)
+                return "null";
             //return public to get the action response when used 
             return Value;
         }

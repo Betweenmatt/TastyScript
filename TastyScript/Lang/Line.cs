@@ -874,8 +874,6 @@ namespace TastyScript.Lang
                     return TryParseMember(t);
                 }
             }
-            //if (t.Function.Name == "Break")
-            //    TryParseMember(t);
             return null;
         }
         private Token TryParseMember(TFunction t)
@@ -1014,6 +1012,8 @@ namespace TastyScript.Lang
         }
         public static string UnCleanString(this string input)
         {
+            if (input == null)
+                return "";
             return input
                 .Replace("&coma;", ",")
                 .Replace("&plus;", "+")
@@ -1038,6 +1038,8 @@ namespace TastyScript.Lang
         }
         public static string CleanString(this string input)
         {
+            if (input == null)
+                return "";
             return input
                 .Replace(",", "&coma;")
                 .Replace("+", "&plus;")
