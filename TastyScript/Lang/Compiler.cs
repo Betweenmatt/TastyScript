@@ -9,7 +9,7 @@ using TastyScript.Lang.Extensions;
 
 namespace TastyScript.Lang
 {
-    internal class Compiler
+    public class Compiler
     {
         private List<IBaseFunction> _compileStack;
         public static Dictionary<string, string> Files;
@@ -222,7 +222,7 @@ namespace TastyScript.Lang
             TokenParser p = new TokenParser(list);
         }
     }
-    internal class LoopTracer
+    public class LoopTracer
     {
         private static int index = 0;
         public bool Break { get; private set; }

@@ -8,5 +8,5 @@ namespace TastyScript.Lang.Extensions
 {
     [Extension("For", new string[] { "enumerator" })]
     [Serializable]
-    internal class ExtensionFor : EDefinition { }
+    public class ExtensionFor : EDefinition { }
 }

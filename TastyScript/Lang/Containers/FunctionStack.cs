@@ -9,7 +9,7 @@ using TastyScript.Lang.Containers;
 namespace TastyScript.Lang
 {
     [Serializable]
-    internal class FunctionStack : StaticList<IBaseFunction>
+    public class FunctionStack : StaticList<IBaseFunction>
     {
         public static List<IBaseFunction> List { get { return _tlist; } }
         public static IBaseFunction First(string name, bool useAlias = true)

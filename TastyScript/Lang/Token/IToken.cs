@@ -8,7 +8,7 @@ using TastyScript.Lang.Extensions;
 namespace TastyScript.Lang.Tokens
 {
     [Serializable]
-    internal class Token
+    public class Token
     {
         public string Name { get; protected set; }
         protected string _value = "[Type.Token]";
@@ -74,7 +74,7 @@ namespace TastyScript.Lang.Tokens
         }
     }
     [Serializable]
-    internal class TArray : Token
+    public class TArray : Token
     {
         public string[] Arguments { get; private set; }
         public override string Value {
@@ -176,7 +176,7 @@ namespace TastyScript.Lang.Tokens
         }
     }
     [Serializable]
-    internal class TFunction : Token
+    public class TFunction : Token
     {
         public IBaseFunction Function { get; private set; }
         public string[] Arguments { get; private set; }
@@ -314,7 +314,7 @@ namespace TastyScript.Lang.Tokens
             return Value.Value;
         }
     }
-    internal interface IBaseToken
+    public interface IBaseToken
     {
         bool Locked { get; }
         string Name { get; }

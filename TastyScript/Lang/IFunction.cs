@@ -9,7 +9,7 @@ using TastyScript.Lang.Tokens;
 
 namespace TastyScript.Lang
 {
-    internal interface IBaseFunction : IBaseToken
+    public interface IBaseFunction : IBaseToken
     {
         int UID { get; }
         TokenStack ProvidedArgs { get; }
@@ -40,17 +40,13 @@ namespace TastyScript.Lang
         //this method sets the return flag and value, and tries to return
         //from the calling function if it is also anonymous
         void ReturnToTopOfBubble(Token value);
-    }
-    internal interface IFunction : IBaseFunction
-    {
-        string Value { get; }
         string Parse();
     }
-    internal interface IOverride : IFunction
+    public interface IOverride
     {
         string CallBase();
     }
-    internal class AnonymousFunction : IFunction
+    public class AnonymousFunction : IBaseFunction
     {
         public int UID { get; protected set; }
         private static int _uidIndex = -1;

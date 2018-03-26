@@ -8,7 +8,7 @@ using TastyScript.Lang.Tokens;
 namespace TastyScript.Lang
 {
     [Serializable]
-    internal class TokenStack : ObjectStack<Token>
+    public class TokenStack : ObjectStack<Token>
     {
         public List<Token> List { get { return _tlist; } }
         public Token First(string name)
@@ -25,7 +25,7 @@ namespace TastyScript.Lang
         }
     }
     [Serializable]
-    internal abstract class ObjectStack<T>
+    public abstract class ObjectStack<T>
     {
         protected List<T> _tlist;
         public ObjectStack()

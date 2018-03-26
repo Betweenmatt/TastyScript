@@ -9,7 +9,7 @@ using TastyScript.Lang.Extensions;
 namespace TastyScript.Lang
 {
     [Serializable]
-    internal class ExtensionStack : StaticList<EDefinition>
+    public class ExtensionStack : StaticList<EDefinition>
     {
         public static List<EDefinition> List { get { return _tlist; } }
         public static EDefinition First(string name, bool useAlias = true)

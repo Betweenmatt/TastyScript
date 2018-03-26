@@ -13,7 +13,7 @@ using Newtonsoft.Json;
 
 namespace TastyScript.Lang
 {
-    internal class Line
+    public class Line
     {
         private IBaseFunction _reference;
         public string Value { get; private set; }

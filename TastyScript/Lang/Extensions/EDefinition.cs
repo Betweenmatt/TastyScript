@@ -6,7 +6,7 @@ using TastyScript.Lang.Tokens;
 namespace TastyScript.Lang.Extensions
 {
     
-    internal interface IExtension
+    public interface IExtension
     {
         string Name { get; }
         string Arguments { get; }
@@ -20,7 +20,7 @@ namespace TastyScript.Lang.Extensions
         void SetArguments(string args);
     }
     [Serializable]
-    internal class EDefinition : IExtension
+    public class EDefinition : IExtension
     {
         public string Name { get; protected set; }
         public string[] ExpectedArgs { get; protected set; }
@@ -118,7 +118,7 @@ namespace TastyScript.Lang.Extensions
      * to, and the `Return` is the value that is returned since all value types are immutable
      * 
      * */
-    internal class CustomExtension : EDefinition
+    public class CustomExtension : EDefinition
     {
         public IBaseFunction FunctionReference;
         public override string[] Extend(IBaseFunction input)
