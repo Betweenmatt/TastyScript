@@ -26,7 +26,8 @@ namespace TastyScript
             //on load set predefined functions and extensions to mitigate load from reflection
             predefinedFunctions = Utilities.GetPredefinedFunctions();
             Compiler.PredefinedList = predefinedFunctions;
-            Utilities.GetExtensions();
+            ExtensionStack.Clear();
+            ExtensionStack.AddRange(Utilities.GetExtensions());
             Compiler.ExceptionListener = new ExceptionListener();
             //
         }
@@ -37,7 +38,8 @@ namespace TastyScript
             //on load set predefined functions and extensions to mitigate load from reflection
             predefinedFunctions = Utilities.GetPredefinedFunctions();
             Compiler.PredefinedList = predefinedFunctions;
-            Utilities.GetExtensions();
+            ExtensionStack.Clear();
+            ExtensionStack.AddRange(Utilities.GetExtensions());
             Compiler.ExceptionListener = el;
             ExceptionListener.stupidFix = true;
             //

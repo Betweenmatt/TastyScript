@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -17,6 +19,8 @@ namespace TastyScript.Lang
         public static List<IBaseFunction> PredefinedList;
         public static List<LoopTracer> LoopTracerStack;
         private static int _anonymousFunctionIndex = -1;
+        private List<IBaseFunction> importFStack = new List<IBaseFunction>();
+        private List<EDefinition> importEStack = new List<EDefinition>();
         public static int AnonymousFunctionIndex
         {
             get
@@ -34,7 +38,23 @@ namespace TastyScript.Lang
             var onefile = ParseImports(file);
             _compileStack = ParseScopes(onefile, predefined);
             _compileStack.AddRange(predefined);
+            _compileStack.AddRange(importFStack);
+            ExtensionStack.AddRange(importEStack);
             StartScope(_compileStack);
+        }
+        private void ImportDlls(string path)
+        {
+            //wip
+            throw new NotImplementedException();
+            //Console.WriteLine(AppDomain.CurrentDomain.BaseDirectory);
+            //Console.WriteLine(path);
+            //var newpath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, path);
+            //Console.WriteLine(newpath);
+            path = path.Replace("\r", "").Replace("\n", "");
+            Assembly dll = Assembly.LoadFrom(AppDomain.CurrentDomain.BaseDirectory + "lib/" + path);
+            importFStack.AddRange(Utilities.GetPredefinedFunctions(new Assembly[] { dll }));
+            importEStack.AddRange(Utilities.GetExtensions(new Assembly[] { dll }));
+
         }
         private string ParseImports(string file)
         {
@@ -55,13 +75,22 @@ namespace TastyScript.Lang
                         {
                             try
                             {
-                                var fileContents = Utilities.GetFileFromPath(path);
-                                Files.Add(path, fileContents);
-                                //add functions first
-                                output += ParseImports(fileContents);
+                                if (path.Contains(".dll"))
+                                {
+                                    ImportDlls(path);
+                                    Files.Add(path, path);
+                                }
+                                else
+                                {
+                                    var fileContents = Utilities.GetFileFromPath(path);
+                                    Files.Add(path, fileContents);
+                                    //add functions first
+                                    output += ParseImports(fileContents);
+                                }
                             }
-                            catch
+                            catch(Exception e)
                             {
+                                Console.WriteLine(e);
                                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException, $"Error importing {file}."));
                             }
                         }

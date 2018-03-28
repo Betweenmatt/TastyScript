@@ -24,7 +24,7 @@ namespace TastyScript.Lang.Functions
         }
         
     }
-    internal class FDefinition : AnonymousFunction, IOverride
+    public class FDefinition : AnonymousFunction, IOverride
     {
         public virtual string CallBase() { return ""; }
         public override void TryParse(TFunction caller)
