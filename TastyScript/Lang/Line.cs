@@ -126,6 +126,8 @@ namespace TastyScript.Lang
             value = ReplaceAllNotInStringWhiteSpace(value);
             //TFunction temp = null;
             value = ParseMathExpressions(value);
+            if (value == null)
+                return;
             value = ParseArrays(value);
             value = ParseParameters(value);
             value = ParseStrings(value);
@@ -144,13 +146,14 @@ namespace TastyScript.Lang
             if (value.Contains("var%"))
             {
                 value = EvaluateVar(value);
-                if (value == "")
+                if (value == null || value == "")
                     return;// temp;
             }
             //try extension sweep after vars instead of before
             //value = EvaluateVarExtensions(value);
             var ext = ParseExtensions(value);
-
+            if (ext == null)
+                return;
             //
             //temp =
             ParseFunctions(value, ext);
@@ -201,7 +204,9 @@ namespace TastyScript.Lang
                 if (input != null && input != "")
                 {
                     string tokenname = "{AnonGeneratedToken" + TokenParser.AnonymousTokensIndex + "}";
-                    double exp = MathExpression(input);
+                    double? exp = MathExpression(input);
+                    if (exp == null)
+                        return null;
                     TokenParser.AnonymousTokens.Add(new Token(tokenname, exp.ToString(), Value));
                     value = value.Replace(x.ToString(), tokenname);
                 }
@@ -333,15 +338,24 @@ namespace TastyScript.Lang
                     var first = firstSplit[i];
                     var secondSplit = first.Split(new string[] { "->" }, StringSplitOptions.None);
                     if (secondSplit.Length != 2)
-                        Compiler.ExceptionListener.Throw("[160]Extensions must provide arguments",ExceptionType.SyntaxException);
+                    {
+                        Compiler.ExceptionListener.Throw("[160]Extensions must provide arguments", ExceptionType.SyntaxException);
+                        return null;
+                    }
                     var original = ExtensionStack.First(secondSplit[0]);
                     if (original == null)
+                    {
                         Compiler.ExceptionListener.Throw($"[310]Cannot find extension [{secondSplit[0]}]");
+                        return null;
+                    }
                     //Console.WriteLine(secondSplit[0] + " " + secondSplit[1]);
                     var clone = DeepCopy(original);
                     var param = GetTokens(new string[] { secondSplit[1].Replace("|", "") });
                     if (param.Count != 1)
+                    {
                         Compiler.ExceptionListener.Throw("[166]Extensions must provide arguments", ExceptionType.SyntaxException);
+                        return null;
+                    }
                     if (clone.Invoking)
                     {
                         var invokeFuncName = param[0].ToString();
@@ -380,12 +394,18 @@ namespace TastyScript.Lang
                 if (safelook)
                     return "";
                 else
+                {
                     Compiler.ExceptionListener.Throw($"[181]Cannot find function [{secondSplit[0]}]", ExceptionType.SyntaxException);
+                    return null;
+                }
             }
             //get args
             var param = GetTokens(new string[] { secondSplit[1] });
             if (param.Count != 1)
+            {
                 Compiler.ExceptionListener.Throw("[185]Extensions must provide arguments", ExceptionType.SyntaxException);
+                return null;
+            }
             if (func.Invoking)
             {
                 var invokeFuncName = param[0].ToString();
@@ -454,6 +474,7 @@ namespace TastyScript.Lang
                     else
                     {
                         Compiler.ExceptionListener.Throw("[441]Unexpected error finding token.",ExceptionType.SyntaxException);
+                        return null;
                     }
                 }
                 if (returnInput)
@@ -474,10 +495,11 @@ namespace TastyScript.Lang
             {
                 //throw new Exception();
                 Compiler.ExceptionListener.Throw($"Cannot find tokens [{string.Join(",", names)}]");
+                return null;
             }
             return temp;
         }
-        private double MathExpression(string expression)
+        private double? MathExpression(string expression)
         {
             string exp = expression;
             //get vars and params out of the expression
@@ -507,8 +529,8 @@ namespace TastyScript.Lang
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
                     $"[331]Unexpected error with mathematical expression:\n{e.Message}",
                     Value));
+                return null;
             }
-            return 0;
         }
         #region Comparison
         enum Operator { EQ, NOTEQ, GT, LT, GTEQ, LTEQ, NOT, NULL, NOTNULL }
@@ -542,8 +564,11 @@ namespace TastyScript.Lang
             var splitop = line.Split(new string[] { opString }, StringSplitOptions.None);
             var lr = GetTokens(new string[] { splitop[1] }, true, true);
             if (lr.Count != 1)
+            {
                 Compiler.ExceptionListener.Throw("One side operators can only have 1 token.",
                     ExceptionType.SyntaxException);
+                return null;
+            }
             var token = lr[0].ToString().Replace("\"", "");
             try
             {
@@ -563,7 +588,7 @@ namespace TastyScript.Lang
                         break;
                 }
             }
-            catch { Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException, $"Unexpected input: {line}")); }
+            catch { Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException, $"Unexpected input: {line}"));return null; }
             return output;
         }
         private string ComparisonCheck(string line)
@@ -614,8 +639,11 @@ namespace TastyScript.Lang
             var splitop = line.Split(new string[] { opString }, StringSplitOptions.None);
             var lr = GetTokens(new string[] { splitop[0], splitop[1] },true,true);
             if (lr.Count != 2)
+            {
                 Compiler.ExceptionListener.Throw("There must be one left-hand and one right-hand in comparison objects.",
                     ExceptionType.SyntaxException);
+                return null;
+            }
             var left = lr[0].ToString().Replace("\"", "");
             var right = lr[1].ToString().Replace("\"", "");
             try
@@ -651,6 +679,7 @@ namespace TastyScript.Lang
             catch
             {
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException, $"Unexpected input: {line}"));
+                return null;
             }
 
             return output;
@@ -659,6 +688,7 @@ namespace TastyScript.Lang
         private void CompareFail(string line)
         {
             Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException, $"Can not compare more or less than 2 values", line));
+            return;
         }
         #endregion
         /*
@@ -722,7 +752,10 @@ namespace TastyScript.Lang
                             string tokenname = "{AnonGeneratedToken" + TokenParser.AnonymousTokensIndex + "}";
                             var extobj = e.Extend(objVar);
                             if (extobj == null)
+                            {
                                 Compiler.ExceptionListener.Throw($"[610]Unexpected error compiling extension [{e.Name}]");
+                                return null;
+                            }
                             extobj.SetName(tokenname);
                             TokenParser.AnonymousTokens.Add(extobj);
                             value = value.Replace(obj + "<-" + strip[1], tokenname);
@@ -741,8 +774,11 @@ namespace TastyScript.Lang
             else if (value.Contains("var%"))
                 varList = _reference.LocalVariables;
             if (varList == null)
+            {
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
-                    $"[244]Unexpected error occured.",Value));
+                    $"[244]Unexpected error occured.", Value));
+                return null;
+            }
             //assign based on operator
 
             var strip = value.Replace("$", "").Replace("var%", "");
@@ -762,14 +798,20 @@ namespace TastyScript.Lang
             var leftHand = assign[0].Replace(" ", "");
             var varRef = varList.First(leftHand);
             if (varRef != null && varRef.Locked)
+            {
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
                     $"[282]Cannot re-assign a sealed variable!", Value));
+                return null;
+            }
             //one sided assignment
             if (strip.Contains("++") || strip.Contains("--"))
             {
                 if (varRef == null)
+                {
                     Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
                         $"[269]Cannot find the left hand variable.", Value));
+                    return null;
+                }
                 double numOut = 0;
                 double.TryParse(varRef.ToString(), out numOut);
                 if (strip.Contains("++"))
@@ -799,26 +841,37 @@ namespace TastyScript.Lang
                 if (x.Contains("<-"))
                     x = EvaluateVarExtensions(x);
                 if (x == null || x == "" || x == " ")
+                {
                     Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
                         $"[688]Right hand must be a value.", Value));
+                    return null;
+                }
                 var ntoken = GetTokens(new string[] { x }).ElementAtOrDefault(0);
                 if (ntoken == null)
+                {
                     Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
                         $"[692]Right hand must be a value.", Value));
+                    return null;
+                }
                 output += ntoken.ToString();
             }
                 token = new Token("concatination", output, Value);
             rightHand = output;
             //}
             if (token == null)
+            {
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
                     $"[699]Right hand must be a value.", Value));
-           
+                return null;
+            }
             if (strip.Contains("+=") || strip.Contains("-="))
             {
                 if (varRef == null)
+                {
                     Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
                         $"[291]Cannot find the left hand variable.", Value));
+                    return null;
+                }
                 //check if number and apply the change
                 double leftNumOut = 0;
                 double rightNumOut = 0;
@@ -840,8 +893,11 @@ namespace TastyScript.Lang
                     if (strip.Contains("+="))
                         str += token.ToString();
                     else
+                    {
                         Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
                             "[314]Cannot apply the operand -= with type string.", Value));
+                        return null;
+                    }
                     varRef.SetValue(str);
                 }
                 return "";
@@ -857,7 +913,7 @@ namespace TastyScript.Lang
                 return "";
             }
             Compiler.ExceptionListener.Throw("[330]Unknown error with assignment.", ExceptionType.SyntaxException, Value);
-            return "";
+            return null;
         }
 
         private Token Parse(TFunction t)
@@ -895,8 +951,11 @@ namespace TastyScript.Lang
             }
             //change this plz
             if (t.Name == _reference.Name)
+            {
                 Compiler.ExceptionListener.Throw("Cannot call function from itself. Please use `Base()` if this is an override."
-                    ,ExceptionType.SystemException);
+                    , ExceptionType.SystemException);
+                return null;
+            }
             var z = t.Function;
             if (t.Extensions != null)
             {
@@ -952,6 +1011,7 @@ namespace TastyScript.Lang
                             catch
                             {
                                 Compiler.ExceptionListener.Throw($"Cannot find property {val}");
+                                return null;
                             }
                             return "";
                         }
@@ -975,6 +1035,7 @@ namespace TastyScript.Lang
                             catch
                             {
                                 Compiler.ExceptionListener.Throw($"Cannot find property {val}");
+                                return null;
                             }
                             return "";
                         }
@@ -988,7 +1049,7 @@ namespace TastyScript.Lang
                 }catch
                 {
                     Compiler.ExceptionListener.Throw($"You broke the debugger! Function [{val}]");
-                    return "";
+                    return null;
                 }
                 return "";
             }
