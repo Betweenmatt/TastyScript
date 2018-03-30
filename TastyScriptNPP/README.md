@@ -22,6 +22,10 @@ Note: The left hand color `DarkYellow` has no .Net counterpart so I used `Yellow
 default input color.
 
 # Changelog
+## v1.3.3
+* Added `Start/Stop` button and `Clear` button to output panel.
+* Added ability for user input on output panel with new textbox and `send` button.
+
 ## v1.3.1
 
 * Implementation of the Notepad++ Plugin.
