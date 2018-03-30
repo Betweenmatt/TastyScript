@@ -95,9 +95,10 @@ namespace TastyScript.Android
         private void FetchDeviceData()
         {
             var width = SendShellCommand("dumpsys display | grep -E 'mDisplayWidth'");
-            ScreenWidth = width.Split('=').ElementAtOrDefault(1);
+            ScreenWidth = width.Split('=').ElementAtOrDefault(1).Replace("\r","").Replace("\n","").Replace("\t","");
+            
             var height = SendShellCommand("dumpsys display | grep -E 'mDisplayHeight'");
-            ScreenHeight = height.Split('=').ElementAtOrDefault(1);
+            ScreenHeight = height.Split('=').ElementAtOrDefault(1).Replace("\r", "").Replace("\n", "").Replace("\t", "");
         }
         //all compile time shell commands(tap/getscreenshot/etc) check for app package before continuing
         private void CheckAppPackage()

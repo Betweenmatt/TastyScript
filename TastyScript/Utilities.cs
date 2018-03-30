@@ -34,11 +34,13 @@ namespace TastyScript
             }
         }
         //uses reflection to get all the IBaseFunction classes with the attribute [Function]
-        public static List<IBaseFunction> GetPredefinedFunctions()
+        public static List<IBaseFunction> GetPredefinedFunctions(Assembly[] asmbly = null)
         {
+            if (asmbly == null)
+                asmbly = AppDomain.CurrentDomain.GetAssemblies();
             List<IBaseFunction> temp = new List<IBaseFunction>();
             string definedIn = typeof(Function).Assembly.GetName().Name;
-            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+            foreach (Assembly assembly in asmbly)
                 // Note that we have to call GetName().Name.  Just GetName() will not work.  The following
                 // if statement never ran when I tried to compare the results of GetName().
                 if ((!assembly.GlobalAssemblyCache) && ((assembly.GetName().Name == definedIn) || assembly.GetReferencedAssemblies().Any(a => a.Name == definedIn)))
@@ -98,11 +100,13 @@ namespace TastyScript
                         }
             return temp;
         }
-        public static void GetExtensions()
+        public static List<EDefinition> GetExtensions(Assembly[] asmbly = null)
         {
+            if (asmbly == null)
+                asmbly = AppDomain.CurrentDomain.GetAssemblies();
             List<EDefinition> temp = new List<EDefinition>();
             string definedIn = typeof(Extension).Assembly.GetName().Name;
-            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+            foreach (Assembly assembly in asmbly)
                 if ((!assembly.GlobalAssemblyCache) && ((assembly.GetName().Name == definedIn) || assembly.GetReferencedAssemblies().Any(a => a.Name == definedIn)))
                     foreach (System.Type type in assembly.GetTypes())
                         if (type.GetCustomAttributes(typeof(Extension), true).Length > 0)
@@ -114,8 +118,7 @@ namespace TastyScript
                             if (!attt.Depricated)
                                 temp.Add(inst);
                         }
-            ExtensionStack.Clear();
-            ExtensionStack.AddRange(temp);
+            return temp;
         }
         /// <summary>
         /// Checks both absolute and relative, as well as pre-set directories
@@ -137,6 +140,29 @@ namespace TastyScript
             //check for quick directory
             else if (File.Exists(AppDomain.CurrentDomain.BaseDirectory + "/" + Settings.QuickDirectory + "/" + path))
                 file = System.IO.File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "/" + Settings.QuickDirectory + "/" + path);
+            //or fail
+            else
+            {
+                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SystemException,
+                    $"Could not find path: {path}"));
+            }
+            return file;
+        }
+        public static string GetPathFromShortPath(string path)
+        {
+            string file = "";
+            //check if its a full path
+            if (File.Exists(path))
+                file = path;
+            //check if the path is local to the app directory
+            else if (File.Exists(AppDomain.CurrentDomain.BaseDirectory + path))
+                file = AppDomain.CurrentDomain.BaseDirectory + path;
+            //check for quick directory
+            else if (File.Exists(Settings.QuickDirectory + "/" + path))
+                file = Settings.QuickDirectory + "/" + path;
+            //check for quick directory
+            else if (File.Exists(AppDomain.CurrentDomain.BaseDirectory + "/" + Settings.QuickDirectory + "/" + path))
+                file = AppDomain.CurrentDomain.BaseDirectory + "/" + Settings.QuickDirectory + "/" + path;
             //or fail
             else
             {

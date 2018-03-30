@@ -17,6 +17,7 @@ namespace TastyScript.Lang.Exceptions
         /// <param name="msg"></param>
         void ThrowDebug(string msg);
         void SetCurrentLine(string s);
+        TryCatchStack TryCatchEventStack { get; }
     }
     public class ExceptionListener : IExceptionListener
     {
@@ -24,8 +25,15 @@ namespace TastyScript.Lang.Exceptions
         private string _currentLine = "";
         public string CurrentLine { get { return _currentLine; } }
         private List<ExceptionHandler> _onceList = new List<ExceptionHandler>();
+        public TryCatchStack TryCatchEventStack { get; }
         //i think this fixes my stupid mistake that was breaking as an assembly
         public static bool stupidFix;
+
+        public ExceptionListener()
+        {
+            TryCatchEventStack = new TryCatchStack();
+        }
+
         public static void LogDebug(string message)
         {
             if (!stupidFix)
@@ -60,14 +68,21 @@ namespace TastyScript.Lang.Exceptions
         }
         public void Throw(ExceptionHandler ex)
         {
-            TokenParser.Stop = true;
-            string msg = $"\n[ERROR] ({ex.Type.ToString()}) {ex.Message} File: {ex.Line}\nCode Snippet:\n{ex.Snippet}";
-            LogError(msg);
-            if (Settings.LogLevel == "warn" || Settings.LogLevel == "error" || Settings.LogLevel == "throw")
+            if (TryCatchEventStack == null || TryCatchEventStack.Last() == null)
             {
-                Main.IO.Print(msg, ConsoleColor.Red);
+                TokenParser.Stop = true;
+                string msg = $"\n[ERROR] ({ex.Type.ToString()}) {ex.Message} File: {ex.Line}\nCode Snippet:\n{ex.Snippet}";
+                LogError(msg);
+                if (Settings.LogLevel == "warn" || Settings.LogLevel == "error" || Settings.LogLevel == "throw")
+                {
+                    Main.IO.Print(msg, ConsoleColor.Red);
+                }
+                throw new CompilerControledException();
             }
-            throw new CompilerControledException();
+            else
+            {
+                TryCatchEventStack.Last().TriggerCatchEvent(ex);
+            }
         }
         public void Throw(string msg, ExceptionType type = ExceptionType.CompilerException, string lineref = "{0}")
         {
@@ -101,5 +116,43 @@ namespace TastyScript.Lang.Exceptions
     /// </summary>
     public class CompilerControledException : Exception
     {
+    }
+    public class TryCatchEvent
+    {
+        internal IBaseFunction TryBlock { get; }
+        internal IBaseFunction CatchBlock { get; }
+        internal TryCatchEvent(IBaseFunction tryblock, IBaseFunction catchblock)
+        {
+            TryBlock = tryblock;
+            CatchBlock = catchblock;
+        }
+        public void TriggerCatchEvent(ExceptionHandler ex)
+        {
+            Compiler.ExceptionListener.TryCatchEventStack.RemoveLast();
+            TryBlock.ReturnFlag = true;
+            string line = System.Text.RegularExpressions.Regex.Escape(ex.Line);
+            string[] arg = new string[] { "[" + ex.Type.ToString().CleanString() + "," + ex.Message.CleanString() + "," + line.CleanString() + "," + ex.Snippet.CleanString() + "]" };
+            CatchBlock.TryParse(new Tokens.TFunction(CatchBlock, null, arg, TryBlock));
+        }
+    }
+    public class TryCatchStack
+    {
+        private List<TryCatchEvent> _tlist;
+        public TryCatchStack()
+        {
+            _tlist = new List<TryCatchEvent>();
+        }
+        public void Add(TryCatchEvent item)
+        {
+            _tlist.Add(item);
+        }
+        public void RemoveLast()
+        {
+            _tlist.RemoveAt(_tlist.Count - 1);
+        }
+        public TryCatchEvent Last()
+        {
+            return _tlist.LastOrDefault();
+        }
     }
 }

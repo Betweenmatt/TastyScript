@@ -15,10 +15,16 @@ namespace TastyScript.Lang.Functions
         {
             var arg = ProvidedArgs.First("arr");
             if (arg == null)
+            {
                 Compiler.ExceptionListener.Throw($"Arguments for {this.Name} must not be null");
+                return null;
+            }
             var args = new TArray("", arg.ToString(), "");
-            if(args.Arguments == null)
+            if (args.Arguments == null)
+            {
                 Compiler.ExceptionListener.Throw($"Arguments for {this.Name} must be an array");
+                return null;
+            }
             var props = new List<string>();
             props.AddRange(args.Arguments);
             var ret = AnalyzeScreen.SetDefaultTemplateOptions(props.ToArray());

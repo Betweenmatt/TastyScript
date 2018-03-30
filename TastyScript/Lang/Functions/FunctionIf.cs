@@ -15,8 +15,11 @@ namespace TastyScript.Lang.Functions
         {
             var prov = ProvidedArgs.First("bool");
             if (prov == null)
+            {
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException,
                     $"Arguments cannot be null.", LineValue));
+                return null;
+            }
             bool flag = (prov.ToString() == "True" || prov.ToString() == "true") ? true : false;
             var andFlag = Extensions.FirstOrDefault(f => f.Name == "And");
             var orFlag = Extensions.FirstOrDefault(f => f.Name == "Or");
@@ -61,8 +64,11 @@ namespace TastyScript.Lang.Functions
                     string[] thenFunc = findThen.Extend();
                     var func = FunctionStack.First(thenFunc[0].ToString());
                     if (func == null)
+                    {
                         Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException,
                             $"Cannot find the invoked function.", LineValue));
+                        return null;
+                    }
                     //pass in invoke properties. shouldnt break with null
                     func.SetInvokeProperties(new string[] { }, Caller.CallingFunction.LocalVariables.List, Caller.CallingFunction.ProvidedArgs.List);
                     func.TryParse(new TFunction(Caller.Function, new List<EDefinition>(), findThen.GetInvokeProperties(), Caller.CallingFunction));
@@ -71,6 +77,7 @@ namespace TastyScript.Lang.Functions
                 {
                     Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException,
                         $"[460]If function must have a Then Extension", LineValue));
+                    return null;
                 }
             }
             else
@@ -82,8 +89,11 @@ namespace TastyScript.Lang.Functions
                     string[] elseFunc = findElse.Extend();
                     var func = FunctionStack.First(elseFunc[0].ToString());
                     if (func == null)
+                    {
                         Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException,
                             $"Cannot find the invoked function.", LineValue));
+                        return null;
+                    }
                     func.SetInvokeProperties(new string[] { }, Caller.CallingFunction.LocalVariables.List, Caller.CallingFunction.ProvidedArgs.List);
                     func.TryParse(new TFunction(Caller.Function, new List<EDefinition>(), findElse.GetInvokeProperties(), Caller.CallingFunction));
                 }

@@ -13,6 +13,12 @@ namespace TastyScriptNPP
         private string _currentLine = "";
         public string CurrentLine { get { return _currentLine; } }
         private List<ExceptionHandler> _onceList = new List<ExceptionHandler>();
+        public TryCatchStack TryCatchEventStack { get; }
+
+        public ExceptionListener()
+        {
+            TryCatchEventStack = new TryCatchStack();
+        }
         public void SetCurrentLine(string s)
         {
             _currentLine = s;
@@ -20,11 +26,18 @@ namespace TastyScriptNPP
 
         public void Throw(ExceptionHandler ex)
         {
-            string msg = $"\n[ERROR] ({ex.Type.ToString()}) {ex.Message} File: {ex.Line}\nCode Snippet:\n{ex.Snippet}";
+            if (TryCatchEventStack == null || TryCatchEventStack.Last() == null)
+            {
+                string msg = $"\n[ERROR] ({ex.Type.ToString()}) {ex.Message} File: {ex.Line}\nCode Snippet:\n{ex.Snippet}";
 
-            IOStream.Instance.Print(msg, ConsoleColor.Red);
+                IOStream.Instance.Print(msg, ConsoleColor.Red);
 
-            throw new CompilerControledException();
+                throw new CompilerControledException();
+            }
+            else
+            {
+                TryCatchEventStack.Last().TriggerCatchEvent(ex);
+            }
         }
 
         public void Throw(string msg, ExceptionType type = ExceptionType.CompilerException, string lineref = "{0}")

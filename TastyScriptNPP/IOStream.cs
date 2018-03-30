@@ -15,6 +15,10 @@ namespace TastyScriptNPP
         private Output _ref;
         public static Dictionary<string, string> ColorOverrides;
         public static IOStream Instance;
+
+        private bool WaitingForInput;
+        private string InputText = "";
+
         public IOStream(Output output)
         {
             _ref = output;
@@ -62,7 +66,16 @@ namespace TastyScriptNPP
         }
         public string Read()
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+            WaitingForInput = true;
+            while (WaitingForInput)
+            {}
+            return InputText;
+        }
+        internal void InputTextRecieved(string str)
+        {
+            InputText = str;
+            WaitingForInput = false;
         }
         public ConsoleKeyInfo ReadKey(bool intercept)
         {

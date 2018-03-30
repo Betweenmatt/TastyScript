@@ -18,9 +18,17 @@ namespace TastyScript.Lang.Functions
             {
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.NullReferenceException,
                     $"The function [{this.Name}] requires [{ExpectedArgs.Length}] arguments", LineValue));
+                return "";
             }
-            double intX = double.Parse(x.ToString());
-            double intY = double.Parse(y.ToString());
+            double intX = 0;
+            bool tryX = double.TryParse(x.ToString(), out intX);
+            double intY = 0;
+            bool tryY = double.TryParse(y.ToString(), out intY);
+            if (!tryX || !tryY)
+            {
+                Compiler.ExceptionListener.Throw($"Cannot get numbers from [{x.ToString()},{y.ToString()}]");
+                return "";
+            }
             if (Main.AndroidDriver == null)
                 Main.IO.Print($"[DRIVERLESS] Touch x:{intX} y:{intY}");
             else
@@ -28,7 +36,13 @@ namespace TastyScript.Lang.Functions
             double sleep = TokenParser.SleepDefaultTime;
             if (ProvidedArgs.List.Count > 2)
             {
-                sleep = double.Parse((ProvidedArgs.First("sleep")).ToString());
+                sleep = 0;
+                bool trySleep = double.TryParse(ProvidedArgs.First("sleep").ToString(), out sleep);
+                if (!trySleep)
+                {
+                    Compiler.ExceptionListener.Throw($"Cannot get numbers from [{ProvidedArgs.First("sleep").ToString()}]");
+                    return "";
+                }
             }
             FunctionHelpers.Sleep(sleep, Caller);
             return "";

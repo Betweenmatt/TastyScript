@@ -24,7 +24,7 @@ namespace TastyScript.Lang.Functions
         }
         
     }
-    internal class FDefinition : AnonymousFunction, IOverride
+    public class FDefinition : AnonymousFunction, IOverride
     {
         public virtual string CallBase() { return ""; }
         public override void TryParse(TFunction caller)
@@ -53,7 +53,10 @@ namespace TastyScript.Lang.Functions
                 if (args.Length > 0)
                 {
                     if (args.Length > ExpectedArgs.Length)
+                    {
                         Compiler.ExceptionListener.Throw($"The arguments supplied do not match the arguments expected!");
+                        return;
+                    }
                     for (var i = 0; i < args.Length; i++)
                     {
                         var exp = ExpectedArgs[i].Replace("var ", "").Replace(" ", "");
@@ -81,7 +84,10 @@ namespace TastyScript.Lang.Functions
                 if (args.Length > 0)
                 {
                     if (args.Length > ExpectedArgs.Length)
+                    {
                         Compiler.ExceptionListener.Throw($"The arguments supplied do not match the arguments expected!");
+                        return;
+                    }
                     for (var i = 0; i < args.Length; i++)
                     {
                         var exp = ExpectedArgs[i].Replace("var ", "").Replace(" ", "");

@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace TastyScript.Lang.Extensions
 {
-    [Extension("For", new string[] { "enumerator" })]
-    [Serializable]
-    public class ExtensionFor : EDefinition { }
+    [Extension("Catch", new string[] { "invoke" })]
+    internal class ExtensionCatch : EDefinition
+    {
+    }
 }

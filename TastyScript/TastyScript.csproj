@@ -114,12 +114,18 @@
     <Compile Include="Android\AndroidKeyCode.cs" />
     <Compile Include="Android\Driver.cs" />
     <Compile Include="IIOStream.cs" />
+    <Compile Include="Lang\Extensions\ExtensionCatch.cs" />
     <Compile Include="Lang\Extensions\ExtensionProp.cs" />
+    <Compile Include="Lang\Extensions\ExtensionRemoveAt.cs" />
     <Compile Include="Lang\Extensions\ExtensionSave.cs" />
+    <Compile Include="Lang\Extensions\ExtensionToString.cs" />
     <Compile Include="Lang\Functions\FunctionImageLocation.cs" />
+    <Compile Include="Lang\Functions\FunctionReadLine.cs" />
     <Compile Include="Lang\Functions\FunctionScreenSize.cs" />
     <Compile Include="Lang\Functions\FunctionSetTemplateDefaultOptions.cs" />
+    <Compile Include="Lang\Functions\Internal\FunctionThrow.cs" />
     <Compile Include="Lang\Functions\Internal\FunctionThis.cs" />
+    <Compile Include="Lang\Functions\Internal\FunctionTry.cs" />
     <Compile Include="Reader.cs" />
     <Compile Include="Lang\Attributes.cs" />
     <Compile Include="Lang\Commands.cs" />
@@ -182,7 +188,6 @@
     <Compile Include="Main.cs" />
     <Compile Include="ObjectExtensions.cs" />
     <Compile Include="Utilities.cs" />
-    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -193,6 +198,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="Lang\Functions\README.md" />
     <None Include="log4net.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

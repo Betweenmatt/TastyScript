@@ -15,11 +15,15 @@ namespace TastyScript.Lang.Functions
         public override string CallBase()
         {
             if (Main.AndroidDriver == null)
+            {
                 Compiler.ExceptionListener.Throw("Cannot check screen without a connected device");
+                return null;
+            }
             var path = ProvidedArgs.First("path");
             if (path == null)
             {
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.NullReferenceException, $"Invoke function cannot be null.", LineValue));
+                return null;
             }
             var prop = CheckProperty();
             try
@@ -40,9 +44,11 @@ namespace TastyScript.Lang.Functions
                 {
                     Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.DriverException,
                         $"File could not be found: {path.ToString()}"));
+                    return null;
                 }
                 Console.WriteLine(e);
                 Compiler.ExceptionListener.Throw(new ExceptionHandler("[73]Unexpected error with CheckScreen()"));
+                return null;
             }
             return "";
         }

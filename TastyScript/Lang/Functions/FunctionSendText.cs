@@ -14,8 +14,10 @@ namespace TastyScript.Lang.Functions
         {
             var argsList = ProvidedArgs.First("s");
             if (argsList == null)
+            {
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.NullReferenceException, "Arguments cannot be null.", LineValue));
-
+                return null;
+            }
             if (Main.AndroidDriver != null)
             {
                 Commands.SendText(argsList.ToString());

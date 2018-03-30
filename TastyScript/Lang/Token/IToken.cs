@@ -8,11 +8,11 @@ using TastyScript.Lang.Extensions;
 namespace TastyScript.Lang.Tokens
 {
     [Serializable]
-    internal class Token
+    public class Token
     {
         public string Name { get; protected set; }
         protected string _value = "[Type.Token]";
-        public string Value
+        public virtual string Value
         {
             get
             {
@@ -67,14 +67,22 @@ namespace TastyScript.Lang.Tokens
         }
         public override string ToString()
         {
+            if (Value == null)
+                return "null";
             //return public to get the action response when used 
             return Value;
         }
     }
     [Serializable]
-    internal class TArray : Token
+    public class TArray : Token
     {
         public string[] Arguments { get; private set; }
+        public override string Value {
+            get
+            {
+                return ToString();
+            }
+        }
         public TArray(string name, string[] val, string line, bool locked = false)
         {
             Name = name;
@@ -93,8 +101,18 @@ namespace TastyScript.Lang.Tokens
         }
         public string[] Add(string s)
         {
-            Arguments = (Arguments ?? Enumerable.Empty<string>()).Concat(Enumerable.Repeat(s, 1)).ToArray();
+            //Arguments = (Arguments ?? Enumerable.Empty<string>()).Concat(Enumerable.Repeat(s, 1)).ToArray();
+            if (Arguments == null || Arguments.Length < 1 || (Arguments.Length == 1 && Arguments[0] == ""))
+                Arguments = new string[] { s };
+            else
+                Arguments = Arguments.Concat(Enumerable.Repeat(s, 1)).ToArray();
             return Arguments;
+        }
+        public void Remove(int index)
+        {
+            var newArgs = Arguments.ToList();
+            newArgs.RemoveAt(index);
+            Arguments = newArgs.ToArray();
         }
         public override string ToString()
         {
@@ -158,7 +176,7 @@ namespace TastyScript.Lang.Tokens
         }
     }
     [Serializable]
-    internal class TFunction : Token
+    public class TFunction : Token
     {
         public IBaseFunction Function { get; private set; }
         public string[] Arguments { get; private set; }
@@ -296,7 +314,7 @@ namespace TastyScript.Lang.Tokens
             return Value.Value;
         }
     }
-    internal interface IBaseToken
+    public interface IBaseToken
     {
         bool Locked { get; }
         string Name { get; }

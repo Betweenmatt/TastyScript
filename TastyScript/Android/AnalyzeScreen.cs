@@ -51,7 +51,7 @@ namespace TastyScript.Android
                     var output = f.Apply(source);
                     if(options.SavePath != "")
                     {
-                        output.Save(options.SavePath.CleanString(), ImageFormat.Png);
+                        output.Save(options.SavePath.UnCleanString(), ImageFormat.Png);
                     }
                     return output;
                 }

@@ -8,7 +8,7 @@
 * [Order of Operations](#order-of-operations)
  
 # Introduction
-Welcome to **1.3.2**! Please note the documentation is currently being developed. I am trying my best to keep up with each change and new feature so please bear with me!
+Welcome to **1.3.3**! Please note the documentation is currently being developed. I am trying my best to keep up with each change and new feature so please bear with me!
 
 TastyScript is a simple programming language which uses top level *functions* to execute lower level *commands*. Functions can call other functions, and you can *override* functions to build on top of their functionality with a modular approach.
 
@@ -22,7 +22,7 @@ function.Start(){
 
 # Extensions
 
-Extensions are a very basic way to add optional functionality to some [Predefined Functions](Functions#functions-table-of-contents) You can find the list of Extensions [Here](/Extensions.md). Extensions are prepended with a period\(.\) and, like *Functions*, always require arguments.
+Extensions are a very basic way to add optional functionality to some [Predefined Functions](Functions/README.md) You can find the list of Extensions [Here](/Extensions.md). Extensions are prepended with a period\(.\) and, like *Functions*, always require arguments.
 
 ```
 function.Start(){
@@ -53,7 +53,7 @@ The above example would run and print `Hello World!`. **Note:** The import secti
 
 # Overriding
 
-You can override pre-defined functions with the `override` tag. Overriding is useful for adding additional functionality to the pre-defined functions. Note some functions are `Sealed` and cannot be overriden! If you take a look at the [Functions](Functions#functions-table-of-contents) page you can see which functions are sealed.
+You can override pre-defined functions with the `override` tag. Overriding is useful for adding additional functionality to the pre-defined functions. Note some functions are `Sealed` and cannot be overriden! If you take a look at the [Functions](Functions/README.md) page you can see which functions are sealed.
 
 ```
 override.Start(){
@@ -89,7 +89,7 @@ function.Test1(){
 
 Instead either use the `Loop()` function or use the `.For()` extension. Use the `Loop()` function if you want to get the current iteration at runtime. The performance difference between the two functions is the same.
 
-the `Loop()` function requires a `string`, which is the name of the function to Invoke. ***NEW:*** With version 1.2.2+ you can alternatively use the [Lambda Expression](/Wiki/LambdaExpressions.md) to create an anonymous function to be invoked. Check out example2:
+the `Loop()` function requires a `string`, which is the name of the function to Invoke. ***NEW:*** With version 1.2.2+ you can alternatively use the [Lambda Expression](LambdaExpressions.md) to create an anonymous function to be invoked. Check out example2:
 
 ```
 #example1
@@ -144,7 +144,7 @@ function.VersionString(){
 }
 ```
 
-Both assignment and reassignment of variables must be prepended with the `var` or `$var` keyword. Available types are `string`, `number`, another variable, or a [Mathematical Expression](/Wiki/MathExpressions.md).
+Both assignment and reassignment of variables must be prepended with the `var` or `$var` keyword. Available types are `string`, `number`, another variable, or a [Mathematical Expression](MathExpressions.md).
 
 Variables can be called by just their name. `PrintLine(GlobalVariable)` would print `I am a global variable!`.
 

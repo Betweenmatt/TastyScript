@@ -19,23 +19,26 @@ namespace TastyScript.Lang.Functions
         {
             var prov = ProvidedArgs.First("invoke");
             if (prov == null)
+            {
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException,
                     $"{this.Name } Arguments cannot be null."));
+                return null;
+            }
             var func = FunctionStack.First(prov.ToString());
-            if(func == null)
+            if (func == null)
+            {
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException,
                     $"Invoke function [{prov.ToString()}] could not be found"));
+                return null;
+            }
             if (!func.Async)
+            {
                 Compiler.ExceptionListener.Throw($"{this.Name} The invoked function must be marked async",
                     ExceptionType.SystemException);
+                return null;
+            }
             try
-            {/*
-                Task task = Task.Factory.StartNew(() =>
-                {
-                    func.SetInvokeProperties(new string[] { }, Caller.CallingFunction.LocalVariables.List);
-                    func.TryParse(new TFunction(Caller.Function, new List<EDefinition>(), this.GetInvokeProperties(), Caller.CallingFunction));
-                });
-                */
+            {
                 Thread th = new Thread(() =>
                 {
                     func.SetInvokeProperties(new string[] { }, Caller.CallingFunction.LocalVariables.List, Caller.CallingFunction.ProvidedArgs.List);
@@ -45,6 +48,7 @@ namespace TastyScript.Lang.Functions
             }catch
             {
                 Compiler.ExceptionListener.Throw($"Async thread reached an unexpected error.", ExceptionType.SystemException);
+                return null;
             }
             return "";
         }

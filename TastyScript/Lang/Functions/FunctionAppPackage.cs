@@ -18,8 +18,11 @@ namespace TastyScript.Lang.Functions
             if (argsList != null)
                 print = argsList.ToString();
             if (Main.AndroidDriver == null)
+            {
                 Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.DriverException,
                     $"Cannot set the app package without having a device connected. Please connect to a device first.", LineValue));
+                return null;
+            }
             Commands.SetAppPackage(print);
             return print;
         }
