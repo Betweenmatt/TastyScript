@@ -1,5 +1,9 @@
 ﻿# ChangeLog
 
+## v1.3.3
+* Added `Try()` `Throw()` and `ReadLine()` functions.
+* Added `.Catch()` extension
+
 ## v1.3.2
 * Added custom extensions
 * Added functions `ImageLocation()`, `SetTemplateDefaultOptions()`
