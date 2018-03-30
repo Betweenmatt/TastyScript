@@ -846,7 +846,10 @@ namespace TastyScript.Lang
                         $"[688]Right hand must be a value.", Value));
                     return null;
                 }
-                var ntoken = GetTokens(new string[] { x }).ElementAtOrDefault(0);
+                var prentoken = GetTokens(new string[] { x });
+                if (prentoken == null)
+                    return null;
+                var ntoken = prentoken.ElementAtOrDefault(0);
                 if (ntoken == null)
                 {
                     Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.SyntaxException,
