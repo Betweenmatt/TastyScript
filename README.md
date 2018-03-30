@@ -5,7 +5,7 @@
 
 TastyScript is an open source programming language designed to automate Android devices via location based touch events. The main purpose was to achieve support for game automation on native Android devices with a lightweight and robust system.
 
-At the core, TastyScript sends simple commands to an ADB Shell (`input tap x y`), which are then sent to the device and executed. As of writing this(v1.3.2), TastyScript supports Touch, LongTouch, Swipe, SendText, KeyEvent, and a couple of screen shot features(CheckScreen, ImageLocation, and TakeScreenshot) which utilize the FrameBuffer to grab the screen directly from the device(without leaving screen shots on your device). 
+At the core, TastyScript sends simple commands to an ADB Shell (`input tap x y`), which are then sent to the device and executed. As of writing this(v1.3.3), TastyScript supports Touch, LongTouch, Swipe, SendText, KeyEvent, and a couple of screen shot features(CheckScreen, ImageLocation, and TakeScreenshot) which utilize the FrameBuffer to grab the screen directly from the device(without leaving screen shots on your device). 
 
 ***Disclaimer*** TastyScript was designed for being used with games/apps which explicitly state that they allow macros/botting. DO NOT ask how to bot in `x` game without being able to provide the section of the games TOS allowing it; we will not help you cheat. We are not responsible for any undesired effects that occur due to you ignoring this disclaimer. Use this software at your own risk.
 
@@ -72,7 +72,8 @@ Here is a list of features that TastyScript can handle
 * Easy to master syntax, with detailed documentation and support.
 * Extremely lightweight program.
 * Modular capabilities with functions and overrides.
-* Standard programming functionality such as Loops, Conditional statements, variables and more!
+* Standard programming functionality such as Loops, Conditional statements, variables, Try/Catch blocks and more!
+* Accept user input with `ReadLine()`!
 * Feature requests are happily accepted!
 
 ## Built With
