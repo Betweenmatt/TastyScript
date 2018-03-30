@@ -6,7 +6,7 @@
 function.Start(){
 	#define tracking variables
 	#an array of bools to define which conquests are done. if you want to skip
-	#a conquest for whatever reason just set it to true
+	#a conquest for whatever reason just set it to false
 	$var areaCompleteArray = 
 		array(
 			true, #Chapter 7
