@@ -1,5 +1,3 @@
-@import CustomExtensions.ts;
-@end
 #the awake function is called before any other function including
 #start. don't put any heavy data here! only use for initializers/notes
 #all awake functions in the script are executed!!!!
@@ -101,5 +99,5 @@ function.Timespan(start, end){
 		var math = [e - s];
 		var arr = arr.SetItem(math);
 	}).For(2);
-	return(arr.Remove(0));
+	return(arr.RemoveAt(0));
 }
