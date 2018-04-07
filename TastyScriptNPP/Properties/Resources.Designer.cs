@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TastyScriptNPP.Properties {
+namespace TastyScript.TastyScriptNPP.Properties {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace TastyScriptNPP.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("TastyScriptNPP.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("TastyScript.TastyScriptNPP.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -63,9 +63,9 @@ namespace TastyScriptNPP.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap console_24 {
+        internal static System.Drawing.Bitmap star {
             get {
-                object obj = ResourceManager.GetObject("console_24", resourceCulture);
+                object obj = ResourceManager.GetObject("star", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -73,9 +73,9 @@ namespace TastyScriptNPP.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap icoRaw {
+        internal static System.Drawing.Bitmap star_bmp {
             get {
-                object obj = ResourceManager.GetObject("icoRaw", resourceCulture);
+                object obj = ResourceManager.GetObject("star_bmp", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

@@ -279,19 +279,6 @@ namespace Kbg.NppPluginNET.PluginInfrastructure
         [DllImport("kernel32")]
         public static extern int GetPrivateProfileInt(string lpAppName, string lpKeyName, int nDefault, string lpFileName);
 
-        /// <summary>
-        /// This was not in the original Notepad++ plugin template.
-        /// </summary>
-        /// <param name="lpAppName"></param>
-        /// <param name="lpKeyName"></param>
-        /// <param name="lpDefault"></param>
-        /// <param name="lpReturnedString"></param>
-        /// <param name="nSize"></param>
-        /// <param name="lpFileName"></param>
-        /// <returns></returns>
-        [DllImport("kernel32")]
-        public static extern uint GetPrivateProfileString(string lpAppName, string lpKeyName, string lpDefault, StringBuilder lpReturnedString, uint nSize, string lpFileName);
-
         [DllImport("kernel32")]
         public static extern bool WritePrivateProfileString(string lpAppName, string lpKeyName, string lpString, string lpFileName);
 
