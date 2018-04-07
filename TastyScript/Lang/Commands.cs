@@ -59,6 +59,13 @@ namespace TastyScript.Lang
             var ret = a.GetScreenCoords(path.UnCleanString(), prop);
             return ret;
         }
+        public static string GetDeviceSerial()
+        {
+            if (Main.AndroidDriver != null)
+                return Main.AndroidDriver.Device.Serial;
+            else
+                return "";
+        }
         public static void AnalyzeScreen(string success, IBaseFunction successAction, IBaseFunction failureAction, string[] prop, TFunction caller = null)
         {
             var tfunc = new TFunction(caller.Function, new List<EDefinition>(), string.Join(",", caller.Function.GetInvokeProperties()), caller.CallingFunction);

@@ -131,6 +131,8 @@
     <Compile Include="Lang\Functions\FunctionScreenSize.cs" />
     <Compile Include="Lang\Functions\FunctionSetTemplateDefaultOptions.cs" />
     <Compile Include="Lang\Functions\Gui\FunctionGuiLoad.cs" />
+    <Compile Include="Lang\Functions\Gui\FunctionInvoke.cs" />
+    <Compile Include="Lang\Functions\Gui\FunctionStopInvoke.cs" />
     <Compile Include="Lang\Functions\Gui\ServiceHandler.cs" />
     <Compile Include="Lang\Functions\Internal\FunctionThrow.cs" />
     <Compile Include="Lang\Functions\Internal\FunctionThis.cs" />

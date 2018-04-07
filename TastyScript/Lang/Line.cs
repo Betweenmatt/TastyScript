@@ -1079,6 +1079,7 @@ namespace TastyScript.Lang
             if (input == null)
                 return "";
             return input
+                .Replace("&quote;", "\"")
                 .Replace("&coma;", ",")
                 .Replace("&plus;", "+")
                 .Replace("&neg;", "-")
@@ -1105,6 +1106,7 @@ namespace TastyScript.Lang
             if (input == null)
                 return "";
             return input
+                .Replace("\"", "&quote;")
                 .Replace(",", "&coma;")
                 .Replace("+", "&plus;")
                 .Replace("-", "&neg;")

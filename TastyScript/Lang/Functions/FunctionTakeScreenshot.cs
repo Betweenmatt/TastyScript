@@ -25,16 +25,16 @@ namespace TastyScript.Lang.Functions
             var ss = Commands.GetScreenshot();
             try
             {
-                ss.Save(path.ToString(), ImageFormat.Png);
+                ss.Save(path.ToString().UnCleanString(), ImageFormat.Png);
             }
             catch
             {
                 Compiler.ExceptionListener.ThrowSilent(new ExceptionHandler(ExceptionType.CompilerException,
                     $"Unexpected error saving screenshot to path {path.ToString()}", ""));
-                ReturnBubble = new Token("bool", "False", "");
+                ReturnBubble = new Token("bool", "null", "");
                 return "";
             }
-            ReturnBubble = new Token("bool", "True","");
+            ReturnBubble = new Token("bool", path.ToString(), "");
             return "";
         }
     }

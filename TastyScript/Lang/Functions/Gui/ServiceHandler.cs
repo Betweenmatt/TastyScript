@@ -18,20 +18,20 @@ namespace TastyScript.Lang.Functions.Gui
 {
     class ServiceHandler
     {
-        
+        public static string IndexPath;
     }
 
     public class IndexModule : NancyModule
     {
         public IndexModule() : base("")
         {
-            string test = "index.html";
             Get(@"/", _ => 
             {
-                return View[test];
+                return View[ServiceHandler.IndexPath];
             });
         }
     }
+    
     public class PostTestModule : NancyModule
     {
         public PostTestModule() : base("")
@@ -57,16 +57,16 @@ namespace TastyScript.Lang.Functions.Gui
                 {
                     var func = FunctionStack.First((String)callout);
                     func.TryParse(new TFunction(func, new List<EDefinition>(), model.ToDictionary(), null, null));
+                    return func.ReturnBubble?.ToString().UnCleanString();
                 }
                 else
                 {
                     Console.WriteLine("borked");
                 }
-                return 200;
+                return null;
             });
         }
     }
-
 
     public class DynamicModelBinder : IModelBinder
     {

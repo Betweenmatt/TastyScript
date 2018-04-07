@@ -20,7 +20,7 @@ namespace TastyScript.Lang.Functions
             if (argsList != null)
                 print = argsList.ToString();
             Commands.Connect(print);
-            
+            ReturnBubble = new Token("serial", Commands.GetDeviceSerial(), "");
             return "";
         }
         protected override void ForExtension(TFunction caller, ExtensionFor findFor)

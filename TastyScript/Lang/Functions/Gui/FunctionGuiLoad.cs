@@ -16,6 +16,11 @@ namespace TastyScript.Lang.Functions.Gui
             var uri = ProvidedArgs.First("uri");
             using (var host = new NancyHost(new Uri(uri.ToString())))
             {
+                if(ServiceHandler.IndexPath == "")
+                {
+                    Console.WriteLine("index is not set");
+                    return "";
+                }
                 host.Start();
                 Console.WriteLine($"Running on {uri}");
                 Console.ReadLine();
@@ -23,6 +28,16 @@ namespace TastyScript.Lang.Functions.Gui
             //end the script when host is killed
             TokenParser.Stop = true;
             return null;
+        }
+    }
+    [Function("GuiSetIndex", new string[] { "path" })]
+    internal class FunctionGuiSetIndex : FDefinition
+    {
+        public override string CallBase()
+        {
+            var args = ProvidedArgs.First("path");
+            ServiceHandler.IndexPath = args.ToString().UnCleanString();
+            return "";
         }
     }
 }
