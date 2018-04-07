@@ -37,6 +37,7 @@ namespace TastyScript.Lang
         bool Override { get; }
         void SetBase(IBaseFunction func);
         void SetSealed(bool flag);
+        TFunction Caller { get; }
         //this method sets the return flag and value, and tries to return
         //from the calling function if it is also anonymous
         void ReturnToTopOfBubble(Token value);
@@ -58,6 +59,7 @@ namespace TastyScript.Lang
         public bool IsAnonymous { get; private set; }
         public TokenStack ProvidedArgs { get; protected set; }
         public string Arguments { get; set; }
+        public Dictionary<string, object> DynamicDictionary { get; set; }
         public List<EDefinition> _extensions;
         public List<EDefinition> Extensions
         {

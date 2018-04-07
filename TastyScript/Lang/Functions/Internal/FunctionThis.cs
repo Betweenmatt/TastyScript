@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -48,6 +49,10 @@ namespace TastyScript.Lang.Functions.Internal
                     case ("IsObsolete")://ReadOnly
                         ReturnBubble = new Token("isObsolete", (Obsolete) ? "True" : "False", "");
                         return "";
+                    case ("Dynamic"):
+                        var json = JsonConvert.SerializeObject(Caller.CallingFunction.Caller.DynamicDictionary, Formatting.Indented).CleanString();
+                        ReturnBubble = new Token("dict", json, "");
+                        return "";
                 }
             }
             else
@@ -70,6 +75,19 @@ namespace TastyScript.Lang.Functions.Internal
                                     ReturnBubble = new Token("null", "null", "");
                                 else
                                     ReturnBubble = new TArray("arr", get.Extend(Caller.CallingFunction), "");
+                            }
+                            return "";
+                        case ("Dynamic"):
+                            if(fprop != "")
+                            {
+                                if (Caller.CallingFunction.Caller.DynamicDictionary.ContainsKey(fprop))
+                                {
+                                    ReturnBubble = new Token("ret", Caller.CallingFunction.Caller.DynamicDictionary[fprop].ToString(),"");
+                                }
+                                else
+                                {
+                                    Console.WriteLine("borked");
+                                }
                             }
                             return "";
                     }

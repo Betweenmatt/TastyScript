@@ -83,6 +83,12 @@
       <HintPath>..\packages\Microsoft.Owin.Hosting.4.0.0\lib\net451\Microsoft.Owin.Hosting.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Nancy, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Nancy.2.0.0-clinteastwood\lib\net452\Nancy.dll</HintPath>
+    </Reference>
+    <Reference Include="Nancy.Hosting.Self, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Nancy.Hosting.Self.2.0.0-clinteastwood\lib\net452\Nancy.Hosting.Self.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.11.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
@@ -118,11 +124,14 @@
     <Compile Include="Lang\Extensions\ExtensionProp.cs" />
     <Compile Include="Lang\Extensions\ExtensionRemoveAt.cs" />
     <Compile Include="Lang\Extensions\ExtensionSave.cs" />
+    <Compile Include="Lang\Extensions\ExtensionToJson.cs" />
     <Compile Include="Lang\Extensions\ExtensionToString.cs" />
     <Compile Include="Lang\Functions\FunctionImageLocation.cs" />
     <Compile Include="Lang\Functions\FunctionReadLine.cs" />
     <Compile Include="Lang\Functions\FunctionScreenSize.cs" />
     <Compile Include="Lang\Functions\FunctionSetTemplateDefaultOptions.cs" />
+    <Compile Include="Lang\Functions\Gui\FunctionGuiLoad.cs" />
+    <Compile Include="Lang\Functions\Gui\ServiceHandler.cs" />
     <Compile Include="Lang\Functions\Internal\FunctionThrow.cs" />
     <Compile Include="Lang\Functions\Internal\FunctionThis.cs" />
     <Compile Include="Lang\Functions\Internal\FunctionTry.cs" />
@@ -224,10 +233,13 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup>
+    <Analyzer Include="..\packages\AsyncUsageAnalyzers.1.0.0-alpha003\analyzers\dotnet\AsyncUsageAnalyzers.dll" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties BuildVersion_AssemblyInfoFilename="..\GlobalAssemblyInfo.cs" BuildVersion_UpdateFileVersion="True" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_BuildVersioningStyle="None.None.None.DeltaBaseDateInDays" BuildVersion_UseGlobalSettings="False" BuildVersion_StartDate="2018/2/5" />
+      <UserProperties BuildVersion_StartDate="2018/2/5" BuildVersion_UseGlobalSettings="False" BuildVersion_BuildVersioningStyle="None.None.None.DeltaBaseDateInDays" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_UpdateFileVersion="True" BuildVersion_AssemblyInfoFilename="..\GlobalAssemblyInfo.cs" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

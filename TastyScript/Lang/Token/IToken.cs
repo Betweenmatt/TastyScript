@@ -183,6 +183,7 @@ namespace TastyScript.Lang.Tokens
         public IBaseFunction CallingFunction { get; private set; }
         public bool BlindExecute { get; set; }
         public LoopTracer Tracer { get; private set; }
+        public Dictionary<string, object> DynamicDictionary { get; private set; }
         /// <summary>
         /// callingFunction is the function that is calling(usually `this`), func is the function being called
         /// </summary>
@@ -205,7 +206,8 @@ namespace TastyScript.Lang.Tokens
                 Tracer = callingFunction.Tracer;
             else
                 Tracer = null;
-        }/// <summary>
+        }
+         /// <summary>
          /// callingFunction is the function that is calling(usually `this`), func is the function being called
          /// </summary>
          /// <param name="func"></param>
@@ -219,6 +221,23 @@ namespace TastyScript.Lang.Tokens
             _value = "[Type.TFunction]";
             Extensions = ext;
             Arguments = args;
+            CallingFunction = callingFunction;
+            if (t != null)
+                Tracer = t;
+            else
+                if (callingFunction != null)
+                Tracer = callingFunction.Tracer;
+            else
+                Tracer = null;
+        }
+        public TFunction(IBaseFunction func, List<EDefinition> ext, Dictionary<string,object> args, IBaseFunction callingFunction, LoopTracer t = null)
+        {
+            Name = func.Name;
+            Function = func;
+            _value = "[Type.TFunction]";
+            Extensions = ext;
+            Arguments = new string[] { "[Type.Dynamic]" };
+            DynamicDictionary = args;
             CallingFunction = callingFunction;
             if (t != null)
                 Tracer = t;
