@@ -26,6 +26,7 @@ namespace TastyScript.IFunction.Containers
         {
             return _tlist.IndexOf(item);
         }
+        public static List<T> List() => _tlist;
         public static void RemoveAt(int index)
         {
             _tlist.RemoveAt(index);

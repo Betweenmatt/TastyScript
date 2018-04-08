@@ -4,14 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using TastyScript.IFunction.Extension;
+using TastyScript.IFunction.Function;
 
 namespace TastyScript.IFunction.Tokens
 {
     public class TFunction : Token
     {
-        public IBaseFunction Function { get; private set; }
+        public BaseFunction Function { get; private set; }
         public string[] Arguments { get; private set; }
-        public IBaseFunction CallingFunction { get; private set; }
+        public BaseFunction CallingFunction { get; private set; }
         public bool BlindExecute { get; set; }
         public LoopTracer Tracer { get; private set; }
         public Dictionary<string, object> DynamicDictionary { get; private set; }
@@ -22,7 +24,7 @@ namespace TastyScript.IFunction.Tokens
         /// <param name="ext"></param>
         /// <param name="args"></param>
         /// <param name="callingFunction"></param>
-        public TFunction(IBaseFunction func, List<EDefinition> ext, string args, IBaseFunction callingFunction, LoopTracer t = null)
+        public TFunction(BaseFunction func, List<BaseExtension> ext, string args, BaseFunction callingFunction, LoopTracer t = null)
         {
             Name = func.Name;
             Function = func;
@@ -45,7 +47,7 @@ namespace TastyScript.IFunction.Tokens
         /// <param name="ext"></param>
         /// <param name="args"></param>
         /// <param name="callingFunction"></param>
-        public TFunction(IBaseFunction func, List<EDefinition> ext, string[] args, IBaseFunction callingFunction, LoopTracer t = null)
+        public TFunction(BaseFunction func, List<BaseExtension> ext, string[] args, BaseFunction callingFunction, LoopTracer t = null)
         {
             Name = func.Name;
             Function = func;
@@ -61,7 +63,7 @@ namespace TastyScript.IFunction.Tokens
             else
                 Tracer = null;
         }
-        public TFunction(IBaseFunction func, List<EDefinition> ext, Dictionary<string, object> args, IBaseFunction callingFunction, LoopTracer t = null)
+        public TFunction(BaseFunction func, List<BaseExtension> ext, Dictionary<string, object> args, BaseFunction callingFunction, LoopTracer t = null)
         {
             Name = func.Name;
             Function = func;

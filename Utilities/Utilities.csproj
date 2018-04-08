@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{5626784C-59F0-4F27-9CB3-5A65D0129C5B}</ProjectGuid>
+    <ProjectGuid>{E7AB24C8-B6C4-47B2-ADDD-C2F5F3815E94}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TastyScript.IFunction</RootNamespace>
-    <AssemblyName>IFunction</AssemblyName>
+    <RootNamespace>Utilities</RootNamespace>
+    <AssemblyName>Utilities</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -40,32 +40,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\GlobalAssemblyInfo.cs">
-      <Link>GlobalAssemblyInfo.cs</Link>
-    </Compile>
-    <Compile Include="Containers\AnonymousTokenStack.cs" />
-    <Compile Include="Containers\ExtensionList.cs" />
-    <Compile Include="Containers\ExtensionStack.cs" />
-    <Compile Include="Containers\FunctionList.cs" />
-    <Compile Include="Containers\FunctionStack.cs" />
-    <Compile Include="Containers\GlobalVariableStack.cs" />
-    <Compile Include="Containers\ObjectList.cs" />
-    <Compile Include="Containers\ObjectStack.cs" />
-    <Compile Include="Containers\TokenList.cs" />
-    <Compile Include="Extension\BaseExtension.cs" />
-    <Compile Include="Extension\CustomExtension.cs" />
-    <Compile Include="Function\BaseFunction.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="References.cs" />
-    <Compile Include="Tokens\TArray.cs" />
-    <Compile Include="Tokens\TFunction.cs" />
-    <Compile Include="Tokens\Token.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\ParserManager\ParserManager.csproj">
-      <Project>{6BFBC999-6062-4D51-B1D9-B6E97C8B6466}</Project>
-      <Name>ParserManager</Name>
-    </ProjectReference>
+    <Compile Include="Static.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
