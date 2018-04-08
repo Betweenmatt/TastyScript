@@ -424,7 +424,7 @@ namespace TastyScript.TastyScript.Parser
                     }
                 }
             }
-            var returnObj = new TFunction(func, ext, param[0].ToString(), _reference);
+            var returnObj = new TFunction(func, new ExtensionList(ext), param[0].ToString(), _reference);
             temp = returnObj;
             //do the whole returning thing
             var getret = Parse(temp);
@@ -707,7 +707,7 @@ namespace TastyScript.TastyScript.Parser
                 {
                     foreach (var e in ext)
                     {
-                        if (e.VariableExtension)
+                        if (e.IsVariableExtension)
                         {
                             string tokenname = "{AnonGeneratedToken" + AnonymousTokenStack.AnonymousTokenIndex + "}";
                             var extobj = e.Extend(objVar);
@@ -756,7 +756,7 @@ namespace TastyScript.TastyScript.Parser
             //get the left hand
             var leftHand = assign[0].Replace(" ", "");
             var varRef = varList.First(leftHand);
-            if (varRef != null && varRef.Locked)
+            if (varRef != null && varRef.IsLocked)
             {
                 Manager.Throw($"[282]Cannot re-assign a sealed variable!");
                 return null;
@@ -875,12 +875,12 @@ namespace TastyScript.TastyScript.Parser
         {
             if (!_reference.ReturnFlag)
             {
-                if (!TokenParser.Stop)
+                if ((_reference.IsGui && !Manager.IsGUIScriptStopping) || (!_reference.IsGui && !Manager.IsScriptStopping))
                 {
                     if (_reference.Tracer == null || (!_reference.Tracer.Continue && !_reference.Tracer.Break))
                         return TryParseMember(t);
                 }
-                else if (TokenParser.Stop && _reference.IsBlindExecute)
+                else if (((_reference.IsGui && Manager.IsGUIScriptStopping) || (!_reference.IsGui && Manager.IsScriptStopping)) && _reference.IsBlindExecute)
                 {
                     return TryParseMember(t);
                 }
@@ -900,7 +900,7 @@ namespace TastyScript.TastyScript.Parser
                 if (t.Extensions != null)
                     b.Extensions = t.Extensions;
                 if (t.Function.IsBlindExecute)
-                    b.IsBlindExecute = true;
+                    b.SetBlindExecute(true);
                 b.TryParse(t);
                 return b.ReturnBubble;
             }

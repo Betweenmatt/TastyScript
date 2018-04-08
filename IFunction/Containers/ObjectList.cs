@@ -30,6 +30,10 @@ namespace TastyScript.IFunction.Containers
         {
             return _tlist.IndexOf(item);
         }
+        public void Insert(int index, T item)
+        {
+            _tlist.Insert(index, item);
+        }
         public void RemoveAt(int index)
         {
             _tlist.RemoveAt(index);

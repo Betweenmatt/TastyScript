@@ -43,6 +43,8 @@
     <Compile Include="..\GlobalAssemblyInfo.cs">
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Attributes\Extension.cs" />
+    <Compile Include="Attributes\Function.cs" />
     <Compile Include="Containers\AnonymousTokenStack.cs" />
     <Compile Include="Containers\ExtensionList.cs" />
     <Compile Include="Containers\ExtensionStack.cs" />

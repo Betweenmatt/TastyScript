@@ -9,6 +9,8 @@ namespace TastyScript.IFunction.Containers
 {
     public class FunctionList : ObjectList<BaseFunction>
     {
+        public FunctionList() : base() { }
+        public FunctionList(List<BaseFunction> list) => _tlist = list;
         public List<BaseFunction> List { get { return _tlist; } }
         public BaseFunction First(string name)
         {

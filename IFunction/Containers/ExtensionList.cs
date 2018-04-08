@@ -9,6 +9,8 @@ namespace TastyScript.IFunction.Containers
 {
     public class ExtensionList : ObjectList<BaseExtension>
     {
+        public ExtensionList() : base() { }
+        public ExtensionList(List<BaseExtension> list) => _tlist = list;
         public List<BaseExtension> List { get { return _tlist; } }
         public BaseExtension First(string name)
         {

@@ -12,8 +12,8 @@ namespace TastyScript.ParserManager
 {
     public class Manager
     {
-        private static bool _guiScriptStopper;
-        private static bool _scriptStopper;
+        private static bool _isGuiScriptStopping;
+        private static bool _isScriptStopping;
         private static int _anonymousFunctionIndex = -1;
         
         public static int AnonymousFunctionIndex
@@ -26,9 +26,7 @@ namespace TastyScript.ParserManager
         }
         public static CancellationTokenSource CancellationTokenSource { get; private set; }
 
-        public static LoopTracerList LoopTracerStack = new LoopTracerList();
-        
-        public static LoopTracerList GUILoopTracerStack = new LoopTracerList();
+        public static LoopTracerList LoopTracerStack;
 
         public static string CurrentParsedLine { get; private set; }
 
@@ -37,41 +35,42 @@ namespace TastyScript.ParserManager
         /// <summary>
         /// All gui related functions get stopped by this bool
         /// </summary>
-        public static bool GUIScriptStopper
+        public static bool IsGUIScriptStopping
         {
             get
             {
-                return _guiScriptStopper;
+                return _isGuiScriptStopping;
             }
             set
             {
                 if (value && CancellationTokenSource != null && !CancellationTokenSource.IsCancellationRequested)
                     CancellationTokenSource.Cancel();
-                _guiScriptStopper = value;
+                _isGuiScriptStopping = value;
             }
         }
         
         /// <summary>
         /// All non-gui functions get stopped by this bool
         /// </summary>
-        public static bool ScriptStopper
+        public static bool IsScriptStopping
         {
             get
             {
-                return _scriptStopper;
+                return _isScriptStopping;
             }
             set
             {
                 if (value && CancellationTokenSource != null && !CancellationTokenSource.IsCancellationRequested)
                     CancellationTokenSource.Cancel();
-                _scriptStopper = value;
+                _isScriptStopping = value;
             }
         }
 
         public static IIOStream IOStream { get; }
 
         public static IExceptionHandler ExceptionHandler { get; }
-        
+
+        public static Dictionary<string, string> LoadedFileReference;
 
 
         public static void Throw(string msg) => ExceptionHandler.Throw(msg);
@@ -91,5 +90,7 @@ namespace TastyScript.ParserManager
         public static string ReadLine() => IOStream.ReadLine();
 
         public static void SetCurrentParsedLine(string line) => CurrentParsedLine = line;
+
+        public static void SetCancellationTokenSource() => CancellationTokenSource = new CancellationTokenSource();
     }
 }

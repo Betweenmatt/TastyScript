@@ -4,8 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using TastyScript.IFunction.Containers;
 using TastyScript.IFunction.Extension;
 using TastyScript.IFunction.Function;
+using TastyScript.ParserManager.Looping;
 
 namespace TastyScript.IFunction.Tokens
 {
@@ -24,7 +26,7 @@ namespace TastyScript.IFunction.Tokens
         /// <param name="ext"></param>
         /// <param name="args"></param>
         /// <param name="callingFunction"></param>
-        public TFunction(BaseFunction func, List<BaseExtension> ext, string args, BaseFunction callingFunction, LoopTracer t = null)
+        public TFunction(BaseFunction func, ExtensionList ext, string args, BaseFunction callingFunction, LoopTracer t = null)
         {
             Name = func.Name;
             Function = func;
@@ -47,7 +49,7 @@ namespace TastyScript.IFunction.Tokens
         /// <param name="ext"></param>
         /// <param name="args"></param>
         /// <param name="callingFunction"></param>
-        public TFunction(BaseFunction func, List<BaseExtension> ext, string[] args, BaseFunction callingFunction, LoopTracer t = null)
+        public TFunction(BaseFunction func, ExtensionList ext, string[] args, BaseFunction callingFunction, LoopTracer t = null)
         {
             Name = func.Name;
             Function = func;
@@ -63,7 +65,7 @@ namespace TastyScript.IFunction.Tokens
             else
                 Tracer = null;
         }
-        public TFunction(BaseFunction func, List<BaseExtension> ext, Dictionary<string, object> args, BaseFunction callingFunction, LoopTracer t = null)
+        public TFunction(BaseFunction func, ExtensionList ext, Dictionary<string, object> args, BaseFunction callingFunction, LoopTracer t = null)
         {
             Name = func.Name;
             Function = func;

@@ -23,7 +23,7 @@ namespace TastyScript.IFunction.Tokens
             _value = "<Type.TArray>";
             Arguments = val;
             Line = line;
-            Locked = locked;
+            IsLocked = locked;
         }
         public TArray(string name, string val, string line, bool locked = false)
         {
@@ -31,7 +31,7 @@ namespace TastyScript.IFunction.Tokens
             _value = "<Type.TArray>";
             Arguments = ReturnArgsArray(val.Substring(1, val.Length - 2));
             Line = line;
-            Locked = locked;
+            IsLocked = locked;
         }
         public string[] Add(string s)
         {

@@ -4,8 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TastyScript.IFunction.Containers;
+using TastyScript.IFunction.Extension;
 using TastyScript.IFunction.Tokens;
 using TastyScript.ParserManager;
+using TastyScript.ParserManager.Looping;
 
 namespace TastyScript.IFunction.Function
 {
@@ -78,9 +80,13 @@ namespace TastyScript.IFunction.Function
         public int UID { get; private set; }
         private static int _uidIndex = -1;
         public string Value { get; protected set; }
-        
 
-
+        public abstract void TryParse(TFunction caller);
+        public abstract void TryParse(TFunction caller, bool forFlag);
+        public void SetBlindExecute(bool flag)
+        {
+            IsBlindExecute = flag;
+        }
         [Obsolete]//idk where this is being used
         public string[] GetInvokeProperties()
         {
@@ -150,7 +156,7 @@ namespace TastyScript.IFunction.Function
         }
 
         
-        protected virtual void ForExtension(TFunction caller, ExtensionFor findFor)
+        protected virtual void ForExtension(TFunction caller, BaseExtension findFor)
         {
             this.IsLoop = true;
             string[] forNumber = findFor.Extend();
@@ -161,7 +167,7 @@ namespace TastyScript.IFunction.Function
                 forNumberAsNumber = int.MaxValue;
             for (var x = 0; x < forNumberAsNumber; x++)
             {
-                if (!TokenParser.Stop)
+                if ((IsGui && !Manager.IsGUIScriptStopping) || (!IsGui && !Manager.IsScriptStopping))
                 {
                     if (tracer.Break)
                     {
@@ -179,7 +185,7 @@ namespace TastyScript.IFunction.Function
                     break;
                 }
             }
-            Compiler.LoopTracerStack.Remove(tracer);
+            Manager.LoopTracerStack.Remove(tracer);
             tracer = null;
         }
     }

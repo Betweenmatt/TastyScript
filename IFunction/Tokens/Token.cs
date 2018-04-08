@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using TastyScript.IFunction.Containers;
 
 namespace TastyScript.IFunction.Tokens
 {
@@ -20,9 +21,9 @@ namespace TastyScript.IFunction.Tokens
                 return _value;
             }
         }
-        public List<EDefinition> Extensions { get; set; }
+        public ExtensionList Extensions { get; set; }
         public string Line { get; protected set; }
-        public bool Locked { get; protected set; }
+        public bool IsLocked { get; protected set; }
         protected Func<string> _action;
         /// <summary>
         /// line param is the line reference for the exception handler to track down
@@ -36,7 +37,7 @@ namespace TastyScript.IFunction.Tokens
             Name = name;
             _value = val;
             Line = line;
-            Locked = locked;
+            IsLocked = locked;
         }
         public Token(string name, Func<string> action, string line, bool locked = false)
         {
@@ -44,7 +45,7 @@ namespace TastyScript.IFunction.Tokens
             _action = action;
             _value = "<Type.TAction>";
             Line = line;
-            Locked = locked;
+            IsLocked = locked;
         }
         public void SetValue(string value)
         {

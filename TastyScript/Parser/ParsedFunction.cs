@@ -163,7 +163,7 @@ namespace TastyScript.TastyScript.Parser
                 }
             }
         }
-        public virtual void TryParse(TFunction caller)
+        public override void TryParse(TFunction caller)
         {
             ResetReturn();
             if (caller != null)
@@ -206,7 +206,7 @@ namespace TastyScript.TastyScript.Parser
             LocalVariables = new TokenList();
         }
         //this overload is when the function is called with the for extension
-        public virtual void TryParse(TFunction caller, bool forFlag)
+        public override void TryParse(TFunction caller, bool forFlag)
         {
             ResetReturn();
             if (caller != null)
