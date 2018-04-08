@@ -57,6 +57,7 @@
     <Compile Include="Extension\BaseExtension.cs" />
     <Compile Include="Extension\CustomExtension.cs" />
     <Compile Include="Function\BaseFunction.cs" />
+    <Compile Include="Function\FunctionDefinition.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="References.cs" />
     <Compile Include="Tokens\TArray.cs" />

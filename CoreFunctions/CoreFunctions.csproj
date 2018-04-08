@@ -43,7 +43,53 @@
     <Compile Include="..\GlobalAssemblyInfo.cs">
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="FunctionAppPackage.cs" />
+    <Compile Include="FunctionCheckScreen.cs" />
+    <Compile Include="FunctionConnectDevice.cs" />
+    <Compile Include="FunctionIf.cs" />
+    <Compile Include="FunctionImageLocation.cs" />
+    <Compile Include="FunctionKeyEvent.cs" />
+    <Compile Include="FunctionLongTouch.cs" />
+    <Compile Include="FunctionLoop.cs" />
+    <Compile Include="FunctionPrint.cs" />
+    <Compile Include="FunctionPrintLine.cs" />
+    <Compile Include="FunctionReadLine.cs" />
+    <Compile Include="FunctionScreenSize.cs" />
+    <Compile Include="FunctionSendText.cs" />
+    <Compile Include="FunctionSetDefaultSleep.cs" />
+    <Compile Include="FunctionSetTemplateDefaultOptions.cs" />
+    <Compile Include="FunctionSleep.cs" />
+    <Compile Include="FunctionStartAsync.cs" />
+    <Compile Include="FunctionSwipe.cs" />
+    <Compile Include="FunctionTakeScreenshot.cs" />
+    <Compile Include="FunctionTimer.cs" />
+    <Compile Include="FunctionTouch.cs" />
+    <Compile Include="Gui\FunctionGuiLoad.cs" />
+    <Compile Include="Gui\FunctionInvoke.cs" />
+    <Compile Include="Gui\FunctionStopInvoke.cs" />
+    <Compile Include="Gui\ServiceHandler.cs" />
+    <Compile Include="Internal\FunctionAwake.cs" />
+    <Compile Include="Internal\FunctionBase.cs" />
+    <Compile Include="Internal\FunctionBreak.cs" />
+    <Compile Include="Internal\FunctionContinue.cs" />
+    <Compile Include="Internal\FunctionGuaranteedHalt.cs" />
+    <Compile Include="Internal\FunctionHalt.cs" />
+    <Compile Include="Internal\FunctionReturn.cs" />
+    <Compile Include="Internal\FunctionStart.cs" />
+    <Compile Include="Internal\FunctionThis.cs" />
+    <Compile Include="Internal\FunctionThrow.cs" />
+    <Compile Include="Internal\FunctionTry.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\IFunction\IFunction.csproj">
+      <Project>{5626784C-59F0-4F27-9CB3-5A65D0129C5B}</Project>
+      <Name>IFunction</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ParserManager\ParserManager.csproj">
+      <Project>{6BFBC999-6062-4D51-B1D9-B6E97C8B6466}</Project>
+      <Name>ParserManager</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -76,7 +76,7 @@ namespace TastyScript.IFunction.Function
         public TokenList ProvidedArgs { get; protected set; }
         public Token ReturnBubble { get; private set; }
         public bool ReturnFlag { get; private set; }
-        public LoopTracer Tracer { get; private set; }
+        public LoopTracer Tracer { get; protected set; }
         public int UID { get; private set; }
         private static int _uidIndex = -1;
         public string Value { get; protected set; }
