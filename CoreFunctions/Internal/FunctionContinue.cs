@@ -3,22 +3,24 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TastyScript.Lang.Tokens;
+using TastyScript.IFunction.Attributes;
+using TastyScript.IFunction.Functions;
+using TastyScript.IFunction.Tokens;
+using TastyScript.ParserManager;
 
-namespace TastyScript.Lang.Functions
+namespace TastyScript.CoreFunctions.Internal
 {
     [Function("Continue", isSealed: true, alias: new string[] { "continue" })]
     internal class FunctionContinue : FunctionDefinition
     {
-        public override string CallBase()
+        public override bool CallBase()
         {
             var tracer = Tracer;
             if (tracer != null)
                 tracer.SetContinue(true);
             else
-                Compiler.ExceptionListener.ThrowSilent(
-                    new ExceptionHandler($"Unexpected `Continue()` without a loop to trigger.", LineValue));
-            return "";
+                Manager.ThrowSilent($"Unexpected `Continue()` without a loop to trigger.");
+            return true;
         }
     }
 }

@@ -1,26 +1,25 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing.Imaging;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TastyScript.Lang.Exceptions;
-using TastyScript.Lang.Tokens;
+using TastyScript.IFunction;
+using TastyScript.IFunction.Attributes;
+using TastyScript.IFunction.Functions;
+using TastyScript.IFunction.Tokens;
+using TastyScript.ParserManager;
 
-namespace TastyScript.Lang.Functions
+namespace TastyScript.CoreFunctions
 {
     [Function("TakeScreenshot", new string[] { "path" }, isSealed: true)]
-    internal class FunctionTakeScreenshot : FunctionDefinition
+    public class FunctionTakeScreenshot : FunctionDefinition
     {
-        public override string CallBase()
+        public override bool CallBase()
         {
-            if (Main.AndroidDriver == null)
-                Compiler.ExceptionListener.Throw("Cannot take screenshot without a connected device");
+            if (!Manager.Driver.IsConnected())
+                Manager.Throw("Cannot take screenshot without a connected device");
             var path = ProvidedArgs.First("path");
             if (path == null)
             {
-                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.NullReferenceException, $"Path must be specified", LineValue));
-                return null;
+                Manager.Throw($"Path must be specified");
+                return false;
             }
             var ss = Commands.GetScreenshot();
             try
@@ -29,13 +28,12 @@ namespace TastyScript.Lang.Functions
             }
             catch
             {
-                Compiler.ExceptionListener.ThrowSilent(new ExceptionHandler(ExceptionType.CompilerException,
-                    $"Unexpected error saving screenshot to path {path.ToString()}", ""));
+                Manager.ThrowSilent($"Unexpected error saving screenshot to path {path.ToString()}", ""));
                 ReturnBubble = new Token("bool", "null", "");
-                return "";
+                return true;
             }
             ReturnBubble = new Token("bool", path.ToString(), "");
-            return "";
+            return true;
         }
     }
 }

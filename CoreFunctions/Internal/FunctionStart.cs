@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TastyScript.Lang.Extensions;
-using TastyScript.Lang.Tokens;
+using TastyScript.IFunction.Attributes;
+using TastyScript.IFunction.Functions;
 
-namespace TastyScript.Lang.Functions
+namespace TastyScript.CoreFunctions.Internal
 {
     [Function("Start")]
     internal class FunctionStart : FunctionDefinition
     {
-        
+        public override bool CallBase()
+        {
+            return true;
+        }
     }
 }

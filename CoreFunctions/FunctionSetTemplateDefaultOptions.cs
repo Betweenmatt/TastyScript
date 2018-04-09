@@ -1,35 +1,35 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TastyScript.Android;
-using TastyScript.Lang.Tokens;
+using TastyScript.IFunction.Attributes;
+using TastyScript.IFunction.Functions;
+using TastyScript.IFunction.Tokens;
+using TastyScript.ParserManager;
+using TastyScript.ParserManager.Driver.Android;
 
-namespace TastyScript.Lang.Functions
+namespace TastyScript.CoreFunctions
 {
     [Function("SetTemplateDefaultOptions", new string[] { "arr" })]
-    internal class FunctionSetTemplateDefaultOptions : FunctionDefinition
+    public class FunctionSetTemplateDefaultOptions : FunctionDefinition
     {
-        public override string CallBase()
+        public override bool CallBase()
         {
             var arg = ProvidedArgs.First("arr");
             if (arg == null)
             {
-                Compiler.ExceptionListener.Throw($"Arguments for {this.Name} must not be null");
-                return null;
+                Manager.Throw($"Arguments for {this.Name} must not be null");
+                return false;
             }
             var args = new TArray("", arg.ToString(), "");
             if (args.Arguments == null)
             {
-                Compiler.ExceptionListener.Throw($"Arguments for {this.Name} must be an array");
-                return null;
+                Manager.Throw($"Arguments for {this.Name} must be an array");
+                return false;
             }
             var props = new List<string>();
             props.AddRange(args.Arguments);
             var ret = AnalyzeScreen.SetDefaultTemplateOptions(props.ToArray());
             ReturnBubble = new TArray("templateOptions", ret, "");
-            return "";
+            return true;
         }
     }
 }

@@ -1,19 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TastyScript.Lang.Tokens;
+using TastyScript.IFunction.Attributes;
+using TastyScript.IFunction.Functions;
+using TastyScript.IFunction.Tokens;
 
-namespace TastyScript.Lang.Functions
+namespace TastyScript.CoreFunctions.Internal
 {
     [Function("GuaranteedHalt", isSealed: true)]
     internal class FunctionGuaranteedHalt : FunctionDefinition
     {
-        public override string CallBase()
+        public override bool CallBase()
         {
             FunctionTimer.TimerStop();
-            return "";
+            return true;
         }
     }
 }

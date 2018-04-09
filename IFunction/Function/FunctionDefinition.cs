@@ -5,22 +5,20 @@ using TastyScript.IFunction.Function;
 using TastyScript.IFunction.Tokens;
 using TastyScript.ParserManager;
 
-namespace TastyScript.Lang.Functions
+namespace TastyScript.IFunction.Functions
 {
-    internal static class FunctionHelpers
+    public static class FunctionHelpers
     {
         public static void Sleep(double ms, TFunction caller)
         {
             var sleep = FunctionStack.First("Sleep");
-            var func = new TFunction(sleep, new List<EDefinition>(), ms.ToString() , caller.CallingFunction);
+            var func = new TFunction(sleep, new ExtensionList(), ms.ToString() , caller.CallingFunction);
             sleep.TryParse(func);
-            //Utilities.Sleep((int)ms);
         }
-        
     }
     public abstract class FunctionDefinition : BaseFunction
     {
-        public virtual string CallBase() { return ""; }
+        public abstract bool CallBase();
         public override void TryParse(TFunction caller)
         {
             ResetReturn();
@@ -90,7 +88,7 @@ namespace TastyScript.Lang.Functions
             Parse();
         }
 
-        public string Parse()
+        private bool Parse()
         {
             if (IsObsolete)
             {
@@ -98,19 +96,19 @@ namespace TastyScript.Lang.Functions
             }
             if (!ReturnFlag)
             {
-                if (!TokenParser.Stop)
+                if ((IsGui && !Manager.IsGUIScriptStopping) || (!IsGui && !Manager.IsScriptStopping))
                 {
                     if (Tracer == null || (!Tracer.Continue && !Tracer.Break))
                         return CallBase();
 
                 }
 
-                else if (TokenParser.Stop && BlindExecute)
+                else if (((IsGui && Manager.IsGUIScriptStopping) || (!IsGui && Manager.IsScriptStopping)) && IsBlindExecute)
                 {
                     return CallBase();
                 }
             }
-            return "";
+            return false;
 
         }
     }

@@ -3,30 +3,30 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TastyScript.Lang.Extensions;
-using TastyScript.Lang.Tokens;
+using TastyScript.IFunction.Attributes;
+using TastyScript.ParserManager;
 
-namespace TastyScript.Lang.Functions
+namespace TastyScript.IFunction.Functions
 {
     [Function("PrintLine", new string[] { "s" })]
-    internal class FunctionPrintLine : FunctionDefinition
+    public class FunctionPrintLine : FunctionDefinition
     {
         private List<string> concatStrings = new List<string>();
         private void Concat()
         {
-            var findConcat = Extensions.FirstOrDefault(f => f.Name == "Concat") as ExtensionConcat;
+            var findConcat = Extensions.First("Concat");
             if (findConcat != null)
             {
-                var concatList = Extensions.Where(f => f.Name == "Concat");
+                var concatList = Extensions.Where("Concat");
                 foreach (var x in concatList)
                 {
-                    var param = x as ExtensionConcat;
+                    var param = x;
                     string[] ext = param.Extend();
                     concatStrings.Add(ext[0].ToString());
                 }
             }
         }
-        public override string CallBase()
+        public override bool CallBase()
         {
             Concat();
             var print = "";
@@ -34,7 +34,7 @@ namespace TastyScript.Lang.Functions
             if (argsList != null)
                 print = argsList.ToString();
             //color extension check
-            var findColorExt = Extensions.FirstOrDefault(f => f.Name == "Color") as ExtensionColor;
+            var findColorExt = Extensions.First("Color");
             var color = ConsoleColor.Gray;
             if (findColorExt != null)
             {
@@ -53,15 +53,15 @@ namespace TastyScript.Lang.Functions
             catch (Exception e)
             {
                 if (!(e is ArgumentException) || !(e is ArgumentNullException))
-                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"Unexpected input: {output}", LineValue));
-                return null;
+                    Manager.Throw($"Unexpected input: {output}");
+                return false;
             }
-            Main.IO.Print(output.UnCleanString(), color);
+            Manager.Print(output.UnCleanString(), color);
 
             //clear extensions after done
             concatStrings = new List<string>();
-            Extensions = new List<EDefinition>();
-            return print;
+            Extensions = new IFunction.Containers.ExtensionList();
+            return true;
         }
     }
 }

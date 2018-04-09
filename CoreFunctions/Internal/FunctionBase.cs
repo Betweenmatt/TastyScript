@@ -1,28 +1,27 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TastyScript.Lang.Extensions;
-using TastyScript.Lang.Tokens;
+using TastyScript.IFunction.Attributes;
+using TastyScript.IFunction.Extension;
+using TastyScript.IFunction.Functions;
+using TastyScript.IFunction.Tokens;
+using TastyScript.ParserManager;
 
-namespace TastyScript.Lang.Functions
+namespace TastyScript.CoreFunctions.Internal
 {
     [Function("Base", isSealed: true)]
     internal class FunctionBase : FunctionDefinition
     {
         public override void TryParse(TFunction caller)
         {
-            Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"{this.Name} can not be overrided", LineValue));
+            Manager.Throw($"{this.Name} can not be overrided");
         }
-        public override string CallBase()
+        public override bool CallBase()
         {
-            Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"{this.Name} can not be overrided.", LineValue));
-            return null;
+            Manager.Throw($"{this.Name} can not be overrided.");
+            return false;
         }
-        protected override void ForExtension(TFunction caller, ExtensionFor findFor)
+        protected override void ForExtension(TFunction caller, BaseExtension findFor)
         {
-            Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"Cannot call 'For' on {this.Name}.", LineValue));
+            Manager.Throw($"Cannot call 'For' on {this.Name}.");
         }
     }
 }

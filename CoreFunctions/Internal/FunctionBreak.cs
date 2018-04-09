@@ -1,23 +1,21 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TastyScript.Lang.Tokens;
+using TastyScript.IFunction.Attributes;
+using TastyScript.IFunction.Functions;
+using TastyScript.ParserManager;
 
-namespace TastyScript.Lang.Functions
+namespace TastyScript.CoreFunctions.Internal
 {
     [Function("Break", isSealed: true, alias: new string[] { "break" })]
     internal class FunctionBreak : FunctionDefinition
     {
-        public override string CallBase()
+        public override bool CallBase()
         {
             var tracer = Tracer;
             if (tracer != null)
                 tracer.SetBreak(true);
             else
-                Compiler.ExceptionListener.ThrowSilent(new ExceptionHandler($"Unexpected `Break()` without a loop to trigger.", LineValue));
-            return "";
+                Manager.ThrowSilent($"Unexpected `Break()` without a loop to trigger.");
+            return true;
         }
     }
 }

@@ -1,30 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TastyScript.Lang.Exceptions;
-using TastyScript.Lang.Tokens;
+﻿using TastyScript.IFunction;
+using TastyScript.IFunction.Attributes;
+using TastyScript.IFunction.Functions;
+using TastyScript.ParserManager;
 
-namespace TastyScript.Lang.Functions
+namespace TastyScript.CoreFunctions
 {
     [Function("AppPackage", new string[] { "app" }, isSealed: true)]
-    internal class FunctionAppPackage : FunctionDefinition
+    public class FunctionAppPackage : FunctionDefinition
     {
-        public override string CallBase()
+        public override bool CallBase()
         {
             var print = "";
             var argsList = ProvidedArgs.First("app");
             if (argsList != null)
                 print = argsList.ToString();
-            if (Main.AndroidDriver == null)
+            if (!Manager.Driver.IsConnected())
             {
-                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.DriverException,
-                    $"Cannot set the app package without having a device connected. Please connect to a device first.", LineValue));
-                return null;
+                Manager.Throw($"Cannot set the app package without having a device connected. Please connect to a device first.");
+                return false;
             }
-            Commands.SetAppPackage(print);
-            return print;
+            ReturnBubble = new IFunction.Tokens.Token("appPkg", Commands.SetAppPackage(print),"");
+            return true;
         }
     }
 }

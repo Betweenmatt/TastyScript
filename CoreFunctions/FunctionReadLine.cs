@@ -1,19 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using TastyScript.IFunction.Attributes;
+using TastyScript.IFunction.Functions;
+using TastyScript.IFunction.Tokens;
+using TastyScript.ParserManager;
 
-namespace TastyScript.Lang.Functions
+namespace TastyScript.CoreFunctions
 {
     [Function("ReadLine")]
-    internal class FunctionReadLine : FunctionDefinition
+    public class FunctionReadLine : FunctionDefinition
     {
-        public override string CallBase()
+        public override bool CallBase()
         {
-            string input = Main.IO.Read();
-            ReturnBubble = new Tokens.Token("readline", input, "");
-            return "";
+            string input = Manager.ReadLine();
+            ReturnBubble = new Token("readline", input, "");
+            return true;
         }
     }
 }

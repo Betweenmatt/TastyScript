@@ -3,22 +3,25 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TastyScript.IFunction.Attributes;
+using TastyScript.IFunction.Functions;
+using TastyScript.IFunction.Tokens;
 
-namespace TastyScript.Lang.Functions
+namespace TastyScript.CoreFunctions.Internal
 {
     [Function("Return", new string[]{"value"},isSealed:true, alias: new string[] { "return" })]
     internal class FunctionReturn : FunctionDefinition
     {
-        public override string CallBase()
+        public override bool CallBase()
         {
             var argsList = ProvidedArgs.First("value");
             if (argsList == null)
             {
-                Caller.CallingFunction.ReturnToTopOfBubble(new Tokens.Token("null", "null", ""));
-                return "";
+                Caller.CallingFunction.ReturnToTopOfBubble(new Token("null", "null", ""));
+                return true;
             }
             Caller.CallingFunction.ReturnToTopOfBubble(argsList);
-            return "";
+            return true;
         }
     }
 }

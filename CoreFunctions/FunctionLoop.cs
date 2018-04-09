@@ -1,34 +1,34 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TastyScript.Lang.Extensions;
-using TastyScript.Lang.Tokens;
+using TastyScript.IFunction.Attributes;
+using TastyScript.IFunction.Containers;
+using TastyScript.IFunction.Extension;
+using TastyScript.IFunction.Tokens;
+using TastyScript.IFunction.Functions;
+using TastyScript.ParserManager;
+using TastyScript.ParserManager.Looping;
 
-namespace TastyScript.Lang.Functions
+namespace TastyScript.CoreFunctions
 {
     [Function("Loop", new string[] { "invoke" }, isSealed: true, invoking: true, isanon: false)]
-    internal class FunctionLoop : FunctionDefinition
+    public class FunctionLoop : FunctionDefinition
     {
-        public override string CallBase()
+        public override bool CallBase()
         {
             this.IsLoop = true;
             var prov = ProvidedArgs.First("invoke");
             if (prov == null)
             {
-                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"[247]Invoke function cannot be null.", LineValue));
-                return null;
+                Manager.Throw($"[247]Invoke function cannot be null.");
+                return false;
             }
             var func = FunctionStack.First(prov.ToString());
             if (func == null)
             {
-                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"[250]Invoke function cannot be null.", LineValue));
-                return null;
+                Manager.Throw($"[250]Invoke function cannot be null.");
+                return false;
             }
-            var findFor = Extensions.FirstOrDefault(f => f.Name == "For") as ExtensionFor;
+            var findFor = Extensions.First("For");
             if (findFor != null && findFor.Extend() != null && findFor.Extend().ElementAtOrDefault(0) != null && findFor.Extend()[0] != "")
             {
                 string[] forNumber = findFor.Extend();
@@ -36,11 +36,11 @@ namespace TastyScript.Lang.Functions
                 //if (forNumberAsNumber == 0)
                 //    forNumberAsNumber = int.MaxValue;
                 var tracer = new LoopTracer();
-                Compiler.LoopTracerStack.Add(tracer);
+                Manager.LoopTracerStack.Add(tracer);
                 for (var x = 0; x <= forNumberAsNumber; x++)
                 {
                     //gave a string as the parameter because number was causing srs problems
-                    if (!TokenParser.Stop)
+                    if (!Manager.IsScriptStopping)
                     {
                         if (tracer.Break)
                         {
@@ -68,14 +68,14 @@ namespace TastyScript.Lang.Functions
                             passed = new string[] { x.ToString() };
                         }
                         func.SetInvokeProperties(new string[] { }, Caller.CallingFunction.LocalVariables.List, Caller.CallingFunction.ProvidedArgs.List);
-                        func.TryParse(new TFunction(Caller.Function, new List<EDefinition>(), passed, this, tracer));
+                        func.TryParse(new TFunction(Caller.Function, new ExtensionList(), passed, this, tracer));
                     }
                     else
                     {
                         break;
                     }
                 }
-                Compiler.LoopTracerStack.Remove(tracer);
+                Manager.LoopTracerStack.Remove(tracer);
                 tracer = null;
             }
             else
@@ -84,12 +84,12 @@ namespace TastyScript.Lang.Functions
                 //Compiler.LoopTracerStack.Add(tracer);
                 //Tracer = tracer;
                 var tracer = new LoopTracer();
-                Compiler.LoopTracerStack.Add(tracer);
+                Manager.LoopTracerStack.Add(tracer);
                 var x = 0;
                 while (true)
                 {
                     //gave a string as the parameter because number was causing srs problems
-                    if (!TokenParser.Stop)
+                    if (!Manager.IsScriptStopping)
                     {
                         if (tracer.Break)
                         {
@@ -116,29 +116,22 @@ namespace TastyScript.Lang.Functions
                         {
                             passed = new string[] { x.ToString() };
                         }
-                        //Console.WriteLine(func.UID+JsonConvert.SerializeObject(tracer, Formatting.Indented));
                         func.SetInvokeProperties(new string[] { }, Caller.CallingFunction.LocalVariables.List, Caller.CallingFunction.ProvidedArgs.List);
-                        func.TryParse(new TFunction(Caller.Function, new List<EDefinition>(), passed, this, tracer));
+                        func.TryParse(new TFunction(Caller.Function, new ExtensionList(), passed, this, tracer));
                         x++;
-                        //Console.WriteLine("\t\t\t" +func.UID + ":" + string.Join(",",func.ProvidedArgs));
-                        //Console.WriteLine(func.UID + JsonConvert.SerializeObject(func.ProvidedArgs, Formatting.Indented));
                     }
                     else
                     {
                         break;
                     }
                 }
-                //foreach (var ttt in Compiler.LoopTracerStack)
-                //    Console.WriteLine("b"+func.UID + JsonConvert.SerializeObject(ttt, Formatting.Indented));
-                Compiler.LoopTracerStack.Remove(tracer);
-                //foreach(var ttt in Compiler.LoopTracerStack)
-                //    Console.WriteLine("a"+func.UID + JsonConvert.SerializeObject(ttt, Formatting.Indented));
+                Manager.LoopTracerStack.Remove(tracer);;
                 tracer = null;
             }
-            return "";
+            return true;
         }
         //stop the base for looping extension from overriding this custom looping function
-        protected override void ForExtension(TFunction caller, ExtensionFor findFor)
+        protected override void ForExtension(TFunction caller, BaseExtension findFor)
         {
             TryParse(caller, true);
         }

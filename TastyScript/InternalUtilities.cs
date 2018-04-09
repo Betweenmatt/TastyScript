@@ -13,7 +13,7 @@ using TastyScript.ParserManager;
 namespace TastyScript.TastyScript
 {
     internal class InternalUtilities
-    {
+    {/*
         /// <summary>
         /// Sleeps the main thread until time is reached, or Token.Stop is true
         /// </summary>
@@ -77,6 +77,6 @@ namespace TastyScript.TastyScript
                             }
                         }
             return temp;
-        }
+        }*/
     }
 }

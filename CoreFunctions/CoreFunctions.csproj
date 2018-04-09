@@ -30,8 +30,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -59,16 +63,10 @@
     <Compile Include="FunctionSetDefaultSleep.cs" />
     <Compile Include="FunctionSetTemplateDefaultOptions.cs" />
     <Compile Include="FunctionSleep.cs" />
-    <Compile Include="FunctionStartAsync.cs" />
     <Compile Include="FunctionSwipe.cs" />
     <Compile Include="FunctionTakeScreenshot.cs" />
     <Compile Include="FunctionTimer.cs" />
     <Compile Include="FunctionTouch.cs" />
-    <Compile Include="Gui\FunctionGuiLoad.cs" />
-    <Compile Include="Gui\FunctionInvoke.cs" />
-    <Compile Include="Gui\FunctionStopInvoke.cs" />
-    <Compile Include="Gui\ServiceHandler.cs" />
-    <Compile Include="Internal\FunctionAwake.cs" />
     <Compile Include="Internal\FunctionBase.cs" />
     <Compile Include="Internal\FunctionBreak.cs" />
     <Compile Include="Internal\FunctionContinue.cs" />
@@ -90,6 +88,9 @@
       <Project>{6BFBC999-6062-4D51-B1D9-B6E97C8B6466}</Project>
       <Name>ParserManager</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

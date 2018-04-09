@@ -8,9 +8,10 @@ namespace TastyScript.ParserManager.IOStream
 {
     public interface IIOStream
     {
-        void Print(string msg, bool line);
-        void Print(string msg, ConsoleColor color, bool line);
+        void Print(object msg, bool line);
+        void Print(object msg, ConsoleColor color, bool line);
         string ReadLine();
+        ConsoleKeyInfo ReadKey(bool intercept);
         void ChangeConsoleTitle(string append);
     }
 }

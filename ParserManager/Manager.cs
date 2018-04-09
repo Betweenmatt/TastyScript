@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using TastyScript.ParserManager.Driver;
+using TastyScript.ParserManager.Driver.Android;
 using TastyScript.ParserManager.ExceptionHandler;
 using TastyScript.ParserManager.IOStream;
 using TastyScript.ParserManager.Looping;
@@ -15,7 +18,10 @@ namespace TastyScript.ParserManager
         private static bool _isGuiScriptStopping;
         private static bool _isScriptStopping;
         private static int _anonymousFunctionIndex = -1;
-        
+
+        public static IDriver Driver { get; set; }
+
+        public static string Title = $"TastyScript v{Assembly.GetExecutingAssembly().GetName().Version.ToString()} Beta";
         public static int AnonymousFunctionIndex
         {
             get
@@ -30,7 +36,7 @@ namespace TastyScript.ParserManager
 
         public static string CurrentParsedLine { get; private set; }
 
-        public static double SleepDefaultTime { get; }
+        public static double SleepDefaultTime { get; set; }
 
         /// <summary>
         /// All gui related functions get stopped by this bool
@@ -66,31 +72,42 @@ namespace TastyScript.ParserManager
             }
         }
 
-        public static IIOStream IOStream { get; }
+        public static IIOStream IOStream { get; private set; }
 
-        public static IExceptionHandler ExceptionHandler { get; }
+        public static IExceptionHandler ExceptionHandler { get; set; }
 
         public static Dictionary<string, string> LoadedFileReference;
+
+        public static List<AnonymousFunctionValueHolder> AnonymousFunctionValueHolder { get => anonymousFunctionValueHolder; set => anonymousFunctionValueHolder = value; }
+
+        private static List<AnonymousFunctionValueHolder> anonymousFunctionValueHolder = new List<AnonymousFunctionValueHolder>();
 
 
         public static void Throw(string msg) => ExceptionHandler.Throw(msg);
 
-        public static void Throw(ExceptionType type, string msg) => ExceptionHandler.Throw(type, msg);
+        public static void Throw(string msg, ExceptionType type) => ExceptionHandler.Throw(msg,type);
 
-        public static void ThrowSilent(string msg) => ExceptionHandler.ThrowSilent(msg);
+        public static void ThrowSilent(string msg, bool once = true) => ExceptionHandler.ThrowSilent(msg, once);
 
-        public static void ThrowSilent(ExceptionType type, string msg) => ExceptionHandler.ThrowSilent(type, msg);
+        public static void ThrowSilent(string msg, ExceptionType type, bool once = true) => ExceptionHandler.ThrowSilent(msg, type, once);
 
         public static void ThrowDebug(string msg) => ExceptionHandler.ThrowDebug(msg);
 
-        public static void Print(string msg, bool line = true) => IOStream.Print(msg,line);
+        public static void Print(object msg, bool line = true) => IOStream.Print(msg,line);
 
-        public static void Print(string msg, ConsoleColor color, bool line = true) => IOStream.Print(msg, color, line);
+        public static void Print(object msg, ConsoleColor color, bool line = true) => IOStream.Print(msg, color, line);
 
         public static string ReadLine() => IOStream.ReadLine();
 
         public static void SetCurrentParsedLine(string line) => CurrentParsedLine = line;
 
         public static void SetCancellationTokenSource() => CancellationTokenSource = new CancellationTokenSource();
+        
+        public static void Init(IIOStream io)
+        {
+            Settings.LoadSettings();
+            
+            IOStream = io;
+        }
     }
 }

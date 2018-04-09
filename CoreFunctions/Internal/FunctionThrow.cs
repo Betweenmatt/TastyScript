@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TastyScript.Lang.Functions
+namespace TastyScript.IFunction.Functions
 {
     [Function("Throw",new string[] { "msg" })]
     internal class FunctionThrow : FunctionDefinition

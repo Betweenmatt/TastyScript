@@ -1,26 +1,25 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TastyScript.Lang.Extensions;
-using TastyScript.Lang.Tokens;
+using TastyScript.IFunction.Attributes;
+using TastyScript.IFunction.Extension;
+using TastyScript.IFunction.Functions;
+using TastyScript.IFunction.Tokens;
+using TastyScript.ParserManager;
 
-namespace TastyScript.Lang.Functions
+namespace TastyScript.CoreFunctions
 {
     [Function("SetDefaultSleep", new string[] { "sleep" })]
-    internal class FunctionSetDefaultSleep : FunctionDefinition
+    public class FunctionSetDefaultSleep : FunctionDefinition
     {
-        public override string CallBase()
+        public override bool CallBase()
         {
             var sleep = (ProvidedArgs.First("sleep"));
             double sleepnum = double.Parse(sleep.ToString());
-            TokenParser.SleepDefaultTime = sleepnum;
-            return "";
+            Manager.SleepDefaultTime = sleepnum;
+            return true;
         }
-        protected override void ForExtension(TFunction caller, ExtensionFor findFor)
+        protected override void ForExtension(TFunction caller, BaseExtension findFor)
         {
-            Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"Cannot call 'For' on {this.Name}.", LineValue));
+            Manager.Throw($"Cannot call 'For' on {this.Name}.");
         }
     }
 }

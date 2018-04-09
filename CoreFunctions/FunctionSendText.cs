@@ -1,32 +1,33 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TastyScript.Lang.Tokens;
+using TastyScript.IFunction;
+using TastyScript.IFunction.Attributes;
+using TastyScript.IFunction.Functions;
+using TastyScript.ParserManager;
 
-namespace TastyScript.Lang.Functions
+namespace TastyScript.CoreFunctions
 {
     [Function("SendText", new string[] { "s" })]
-    internal class FunctionSendText : FunctionDefinition
+    public class FunctionSendText : FunctionDefinition
     {
-        public override string CallBase()
+        public override bool CallBase()
         {
             var argsList = ProvidedArgs.First("s");
             if (argsList == null)
             {
-                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.NullReferenceException, "Arguments cannot be null.", LineValue));
-                return null;
+                Manager.Throw("Arguments cannot be null.");
+                return false;
             }
-            if (Main.AndroidDriver != null)
+            if (Manager.Driver.IsConnected())
             {
                 Commands.SendText(argsList.ToString());
             }
             else
             {
-                Main.IO.Print($"[DRIVERLESS] text {argsList.ToString()}");
+                Manager.Print($"[DRIVERLESS] text {argsList.ToString()}");
             }
-            return "";
+            return true;
         }
     }
 }

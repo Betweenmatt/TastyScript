@@ -4,12 +4,32 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace TastyScript.ParserManager
 {
     public static class Utilities
     {
+        /// <summary>
+     /// Sleeps the main thread until time is reached, or Token.Stop is true
+     /// </summary>
+     /// <param name="ms"></param>
+        public static void Sleep(int ms)
+        {
+            try
+            {
+                CancellationToken token = Manager.CancellationTokenSource.Token;
+                ManualResetEventSlim mre = new ManualResetEventSlim();
+                mre.Wait(ms, token);
+                mre.Dispose();
+            }
+            catch (Exception e)
+            {
+                if (!(e is OperationCanceledException))
+                    Manager.Throw("Unknown error with `Sleep`");
+            }
+        }
         public static string ScopeRegex(string input)
         {
             return @"(" + input + @"([^{}]*){)([^{}]+|(?<Level>\{)| (?<-Level>\}))+(?(Level)(?!))\}";

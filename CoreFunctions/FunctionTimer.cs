@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TastyScript.Lang.Extensions;
-using TastyScript.Lang.Tokens;
+using TastyScript.IFunction.Attributes;
+using TastyScript.IFunction.Functions;
+using TastyScript.IFunction.Tokens;
+using TastyScript.ParserManager;
 
-namespace TastyScript.Lang.Functions
+namespace TastyScript.CoreFunctions
 {
     [Function("Timer", new string[] { "type" }, isSealed: true)]
-    internal class FunctionTimer : FunctionDefinition
+    public class FunctionTimer : FunctionDefinition
     {
         private static Stopwatch _watch;
         public static void TimerStop()
@@ -19,13 +19,13 @@ namespace TastyScript.Lang.Functions
                 _watch.Stop();
             _watch = null;
         }
-        public override string CallBase()
+        public override bool CallBase()
         {
             //find extensions
-            var tryStart = Extensions.FirstOrDefault(f => f.Name == "Start") as ExtensionStart;
-            var tryPrint = Extensions.FirstOrDefault(f => f.Name == "Print") as ExtensionPrint;
-            var tryColor = Extensions.FirstOrDefault(f => f.Name == "Color") as ExtensionColor;
-            var tryStop = Extensions.FirstOrDefault(f => f.Name == "Stop") as ExtensionStop;
+            var tryStart = Extensions.First("Start");
+            var tryPrint = Extensions.First("Print");
+            var tryColor = Extensions.First("Color");
+            var tryStop = Extensions.First("Stop");
             if (tryStart != null)
             {
                 _watch = Stopwatch.StartNew();
@@ -44,7 +44,7 @@ namespace TastyScript.Lang.Functions
                         if (nofail)
                             color = newcol;
                     }
-                    Main.IO.Print(elapsedMs, color, false);
+                    Manager.Print(elapsedMs, color, false);
                 }
             }
             if (tryStop != null)
@@ -62,9 +62,9 @@ namespace TastyScript.Lang.Functions
                         output = _watch.ElapsedTicks;   
                 }
 
-                ReturnBubble = new Tokens.Token("timems", output.ToString(), Caller.Line);
+                ReturnBubble = new Token("timems", output.ToString(), Caller.Line);
             }
-            return "";
+            return true;
         }
     }
 }

@@ -1,32 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TastyScript.Lang.Extensions;
-using TastyScript.Lang.Tokens;
+using TastyScript.IFunction.Attributes;
+using TastyScript.IFunction.Functions;
+using TastyScript.ParserManager;
 
-namespace TastyScript.Lang.Functions
+namespace TastyScript.CoreFunctions
 {
     [Function("Print", new string[] { "s" })]
-    internal class FunctionPrint : FunctionDefinition
+    public class FunctionPrint : FunctionDefinition
     {
         private List<string> concatStrings = new List<string>();
         private void Concat()
         {
-            var findConcat = Extensions.FirstOrDefault(f => f.Name == "Concat") as ExtensionConcat;
+            var findConcat = Extensions.First("Concat");
             if (findConcat != null)
             {
-                var concatList = Extensions.Where(f => f.Name == "Concat");
+                var concatList = Extensions.Where("Concat");
                 foreach (var x in concatList)
                 {
-                    var param = x as ExtensionConcat;
-                    string[] ext = param.Extend();
+                    string[] ext = x.Extend();
                     concatStrings.Add(ext[0]);
                 }
             }
         }
-        public override string CallBase()
+        public override bool CallBase()
         {
             Concat();
             var print = "";
@@ -35,7 +33,7 @@ namespace TastyScript.Lang.Functions
                 print = argsList.ToString();
             //color extension check
             var color = ConsoleColor.Gray;
-            var findColorExt = Extensions.FirstOrDefault(f => f.Name == "Color") as ExtensionColor;
+            var findColorExt = Extensions.First("Color");
             if (findColorExt != null)
             {
                 var param = findColorExt.Extend();
@@ -54,17 +52,17 @@ namespace TastyScript.Lang.Functions
             {
                 if (!(e is ArgumentException) || !(e is ArgumentNullException))
                 {
-                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"Unexpected input: {output}", LineValue));
-                    return null;
+                    Manager.Throw($"Unexpected input: {output}");
+                    return false;
                 }
             }
-            Main.IO.Print(output.UnCleanString(), color, false);
+            Manager.Print(output.UnCleanString(), color, false);
 
 
             //clear extensions after done
             concatStrings = new List<string>();
-            Extensions = new List<EDefinition>();
-            return print;
+            Extensions = new IFunction.Containers.ExtensionList();
+            return true;
         }
     }
 }

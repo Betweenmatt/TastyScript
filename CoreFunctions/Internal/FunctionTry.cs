@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TastyScript.Lang.Extensions;
-using TastyScript.Lang.Tokens;
+using TastyScript.IFunction.Extensions;
+using TastyScript.IFunction.Tokens;
 
-namespace TastyScript.Lang.Functions.Internal
+namespace TastyScript.IFunction.Functions.Internal
 {
     [Function("Try",new string[] { "invoke" },invoking:true)]
     internal class FunctionTry : FunctionDefinition

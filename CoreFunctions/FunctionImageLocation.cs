@@ -1,29 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TastyScript.Android;
-using TastyScript.Lang.Extensions;
-using TastyScript.Lang.Tokens;
+using TastyScript.IFunction;
+using TastyScript.IFunction.Attributes;
+using TastyScript.IFunction.Tokens;
+using TastyScript.IFunction.Functions;
+using TastyScript.ParserManager;
 
-namespace TastyScript.Lang.Functions
+namespace TastyScript.CoreFunctions
 {
     [Function("ImageLocation", new string[] { "path" })]
-    internal class FunctionImageLocation : FunctionDefinition
+    public class FunctionImageLocation : FunctionDefinition
     {
-        public override string CallBase()
+        public override bool CallBase()
         {
-            if (Main.AndroidDriver == null)
+            if (!Manager.Driver.IsConnected())
             {
-                Compiler.ExceptionListener.Throw("Cannot check screen without a connected device");
-                return null;
+                Manager.Throw("Cannot check screen without a connected device");
+                return false;
             }
             var path = ProvidedArgs.First("path");
             if (path == null)
             {
-                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.NullReferenceException, $"Invoke function cannot be null.", LineValue));
-                return null;
+                Manager.Throw($"Invoke function cannot be null.");
+                return false;
             }
             var prop = CheckProperty();
             try
@@ -31,8 +31,8 @@ namespace TastyScript.Lang.Functions
                 var ret = Commands.GetImageCoordinates(path.ToString(), prop);
                 if (ret == null)
                 {
-                    ReturnBubble = new Tokens.Token("null", "null", "");
-                    return "";
+                    ReturnBubble = new Token("null", "null", "");
+                    return false;
                 }
                 string[] ouput = new string[] { ret[0].ToString(), ret[1].ToString() };
                 
@@ -42,20 +42,19 @@ namespace TastyScript.Lang.Functions
             {
                 if (e is System.IO.FileNotFoundException)
                 {
-                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.DriverException,
-                        $"File could not be found: {path.ToString()}"));
-                    return null;
+                    Manager.Throw($"File could not be found: {path.ToString()}");
+                    return false;
                 }
                 Console.WriteLine(e);
-                Compiler.ExceptionListener.Throw(new ExceptionHandler("[73]Unexpected error with CheckScreen()"));
-                return null;
+                Manager.Throw(("[73]Unexpected error with CheckScreen()"));
+                return false;
             }
-            return "";
+            return true;
         }
         private string[] CheckProperty()
         {
-            var prop = Extensions.FirstOrDefault(f => f.Name == "Prop") as ExtensionProp;
-            var save = Extensions.FirstOrDefault(f => f.Name == "Save") as ExtensionSave;
+            var prop = Extensions.First("Prop");
+            var save = Extensions.First("Save");
             if(prop != null)
             {
                 var props = prop.Extend().ToList();

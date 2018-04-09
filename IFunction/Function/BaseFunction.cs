@@ -67,15 +67,15 @@ namespace TastyScript.IFunction.Function
         public bool IsGui { get; protected set; }
         public bool IsInvoking { get; private set; }
         public bool IsLocked { get; private set; }
-        public bool IsLoop { get; private set; }
+        public bool IsLoop { get; protected set; }
         public bool IsObsolete { get; private set; }
         public bool IsOverride { get; protected set; }
         public bool IsSealed { get; private set; }
         public TokenList LocalVariables { get; protected set; }
         public string Name { get; protected set; }
         public TokenList ProvidedArgs { get; protected set; }
-        public Token ReturnBubble { get; private set; }
-        public bool ReturnFlag { get; private set; }
+        public Token ReturnBubble { get; set; }
+        public bool ReturnFlag { get; set; }
         public LoopTracer Tracer { get; protected set; }
         public int UID { get; private set; }
         private static int _uidIndex = -1;

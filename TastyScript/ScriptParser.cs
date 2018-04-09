@@ -12,14 +12,15 @@ using System.Text.RegularExpressions;
 using TastyScript.TastyScript.Parser;
 using System.Reflection;
 using TastyScript.IFunction.Attributes;
+using TastyScript.IFunction;
 
 namespace TastyScript.TastyScript
 {
     public class ScriptParser
     {
         private FunctionList _compileStack;
-        //private FunctionList importFStack = new FunctionList();
-        //private ExtensionList importEStack = new ExtensionList();
+        private FunctionList importFStack = new FunctionList();
+        private ExtensionList importEStack = new ExtensionList();
         public static BaseFunction HaltFunction { get; private set; }
         public static BaseFunction GuaranteedHaltFunction { get; private set; }
 
@@ -30,9 +31,11 @@ namespace TastyScript.TastyScript
             Manager.LoadedFileReference = new Dictionary<string, string>();
             Manager.LoadedFileReference.Add(filename, file);
             var onefile = ParseImports(file);
-            List<BaseFunction> predefined = ImportDlls("CoreFunctions.dll");
-            _compileStack = new FunctionList(ParseScopes(onefile, predefined));
-            _compileStack.AddRange(predefined);
+            ImportDlls("CoreFunctions.dll");
+            
+            References.PredefinedList = importFStack.List;
+
+            _compileStack = new FunctionList(ParseScopes(onefile, References.PredefinedList));
             _compileStack.AddRange(importFStack.List);
             ExtensionStack.AddRange(importEStack.List);
 
@@ -55,6 +58,11 @@ namespace TastyScript.TastyScript
             });
             StartParse();
         }
+        private List<BaseFunction> loadDlls()
+        {
+            Assembly dll = Assembly.LoadFrom(AppDomain.CurrentDomain.BaseDirectory + "CoreFunctions.dll");
+            return GetPredefinedFunctions(new Assembly[] { dll });
+        }
         private string[] StrVersion()
         {
             var vers = Assembly.GetExecutingAssembly().GetName().Version.ToString();
@@ -63,14 +71,8 @@ namespace TastyScript.TastyScript
         }
         private void ImportDlls(string path)
         {
-            //wip
-            throw new NotImplementedException();
-            //Console.WriteLine(AppDomain.CurrentDomain.BaseDirectory);
-            //Console.WriteLine(path);
-            //var newpath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, path);
-            //Console.WriteLine(newpath);
             path = path.Replace("\r", "").Replace("\n", "");
-            Assembly dll = Assembly.LoadFrom(AppDomain.CurrentDomain.BaseDirectory + "lib/" + path);
+            Assembly dll = Assembly.LoadFrom(AppDomain.CurrentDomain.BaseDirectory + path);
             importFStack.AddRange(GetPredefinedFunctions(new Assembly[] { dll }));
             importEStack.AddRange(GetExtensions(new Assembly[] { dll }));
 
@@ -184,11 +186,12 @@ namespace TastyScript.TastyScript
                     x.TryParse(null);
                 }
             }
+            
             if (startScope == null)
                 Manager.Throw($"Your script is missing a 'Start' function.");
             var startCollection = FunctionStack.Where("Start");
             if (startCollection.Count() != 2)
-                Manager.Throw($"There must only be one `Start` function. Please remove {startCollection.Count() - 2} `Start` functions");
+                Manager.Throw($"There must be one `Start` function. There are {((startCollection.Count() - 2 < 0) ? 0 : startCollection.Count() -2)} `Start` functions in this script.");
             var startIndex = FunctionStack.IndexOf(startScope);
             FunctionStack.RemoveAt(startIndex);
 
@@ -206,7 +209,7 @@ namespace TastyScript.TastyScript
                     foreach (System.Type type in assembly.GetTypes())
                         if (type.GetCustomAttributes(typeof(Function), true).Length > 0)
                         {
-                            var func = System.Type.GetType(type.ToString());
+                            var func = assembly.GetType(type.ToString());
                             var inst = Activator.CreateInstance(func) as BaseFunction;
                             var attt = type.GetCustomAttribute(typeof(Function), true) as Function;
                             inst.SetProperties(attt.Name, attt.ExpectedArgs, attt.Invoking, attt.Sealed, attt.Obsolete, attt.Alias, attt.IsAnonymous);
@@ -226,7 +229,7 @@ namespace TastyScript.TastyScript
                     foreach (System.Type type in assembly.GetTypes())
                         if (type.GetCustomAttributes(typeof(Extension), true).Length > 0)
                         {
-                            var func = System.Type.GetType(type.ToString());
+                            var func = assembly.GetType(type.ToString());
                             var inst = Activator.CreateInstance(func) as BaseExtension;
                             var attt = type.GetCustomAttribute(typeof(Extension), true) as Extension;
                             inst.SetProperties(attt.Name, attt.ExpectedArgs, attt.Invoking, attt.Obsolete, attt.VariableExtension, attt.Alias);

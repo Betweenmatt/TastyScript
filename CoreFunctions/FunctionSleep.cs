@@ -1,29 +1,27 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TastyScript.Lang.Tokens;
+using TastyScript.IFunction.Attributes;
+using TastyScript.IFunction.Functions;
+using TastyScript.ParserManager;
 
-namespace TastyScript.Lang.Functions
+namespace TastyScript.CoreFunctions
 {
     [Function("Sleep", new string[] { "time" })]
-    internal class FunctionSleep : FunctionDefinition
+    public class FunctionSleep : FunctionDefinition
     {
-        public override string CallBase()
+        public override bool CallBase()
         {
             double time = 0;
             if (ProvidedArgs.First("time") != null)
             {
                 bool tryfail = double.TryParse(ProvidedArgs.First("time").ToString(), out time);
                 if (!tryfail)
-                    time = TokenParser.SleepDefaultTime;
+                    time = Manager.SleepDefaultTime;
             }
             else
-                time = TokenParser.SleepDefaultTime;
+                time = Manager.SleepDefaultTime;
             //changed to utilities sleep for cancelations
             Utilities.Sleep((int)Math.Ceiling(time));
-            return "";
+            return true;
         }
     }
 }

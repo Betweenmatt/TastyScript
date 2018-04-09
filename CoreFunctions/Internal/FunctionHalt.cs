@@ -1,19 +1,22 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TastyScript.Lang.Extensions;
-using TastyScript.Lang.Tokens;
+using TastyScript.IFunction.Attributes;
+using TastyScript.IFunction.Extension;
+using TastyScript.IFunction.Functions;
+using TastyScript.IFunction.Tokens;
+using TastyScript.ParserManager;
 
-namespace TastyScript.Lang.Functions
+namespace TastyScript.CoreFunctions.Internal
 {
     [Function("Halt")]
     internal class FunctionHalt : FunctionDefinition
     {
-        protected override void ForExtension(TFunction caller, ExtensionFor findFor)
+        public override bool CallBase()
         {
-            Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException, $"Cannot call 'For' on {this.Name}.", LineValue));
+            return true;
+        }
+        protected override void ForExtension(TFunction caller, BaseExtension findFor)
+        {
+            Manager.Throw($"Cannot call 'For' on {this.Name}.");
         }
     }
 }

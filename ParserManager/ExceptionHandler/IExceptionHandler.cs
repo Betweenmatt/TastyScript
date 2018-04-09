@@ -8,11 +8,13 @@ namespace TastyScript.ParserManager.ExceptionHandler
 {
     public interface IExceptionHandler
     {
-        void Throw(string msg);
-        void Throw(ExceptionType type, string msg);
-        void ThrowSilent(string msg);
-        void ThrowSilent(ExceptionType type, string msg);
+        void Throw(string message);
+        void Throw(string message, ExceptionType type);
+        void ThrowSilent(string message, bool once);
+        void ThrowSilent(string message, ExceptionType type, bool once);
         void ThrowDebug(string msg);
+        void LogThrow(string msg, Exception e);
+        TryCatchStack TryCatchEventStack { get; }
     }
     public enum ExceptionType
     {

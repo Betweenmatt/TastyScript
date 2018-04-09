@@ -1,24 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TastyScript.Lang.Tokens;
+﻿using TastyScript.IFunction;
+using TastyScript.IFunction.Attributes;
+using TastyScript.IFunction.Functions;
+using TastyScript.IFunction.Tokens;
+using TastyScript.ParserManager;
 
-namespace TastyScript.Lang.Functions
+namespace TastyScript.CoreFunctions
 {
     [Function("ScreenSize")]
-    internal class FunctionScreenSize : FunctionDefinition
+    public class FunctionScreenSize : FunctionDefinition
     {
-        public override string CallBase()
+        public override bool CallBase()
         {
-            if (Main.AndroidDriver == null)
+            if (!Manager.Driver.IsConnected())
             {
-                Compiler.ExceptionListener.Throw("Cannot get screen size without a connected device");
-                return null;
+                Manager.Throw("Cannot get screen size without a connected device");
+                return false;
             }
-            ReturnBubble = new TArray("ScreenSize", new string[] { Main.AndroidDriver.ScreenWidth, Main.AndroidDriver.ScreenHeight }, "{0}");
-            return "";
+            ReturnBubble = new TArray("ScreenSize", new string[] { Commands.GetScreenWidth(), Commands.GetScreenHeight() }, "{0}");
+            return true;
         }
     }
 }

@@ -32,6 +32,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -45,6 +46,7 @@
     </Compile>
     <Compile Include="Attributes\Extension.cs" />
     <Compile Include="Attributes\Function.cs" />
+    <Compile Include="Commands.cs" />
     <Compile Include="Containers\AnonymousTokenStack.cs" />
     <Compile Include="Containers\ExtensionList.cs" />
     <Compile Include="Containers\ExtensionStack.cs" />
@@ -63,6 +65,7 @@
     <Compile Include="Tokens\TArray.cs" />
     <Compile Include="Tokens\TFunction.cs" />
     <Compile Include="Tokens\Token.cs" />
+    <Compile Include="TryCatchEvent.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ParserManager\ParserManager.csproj">

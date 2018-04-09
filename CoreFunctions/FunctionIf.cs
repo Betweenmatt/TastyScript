@@ -3,33 +3,34 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TastyScript.Lang.Extensions;
-using TastyScript.Lang.Tokens;
+using TastyScript.IFunction.Attributes;
+using TastyScript.IFunction.Containers;
+using TastyScript.IFunction.Tokens;
+using TastyScript.IFunction.Functions;
+using TastyScript.ParserManager;
 
-namespace TastyScript.Lang.Functions
+namespace TastyScript.CoreFunctions
 {
     [Function("If", new string[] { "bool" }, isSealed: true, alias:new string[] { "if" }, isanon: false)]
-    internal class FunctionIf : FunctionDefinition
+    public class FunctionIf : FunctionDefinition
     {
-        public override string CallBase()
+        public override bool CallBase()
         {
             var prov = ProvidedArgs.First("bool");
             if (prov == null)
             {
-                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException,
-                    $"Arguments cannot be null.", LineValue));
-                return null;
+                Manager.Throw($"Arguments cannot be null.");
+                return false;
             }
             bool flag = (prov.ToString() == "True" || prov.ToString() == "true") ? true : false;
-            var andFlag = Extensions.FirstOrDefault(f => f.Name == "And");
-            var orFlag = Extensions.FirstOrDefault(f => f.Name == "Or");
+            var andFlag = Extensions.First("And");
+            var orFlag = Extensions.First("Or");
 
             if (orFlag != null)
             {
-                var orExtensions = Extensions.Where(w => w.Name == "Or");
-                foreach (var o in orExtensions)
+                var orExtensions = Extensions.Where("Or");
+                foreach (var or in orExtensions)
                 {
-                    var or = o as ExtensionOr;
                     string[] param = or.Extend();
                     bool paramFlag = (param[0].ToString() == "True" || param[0].ToString() == "true") ? true : false;
                     if (paramFlag)
@@ -41,10 +42,9 @@ namespace TastyScript.Lang.Functions
             }
             if (andFlag != null)
             {
-                var andExtensions = Extensions.Where(w => w.Name == "And");
-                foreach (var a in andExtensions)
+                var andExtensions = Extensions.Where("And");
+                foreach (var and in andExtensions)
                 {
-                    var and = a as ExtensionAnd;
                     string[] param = and.Extend();
                     bool paramFlag = (param[0].ToString() == "True" || param[0].ToString() == "true") ? true : false;
                     if (!paramFlag)
@@ -58,47 +58,44 @@ namespace TastyScript.Lang.Functions
             if (flag)
             {
                 //find then extension and call it
-                var findThen = Extensions.FirstOrDefault(f => f.Name == "Then") as ExtensionThen;
+                var findThen = Extensions.First("Then");
                 if (findThen != null)
                 {
                     string[] thenFunc = findThen.Extend();
                     var func = FunctionStack.First(thenFunc[0].ToString());
                     if (func == null)
                     {
-                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException,
-                            $"Cannot find the invoked function.", LineValue));
-                        return null;
+                        Manager.Throw($"Cannot find the invoked function.");
+                        return false;
                     }
                     //pass in invoke properties. shouldnt break with null
                     func.SetInvokeProperties(new string[] { }, Caller.CallingFunction.LocalVariables.List, Caller.CallingFunction.ProvidedArgs.List);
-                    func.TryParse(new TFunction(Caller.Function, new List<EDefinition>(), findThen.GetInvokeProperties(), Caller.CallingFunction));
+                    func.TryParse(new TFunction(Caller.Function, new ExtensionList(), findThen.GetInvokeProperties(), Caller.CallingFunction));
                 }
                 else
                 {
-                    Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException,
-                        $"[460]If function must have a Then Extension", LineValue));
-                    return null;
+                    Manager.Throw($"[460]If function must have a Then Extension");
+                    return false;
                 }
             }
             else
             {
                 //find else extension and call it
-                var findElse = Extensions.FirstOrDefault(f => f.Name == "Else") as ExtensionElse;
+                var findElse = Extensions.First("Else");
                 if (findElse != null)
                 {
                     string[] elseFunc = findElse.Extend();
                     var func = FunctionStack.First(elseFunc[0].ToString());
                     if (func == null)
                     {
-                        Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException,
-                            $"Cannot find the invoked function.", LineValue));
-                        return null;
+                        Manager.Throw($"Cannot find the invoked function.");
+                        return false;
                     }
                     func.SetInvokeProperties(new string[] { }, Caller.CallingFunction.LocalVariables.List, Caller.CallingFunction.ProvidedArgs.List);
-                    func.TryParse(new TFunction(Caller.Function, new List<EDefinition>(), findElse.GetInvokeProperties(), Caller.CallingFunction));
+                    func.TryParse(new TFunction(Caller.Function, new ExtensionList(), findElse.GetInvokeProperties(), Caller.CallingFunction));
                 }
             }
-            return "";
+            return true;
         }
     }
 }
