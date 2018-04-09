@@ -28,7 +28,7 @@ namespace TastyScript.CoreFunctions
             }
             catch
             {
-                Manager.ThrowSilent($"Unexpected error saving screenshot to path {path.ToString()}", ""));
+                Manager.ThrowSilent($"Unexpected error saving screenshot to path {path.ToString()}");
                 ReturnBubble = new Token("bool", "null", "");
                 return true;
             }

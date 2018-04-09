@@ -13,7 +13,7 @@ namespace TastyScript.IFunction
     {
         internal BaseFunction TryBlock { get; }
         internal BaseFunction CatchBlock { get; }
-        internal TryCatchEvent(BaseFunction tryblock, BaseFunction catchblock)
+        public TryCatchEvent(BaseFunction tryblock, BaseFunction catchblock)
         {
             TryBlock = tryblock;
             CatchBlock = catchblock;

@@ -37,7 +37,7 @@ namespace TastyScript.TastyScript.Parser
             var anonRegexMatches = anonRegex.Matches(value);
             foreach (var a in anonRegexMatches)
             {
-                var func = new ParsedFunction(a.ToString(), true, Base);
+                var func = new ParsedFunction(a.ToString(), true, _base);
                 func.Base = Base;
                 FunctionStack.Add(func);
                 value = value.Replace(a.ToString(), $"\"{func.Name}\"");
@@ -58,7 +58,7 @@ namespace TastyScript.TastyScript.Parser
             var anonRegexMatches = anonRegex.Matches(value);
             foreach (var a in anonRegexMatches)
             {
-                var func = new ParsedFunction(a.ToString(), true, Base);
+                var func = new ParsedFunction(a.ToString(), true, _base);
                 FunctionStack.Add(func);
                 value = value.Replace(a.ToString(), $"\"{func.Name}\"");
             }
@@ -91,7 +91,7 @@ namespace TastyScript.TastyScript.Parser
             var anonRegexMatches = anonRegex.Matches(value);
             foreach (var a in anonRegexMatches)
             {
-                var func = new ParsedFunction(a.ToString(), true, Base);
+                var func = new ParsedFunction(a.ToString(), true, _base);
                 FunctionStack.Add(func);
                 value = value.Replace(a.ToString(), $"\"{func.Name}\"");
             }
@@ -110,7 +110,7 @@ namespace TastyScript.TastyScript.Parser
             var anonRegexMatches = anonRegex.Matches(value);
             foreach (var a in anonRegexMatches)
             {
-                var func = new ParsedFunction(a.ToString(), true, Base);
+                var func = new ParsedFunction(a.ToString(), true, _base);
                 func.Base = Base;
                 FunctionStack.Add(func);
                 value = value.Replace(a.ToString(), $"\"{func.Name}\"");

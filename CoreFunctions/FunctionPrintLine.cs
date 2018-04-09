@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TastyScript.IFunction.Attributes;
+using TastyScript.IFunction.Functions;
 using TastyScript.ParserManager;
 
-namespace TastyScript.IFunction.Functions
+namespace TastyScript.CoreFunctions
 {
     [Function("PrintLine", new string[] { "s" })]
     public class FunctionPrintLine : FunctionDefinition

@@ -3,41 +3,43 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TastyScript.IFunction.Extensions;
+using TastyScript.IFunction;
+using TastyScript.IFunction.Attributes;
+using TastyScript.IFunction.Containers;
+using TastyScript.IFunction.Functions;
 using TastyScript.IFunction.Tokens;
+using TastyScript.ParserManager;
 
-namespace TastyScript.IFunction.Functions.Internal
+namespace TastyScript.CoreFunctions.Internal
 {
     [Function("Try",new string[] { "invoke" },invoking:true)]
-    internal class FunctionTry : FunctionDefinition
+    public class FunctionTry : FunctionDefinition
     {
-        public override string CallBase()
+        public override bool CallBase()
         {
             var tryBlock = ProvidedArgs.First("invoke");
             if (tryBlock == null)
-                Compiler.ExceptionListener.Throw("Function Try must have an invoked function");
+                Manager.Throw("Function Try must have an invoked function");
             var tryfunc = FunctionStack.First(tryBlock.ToString());
             if (tryfunc == null)
-                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException,
-                    $"Cannot find the invoked function.", LineValue));
+                Manager.Throw($"Cannot find the invoked function.");
 
-            var catchExt = Extensions.FirstOrDefault(f => f.Name == "Catch") as ExtensionCatch;
+            var catchExt = Extensions.First("Catch");
             if (catchExt == null)
-                Compiler.ExceptionListener.Throw("Function Try must have `Catch` extension");
+                Manager.Throw("Function Try must have `Catch` extension");
             var catchBlock = catchExt.Extend();
             if (catchBlock.ElementAtOrDefault(0) == null)
-                Compiler.ExceptionListener.Throw("Invoke for Catch block cannot be null");
+                Manager.Throw("Invoke for Catch block cannot be null");
             var catchfunc = FunctionStack.First(catchBlock[0].ToString());
             if (catchfunc == null)
-                Compiler.ExceptionListener.Throw(new ExceptionHandler(ExceptionType.CompilerException,
-                    $"Cannot find the invoked function.", LineValue));
+                Manager.Throw($"Cannot find the invoked function.");
 
-            Compiler.ExceptionListener.TryCatchEventStack.Add(new Exceptions.TryCatchEvent(tryfunc, catchfunc));
+            Manager.ExceptionHandler.TryCatchEventStack.Add(new TryCatchEvent(tryfunc, catchfunc));
 
-            tryfunc.TryParse(new TFunction(Caller.Function, new List<EDefinition>(), tryfunc.GetInvokeProperties(), Caller.CallingFunction));
+            tryfunc.TryParse(new TFunction(Caller.Function, new ExtensionList(), tryfunc.GetInvokeProperties(), Caller.CallingFunction));
 
 
-            return "";
+            return true;
         }
     }
 }

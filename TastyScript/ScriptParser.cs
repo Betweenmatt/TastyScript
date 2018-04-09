@@ -28,6 +28,7 @@ namespace TastyScript.TastyScript
         {
             Manager.LoopTracerStack = new ParserManager.Looping.LoopTracerList();
             FunctionStack.Clear();//clear this every run
+            ExtensionStack.Clear();
             Manager.LoadedFileReference = new Dictionary<string, string>();
             Manager.LoadedFileReference.Add(filename, file);
             var onefile = ParseImports(file);
@@ -58,11 +59,6 @@ namespace TastyScript.TastyScript
             new Token("false","false","{0}",locked:true)
             });
             StartParse();
-        }
-        private List<BaseFunction> loadDlls()
-        {
-            Assembly dll = Assembly.LoadFrom(AppDomain.CurrentDomain.BaseDirectory + "CoreFunctions.dll");
-            return GetPredefinedFunctions(new Assembly[] { dll });
         }
         private string[] StrVersion()
         {

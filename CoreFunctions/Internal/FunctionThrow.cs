@@ -3,20 +3,24 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TastyScript.IFunction.Attributes;
+using TastyScript.IFunction.Functions;
+using TastyScript.ParserManager;
+using TastyScript.ParserManager.ExceptionHandler;
 
-namespace TastyScript.IFunction.Functions
+namespace TastyScript.CoreFunctions.Internal
 {
     [Function("Throw",new string[] { "msg" })]
-    internal class FunctionThrow : FunctionDefinition
+    public class FunctionThrow : FunctionDefinition
     {
-        public override string CallBase()
+        public override bool CallBase()
         {
             string printmsg = "";
             var arg = ProvidedArgs.First("msg");
             if (arg != null)
                 printmsg = arg.ToString();
-            Compiler.ExceptionListener.Throw(printmsg,ExceptionType.UserCreatedException);
-            return "";
+            Manager.Throw(printmsg,ExceptionType.UserDefinedException);
+            return true;
         }
     }
 }

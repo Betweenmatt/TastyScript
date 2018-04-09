@@ -8,7 +8,7 @@ using TastyScript.IFunction.Function;
 namespace TastyScript.IFunction.Containers
 {
     [Serializable]
-    public class FunctionStack : ObjectStack<BaseFunction>
+    public class FunctionStack
     {
         public static List<BaseFunction> List { get { return _tlist; } }
         public static BaseFunction First(string name, bool useAlias = true)
@@ -46,6 +46,44 @@ namespace TastyScript.IFunction.Containers
         public static BaseFunction Last(int uid)
         {
             return _tlist.LastOrDefault(l => l.UID == uid);
+        }
+
+
+        protected static List<BaseFunction> _tlist = new List<BaseFunction>();
+        public static void Add(BaseFunction item)
+        {
+            _tlist.Add(item);
+        }
+        public static void Clear()
+        {
+            _tlist.Clear();
+        }
+        public static void AddRange(List<BaseFunction> range)
+        {
+            _tlist.AddRange(range);
+        }
+        public static int IndexOf(BaseFunction item)
+        {
+            return _tlist.IndexOf(item);
+        }
+        public static void RemoveAt(int index)
+        {
+            _tlist.RemoveAt(index);
+        }
+        public static bool Contains(BaseFunction item)
+        {
+            return _tlist.Contains(item);
+        }
+        public static void Remove(BaseFunction item)
+        {
+            _tlist.Remove(item);
+        }
+        public static void MoveTo(BaseFunction item, int index)
+        {
+            var oldindex = _tlist.IndexOf(item);
+            _tlist.RemoveAt(oldindex);
+            if (index > oldindex) index--;
+            _tlist.Insert(index, item);
         }
     }
 }

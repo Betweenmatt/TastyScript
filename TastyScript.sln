@@ -9,6 +9,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TastyScript", "TastyScript\TastyScript.csproj", "{83EEA21E-3B52-4459-B3F9-9B8FD3CD4439}"
+	ProjectSection(ProjectDependencies) = postProject
+		{7F706D91-5C9A-4908-B245-991EC58303E8} = {7F706D91-5C9A-4908-B245-991EC58303E8}
+		{C03AE3AD-8A10-48EE-AB00-1B302285A051} = {C03AE3AD-8A10-48EE-AB00-1B302285A051}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IFunction", "IFunction\IFunction.csproj", "{5626784C-59F0-4F27-9CB3-5A65D0129C5B}"
 EndProject

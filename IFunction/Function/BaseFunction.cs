@@ -14,7 +14,7 @@ namespace TastyScript.IFunction.Function
     public abstract class BaseFunction
     {
         public string[] Alias { get; private set; }
-        private BaseFunction _base;
+        protected BaseFunction _base;
         public BaseFunction Base
         {
             get

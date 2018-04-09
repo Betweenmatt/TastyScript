@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 namespace TastyScript.IFunction.Containers
 {
     [Serializable]
-    public abstract class ObjectStack<T>
+    public class ObjectStack<T>
     {
-        protected static List<T> _tlist = new List<T>();
+        protected static List<T> _tlist;
         public static void Add(T item)
         {
             _tlist.Add(item);

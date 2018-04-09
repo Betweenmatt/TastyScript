@@ -728,11 +728,11 @@ namespace TastyScript.TastyScript.Parser
         private string EvaluateVar(string value)
         {
             //get the var scope
-            TokenList varList = null;
+            List<Token> varList = null;
             if (value.Contains("$var%"))
-                varList = GlobalVariableStack.AsTokenList();
+                varList = GlobalVariableStack.List;
             else if (value.Contains("var%"))
-                varList = _reference.LocalVariables;
+                varList = _reference.LocalVariables.List;
             if (varList == null)
             {
                 Manager.Throw($"[244]Unexpected error occured.");
@@ -755,7 +755,7 @@ namespace TastyScript.TastyScript.Parser
 
             //get the left hand
             var leftHand = assign[0].Replace(" ", "");
-            var varRef = varList.First(leftHand);
+            var varRef = varList.FirstOrDefault(f=>f.Name == leftHand);
             if (varRef != null && varRef.IsLocked)
             {
                 Manager.Throw($"[282]Cannot re-assign a sealed variable!");
@@ -825,7 +825,7 @@ namespace TastyScript.TastyScript.Parser
             {
                 if (varRef == null)
                 {
-                    Manager.Throw($"[291]Cannot find the left hand variable.");
+                    Manager.Throw($"[291]Cannot find the left hand variable. {Value}");
                     return null;
                 }
                 //check if number and apply the change
@@ -936,13 +936,13 @@ namespace TastyScript.TastyScript.Parser
                     }
                     else if (val.Contains("!DEBUG_DUMP_ANONVARS"))
                     {
-                        var anonVars = JsonConvert.SerializeObject(AnonymousTokenStack.List(), Formatting.Indented);
+                        var anonVars = JsonConvert.SerializeObject(AnonymousTokenStack.List, Formatting.Indented);
                         Manager.ThrowDebug($"{val}:\t{anonVars}");
                         return "";
                     }
                     else if (val.Contains("!DEBUG_DUMP_GLOBVARS"))
                     {
-                        var globalVars = JsonConvert.SerializeObject(GlobalVariableStack.List(), Formatting.Indented);
+                        var globalVars = JsonConvert.SerializeObject(GlobalVariableStack.List, Formatting.Indented);
                         Manager.ThrowDebug($"!{val}:\t{globalVars}");
                         return "";
                     }
