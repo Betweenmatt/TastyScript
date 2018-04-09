@@ -11,7 +11,7 @@ using TastyScript.ParserManager;
 namespace TastyScript.CoreFunctions.Internal
 {
     [Function("Continue", isSealed: true, alias: new string[] { "continue" })]
-    internal class FunctionContinue : FunctionDefinition
+    public class FunctionContinue : FunctionDefinition
     {
         public override bool CallBase()
         {

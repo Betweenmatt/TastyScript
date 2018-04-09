@@ -8,7 +8,7 @@ using TastyScript.ParserManager;
 namespace TastyScript.CoreFunctions.Internal
 {
     [Function("Halt")]
-    internal class FunctionHalt : FunctionDefinition
+    public class FunctionHalt : FunctionDefinition
     {
         public override bool CallBase()
         {

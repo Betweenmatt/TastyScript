@@ -6,7 +6,7 @@ using TastyScript.ParserManager;
 namespace TastyScript.CoreFunctions.Internal
 {
     [Function("Break", isSealed: true, alias: new string[] { "break" })]
-    internal class FunctionBreak : FunctionDefinition
+    public class FunctionBreak : FunctionDefinition
     {
         public override bool CallBase()
         {

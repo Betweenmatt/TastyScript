@@ -10,7 +10,7 @@ using TastyScript.ParserManager;
 namespace TastyScript.CoreFunctions.Internal
 {
     [Function("This", new string[] { "type" }, alias:new string[] { "this" })]
-    internal class FunctionThis : FunctionDefinition
+    public class FunctionThis : FunctionDefinition
     {
         public override bool CallBase()
         {

@@ -6,7 +6,7 @@ using TastyScript.IFunction.Functions;
 namespace TastyScript.CoreFunctions.Internal
 {
     [Function("Start")]
-    internal class FunctionStart : FunctionDefinition
+    public class FunctionStart : FunctionDefinition
     {
         public override bool CallBase()
         {

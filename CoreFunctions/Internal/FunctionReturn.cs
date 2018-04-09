@@ -10,7 +10,7 @@ using TastyScript.IFunction.Tokens;
 namespace TastyScript.CoreFunctions.Internal
 {
     [Function("Return", new string[]{"value"},isSealed:true, alias: new string[] { "return" })]
-    internal class FunctionReturn : FunctionDefinition
+    public class FunctionReturn : FunctionDefinition
     {
         public override bool CallBase()
         {

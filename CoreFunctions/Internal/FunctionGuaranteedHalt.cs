@@ -6,7 +6,7 @@ using TastyScript.IFunction.Tokens;
 namespace TastyScript.CoreFunctions.Internal
 {
     [Function("GuaranteedHalt", isSealed: true)]
-    internal class FunctionGuaranteedHalt : FunctionDefinition
+    public class FunctionGuaranteedHalt : FunctionDefinition
     {
         public override bool CallBase()
         {

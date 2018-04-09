@@ -8,7 +8,7 @@ using TastyScript.ParserManager;
 namespace TastyScript.CoreFunctions.Internal
 {
     [Function("Base", isSealed: true)]
-    internal class FunctionBase : FunctionDefinition
+    public class FunctionBase : FunctionDefinition
     {
         public override void TryParse(TFunction caller)
         {

@@ -32,6 +32,7 @@ namespace TastyScript.TastyScript
             Manager.LoadedFileReference.Add(filename, file);
             var onefile = ParseImports(file);
             ImportDlls("CoreFunctions.dll");
+            ImportDlls("CoreExtensions.dll");
             
             References.PredefinedList = importFStack.List;
 

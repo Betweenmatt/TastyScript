@@ -24,6 +24,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSConsole", "TSConsole\TSCo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TastyScriptNPP", "TastyScriptNPP\TastyScriptNPP.csproj", "{479C17BE-C7FF-4A5C-8E2E-398EE4DAC058}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoreExtensions", "CoreExtensions\CoreExtensions.csproj", "{7F706D91-5C9A-4908-B245-991EC58303E8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -104,17 +106,29 @@ Global
 		{479C17BE-C7FF-4A5C-8E2E-398EE4DAC058}.Release|x64.Build.0 = Release|x64
 		{479C17BE-C7FF-4A5C-8E2E-398EE4DAC058}.Release|x86.ActiveCfg = Release|x86
 		{479C17BE-C7FF-4A5C-8E2E-398EE4DAC058}.Release|x86.Build.0 = Release|x86
+		{7F706D91-5C9A-4908-B245-991EC58303E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7F706D91-5C9A-4908-B245-991EC58303E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7F706D91-5C9A-4908-B245-991EC58303E8}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{7F706D91-5C9A-4908-B245-991EC58303E8}.Debug|x64.Build.0 = Debug|Any CPU
+		{7F706D91-5C9A-4908-B245-991EC58303E8}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7F706D91-5C9A-4908-B245-991EC58303E8}.Debug|x86.Build.0 = Debug|Any CPU
+		{7F706D91-5C9A-4908-B245-991EC58303E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7F706D91-5C9A-4908-B245-991EC58303E8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7F706D91-5C9A-4908-B245-991EC58303E8}.Release|x64.ActiveCfg = Release|Any CPU
+		{7F706D91-5C9A-4908-B245-991EC58303E8}.Release|x64.Build.0 = Release|Any CPU
+		{7F706D91-5C9A-4908-B245-991EC58303E8}.Release|x86.ActiveCfg = Release|Any CPU
+		{7F706D91-5C9A-4908-B245-991EC58303E8}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		BuildVersion_UpdateAssemblyVersion = True
-		BuildVersion_UpdateFileVersion = True
-		BuildVersion_StartDate = 2018/2/5
-		BuildVersion_UseGlobalSettings = False
-		BuildVersion_BuildVersioningStyle = None.None.None.DeltaBaseDateInDays
-		BuildVersion_AssemblyInfoFilename = GlobalAssemblyInfo.cs
 		SolutionGuid = {CF2C3D4C-E827-48FD-BD86-55D525D0BCDC}
+		BuildVersion_AssemblyInfoFilename = GlobalAssemblyInfo.cs
+		BuildVersion_BuildVersioningStyle = None.None.None.DeltaBaseDateInDays
+		BuildVersion_UseGlobalSettings = False
+		BuildVersion_StartDate = 2018/2/5
+		BuildVersion_UpdateFileVersion = True
+		BuildVersion_UpdateAssemblyVersion = True
 	EndGlobalSection
 EndGlobal
