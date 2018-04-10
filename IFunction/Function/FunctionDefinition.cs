@@ -4,6 +4,7 @@ using TastyScript.IFunction.Containers;
 using TastyScript.IFunction.Function;
 using TastyScript.IFunction.Tokens;
 using TastyScript.ParserManager;
+using TastyScript.ParserManager.ExceptionHandler;
 
 namespace TastyScript.IFunction.Functions
 {
@@ -18,8 +19,19 @@ namespace TastyScript.IFunction.Functions
     }
     public abstract class FunctionDefinition : BaseFunction
     {
+        /// <summary>
+        /// Throws an exception to be handled by the parser.
+        /// </summary>
+        public void Throw(string msg) => Manager.Throw(msg);
+        public void Throw(string msg, ExceptionType type) => Manager.Throw(msg, type);
+        /// <summary>
+        /// Throws a silent exception to be handled by the parser.
+        /// </summary>
+        public void ThrowSilent(string msg) => Manager.ThrowSilent(msg);
+        public void ThrowSilent(string msg, ExceptionType type) => Manager.ThrowSilent(msg, type);
+
         public abstract bool CallBase();
-        public override void TryParse(TFunction caller)
+        public sealed override void TryParse(TFunction caller)
         {
             ResetReturn();
             if (caller != null)
@@ -57,7 +69,7 @@ namespace TastyScript.IFunction.Functions
             }
             Parse();
         }
-        public override void TryParse(TFunction caller, bool forFlag)
+        public sealed override void TryParse(TFunction caller, bool forFlag)
         {
             ResetReturn();
             if (caller != null)

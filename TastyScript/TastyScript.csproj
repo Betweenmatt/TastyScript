@@ -47,7 +47,6 @@
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Directives.cs" />
-    <Compile Include="InternalUtilities.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Parser\Line.cs" />
     <Compile Include="Parser\ParsedFunction.cs" />

@@ -68,11 +68,17 @@ namespace TastyScript.TastyScript
         }
         private void ImportDlls(string path)
         {
-            path = path.Replace("\r", "").Replace("\n", "");
-            Assembly dll = Assembly.LoadFrom(AppDomain.CurrentDomain.BaseDirectory + path);
-            importFStack.AddRange(GetPredefinedFunctions(new Assembly[] { dll }));
-            importEStack.AddRange(GetExtensions(new Assembly[] { dll }));
-
+            try
+            {
+                path = path.Replace("\r", "").Replace("\n", "");
+                Assembly dll = Assembly.LoadFrom(AppDomain.CurrentDomain.BaseDirectory + path);
+                importFStack.AddRange(GetPredefinedFunctions(new Assembly[] { dll }));
+                importEStack.AddRange(GetExtensions(new Assembly[] { dll }));
+            }
+            catch
+            {
+                Manager.Throw($"There was an unexpected error importing {path}.", ExceptionType.SystemException);
+            }
         }
         private string ParseImports(string file)
         {
@@ -88,6 +94,7 @@ namespace TastyScript.TastyScript
                     var ifile = x.Split(';')[0];
                     if (ifile != "")
                     {
+                        Manager.SetCurrentParsedLine(ifile);
                         var path = ifile.Replace("\'", "").Replace("\"", "");
                         if (!Manager.LoadedFileReference.ContainsKey(path))
                         {
@@ -109,12 +116,12 @@ namespace TastyScript.TastyScript
                             catch (Exception e)
                             {
                                 Console.WriteLine(e);
-                                Manager.Throw($"Error importing {file}.");
+                                Manager.Throw($"Error importing {file}.", ExceptionType.SystemException);
                             }
                         }
                         else
                         {
-                            Manager.Throw($"Cannot import file: {path} because it has already been imported");
+                            Manager.Throw($"Cannot import file: {path} because it has already been imported", ExceptionType.SystemException);
                         }
                     }
                 }
@@ -134,6 +141,7 @@ namespace TastyScript.TastyScript
             var scopes = scopeRegex.Matches(file);
             foreach (var s in scopes)
             {
+                Manager.SetCurrentParsedLine(s.ToString());
                 _functionStack.Add(new ParsedFunction(s.ToString()));
             }
             //add inherits second
@@ -146,6 +154,7 @@ namespace TastyScript.TastyScript
             for (var i = inherits.Count - 1; i >= 0; i--)
             {
                 var inherit = inherits[i];
+                Manager.SetCurrentParsedLine(inherit.ToString());
                 var obj = new ParsedFunction(inherit.ToString(), tempfunctionstack);
                 _inheritStack.Add(obj);
                 tempfunctionstack.Insert(0, obj);
@@ -158,6 +167,7 @@ namespace TastyScript.TastyScript
             {
                 var ext = exts[i];
                 var cext = new CustomExtension();
+                Manager.SetCurrentParsedLine(ext.ToString());
                 cext.FunctionReference = new ParsedFunction(ext.ToString(), cext);
                 _extStack.Add(cext);
             }
@@ -185,10 +195,10 @@ namespace TastyScript.TastyScript
             }
             
             if (startScope == null)
-                Manager.Throw($"Your script is missing a 'Start' function.");
+                Manager.Throw($"Your script is missing a 'Start' function.", ExceptionType.SystemException);
             var startCollection = FunctionStack.Where("Start");
             if (startCollection.Count() != 2)
-                Manager.Throw($"There must be one `Start` function. There are {((startCollection.Count() - 2 < 0) ? 0 : startCollection.Count() -2)} `Start` functions in this script.");
+                Manager.Throw($"There must be one `Start` function. There are {((startCollection.Count() - 2 < 0) ? 0 : startCollection.Count() -2)} `Start` functions in this script.", ExceptionType.SystemException);
             var startIndex = FunctionStack.IndexOf(startScope);
             FunctionStack.RemoveAt(startIndex);
 

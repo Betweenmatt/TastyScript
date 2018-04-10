@@ -43,7 +43,7 @@ namespace TastyScript.TastyScript
                                 DirectiveOmit(d.Value, FunctionStack.List[i]);
                                 break;
                             default:
-                                Manager.ThrowSilent($"Unknown directive [{d.Key}]");
+                                Manager.ThrowSilent($"Unknown directive [{d.Key}]", ExceptionType.SystemException);
             break;
         }
     }
@@ -58,7 +58,7 @@ namespace TastyScript.TastyScript
             var build = splode.ElementAtOrDefault(3);
             var rev = splode.ElementAtOrDefault(4);
             if (maj == null)
-                Manager.Throw("MinVer Directive must express a major version");
+                Manager.Throw("MinVer Directive must express a major version", ExceptionType.SystemException);
             string[] ver = Assembly.GetExecutingAssembly().GetName().Version.ToString().Split('.');
             int majint = -1;
             int minint = -1;
@@ -72,31 +72,31 @@ namespace TastyScript.TastyScript
             if (rev != null)
                 int.TryParse(rev, out revint);
             if (majint == -1)
-                Manager.Throw("MinVer Directive must express a major version as a number");
+                Manager.Throw("MinVer Directive must express a major version as a number", ExceptionType.SystemException);
             if (int.Parse(ver[0]) < majint)
             {
-                Manager.ThrowSilent($"Function [{func.Name}] did not pass minimum version directive. Expected Major version [{majint}].");
+                Manager.ThrowSilent($"Function [{func.Name}] did not pass minimum version directive. Expected Major version [{majint}].", ExceptionType.SystemException);
                 if (FunctionStack.Contains(func))
                     FunctionStack.Remove(func);
                 return;
             }
             if (minint != -1 && int.Parse(ver[1]) < minint)
             {
-                Manager.ThrowSilent($"Function [{func.Name}] did not pass minimum version directive. Expected Minor version [{minint}].");
+                Manager.ThrowSilent($"Function [{func.Name}] did not pass minimum version directive. Expected Minor version [{minint}].", ExceptionType.SystemException);
                 if (FunctionStack.Contains(func))
                     FunctionStack.Remove(func);
                 return;
             }
             if (buildint != -1 && int.Parse(ver[2]) < buildint)
             {
-                Manager.ThrowSilent($"Function [{func.Name}] did not pass minimum version directive. Expected Build version [{buildint}].");
+                Manager.ThrowSilent($"Function [{func.Name}] did not pass minimum version directive. Expected Build version [{buildint}].", ExceptionType.SystemException);
                 if (FunctionStack.Contains(func))
                     FunctionStack.Remove(func);
                 return;
             }
             if (revint != -1 && int.Parse(ver[3]) < revint)
             {
-                Manager.ThrowSilent($"Function [{func.Name}] did not pass minimum version directive. Expected Revision version [{revint}].");
+                Manager.ThrowSilent($"Function [{func.Name}] did not pass minimum version directive. Expected Revision version [{revint}].", ExceptionType.SystemException);
                 if (FunctionStack.Contains(func))
                     FunctionStack.Remove(func);
                 return;
@@ -109,7 +109,7 @@ namespace TastyScript.TastyScript
             var build = splode.ElementAtOrDefault(2);
             var rev = splode.ElementAtOrDefault(3);
             if (maj == null)
-                Manager.Throw("MinVer Directive must express a major version");
+                Manager.Throw("MinVer Directive must express a major version", ExceptionType.SystemException);
             string[] ver = Assembly.GetExecutingAssembly().GetName().Version.ToString().Split('.');
             int majint = -1;
             int minint = -1;
@@ -123,15 +123,15 @@ namespace TastyScript.TastyScript
             if (rev != null)
                 int.TryParse(rev, out revint);
             if (majint == -1)
-                Manager.Throw("MinVer Directive must express a major version as a number");
+                Manager.Throw("MinVer Directive must express a major version as a number", ExceptionType.SystemException);
             if (int.Parse(ver[0]) < majint)
-                Manager.Throw($"Function [{func.Name}] did not pass minimum version directive. Expected Major version [{majint}].");
+                Manager.Throw($"Function [{func.Name}] did not pass minimum version directive. Expected Major version [{majint}].", ExceptionType.SystemException);
             if (minint != -1 && int.Parse(ver[1]) < minint)
-                Manager.Throw($"Function [{func.Name}] did not pass minimum version directive. Expected Minor version [{minint}].");
+                Manager.Throw($"Function [{func.Name}] did not pass minimum version directive. Expected Minor version [{minint}].", ExceptionType.SystemException);
             if (buildint != -1 && int.Parse(ver[2]) < buildint)
-                Manager.Throw($"Function [{func.Name}] did not pass minimum version directive. Expected Build version [{buildint}].");
+                Manager.Throw($"Function [{func.Name}] did not pass minimum version directive. Expected Build version [{buildint}].", ExceptionType.SystemException);
             if (revint != -1 && int.Parse(ver[3]) < revint)
-                Manager.Throw($"Function [{func.Name}] did not pass minimum version directive. Expected Revision version [{revint}].");
+                Manager.Throw($"Function [{func.Name}] did not pass minimum version directive. Expected Revision version [{revint}].", ExceptionType.SystemException);
         }
     }
     private void DirectiveMaxVer(string val, BaseFunction func)
@@ -145,7 +145,7 @@ namespace TastyScript.TastyScript
             var build = splode.ElementAtOrDefault(3);
             var rev = splode.ElementAtOrDefault(4);
             if (maj == null)
-                Manager.Throw("MinVer Directive must express a major version");
+                Manager.Throw("MinVer Directive must express a major version", ExceptionType.SystemException);
             string[] ver = Assembly.GetExecutingAssembly().GetName().Version.ToString().Split('.');
             int majint = -1;
             int minint = -1;
@@ -159,31 +159,31 @@ namespace TastyScript.TastyScript
             if (rev != null)
                 int.TryParse(rev, out revint);
             if (majint == -1)
-                Manager.Throw("MinVer Directive must express a major version as a number");
+                Manager.Throw("MinVer Directive must express a major version as a number", ExceptionType.SystemException);
             if (int.Parse(ver[0]) > majint)
             {
-                Manager.ThrowSilent($"Function [{func.Name}] did not pass minimum version directive. Expected Major version [{majint}].");
+                Manager.ThrowSilent($"Function [{func.Name}] did not pass minimum version directive. Expected Major version [{majint}].", ExceptionType.SystemException);
                 if (FunctionStack.Contains(func))
                     FunctionStack.Remove(func);
                 return;
             }
             if (minint != -1 && int.Parse(ver[1]) > minint)
             {
-                Manager.ThrowSilent($"Function [{func.Name}] did not pass minimum version directive. Expected Minor version [{minint}].");
+                Manager.ThrowSilent($"Function [{func.Name}] did not pass minimum version directive. Expected Minor version [{minint}].", ExceptionType.SystemException);
                 if (FunctionStack.Contains(func))
                     FunctionStack.Remove(func);
                 return;
             }
             if (buildint != -1 && int.Parse(ver[2]) > buildint)
             {
-                Manager.ThrowSilent($"Function [{func.Name}] did not pass minimum version directive. Expected Build version [{buildint}].");
+                Manager.ThrowSilent($"Function [{func.Name}] did not pass minimum version directive. Expected Build version [{buildint}].", ExceptionType.SystemException);
                 if (FunctionStack.Contains(func))
                     FunctionStack.Remove(func);
                 return;
             }
             if (revint != -1 && int.Parse(ver[3]) > revint)
             {
-                Manager.ThrowSilent($"Function [{func.Name}] did not pass minimum version directive. Expected Revision version [{revint}].");
+                Manager.ThrowSilent($"Function [{func.Name}] did not pass minimum version directive. Expected Revision version [{revint}].", ExceptionType.SystemException);
                 if (FunctionStack.Contains(func))
                     FunctionStack.Remove(func);
                 return;
@@ -196,7 +196,7 @@ namespace TastyScript.TastyScript
             var build = splode.ElementAtOrDefault(2);
             var rev = splode.ElementAtOrDefault(3);
             if (maj == null)
-                Manager.Throw("MinVer Directive must express a major version");
+                Manager.Throw("MinVer Directive must express a major version", ExceptionType.SystemException);
             string[] ver = Assembly.GetExecutingAssembly().GetName().Version.ToString().Split('.');
             int majint = -1;
             int minint = -1;
@@ -210,15 +210,15 @@ namespace TastyScript.TastyScript
             if (rev != null)
                 int.TryParse(rev, out revint);
             if (majint == -1)
-                Manager.Throw("MinVer Directive must express a major version as a number");
+                Manager.Throw("MinVer Directive must express a major version as a number", ExceptionType.SystemException);
             if (int.Parse(ver[0]) > majint)
-                Manager.Throw($"Function [{func.Name}] did not pass minimum version directive. Expected Major version [{majint}].");
+                Manager.Throw($"Function [{func.Name}] did not pass minimum version directive. Expected Major version [{majint}].", ExceptionType.SystemException);
             if (minint != -1 && int.Parse(ver[1]) > minint)
-                Manager.Throw($"Function [{func.Name}] did not pass minimum version directive. Expected Minor version [{minint}].");
+                Manager.Throw($"Function [{func.Name}] did not pass minimum version directive. Expected Minor version [{minint}].", ExceptionType.SystemException);
             if (buildint != -1 && int.Parse(ver[2]) > buildint)
-                Manager.Throw($"Function [{func.Name}] did not pass minimum version directive. Expected Build version [{buildint}].");
+                Manager.Throw($"Function [{func.Name}] did not pass minimum version directive. Expected Build version [{buildint}].", ExceptionType.SystemException);
             if (revint != -1 && int.Parse(ver[3]) > revint)
-                Manager.Throw($"Function [{func.Name}] did not pass minimum version directive. Expected Revision version [{revint}].");
+                Manager.Throw($"Function [{func.Name}] did not pass minimum version directive. Expected Revision version [{revint}].", ExceptionType.SystemException);
         }
     }
     private void DirectiveOmit(string val, BaseFunction func)
@@ -247,7 +247,7 @@ namespace TastyScript.TastyScript
                 {
                     var stripws = x.Directives["IsBase"].Replace(" ", "").Replace("\n", "").Replace("\t", "").Replace("\r", "");
                     if (stripws == "true" || stripws == "True")
-                        Manager.Throw($"The function [{func.Name}] has already been set IsBase by a directive. Please remove an IsBase directive.");
+                        Manager.Throw($"The function [{func.Name}] has already been set IsBase by a directive. Please remove an IsBase directive.", ExceptionType.SystemException);
                 }
             }
             if (FunctionStack.Contains(func))
@@ -269,7 +269,7 @@ namespace TastyScript.TastyScript
                 {
                     var stripws = x.Directives["Sealed"].Replace(" ", "").Replace("\n", "").Replace("\t", "").Replace("\r", "");
                     if (stripws == "true" || stripws == "True")
-                        Manager.Throw($"The function [{func.Name}] has already been sealed by a directive. Please remove a Sealed directive.");
+                        Manager.Throw($"The function [{func.Name}] has already been sealed by a directive. Please remove a Sealed directive.", ExceptionType.SystemException);
                 }
             }
             func.SetSealed(value);
@@ -282,7 +282,7 @@ namespace TastyScript.TastyScript
         int index = 0;
         bool tryint = int.TryParse(val, out index);
         if (!tryint)
-            Manager.Throw($"The directive [Layer] must have a whole number as its value.");
+            Manager.Throw($"The directive [Layer] must have a whole number as its value.", ExceptionType.SystemException);
         if (index - 1 > FunctionStack.List.Count)
             index = FunctionStack.List.Count - 1;
         FunctionStack.MoveTo(func, index);
@@ -307,7 +307,7 @@ namespace TastyScript.TastyScript
                 }
             }
             if (next == null)
-                Manager.Throw($"Unknown error applying directive [Layer] on function [{func.Name}]");
+                Manager.Throw($"Unknown error applying directive [Layer] on function [{func.Name}]", ExceptionType.SystemException);
             obj.SetBase(next);
         }
     }

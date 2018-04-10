@@ -10,10 +10,6 @@ namespace TastyScript.CoreFunctions.Internal
     [Function("Base", isSealed: true)]
     public class FunctionBase : FunctionDefinition
     {
-        public override void TryParse(TFunction caller)
-        {
-            Manager.Throw($"{this.Name} can not be overrided");
-        }
         public override bool CallBase()
         {
             Manager.Throw($"{this.Name} can not be overrided.");

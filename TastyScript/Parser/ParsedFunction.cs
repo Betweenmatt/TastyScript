@@ -29,7 +29,7 @@ namespace TastyScript.TastyScript.Parser
             if (b != null)
                 if (b.IsSealed == true)
                 {
-                    Manager.Throw($"Invalid Operation. Cannot create a new instance of a Sealed function: {Name}.");
+                    Manager.Throw($"Invalid Operation. Cannot create a new instance of a Sealed function: {Name}.", ExceptionType.SystemException);
                     return;
                 }
             //get top level anonymous functions before everything else
@@ -77,12 +77,12 @@ namespace TastyScript.TastyScript.Parser
             var b = predefined.FirstOrDefault(f => f.Name == Name);
             if (b == null)
             {
-                Manager.Throw($"Unexpected error. Function failed to override: {Name}.");
+                Manager.Throw($"Unexpected error. Function failed to override: {Name}.", ExceptionType.SystemException);
                 return;
             }
             if (b.IsSealed == true)
             {
-                Manager.Throw($"Invalid Operation. Cannot override Sealed function: {Name}.");
+                Manager.Throw($"Invalid Operation. Cannot override Sealed function: {Name}.", ExceptionType.SystemException);
                 return;
             }
             Base = b;
@@ -129,7 +129,7 @@ namespace TastyScript.TastyScript.Parser
             }
             else
             {
-                Manager.Throw("[287]Custom extension must have input parameter of `this variable` or `this function`");
+                Manager.Throw("[287]Custom extension must have input parameter of `this variable` or `this function`", ExceptionType.SystemException);
             }
             //replace this from the parameter, so it can be called by just `function` or `variable` at runtime
             //the `this` is only there for definition, to direct the extension parser to look for this extension

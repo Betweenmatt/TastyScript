@@ -56,8 +56,7 @@ namespace TastyScript.IFunction.Function
                 return _generatedTokensIndex;
             }
         }
-
-        [Obsolete]//idk where this is being used
+        
         protected string[] invokeProperties;
         public bool IsAnonymous { get; protected set; }
         public bool IsBlindExecute { get; protected set; }
@@ -87,7 +86,6 @@ namespace TastyScript.IFunction.Function
         {
             IsBlindExecute = flag;
         }
-        [Obsolete]//idk where this is being used
         public string[] GetInvokeProperties()
         {
             if (invokeProperties == null)

@@ -16,7 +16,7 @@ namespace TastyScript.CoreFunctions
                 print = argsList.ToString();
             if (!Manager.Driver.IsConnected())
             {
-                Manager.Throw($"Cannot set the app package without having a device connected. Please connect to a device first.");
+                Throw($"Cannot set the app package without having a device connected. Please connect to a device first.");
                 return false;
             }
             ReturnBubble = new IFunction.Tokens.Token("appPkg", Commands.SetAppPackage(print),"");

@@ -108,13 +108,11 @@ namespace TastyScript.ParserManager.ExceptionHandler
 
         public ExceptionObject(string msg, ExceptionType type)
         {
-            Message = msg; Type = type;
+            Message = msg; Type = type; SetLine();
         }
-        private void SetLine(string line)
+        private void SetLine()
         {
-            //trying something different
-            if (line == null && line == "" || line == "{0}")
-                line = Manager.CurrentParsedLine;
+            string line = Manager.CurrentParsedLine;
             if (line != null && line.Contains("AnonymousFunction"))
             {
                 var anonlist = Manager.AnonymousFunctionValueHolder.Where(w => w.Name.Contains("AnonymousFunction"));

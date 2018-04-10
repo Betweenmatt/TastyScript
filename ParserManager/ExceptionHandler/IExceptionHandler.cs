@@ -16,11 +16,18 @@ namespace TastyScript.ParserManager.ExceptionHandler
         void LogThrow(string msg, Exception e);
         TryCatchStack TryCatchEventStack { get; }
     }
+}
+namespace TastyScript
+{
     public enum ExceptionType
     {
         CompilerException,
+        ArgumentException,
+        DriverException,
+        SyntaxException,
         SystemException,
         UserDefinedException,
-        NullReferenceException
+        NullReferenceException,
+        NotImplementedException
     }
 }
