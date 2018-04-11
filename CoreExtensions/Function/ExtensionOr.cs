@@ -8,7 +8,7 @@ using TastyScript.IFunction.Extension;
 
 namespace TastyScript.CoreExtensions.Function
 {
-    [Extension("Or", new string[] { "condition" })]
+    [Extension("Or", new string[] { "condition" }, alias:new string[] { "or" })]
     [Serializable]
     public class ExtensionOr : BaseExtension { }
 }

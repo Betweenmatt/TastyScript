@@ -8,7 +8,7 @@ using TastyScript.IFunction.Extension;
 
 namespace TastyScript.CoreExtensions.Function
 {
-    [Extension("For", new string[] { "enumerator" })]
+    [Extension("For", new string[] { "enumerator" }, alias:new string[] { "for" })]
     [Serializable]
     public class ExtensionFor : BaseExtension { }
 }

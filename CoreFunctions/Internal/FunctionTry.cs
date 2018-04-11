@@ -12,7 +12,7 @@ using TastyScript.ParserManager;
 
 namespace TastyScript.CoreFunctions.Internal
 {
-    [Function("Try",new string[] { "invoke" },invoking:true)]
+    [Function("Try", new string[] { "invoke" }, invoking: true, alias: new string[]{ "try" })]
     public class FunctionTry : FunctionDefinition
     {
         public override bool CallBase()

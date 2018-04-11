@@ -56,11 +56,11 @@
     <Compile Include="FunctionAppPackage.cs" />
     <Compile Include="FunctionCheckScreen.cs" />
     <Compile Include="FunctionConnectDevice.cs" />
-    <Compile Include="FunctionIf.cs" />
+    <Compile Include="Internal\FunctionIf.cs" />
     <Compile Include="FunctionImageLocation.cs" />
     <Compile Include="FunctionKeyEvent.cs" />
     <Compile Include="FunctionLongTouch.cs" />
-    <Compile Include="FunctionLoop.cs" />
+    <Compile Include="Internal\FunctionLoop.cs" />
     <Compile Include="FunctionPrint.cs" />
     <Compile Include="FunctionPrintLine.cs" />
     <Compile Include="FunctionReadLine.cs" />
@@ -106,4 +106,9 @@
     <Analyzer Include="..\packages\AsyncUsageAnalyzers.1.0.0-alpha003\analyzers\dotnet\AsyncUsageAnalyzers.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties BuildVersion_StartDate="2000/1/1" />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>

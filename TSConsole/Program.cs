@@ -16,30 +16,6 @@ namespace TastyScript.TSConsole
 {
     internal class Program
     {
-        static Process process;
-        static void StartProcess(string r)
-        {
-            process = new Process();
-
-            // Stop the process from opening a new window
-            process.StartInfo.RedirectStandardOutput = true;
-            process.StartInfo.RedirectStandardInput = true;
-            process.StartInfo.UseShellExecute = false;
-            process.StartInfo.CreateNoWindow = true;
-
-            // Setup executable and parameters
-            process.StartInfo.FileName = AppDomain.CurrentDomain.BaseDirectory + "TastyScript.exe";
-            process.StartInfo.Arguments = $"-r {r} -d {Settings.QuickDirectory} -ll {Settings.LogLevel} -c {Manager.Driver.GetName()}";
-
-            // Go
-            process.Start();
-            ChildProcessTracker.AddProcess(process);
-            while (!process.StandardOutput.EndOfStream)
-            {
-                string line = process.StandardOutput.ReadLine();
-                (Manager.IOStream as IOStream).PrintXml(line);
-            }
-        }
         
         private static CancellationTokenSource _cancelSource;
         private static string _consoleCommand = "";
@@ -84,7 +60,7 @@ namespace TastyScript.TSConsole
                 switch (split[0])
                 {
                     case ("adb"):
-                        CommandADB(userInput);
+                        //CommandADB(userInput);
                         break;
                     case ("app"):
                         CommandApp(userInput);
@@ -130,12 +106,36 @@ namespace TastyScript.TSConsole
                         break;
                     case ("-sh"):
                     case ("shell"):
-                        CommandShell(userInput);
+                        //CommandShell(userInput);
                         break;
                     default:
                         Manager.Print("Enter '-h' for a list of commands!");
                         break;
                 }
+            }
+        }
+        static Process process;
+        static void StartProcess(string r)
+        {
+            process = new Process();
+
+            // Stop the process from opening a new window
+            process.StartInfo.RedirectStandardOutput = true;
+            process.StartInfo.RedirectStandardInput = true;
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.CreateNoWindow = true;
+
+            // Setup executable and parameters
+            process.StartInfo.FileName = AppDomain.CurrentDomain.BaseDirectory + "TastyScript.exe";
+            process.StartInfo.Arguments = $"-r {r} -d {Settings.QuickDirectory} -ll {Settings.LogLevel} -c {Manager.Driver.GetName()}";
+
+            // Go
+            process.Start();
+            ChildProcessTracker.AddProcess(process);
+            while (!process.StandardOutput.EndOfStream)
+            {
+                string line = process.StandardOutput.ReadLine();
+                (Manager.IOStream as IOStream).PrintXml(line);
             }
         }
 
@@ -241,21 +241,7 @@ namespace TastyScript.TSConsole
             catch (Exception e) { if (!(e is CompilerControlledException) || Settings.LogLevel == "throw") { Manager.ExceptionHandler.LogThrow("Unexpected error", e); } }
         }
         private static void CommandShell(string r)
-        {
-            throw new NotImplementedException();
-            try
-            {
-                if (Manager.Driver != null)
-                {
-                    //Manager.Print($"Result: {TastyScript.Main.AndroidDriver.SendShellCommand(r.Replace("shell ", "").Replace("-sh ", ""))}");
-                }
-                else
-                {
-                    Manager.Throw("Device must be defined");
-                }
-            }
-            catch (Exception e) { if (!(e is CompilerControlledException) || Settings.LogLevel == "throw") { Manager.ExceptionHandler.LogThrow("Unexpected error", e); } }
-        }
+        {}
         private static string WelcomeMessage()
         {
             return $"Welcome to {Title}!\nCredits:\n@TastyGod - https://github.com/TastyGod " +

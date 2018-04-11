@@ -18,36 +18,50 @@ namespace TastyScript.TastyScript
             Manager.Driver = new AndroidDriver();
             Manager.Init(new IOStream());
             string run = "";
-            for (int i = 0; i < args.Length; i++)
+            try
             {
-                if (args[i] == "-d")
+                for (int i = 0; i < args.Length; i++)
                 {
-                    Settings.SetQuickDirectory(args[i + 1]);
+                    if (args[i] == "-d")
+                    {
+                        Settings.SetQuickDirectory(args[i + 1]);
+                    }
+                    else if (args[i] == "-r")
+                    {
+                        run = args[i + 1];
+                    }
+                    else if (args[i] == "-ll")
+                    {
+                        Settings.SetLogLevel(args[i + 1]);
+                    }
+                    else if (args[i] == "-c")
+                    {
+                        if (args.ElementAtOrDefault(i + 1) != null && args[i + 1] != "")
+                            Manager.Driver.Connect(args[i + 1]);
+                    }
+                    else if (args[i] == "-e")
+                    {
+                        TastyScript.Main.CommandExec(args[i + 1]);
+                        return;
+                    }
                 }
-                else if(args[i] == "-r")
-                {
-                    run = args[i + 1];
-                }
-                else if(args[i] == "-ll")
-                {
-                    Settings.SetLogLevel(args[i + 1]);
-                }
-                else if(args[i] == "-c")
-                {
-                    if (args.ElementAtOrDefault(i + 1) != null && args[i + 1] != "")
-                        Manager.Driver.Connect(args[i + 1]);
-                }
-                else if (args[i] == "-e")
-                {
-                    TastyScript.Main.CommandExec(args[i + 1]);
-                    return;
-                }
+
+            }
+            catch
+            {
+                Console.WriteLine("Unknown error parsing arguments.");
+                return;
             }
             if(run == "")
             {
-                Manager.Throw("Path cannot be empty.", ExceptionType.SystemException);
+                Console.WriteLine("Run path cannot be empty.");
+                return;
             }
-            TastyScript.Main.CommandTestRun(run);
+            try
+            {
+                TastyScript.Main.CommandRun(run);
+            }
+            catch(Exception e) { }
         }
     }
 }

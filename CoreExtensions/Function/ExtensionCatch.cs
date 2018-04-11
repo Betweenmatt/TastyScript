@@ -8,7 +8,7 @@ using TastyScript.IFunction.Extension;
 
 namespace TastyScript.CoreExtensions.Function
 {
-    [Extension("Catch", new string[] { "invoke" })]
+    [Extension("Catch", new string[] { "invoke" }, alias:new string[] { "catch" })]
     public class ExtensionCatch : BaseExtension
     {
     }

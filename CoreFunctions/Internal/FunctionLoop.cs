@@ -10,7 +10,7 @@ using TastyScript.ParserManager.Looping;
 
 namespace TastyScript.CoreFunctions
 {
-    [Function("Loop", new string[] { "invoke" }, isSealed: true, invoking: true, isanon: false)]
+    [Function("Loop", new string[] { "invoke" }, isSealed: true, invoking: true, isanon: false, alias:new string[] { "loop" })]
     public class FunctionLoop : FunctionDefinition
     {
         public override bool CallBase()

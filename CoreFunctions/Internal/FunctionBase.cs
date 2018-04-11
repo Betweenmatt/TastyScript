@@ -7,7 +7,7 @@ using TastyScript.ParserManager;
 
 namespace TastyScript.CoreFunctions.Internal
 {
-    [Function("Base", isSealed: true)]
+    [Function("Base", isSealed: true, alias: new string[] { "base" })]
     public class FunctionBase : FunctionDefinition
     {
         public override bool CallBase()

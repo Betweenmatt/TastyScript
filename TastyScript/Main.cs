@@ -25,10 +25,6 @@ namespace TastyScript.TastyScript
             catch (Exception e) { if (!(e is CompilerControlledException) || Settings.LogLevel == "throw") { Manager.ExceptionHandler.LogThrow("Unexpected error", e); } }
 
         }
-        public static void CommandTestRun(string r)
-        {
-            CommandRun(r);
-        }
         public static void CommandRun(string r)
         {
             try
@@ -56,13 +52,7 @@ namespace TastyScript.TastyScript
         public static void ListenForEscape()
         {
             Manager.Print("Press ENTER to stop");
-            //while (Manager.IOStream.ReadKey(true).Key != ConsoleKey.Enter)
             Console.ReadLine();
-            //{
-
-                //if (Manager.IsScriptStopping)
-                    //break;
-            //}
             if (!Manager.IsScriptStopping)
             {
                 SendStopScript();

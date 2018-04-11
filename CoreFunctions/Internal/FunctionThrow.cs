@@ -10,7 +10,7 @@ using TastyScript.ParserManager.ExceptionHandler;
 
 namespace TastyScript.CoreFunctions.Internal
 {
-    [Function("Throw",new string[] { "msg" })]
+    [Function("Throw",new string[] { "msg" }, alias:new string[] { "throw" })]
     public class FunctionThrow : FunctionDefinition
     {
         public override bool CallBase()
