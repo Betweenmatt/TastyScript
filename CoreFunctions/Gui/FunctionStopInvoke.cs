@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using TastyScript.IFunction.Attributes;
 using TastyScript.IFunction.Functions;
 
@@ -9,7 +10,8 @@ namespace TastyScript.CoreFunctions.Gui
     {
         public override bool CallBase()
         {
-            FunctionInvoke.Test = true;
+            StreamWriter streamWriter = FunctionInvoke.process.StandardInput;
+            streamWriter.WriteLine("");
             return true;
         }
     }

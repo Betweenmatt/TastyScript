@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -14,6 +16,31 @@ namespace TastyScript.TSConsole
 {
     internal class Program
     {
+        static Process process;
+        static void StartProcess(string r)
+        {
+            process = new Process();
+
+            // Stop the process from opening a new window
+            process.StartInfo.RedirectStandardOutput = true;
+            process.StartInfo.RedirectStandardInput = true;
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.CreateNoWindow = true;
+
+            // Setup executable and parameters
+            process.StartInfo.FileName = AppDomain.CurrentDomain.BaseDirectory + "TastyScript.exe";
+            process.StartInfo.Arguments = $"-r {r} -d {Settings.QuickDirectory} -ll {Settings.LogLevel} -c {Manager.Driver.GetName()}";
+
+            // Go
+            process.Start();
+            ChildProcessTracker.AddProcess(process);
+            while (!process.StandardOutput.EndOfStream)
+            {
+                string line = process.StandardOutput.ReadLine();
+                (Manager.IOStream as IOStream).PrintXml(line);
+            }
+        }
+        
         private static CancellationTokenSource _cancelSource;
         private static string _consoleCommand = "";
         private static string Title = Manager.Title;
@@ -75,7 +102,7 @@ namespace TastyScript.TSConsole
                         break;
                     case ("-e"):
                     case ("exec"):
-                        TastyScript.Main.CommandExec(userInput);
+                        //TastyScript.Main.CommandExec(userInput);
                         break;
                     case ("-h"):
                     case ("help"):
@@ -87,7 +114,15 @@ namespace TastyScript.TSConsole
                         break;
                     case ("-r"):
                     case ("run"):
-                        TastyScript.Main.CommandRun(userInput);
+                        Thread th = new Thread(() =>
+                        {
+                            StartProcess(userInput);
+                        });
+                        th.Start();
+                        Console.ReadLine();
+                        StreamWriter myStreamWriter = process.StandardInput;
+                        myStreamWriter.WriteLine("");
+                        process.WaitForExit();
                         break;
                     case ("-ss"):
                     case ("screenshot"):
@@ -221,10 +256,6 @@ namespace TastyScript.TSConsole
             }
             catch (Exception e) { if (!(e is CompilerControlledException) || Settings.LogLevel == "throw") { Manager.ExceptionHandler.LogThrow("Unexpected error", e); } }
         }
-
-
-
-
         private static string WelcomeMessage()
         {
             return $"Welcome to {Title}!\nCredits:\n@TastyGod - https://github.com/TastyGod " +
@@ -232,6 +263,5 @@ namespace TastyScript.TSConsole
                 $"\nLog4Net - https://logging.apache.org/log4net \n\n" +
                 $"Enter -h for a list of commands!\n";
         }
-        
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading;
 using TastyScript.IFunction.Attributes;
 using TastyScript.IFunction.Containers;
@@ -12,7 +13,8 @@ namespace TastyScript.CoreFunctions.Gui
     internal class FunctionInvoke : FunctionDefinition
     {
         private static bool isInvoking;
-        public static volatile bool Test;
+        internal static Process process;
+
         public override bool CallBase()
         {
             if (isInvoking)
@@ -33,16 +35,26 @@ namespace TastyScript.CoreFunctions.Gui
                 Throw($"Invoke argument cannot be null");
                 return false;
             }
-            var func = FunctionStack.First(funcname.ToString());
-            func.SetInvokeProperties(new string[] { }, Caller.CallingFunction.LocalVariables.List, Caller.CallingFunction.ProvidedArgs.List);
+            //var func = FunctionStack.First(funcname.ToString());
+            //func.SetInvokeProperties(new string[] { }, Caller.CallingFunction.LocalVariables.List, Caller.CallingFunction.ProvidedArgs.List);
             Thread st = new Thread(() =>
             {
-                Manager.IsScriptStopping = Test;
-                Manager.LoopTracerStack = new ParserManager.Looping.LoopTracerList();
-                Manager.CancellationTokenSource = new CancellationTokenSource();
-                func.TryParse(new TFunction(Caller.Function, new ExtensionList(), passedargs, this, null));
+                process = new Process();
+                process.StartInfo.RedirectStandardOutput = true;
+                process.StartInfo.RedirectStandardInput = true;
+                process.StartInfo.UseShellExecute = false;
+                process.StartInfo.CreateNoWindow = true;
+                process.StartInfo.FileName = AppDomain.CurrentDomain.BaseDirectory + "TastyScript.exe";
+                process.StartInfo.Arguments = $"-r {funcname.ToString()} -d {Settings.QuickDirectory} -ll {Settings.LogLevel} -c {Manager.Driver.GetName()}";
+                
+                process.Start();
+                ChildProcessTracker.AddProcess(process);
+                while (!process.StandardOutput.EndOfStream)
+                {
+                    string line = process.StandardOutput.ReadLine();
+                    Console.WriteLine(line);
+                }
                 isInvoking = false;
-                Print("Invoke execution complete.", ConsoleColor.DarkGreen);
             });
             st.Start();
             /*

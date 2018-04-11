@@ -31,6 +31,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -51,17 +54,14 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ParserManager\ParserManager.csproj">
-      <Project>{6BFBC999-6062-4D51-B1D9-B6E97C8B6466}</Project>
-      <Name>ParserManager</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TastyScript\TastyScript.csproj">
-      <Project>{83eea21e-3b52-4459-b3f9-9b8fd3cd4439}</Project>
-      <Name>TastyScript</Name>
-    </ProjectReference>
+    <None Include="app.config" />
+    <None Include="app.manifest" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
+    <ProjectReference Include="..\ParserManager\ParserManager.csproj">
+      <Project>{6bfbc999-6062-4d51-b1d9-b6e97c8b6466}</Project>
+      <Name>ParserManager</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
