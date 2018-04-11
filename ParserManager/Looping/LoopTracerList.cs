@@ -14,5 +14,6 @@ namespace TastyScript.ParserManager.Looping
         public void Remove(LoopTracer item) => _tlist.Remove(item);
         public LoopTracer Last() => _tlist.LastOrDefault();
         public LoopTracer First() => _tlist.FirstOrDefault();
+        public List<LoopTracer> List() => _tlist;
     }
 }

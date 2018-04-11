@@ -32,7 +32,6 @@ namespace TastyScript.TastyScript
                 var file = Utilities.GetFileFromPath(path);
                 Manager.SleepDefaultTime = 1200;
                 Manager.IsScriptStopping = false;
-                Manager.IsGUIScriptStopping = false;
                 Thread esc = new Thread(ListenForEscape);
                 esc.Start();
                 StartScript(path, file);
@@ -69,7 +68,6 @@ namespace TastyScript.TastyScript
             {
                 //halt the script
                 Manager.IsScriptStopping = true;
-                Manager.IsGUIScriptStopping = true;
                 Manager.Print("\nScript execution is halting. Please wait.\n", ConsoleColor.Yellow);
                 if (ScriptParser.HaltFunction != null)
                 {
@@ -86,7 +84,6 @@ namespace TastyScript.TastyScript
             {
                 Manager.ThrowSilent($"Unknown error with halt thread, aborting all execution.");
                 Manager.IsScriptStopping = true;
-                Manager.IsGUIScriptStopping = true;
             }
 
         }

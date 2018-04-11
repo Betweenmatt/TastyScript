@@ -29,6 +29,13 @@ namespace TastyScript.IFunction.Functions
         /// </summary>
         public void ThrowSilent(string msg) => Manager.ThrowSilent(msg);
         public void ThrowSilent(string msg, ExceptionType type) => Manager.ThrowSilent(msg, type);
+        /// <summary>
+        /// Print to the iostream
+        /// </summary>
+        /// <param name="msg"></param>
+        /// <param name="line"></param>
+        public void Print(string msg, bool line = true) => Manager.Print(msg, line);
+        public void Print(string msg, ConsoleColor color, bool line = true) => Manager.Print(msg, color, line);
 
         public abstract bool CallBase();
         public sealed override void TryParse(TFunction caller)
@@ -108,14 +115,14 @@ namespace TastyScript.IFunction.Functions
             }
             if (!ReturnFlag)
             {
-                if ((IsGui && !Manager.IsGUIScriptStopping) || (!IsGui && !Manager.IsScriptStopping))
+                if (!Manager.IsScriptStopping)
                 {
                     if (Tracer == null || (!Tracer.Continue && !Tracer.Break))
                         return CallBase();
 
                 }
 
-                else if (((IsGui && Manager.IsGUIScriptStopping) || (!IsGui && Manager.IsScriptStopping)) && IsBlindExecute)
+                else if (Manager.IsScriptStopping && IsBlindExecute)
                 {
                     return CallBase();
                 }

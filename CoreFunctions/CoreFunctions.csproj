@@ -30,6 +30,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Nancy, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Nancy.2.0.0-clinteastwood\lib\net452\Nancy.dll</HintPath>
+    </Reference>
+    <Reference Include="Nancy.Hosting.Self, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Nancy.Hosting.Self.2.0.0-clinteastwood\lib\net452\Nancy.Hosting.Self.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -67,6 +73,10 @@
     <Compile Include="FunctionTakeScreenshot.cs" />
     <Compile Include="FunctionTimer.cs" />
     <Compile Include="FunctionTouch.cs" />
+    <Compile Include="Gui\FunctionGuiLoad.cs" />
+    <Compile Include="Gui\FunctionInvoke.cs" />
+    <Compile Include="Gui\FunctionStopInvoke.cs" />
+    <Compile Include="Gui\ServiceHandler.cs" />
     <Compile Include="Internal\FunctionBase.cs" />
     <Compile Include="Internal\FunctionBreak.cs" />
     <Compile Include="Internal\FunctionContinue.cs" />
@@ -91,6 +101,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Analyzer Include="..\packages\AsyncUsageAnalyzers.1.0.0-alpha003\analyzers\dotnet\AsyncUsageAnalyzers.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

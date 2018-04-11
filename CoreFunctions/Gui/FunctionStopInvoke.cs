@@ -1,18 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using TastyScript.IFunction.Attributes;
+using TastyScript.IFunction.Functions;
 
-namespace TastyScript.Lang.Functions.Gui
+namespace TastyScript.CoreFunctions.Gui
 {
     [Function("StopInvoke")]
     internal class FunctionStopInvoke : FunctionDefinition
     {
-        public override string CallBase()
+        public override bool CallBase()
         {
-            Main.DirectStop();
-            return "";
+            FunctionInvoke.Test = true;
+            return true;
         }
     }
 }

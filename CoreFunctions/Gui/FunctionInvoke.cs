@@ -1,49 +1,59 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TastyScript.Lang.Extensions;
-using TastyScript.Lang.Tokens;
+using System.Threading;
+using TastyScript.IFunction.Attributes;
+using TastyScript.IFunction.Containers;
+using TastyScript.IFunction.Functions;
+using TastyScript.IFunction.Tokens;
+using TastyScript.ParserManager;
 
-namespace TastyScript.Lang.Functions.Gui
+namespace TastyScript.CoreFunctions.Gui
 {
     [Function("Invoke", new string[] { "func", "postfunc" })]
     internal class FunctionInvoke : FunctionDefinition
     {
         private static bool isInvoking;
-        public override string CallBase()
+        public static volatile bool Test;
+        public override bool CallBase()
         {
             if (isInvoking)
             {
-                Compiler.ExceptionListener.ThrowSilent(new ExceptionHandler("There is already a function being invoked. Please wait for execution to stop before invoking another."));
-                return null;
+                ThrowSilent("There is already a function being invoked. Please wait for execution to stop before invoking another.");
+                return false;
             }
             isInvoking = true;
             var funcname = ProvidedArgs.First("func");
             var postfuncname = ProvidedArgs.First("postfunc");
-            var prop = Extensions.FirstOrDefault(f => f.Name == "Prop") as ExtensionProp;
+            var prop = Extensions.First("Prop");
             string[] passedargs = new string[] { };
             if (prop != null)
                 passedargs = prop.Extend();
 
             if (funcname == null)
             {
-                Compiler.ExceptionListener.Throw($"Invoke argument cannot be null");
-                return null;
+                Throw($"Invoke argument cannot be null");
+                return false;
             }
             var func = FunctionStack.First(funcname.ToString());
             func.SetInvokeProperties(new string[] { }, Caller.CallingFunction.LocalVariables.List, Caller.CallingFunction.ProvidedArgs.List);
-            func.TryParse(new TFunction(Caller.Function, new List<EDefinition>(), passedargs, this, null));
-            isInvoking = false;
-            if(TokenParser.Stop)TokenParser.Stop = false;
-            Main.IO.Print("Invoke execution complete.", ConsoleColor.DarkGreen);
+            Thread st = new Thread(() =>
+            {
+                Manager.IsScriptStopping = Test;
+                Manager.LoopTracerStack = new ParserManager.Looping.LoopTracerList();
+                Manager.CancellationTokenSource = new CancellationTokenSource();
+                func.TryParse(new TFunction(Caller.Function, new ExtensionList(), passedargs, this, null));
+                isInvoking = false;
+                Print("Invoke execution complete.", ConsoleColor.DarkGreen);
+            });
+            st.Start();
+            /*
+            
+            
             if(postfuncname != null)
             {
                 var postfunc = FunctionStack.First(postfuncname.ToString());
-                func.TryParse(new TFunction(Caller.Function, new List<EDefinition>(), new string[] { }, this, null));
-            }
-            return "";
+                func.TryParse(new TFunction(Caller.Function, new ExtensionList(), new string[] { }, this, null));
+            }*/
+            return true;
         }
     }
 }

@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using TastyScript.ParserManager.Driver;
-using TastyScript.ParserManager.Driver.Android;
 using TastyScript.ParserManager.ExceptionHandler;
 using TastyScript.ParserManager.IOStream;
 using TastyScript.ParserManager.Looping;
@@ -15,7 +11,6 @@ namespace TastyScript.ParserManager
 {
     public class Manager
     {
-        private static bool _isGuiScriptStopping;
         private static bool _isScriptStopping;
         private static int _anonymousFunctionIndex = -1;
 
@@ -30,34 +25,14 @@ namespace TastyScript.ParserManager
                 return _anonymousFunctionIndex;
             }
         }
-        public static CancellationTokenSource CancellationTokenSource { get; private set; }
-
+        public static CancellationTokenSource CancellationTokenSource;
+        
         public static LoopTracerList LoopTracerStack;
 
         public static string CurrentParsedLine { get; private set; }
 
         public static double SleepDefaultTime { get; set; }
-
-        /// <summary>
-        /// All gui related functions get stopped by this bool
-        /// </summary>
-        public static bool IsGUIScriptStopping
-        {
-            get
-            {
-                return _isGuiScriptStopping;
-            }
-            set
-            {
-                if (value && CancellationTokenSource != null && !CancellationTokenSource.IsCancellationRequested)
-                    CancellationTokenSource.Cancel();
-                _isGuiScriptStopping = value;
-            }
-        }
         
-        /// <summary>
-        /// All non-gui functions get stopped by this bool
-        /// </summary>
         public static bool IsScriptStopping
         {
             get
@@ -71,10 +46,10 @@ namespace TastyScript.ParserManager
                 _isScriptStopping = value;
             }
         }
-
+        
         public static IIOStream IOStream { get; private set; }
-
-        public static IExceptionHandler ExceptionHandler { get; set; }
+        
+        public static IExceptionHandler ExceptionHandler;
 
         public static Dictionary<string, string> LoadedFileReference;
 

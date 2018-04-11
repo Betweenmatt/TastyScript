@@ -868,12 +868,12 @@ namespace TastyScript.TastyScript.Parser
         {
             if (!_reference.ReturnFlag)
             {
-                if ((_reference.IsGui && !Manager.IsGUIScriptStopping) || (!_reference.IsGui && !Manager.IsScriptStopping))
+                if (!Manager.IsScriptStopping)
                 {
                     if (_reference.Tracer == null || (!_reference.Tracer.Continue && !_reference.Tracer.Break))
                         return TryParseMember(t);
                 }
-                else if (((_reference.IsGui && Manager.IsGUIScriptStopping) || (!_reference.IsGui && Manager.IsScriptStopping)) && _reference.IsBlindExecute)
+                else if (Manager.IsScriptStopping && _reference.IsBlindExecute)
                 {
                     return TryParseMember(t);
                 }

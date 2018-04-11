@@ -165,7 +165,7 @@ namespace TastyScript.IFunction.Function
                 forNumberAsNumber = int.MaxValue;
             for (var x = 0; x < forNumberAsNumber; x++)
             {
-                if ((IsGui && !Manager.IsGUIScriptStopping) || (!IsGui && !Manager.IsScriptStopping))
+                if (!Manager.IsScriptStopping)
                 {
                     if (tracer.Break)
                     {

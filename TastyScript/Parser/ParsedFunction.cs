@@ -200,7 +200,8 @@ namespace TastyScript.TastyScript.Parser
             var lines = guts[0].Split(';');
             foreach (var l in lines)
             {
-                new Line(l, this);
+                if(!Manager.IsScriptStopping && !ReturnFlag)
+                    new Line(l, this);
             }
             //clear local var stack after use
             LocalVariables = new TokenList();
@@ -236,7 +237,8 @@ namespace TastyScript.TastyScript.Parser
             var guts = Value.Split('{')[1].Split('}');
             var lines = guts[0].Split(';');
             foreach (var l in lines)
-                new Line(l, this);
+                if (!Manager.IsScriptStopping && !ReturnFlag)
+                    new Line(l, this);
             //clear local var stack after use
             LocalVariables = new TokenList();
         }
