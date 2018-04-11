@@ -62,6 +62,7 @@
     <Compile Include="..\GlobalAssemblyInfo.cs">
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="ChildProcessTracker.cs" />
     <Compile Include="Driver\Android\AnalyzeScreen.cs" />
     <Compile Include="Driver\Android\AndroidDriver.cs" />
     <Compile Include="Driver\Android\AndroidKeyCodes.cs" />
