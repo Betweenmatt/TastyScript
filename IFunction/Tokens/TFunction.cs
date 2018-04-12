@@ -34,6 +34,10 @@ namespace TastyScript.IFunction.Tokens
             Extensions = ext;
             Arguments = ReturnArgsArray(args);
             CallingFunction = callingFunction;
+            if (callingFunction?.Caller?.DynamicDictionary != null)
+            {
+                DynamicDictionary = callingFunction.Caller.DynamicDictionary;
+            }
             if (t != null)
                 Tracer = t;
             else
@@ -57,6 +61,10 @@ namespace TastyScript.IFunction.Tokens
             Extensions = ext;
             Arguments = args;
             CallingFunction = callingFunction;
+            if(callingFunction?.Caller?.DynamicDictionary != null)
+            {
+                DynamicDictionary = callingFunction.Caller.DynamicDictionary;
+            }
             if (t != null)
                 Tracer = t;
             else

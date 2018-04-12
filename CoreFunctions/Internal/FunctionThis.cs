@@ -85,7 +85,7 @@ namespace TastyScript.CoreFunctions.Internal
                             {
                                 if (Caller.CallingFunction.Caller.DynamicDictionary.ContainsKey(fprop))
                                 {
-                                    ReturnBubble = new Token("ret", Caller.CallingFunction.Caller.DynamicDictionary[fprop].ToString(),"");
+                                    ReturnBubble = new Token("ret", Caller?.CallingFunction?.Caller?.DynamicDictionary?[fprop]?.ToString().CleanString(),"");
                                 }
                                 else
                                 {
