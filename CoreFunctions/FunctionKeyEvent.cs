@@ -21,7 +21,7 @@ namespace TastyScript.CoreFunctions
                 return false;
             }
 
-            if (!Manager.Driver.IsConnected())
+            if (Manager.Driver.IsConnected())
             {
                 //FunctionHelpers.AndroidBack();
                 AndroidKeyCode newcol = AndroidKeyCode.A;
