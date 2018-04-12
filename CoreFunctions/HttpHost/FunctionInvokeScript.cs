@@ -10,10 +10,10 @@ using TastyScript.IFunction.Functions;
 using TastyScript.IFunction.Tokens;
 using TastyScript.ParserManager;
 
-namespace TastyScript.CoreFunctions.Gui
+namespace TastyScript.CoreFunctions.HttpHost
 {
-    [Function("Invoke", new string[] { "func", "postfunc" })]
-    internal class FunctionInvoke : FunctionDefinition
+    [Function("InvokeScript", new string[] { "func", "postfunc" })]
+    internal class FunctionInvokeScript : FunctionDefinition
     {
         private static bool isInvoking;
 
@@ -37,8 +37,6 @@ namespace TastyScript.CoreFunctions.Gui
                 Throw($"Invoke argument cannot be null");
                 return false;
             }
-            //var func = FunctionStack.First(funcname.ToString());
-            //func.SetInvokeProperties(new string[] { }, Caller.CallingFunction.LocalVariables.List, Caller.CallingFunction.ProvidedArgs.List);
             Thread st = new Thread(() =>
             {
                 Manager.GuiInvokeProcess = new Process();
@@ -66,14 +64,6 @@ namespace TastyScript.CoreFunctions.Gui
                 }
             });
             st.Start();
-            /*
-            
-            
-            if(postfuncname != null)
-            {
-                var postfunc = FunctionStack.First(postfuncname.ToString());
-                func.TryParse(new TFunction(Caller.Function, new ExtensionList(), new string[] { }, this, null));
-            }*/
             return true;
         }
         private void SendToStdOut(string msg)

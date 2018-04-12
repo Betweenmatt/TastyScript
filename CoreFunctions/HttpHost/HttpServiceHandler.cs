@@ -11,7 +11,7 @@ using TastyScript.IFunction.Containers;
 
 namespace TastyScript.CoreFunctions.Gui
 {
-    class ServiceHandler
+    class HttpServiceHandler
     {
         public static string IndexPath;
     }
@@ -22,7 +22,7 @@ namespace TastyScript.CoreFunctions.Gui
         {
             Get(@"/", _ => 
             {
-                return View[ServiceHandler.IndexPath];
+                return View[HttpServiceHandler.IndexPath];
             });
         }
     }

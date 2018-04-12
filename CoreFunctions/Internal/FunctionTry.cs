@@ -33,9 +33,10 @@ namespace TastyScript.CoreFunctions.Internal
             var catchfunc = FunctionStack.First(catchBlock[0].ToString());
             if (catchfunc == null)
                 Manager.Throw($"Cannot find the invoked function.");
-
+            tryfunc.SetInvokeProperties(new string[] { }, Caller.CallingFunction.LocalVariables.List, Caller.CallingFunction.ProvidedArgs.List);
+            catchfunc.SetInvokeProperties(new string[] { }, Caller.CallingFunction.LocalVariables.List, Caller.CallingFunction.ProvidedArgs.List);
             Manager.ExceptionHandler.TryCatchEventStack.Add(new TryCatchEvent(tryfunc, catchfunc));
-
+            
             tryfunc.TryParse(new TFunction(Caller.Function, new ExtensionList(), tryfunc.GetInvokeProperties(), Caller.CallingFunction));
 
 

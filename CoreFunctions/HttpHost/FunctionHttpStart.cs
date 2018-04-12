@@ -5,10 +5,10 @@ using TastyScript.IFunction.Functions;
 using TastyScript.ParserManager;
 using TastyScript.ParserManager.IOStream;
 
-namespace TastyScript.CoreFunctions.Gui
+namespace TastyScript.CoreFunctions.HttpHost
 {
-    [Function("GuiLoad", new string[] { "uri" })]
-    internal class FunctionGuiLoad : FunctionDefinition
+    [Function("HttpStart", new string[] { "uri" })]
+    internal class FunctionHttpStart : FunctionDefinition
     {
         public override bool CallBase()
         {
@@ -28,8 +28,8 @@ namespace TastyScript.CoreFunctions.Gui
             return true;
         }
     }
-    [Function("GuiSetIndex", new string[] { "path" })]
-    internal class FunctionGuiSetIndex : FunctionDefinition
+    [Function("HttpSetIndexPage", new string[] { "path" })]
+    internal class FunctionHttpSetIndexPage : FunctionDefinition
     {
         public override bool CallBase()
         {

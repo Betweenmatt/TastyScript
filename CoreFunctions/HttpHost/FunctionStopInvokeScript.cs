@@ -4,10 +4,10 @@ using TastyScript.IFunction.Attributes;
 using TastyScript.IFunction.Functions;
 using TastyScript.ParserManager;
 
-namespace TastyScript.CoreFunctions.Gui
+namespace TastyScript.CoreFunctions.HttpHost
 {
-    [Function("StopInvoke")]
-    internal class FunctionStopInvoke : FunctionDefinition
+    [Function("StopInvokeScript")]
+    public class FunctionStopInvokeScript : FunctionDefinition
     {
         public override bool CallBase()
         {

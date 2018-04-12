@@ -56,7 +56,7 @@
     <Compile Include="FunctionAppPackage.cs" />
     <Compile Include="FunctionCheckScreen.cs" />
     <Compile Include="FunctionConnectDevice.cs" />
-    <Compile Include="Gui\FunctionStdOut.cs" />
+    <Compile Include="HttpHost\FunctionStdOut.cs" />
     <Compile Include="Internal\FunctionIf.cs" />
     <Compile Include="FunctionImageLocation.cs" />
     <Compile Include="FunctionKeyEvent.cs" />
@@ -74,10 +74,10 @@
     <Compile Include="FunctionTakeScreenshot.cs" />
     <Compile Include="FunctionTimer.cs" />
     <Compile Include="FunctionTouch.cs" />
-    <Compile Include="Gui\FunctionGuiLoad.cs" />
-    <Compile Include="Gui\FunctionInvoke.cs" />
-    <Compile Include="Gui\FunctionStopInvoke.cs" />
-    <Compile Include="Gui\ServiceHandler.cs" />
+    <Compile Include="HttpHost\FunctionHttpStart.cs" />
+    <Compile Include="HttpHost\FunctionInvokeScript.cs" />
+    <Compile Include="HttpHost\FunctionStopInvokeScript.cs" />
+    <Compile Include="HttpHost\HttpServiceHandler.cs" />
     <Compile Include="Internal\FunctionBase.cs" />
     <Compile Include="Internal\FunctionBreak.cs" />
     <Compile Include="Internal\FunctionContinue.cs" />
