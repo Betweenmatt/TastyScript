@@ -67,9 +67,7 @@ namespace TastyScript.TSConsole
                     }
                 }catch(Exception e)
                 {
-                    Console.WriteLine(msg);
-                    Console.WriteLine(e);
-                    Console.ReadLine();
+                    Manager.ThrowSilent($"Unknown error writing to stdout: {e.Message}", ExceptionType.SystemException);
                 }
             }
             else

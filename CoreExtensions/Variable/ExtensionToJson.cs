@@ -26,6 +26,7 @@ namespace TastyScript.CoreExtensions.Variable
 
             var trim = inputAsTobj.ToString();
             trim = trim.Substring(1, trim.Length - 2);
+            trim = JsonConvert.ToString(trim);
             int level = 0;
             string output = "{";
 
@@ -70,7 +71,7 @@ namespace TastyScript.CoreExtensions.Variable
             }
             catch
             {
-                Manager.Throw("There was an error converting tojson, please double check your arrays!");
+                Manager.Throw($"There was an error converting tojson, please double check your arrays!:\n{output}");
             }
             if (pretty)
             {

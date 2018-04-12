@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading;
 using TastyScript.ParserManager;
 using TastyScript.ParserManager.Driver.Android;
@@ -33,10 +34,11 @@ namespace TastyScript.TastyScript
                 var file = Utilities.GetFileFromPath(path);
                 Manager.SleepDefaultTime = 1200;
                 Manager.IsScriptStopping = false;
-                Thread esc = new Thread(ListenForEscape);
+                CancellationTokenSource source = new CancellationTokenSource();
+                Thread esc = new Thread(()=> { ListenForEscape(source.Token); });
                 esc.Start();
                 StartScript(path, file);
-
+                source.Cancel();
             }
             catch (Exception e)
             {
@@ -46,13 +48,22 @@ namespace TastyScript.TastyScript
                 {
                     Manager.ExceptionHandler.LogThrow("Unexpected error", e);
                 }
-                Console.WriteLine(e);
+                //Console.WriteLine(e);
             }
         }
-        public static void ListenForEscape()
+        public static void ListenForEscape(CancellationToken _cancelSource)
         {
             Manager.Print("Press ENTER to stop");
-            Console.ReadLine();
+            
+            var r = Reader.ReadLine(_cancelSource);
+
+            //halt the script running in a child process
+            if (Manager.GuiInvokeProcess != null)
+            {
+                StreamWriter streamWriter = Manager.GuiInvokeProcess.StandardInput;
+                streamWriter.WriteLine("");
+                //Manager.GuiInvokeProcess.Kill();
+            }
             if (!Manager.IsScriptStopping)
             {
                 SendStopScript();
@@ -63,6 +74,7 @@ namespace TastyScript.TastyScript
         {
             try
             {
+                
                 //halt the script
                 Manager.IsScriptStopping = true;
                 Manager.Print("\nScript execution is halting. Please wait.\n", ConsoleColor.Yellow);

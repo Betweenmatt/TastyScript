@@ -17,6 +17,7 @@ namespace TastyScript.TastyScript
             Manager.ExceptionHandler = new ExceptionHandler();
             Manager.Driver = new AndroidDriver();
             Manager.Init(new IOStream());
+            
             string run = "";
             try
             {
@@ -38,6 +39,9 @@ namespace TastyScript.TastyScript
                     {
                         if (args.ElementAtOrDefault(i + 1) != null && args[i + 1] != "")
                             Manager.Driver.Connect(args[i + 1]);
+                    }else if(args[i] == "-a")
+                    {
+                        Manager.StartArgs = args[i + 1].Split(',');
                     }
                     else if (args[i] == "-e")
                     {
@@ -49,7 +53,7 @@ namespace TastyScript.TastyScript
             }
             catch
             {
-                Console.WriteLine("Unknown error parsing arguments.");
+                Console.WriteLine($"Unknown error parsing arguments: [{string.Join(",", args)}]");
                 return;
             }
             if(run == "")

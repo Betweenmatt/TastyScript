@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
 using System.Threading;
 using TastyScript.ParserManager.Driver;
@@ -26,6 +27,10 @@ namespace TastyScript.ParserManager
             }
         }
         public static CancellationTokenSource CancellationTokenSource;
+
+        public static string[] StartArgs = new string[] { };
+
+        public static Process GuiInvokeProcess;
         
         public static LoopTracerList LoopTracerStack;
 

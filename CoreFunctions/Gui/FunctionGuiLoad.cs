@@ -3,6 +3,7 @@ using System;
 using TastyScript.IFunction.Attributes;
 using TastyScript.IFunction.Functions;
 using TastyScript.ParserManager;
+using TastyScript.ParserManager.IOStream;
 
 namespace TastyScript.CoreFunctions.Gui
 {
@@ -22,7 +23,7 @@ namespace TastyScript.CoreFunctions.Gui
                 }
                 host.Start();
                 Console.WriteLine($"Running on {uri}");
-                Console.ReadLine();
+                Reader.ReadLine(Manager.CancellationTokenSource.Token);
             }
             return true;
         }

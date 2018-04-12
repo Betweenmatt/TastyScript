@@ -2,6 +2,7 @@
 using System.IO;
 using TastyScript.IFunction.Attributes;
 using TastyScript.IFunction.Functions;
+using TastyScript.ParserManager;
 
 namespace TastyScript.CoreFunctions.Gui
 {
@@ -10,7 +11,7 @@ namespace TastyScript.CoreFunctions.Gui
     {
         public override bool CallBase()
         {
-            StreamWriter streamWriter = FunctionInvoke.process.StandardInput;
+            StreamWriter streamWriter = Manager.GuiInvokeProcess.StandardInput;
             streamWriter.WriteLine("");
             return true;
         }

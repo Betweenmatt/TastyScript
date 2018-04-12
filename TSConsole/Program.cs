@@ -90,12 +90,14 @@ namespace TastyScript.TSConsole
                         break;
                     case ("-r"):
                     case ("run"):
+                        var waitcancel = new CancellationTokenSource();
                         Thread th = new Thread(() =>
                         {
                             StartProcess(userInput);
+                            waitcancel.Cancel();
                         });
                         th.Start();
-                        Console.ReadLine();
+                        Reader.ReadLine(waitcancel.Token);
                         StreamWriter myStreamWriter = process.StandardInput;
                         myStreamWriter.WriteLine("");
                         process.WaitForExit();
@@ -127,7 +129,7 @@ namespace TastyScript.TSConsole
 
             // Setup executable and parameters
             process.StartInfo.FileName = AppDomain.CurrentDomain.BaseDirectory + "TastyScript.exe";
-            process.StartInfo.Arguments = $"-r {r} -d {Settings.QuickDirectory} -ll {Settings.LogLevel} -c {Manager.Driver.GetName()}";
+            process.StartInfo.Arguments = $"-r {r} -d \"{Settings.QuickDirectory}\" -ll {Settings.LogLevel} -c \"{Manager.Driver.GetName()}\"";
 
             // Go
             process.Start();

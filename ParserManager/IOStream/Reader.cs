@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -40,14 +41,26 @@ namespace TastyScript.ParserManager.IOStream
         // omit the parameter to read a line without a timeout
         public static string ReadLine(CancellationToken token, int timeOutMillisecs = Timeout.Infinite)
         {
-            getInput.Set();
-            //bool success = gotInput.WaitOne(timeOutMillisecs);
-            bool success = gotInput.WaitOne(token);
-            //bool suc = _cancelToken.WaitHandle.WaitOne(timeOutMillisecs);
-            if (success)
-                return input;
-            else
-                throw new TimeoutException("User did not provide input within the timelimit.");
+            try
+            {
+                getInput.Set();
+                //bool success = gotInput.WaitOne(timeOutMillisecs);
+                bool success = gotInput.WaitOne(token);
+                //bool suc = _cancelToken.WaitHandle.WaitOne(timeOutMillisecs);
+                if (success)
+                    return input;
+                else
+                    throw new TimeoutException("User did not provide input within the timelimit.");
+            }
+            catch (OperationCanceledException e)
+            {
+                Debug.WriteLine("[56]Operation cancelled");
+            }
+            catch(TimeoutException e)
+            {
+                Debug.WriteLine("[60]Timeout reached");
+            }
+            return string.Empty;
         }
         public static void Poke()
         {
