@@ -20,54 +20,52 @@ namespace TastyScript.ParserManager.Driver.Android
         public string ScreenWidth { get; private set; }
         public string ScreenHeight { get; private set; }
 
+        public string Connect()
+        {
+            try
+            {
+                Device = AdbClient.Instance.GetDevices().FirstOrDefault();
+            }
+            catch
+            {
+                Manager.Throw($"There was an error with the driver. Make sure ADB has been started, and your device is connected!");
+                return "";
+            }
+            if (Device == null)
+            {
+                Manager.Throw($"The device could not be found. Make sure your adb client is loaded!\n Type the command 'devices' to see all the connected devices");
+                return "";
+            }
+            FetchDeviceData();
+            Manager.Print($"The first device found has been connected", ConsoleColor.DarkGreen);
+            //if (Main.IsConsole)
+            //    Console.Title = Main.Title + $" | Device {Device.Serial}";
+            Manager.IOStream.ChangeConsoleTitle($"Device: {Device.Serial}");
+            _cancelationToken = new CancellationTokenSource();
+            return Device.Serial;
+        }
         public string Connect(string input)
         {
-            if (input != "")
+            try
             {
-                try
-                {
-                    Device = AdbClient.Instance.GetDevices().FirstOrDefault(f => f.Serial == input);
-                    FetchDeviceData();
-                }
-                catch
-                {
-                    Manager.Throw($"There was an error with the driver. Make sure ADB has been started, and your device is connected!");
-                    return "";
-                }
-                if (Device == null)
-                {
-                    Manager.Throw($"The device {input} could not be found. Make sure your adb client is loaded!\n Type the command 'devices' to see all the connected devices");
-                    return "";
-                }
-                Manager.Print($"Device {input} has been connected", ConsoleColor.DarkGreen);
-                //if(Main.IsConsole)
-                //    Console.Title = Main.Title + $" | Device {Device.Serial}";
-                Manager.IOStream.ChangeConsoleTitle($"Device: {Device.Serial}");
-                _cancelationToken = new CancellationTokenSource();
+                Device = AdbClient.Instance.GetDevices().FirstOrDefault(f => f.Serial == input);
             }
-            else
+            catch
             {
-                try
-                {
-                    Device = AdbClient.Instance.GetDevices().FirstOrDefault();
-                    FetchDeviceData();
-                }
-                catch
-                {
-                    Manager.Throw($"There was an error with the driver. Make sure ADB has been started, and your device is connected!");
-                    return "";
-                }
-                if (Device == null)
-                {
-                    Manager.Throw($"The device could not be found. Make sure your adb client is loaded!\n Type the command 'devices' to see all the connected devices");
-                    return "";
-                }
-                Manager.Print($"The first device found has been connected", ConsoleColor.DarkGreen);
-                //if (Main.IsConsole)
-                //    Console.Title = Main.Title + $" | Device {Device.Serial}";
-                Manager.IOStream.ChangeConsoleTitle($"Device: {Device.Serial}");
-                _cancelationToken = new CancellationTokenSource();
+                Manager.Throw($"There was an error with the driver. Make sure ADB has been started, and your device is connected!");
+                return "";
             }
+            if (Device == null)
+            {
+                Manager.Throw($"The device {input} could not be found. Make sure your adb client is loaded!\n Type the command 'devices' to see all the connected devices");
+                return "";
+            }
+            FetchDeviceData();
+            Manager.Print($"Device {input} has been connected", ConsoleColor.DarkGreen);
+            //if(Main.IsConsole)
+            //    Console.Title = Main.Title + $" | Device {Device.Serial}";
+            Manager.IOStream.ChangeConsoleTitle($"Device: {Device.Serial}");
+            _cancelationToken = new CancellationTokenSource();
             return Device.Serial;
         }
         public bool IsConnected()

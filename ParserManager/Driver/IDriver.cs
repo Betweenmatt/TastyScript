@@ -12,6 +12,7 @@ namespace TastyScript.ParserManager.Driver
         string SetAppPackage(string appPackage);
         void SendCommand(string cmd);
         Task<Image> GetScreenshot();
+        string Connect();
         string Connect(string input);
         string ScreenWidth { get; }
         string ScreenHeight { get; }

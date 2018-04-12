@@ -18,10 +18,8 @@ namespace TastyScript.IFunction
     {
         public static string GetScreenHeight() => Manager.Driver.ScreenHeight;
         public static string GetScreenWidth() => Manager.Driver.ScreenWidth;
-        public static string Connect(string i)
-        {
-            return Manager.Driver.Connect(i.UnCleanString());
-        }
+        public static string Connect() => Manager.Driver.Connect();
+        public static string Connect(string i) => Manager.Driver.Connect(i);
         public static void Tap(int x, int y)
         {
             Manager.Driver.SendCommand($"input tap {x} {y}");

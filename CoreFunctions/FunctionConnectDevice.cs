@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TastyScript.IFunction;
+﻿using TastyScript.IFunction;
 using TastyScript.IFunction.Attributes;
 using TastyScript.IFunction.Extension;
 using TastyScript.IFunction.Tokens;
@@ -17,12 +12,13 @@ namespace TastyScript.CoreFunctions
     {
         public override bool CallBase()
         {
-            var print = "";
             var argsList = ProvidedArgs.First("serial");
-            if (argsList != null)
-                print = argsList.ToString();
-            var dev = Commands.Connect(print);
-            ReturnBubble = new Token("serial", dev, "");
+            string device = "";
+            if (argsList?.ToString() == null || argsList.ToString() == "" || argsList.ToString() == "null")
+                device = Commands.Connect();
+            else
+                device = Commands.Connect(argsList.ToString().UnCleanString());
+            ReturnBubble = new Token("serial", device, "");
             return true;
         }
         protected override void ForExtension(TFunction caller, BaseExtension findFor)
