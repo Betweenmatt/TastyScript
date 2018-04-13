@@ -9,7 +9,7 @@ using TastyScript.IFunction.Tokens;
 using TastyScript.ParserManager;
 using TastyScript.IFunction.Containers;
 
-namespace TastyScript.CoreFunctions.Gui
+namespace TastyScript.CoreFunctions.HttpHost
 {
     class HttpServiceHandler
     {

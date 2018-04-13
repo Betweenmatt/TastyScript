@@ -41,13 +41,7 @@ namespace TastyScript.IFunction.Functions
         public sealed override void TryParse(TFunction caller)
         {
             ResetReturn();
-            if (caller != null)
-            {
-                SetBlindExecute(caller.BlindExecute);
-                Tracer = caller.Tracer;
-                Caller = caller;
-                Extensions = caller.Extensions;
-            }
+            InheritCaller(caller);
             var findFor = Extensions.First("For");
             if (findFor != null)
             {
@@ -79,13 +73,7 @@ namespace TastyScript.IFunction.Functions
         public sealed override void TryParse(TFunction caller, bool forFlag)
         {
             ResetReturn();
-            if (caller != null)
-            {
-                SetBlindExecute(caller.BlindExecute);
-                Tracer = caller.Tracer;
-                Caller = caller;
-                Extensions = caller.Extensions;
-            }
+            InheritCaller(caller);
             if (caller != null && caller.Arguments != null && ExpectedArgs != null && ExpectedArgs.Length > 0)
             {
                 ProvidedArgs = new TokenList();

@@ -16,7 +16,7 @@ namespace TastyScript.CoreFunctions.HttpHost
             var uri = ProvidedArgs.First("uri");
             using (var host = new NancyHost(new Uri(uri.ToString())))
             {
-                if(ServiceHandler.IndexPath == "")
+                if(HttpServiceHandler.IndexPath == "")
                 {
                     Console.WriteLine("index is not set");
                     return true;
@@ -34,7 +34,7 @@ namespace TastyScript.CoreFunctions.HttpHost
         public override bool CallBase()
         {
             var args = ProvidedArgs.First("path");
-            ServiceHandler.IndexPath = args.ToString().UnCleanString();
+            HttpServiceHandler.IndexPath = args.ToString().UnCleanString();
             return true;
         }
     }

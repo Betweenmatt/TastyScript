@@ -166,12 +166,7 @@ namespace TastyScript.TastyScript.Parser
         public override void TryParse(TFunction caller)
         {
             ResetReturn();
-            if (caller != null)
-            {
-                IsBlindExecute = caller.BlindExecute;
-                Tracer = caller.Tracer;
-                Caller = caller;
-            }
+            InheritCaller(caller, true);
             var findFor = Extensions.First("For");
             if (findFor != null)
             {
@@ -210,12 +205,7 @@ namespace TastyScript.TastyScript.Parser
         public override void TryParse(TFunction caller, bool forFlag)
         {
             ResetReturn();
-            if (caller != null)
-            {
-                IsBlindExecute = caller.BlindExecute;
-                Tracer = caller.Tracer;
-                Caller = caller;
-            }
+            InheritCaller(caller, true);
             //combine expected args and given args and add them to variabel pool
             if (caller != null && caller.Arguments != null && ExpectedArgs != null && ExpectedArgs.Length > 0)
             {

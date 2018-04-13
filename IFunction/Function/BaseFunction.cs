@@ -124,14 +124,45 @@ namespace TastyScript.IFunction.Function
                 Manager.Throw($"Cannot override function [{func.Name}] because it is sealed.");
             Base = func;
         }
+        /// <summary>
+        /// Inherit the required information from caller like the loop tracer and blind execute.
+        /// Also inherits variables on invoked functions
+        /// </summary>
+        /// <param name="caller"></param>
+        protected void InheritCaller(TFunction caller, bool test = false)
+        {
+            if (caller != null)
+            {
+                invokeProperties = new string[] { };
+                SetBlindExecute(caller.BlindExecute);
+                Tracer = caller.Tracer;
+                Caller = caller;
+                if(!test)
+                    Extensions = caller.Extensions;
+                if (caller.CallingFunction.IsInvoking)
+                {/*
+                    List<Token> vars = caller.CallingFunction.Caller.CallingFunction.LocalVariables.List;
+                    List<Token> prov = caller.CallingFunction.Caller.CallingFunction.ProvidedArgs.List;
+                    LocalVariables = new TokenList();
+                    vars.RemoveAll(r => r.Name == "");
+                    prov.RemoveAll(r => r.Name == "");
+                    LocalVariables.AddRange(vars);
+                    LocalVariables.AddRange(prov);*/
+                }
+            }
+        }
+        [Obsolete]
         public void SetInvokeProperties(string[] args, List<Token> vars, List<Token> oldargs)
         {
+            Console.WriteLine("SetInvokeProperties");
+            
             invokeProperties = args;
             LocalVariables = new TokenList();
             vars.RemoveAll(r => r.Name == "");
             oldargs.RemoveAll(r => r.Name == "");
             LocalVariables.AddRange(vars);
             LocalVariables.AddRange(oldargs);//add the parameters from the calling function to this functions local var stack
+            
         }
         public void SetProperties(string name, string[] args, bool invoking, bool isSealed, bool obsolete, string[] alias, bool anon)
         {
