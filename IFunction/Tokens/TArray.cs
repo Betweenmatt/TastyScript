@@ -17,25 +17,20 @@ namespace TastyScript.IFunction.Tokens
                 return ToString();
             }
         }
-        public TArray(string name, string[] val, string line, bool locked = false)
+        public TArray(string name, string[] val, bool locked = false)
         {
             Name = name;
             _value = "<Type.TArray>";
             Arguments = val;
-            Line = line;
             IsLocked = locked;
         }
-        public TArray(string name, string val, string line, bool locked = false)
+        public TArray(string name, string val, bool locked = false)
+            : this(name, new string[] { }, locked)
         {
-            Name = name;
-            _value = "<Type.TArray>";
             Arguments = ReturnArgsArray(val.Substring(1, val.Length - 2));
-            Line = line;
-            IsLocked = locked;
         }
         public string[] Add(string s)
         {
-            //Arguments = (Arguments ?? Enumerable.Empty<string>()).Concat(Enumerable.Repeat(s, 1)).ToArray();
             if (Arguments == null || Arguments.Length < 1 || (Arguments.Length == 1 && Arguments[0] == ""))
                 Arguments = new string[] { s };
             else
@@ -60,7 +55,6 @@ namespace TastyScript.IFunction.Tokens
         {
             if (args == null)
                 return new string[] { };
-            //Console.WriteLine(Arguments);
             var output = args;
             var index = 0;
             Dictionary<string, string> stringParts = new Dictionary<string, string>();
@@ -88,7 +82,6 @@ namespace TastyScript.IFunction.Tokens
                 }
             }
             var splode = output.Split(',');
-            //List<string> returnParens = new List<string>();
 
             for (var i = 0; i < splode.Length; i++)
             {

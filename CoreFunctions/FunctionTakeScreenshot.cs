@@ -29,10 +29,10 @@ namespace TastyScript.CoreFunctions
             catch
             {
                 Manager.ThrowSilent($"Unexpected error saving screenshot to path {path.ToString()}");
-                ReturnBubble = new Token("bool", "null", "");
+                ReturnBubble = new Token("bool", "null");
                 return true;
             }
-            ReturnBubble = new Token("bool", path.ToString(), "");
+            ReturnBubble = new Token("bool", path.ToString());
             return true;
         }
     }

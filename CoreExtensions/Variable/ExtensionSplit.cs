@@ -22,13 +22,13 @@ namespace TastyScript.CoreExtensions.Variable
                 //Compiler.ExceptionListener.Throw($"{this.Name} arguments cannot be null.",
                 //  ExceptionType.CompilerException, input.Line);
                 var outstr = input.Value.UnCleanString().ToCharArray().Select(c => c.ToString()).ToArray();
-                var outtok = new TArray("AnonArr", outstr, input.Line);
+                var outtok = new TArray("AnonArr", outstr);
                 return outtok;
             }
             else
             {
                 var outstr = input.Value.Split(new string[] { args[0] }, StringSplitOptions.None);
-                var outtok = new TArray("AnonArr", outstr, input.Line);
+                var outtok = new TArray("AnonArr", outstr);
                 return outtok;
             }
         }

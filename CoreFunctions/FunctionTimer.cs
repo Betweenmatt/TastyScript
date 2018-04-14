@@ -62,7 +62,7 @@ namespace TastyScript.CoreFunctions
                         output = _watch.ElapsedTicks;   
                 }
 
-                ReturnBubble = new Token("timems", output.ToString(), Caller.Line);
+                ReturnBubble = new Token("timems", output.ToString());
             }
             return true;
         }

@@ -18,7 +18,7 @@ namespace TastyScript.CoreExtensions.Variable
             if (args == null || args.ElementAtOrDefault(0) == null)
                 Manager.Throw($"{this.Name} arguments cannot be null.");
 
-            var inputAsTobj = new TArray("arr", input.Value, input.Line);
+            var inputAsTobj = new TArray("arr", input.Value);
             if (inputAsTobj == null)
                 Manager.Throw($"Cannot find Token [{input.Name}]");
 
@@ -26,7 +26,7 @@ namespace TastyScript.CoreExtensions.Variable
             if (ele == null)
                 Manager.Throw($"The element [{args[0]}] does not exist in this collection.");
 
-            return new Token("index", Array.IndexOf(inputAsTobj.Arguments,args[0]).ToString(), input.Line);
+            return new Token("index", Array.IndexOf(inputAsTobj.Arguments, args[0]).ToString());
         }
     }
 }

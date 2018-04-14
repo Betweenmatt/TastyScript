@@ -48,15 +48,15 @@ namespace TastyScript.TastyScript
             GlobalVariableStack.Clear();
             GlobalVariableStack.AddRange(new List<Token>()
             {
-            new Token("DateTime",()=>{return DateTime.Now.ToString(); }, "{0}", locked:true),
-            new Token("Date",()=>{return DateTime.Now.ToShortDateString(); },"{0}", locked:true),
-            new Token("Time",()=>{return DateTime.Now.ToShortTimeString(); },"{0}", locked:true),
-            new TArray("GetVersion", StrVersion(),"{0}", locked:true),
-            new Token("null","null","{0}", locked:true),
-            new Token("True","True","{0}",locked:true),
-            new Token("true","true","{0}",locked:true),
-            new Token("False","False","{0}",locked:true),
-            new Token("false","false","{0}",locked:true)
+            new Token("DateTime",()=>{return DateTime.Now.ToString(); }, locked:true),
+            new Token("Date",()=>{return DateTime.Now.ToShortDateString(); },locked:true),
+            new Token("Time",()=>{return DateTime.Now.ToShortTimeString(); },locked:true),
+            new TArray("GetVersion", StrVersion(),locked:true),
+            new Token("null","null",locked:true),
+            new Token("True","True",locked:true),
+            new Token("true","true",locked:true),
+            new Token("False","False",locked:true),
+            new Token("false","false",locked:true)
             });
             StartParse();
         }

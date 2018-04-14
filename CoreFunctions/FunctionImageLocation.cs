@@ -31,12 +31,12 @@ namespace TastyScript.CoreFunctions
                 var ret = Commands.GetImageCoordinates(path.ToString(), prop);
                 if (ret == null)
                 {
-                    ReturnBubble = new Token("null", "null", "");
+                    ReturnBubble = new Token("null", "null");
                     return false;
                 }
                 string[] ouput = new string[] { ret[0].ToString(), ret[1].ToString() };
                 
-                    ReturnBubble = new TArray("arr", ouput, "");
+                    ReturnBubble = new TArray("arr", ouput);
             }
             catch (Exception e)
             {

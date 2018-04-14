@@ -19,7 +19,7 @@ namespace TastyScript.CoreFunctions
                 Throw($"Cannot set the app package without having a device connected. Please connect to a device first.");
                 return false;
             }
-            ReturnBubble = new IFunction.Tokens.Token("appPkg", Commands.SetAppPackage(print),"");
+            ReturnBubble = new IFunction.Tokens.Token("appPkg", Commands.SetAppPackage(print));
             return true;
         }
     }

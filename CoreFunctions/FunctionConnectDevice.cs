@@ -18,7 +18,7 @@ namespace TastyScript.CoreFunctions
                 device = Commands.Connect();
             else
                 device = Commands.Connect(argsList.ToString().UnCleanString());
-            ReturnBubble = new Token("serial", device, "");
+            ReturnBubble = new Token("serial", device);
             return true;
         }
         protected override void ForExtension(BaseExtension findFor)

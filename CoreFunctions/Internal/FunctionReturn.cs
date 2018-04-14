@@ -17,7 +17,7 @@ namespace TastyScript.CoreFunctions.Internal
             var argsList = ProvidedArgs.First("value");
             if (argsList == null)
             {
-                Caller.SetParentReturnToTopOfBubble(new Token("null", "null", ""));
+                Caller.SetParentReturnToTopOfBubble(new Token("null", "null"));
                 return true;
             }
             Caller.SetParentReturnToTopOfBubble(argsList);

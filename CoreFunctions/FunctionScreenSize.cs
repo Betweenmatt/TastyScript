@@ -16,7 +16,7 @@ namespace TastyScript.CoreFunctions
                 Manager.Throw("Cannot get screen size without a connected device");
                 return false;
             }
-            ReturnBubble = new TArray("ScreenSize", new string[] { Commands.GetScreenWidth(), Commands.GetScreenHeight() }, "{0}");
+            ReturnBubble = new TArray("ScreenSize", new string[] { Commands.GetScreenWidth(), Commands.GetScreenHeight() });
             return true;
         }
     }

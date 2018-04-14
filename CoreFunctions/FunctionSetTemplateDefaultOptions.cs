@@ -19,7 +19,7 @@ namespace TastyScript.CoreFunctions
                 Manager.Throw($"Arguments for {this.Name} must not be null");
                 return false;
             }
-            var args = new TArray("", arg.ToString(), "");
+            var args = new TArray("", arg.ToString());
             if (args.Arguments == null)
             {
                 Manager.Throw($"Arguments for {this.Name} must be an array");
@@ -28,7 +28,7 @@ namespace TastyScript.CoreFunctions
             var props = new List<string>();
             props.AddRange(args.Arguments);
             var ret = AnalyzeScreen.SetDefaultTemplateOptions(props.ToArray());
-            ReturnBubble = new TArray("templateOptions", ret, "");
+            ReturnBubble = new TArray("templateOptions", ret);
             return true;
         }
     }

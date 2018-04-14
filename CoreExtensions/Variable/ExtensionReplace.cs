@@ -21,7 +21,7 @@ namespace TastyScript.CoreExtensions.Variable
                 Manager.Throw($"{this.Name} requires 2 arguments");
 
             var outstr = input.Value.Replace(args[0], args[1]);
-            var outtok = new Token("AnonStr", outstr, input.Line);
+            var outtok = new Token("AnonStr", outstr);
             return outtok;
         }
     }

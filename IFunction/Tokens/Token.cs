@@ -22,7 +22,6 @@ namespace TastyScript.IFunction.Tokens
             }
         }
         public ExtensionList Extensions { get; set; }
-        public string Line { get; protected set; }
         public bool IsLocked { get; protected set; }
         protected Func<string> _action;
         /// <summary>
@@ -32,28 +31,20 @@ namespace TastyScript.IFunction.Tokens
         /// <param name="val"></param>
         /// <param name="line"></param>
         public Token() { }
-        public Token(string name, string val, string line, bool locked = false)
+        public Token(string name, string val, bool locked = false)
         {
             Name = name;
             _value = val;
-            Line = line;
             IsLocked = locked;
         }
-        public Token(string name, Func<string> action, string line, bool locked = false)
+        public Token(string name, Func<string> action, bool locked = false)
+            : this(name, "<Type.TAction>", locked)
         {
-            Name = name;
             _action = action;
-            _value = "<Type.TAction>";
-            Line = line;
-            IsLocked = locked;
         }
         public void SetValue(string value)
         {
             _value = value;
-        }
-        public void SetLine(string line)
-        {
-            Line = line;
         }
         public void SetName(string name)
         {

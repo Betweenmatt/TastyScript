@@ -14,8 +14,8 @@ namespace TastyScript.CoreExtensions.Variable
     {
         public override Token Extend(Token input)
         {
-            var inputAsTobj = new TArray("arr", input.Value, input.Line);
-            return new Token("leng", inputAsTobj.Arguments.Length.ToString(), input.Line);
+            var inputAsTobj = new TArray("arr", input.Value);
+            return new Token("leng", inputAsTobj.Arguments.Length.ToString());
         }
     }
 }

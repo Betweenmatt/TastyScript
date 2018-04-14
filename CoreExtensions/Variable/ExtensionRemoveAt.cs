@@ -23,7 +23,7 @@ namespace TastyScript.CoreExtensions.Variable
 
             if (input == null || input.Value == null)
                 Manager.Throw($"Extension cannot extend null.");
-            var inputAsTobj = new TArray("arr", input.Value, input.Line);
+            var inputAsTobj = new TArray("arr", input.Value);
             inputAsTobj.Remove(index);
             return inputAsTobj;
         }

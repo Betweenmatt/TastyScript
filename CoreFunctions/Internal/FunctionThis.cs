@@ -35,26 +35,26 @@ namespace TastyScript.CoreFunctions.Internal
                         List<string> output = new List<string>();
                         foreach (var x in Caller.GetParentExtension().List)
                             output.Add(x.Name);
-                        ReturnBubble = new TArray("arr", output.ToArray(), "");
+                        ReturnBubble = new TArray("arr", output.ToArray());
                         return true;
                     case ("UID")://ReadOnly
-                        ReturnBubble = new Token("uid", UID.ToString(), "");
+                        ReturnBubble = new Token("uid", UID.ToString());
                         return true;
                     case ("IsAnonymous")://ReadOnly
-                        ReturnBubble = new Token("isAnonymous", (IsAnonymous) ? "True" : "False", "");
+                        ReturnBubble = new Token("isAnonymous", (IsAnonymous) ? "True" : "False");
                         return true;
                     case ("IsOverride")://ReadOnly
-                        ReturnBubble = new Token("isOverride", (IsOverride) ? "True" : "False", "");
+                        ReturnBubble = new Token("isOverride", (IsOverride) ? "True" : "False");
                         return true;
                     case ("IsSealed")://ReadOnly
-                        ReturnBubble = new Token("isSealed", (IsSealed) ? "True" : "False", "");
+                        ReturnBubble = new Token("isSealed", (IsSealed) ? "True" : "False");
                         return true;
                     case ("IsObsolete")://ReadOnly
-                        ReturnBubble = new Token("isObsolete", (IsObsolete) ? "True" : "False", "");
+                        ReturnBubble = new Token("isObsolete", (IsObsolete) ? "True" : "False");
                         return true;
                     case ("Dynamic"):
                         var json = JsonConvert.SerializeObject(Caller.GetParentDynamicDictionary(), Formatting.Indented).CleanString();
-                        ReturnBubble = new Token("dict", json, "");
+                        ReturnBubble = new Token("dict", json);
                         return true;
                 }
             }
@@ -75,9 +75,9 @@ namespace TastyScript.CoreFunctions.Internal
                                     Manager.Throw("Prop 'Args' must have a second parameter");
                                 var get = Caller.GetParentExtension().First(sprop);
                                 if (get == null)
-                                    ReturnBubble = new Token("null", "null", "");
+                                    ReturnBubble = new Token("null", "null");
                                 else
-                                    ReturnBubble = new TArray("arr", get.Extend(Caller.ParentFunction), "");
+                                    ReturnBubble = new TArray("arr", get.Extend(Caller.ParentFunction));
                             }
                             return true;
                         case ("Dynamic"):
@@ -85,7 +85,7 @@ namespace TastyScript.CoreFunctions.Internal
                             {
                                 if (Caller.GetParentDynamicDictionary().ContainsKey(fprop))
                                 {
-                                    ReturnBubble = new Token("ret", Caller.GetParentDynamicDictionary()?[fprop]?.ToString().CleanString(),"");
+                                    ReturnBubble = new Token("ret", Caller.GetParentDynamicDictionary()?[fprop]?.ToString().CleanString());
                                 }
                                 else
                                 {

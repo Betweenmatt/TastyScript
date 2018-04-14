@@ -112,9 +112,9 @@ namespace TastyScript.IFunction.Function
                     {
                         var exp = ExpectedArgs[i].Replace("var ", "").Replace(" ", "");
                         if (args.ElementAtOrDefault(i) == null)
-                            ProvidedArgs.Add(new Token(exp, "null", ""));
+                            ProvidedArgs.Add(new Token(exp, "null"));
                         else
-                            ProvidedArgs.Add(new Token(exp, args[i],""));
+                            ProvidedArgs.Add(new Token(exp, args[i]));
                     }
                 }
             }

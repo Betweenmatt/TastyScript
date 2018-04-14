@@ -20,7 +20,7 @@ namespace TastyScript.CoreExtensions.Variable
                 if (args[0] == "True" || args[0] == "true")
                     pretty = true;
 
-            var inputAsTobj = new TArray("arr", input.Value, input.Line); ;
+            var inputAsTobj = new TArray("arr", input.Value); ;
             if (inputAsTobj == null)
                 Manager.Throw($"Cannot find Token [{input.Name}]");
 
@@ -80,7 +80,7 @@ namespace TastyScript.CoreExtensions.Variable
 
             output = output.UnCleanString().CleanString();
 
-            return new Token("json", output, "");
+            return new Token("json", output);
         }
     }
 }

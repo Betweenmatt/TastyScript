@@ -163,7 +163,7 @@ namespace TastyScript.TastyScript.Parser
             foreach (var x in strings)
             {
                 string tokenname = "{AnonGeneratedToken" + AnonymousTokenStack.AnonymousTokenIndex + "}";
-                var tstring = new Token(tokenname, Regex.Replace(x.ToString(), "\"", ""), Value);
+                var tstring = new Token(tokenname, Regex.Replace(x.ToString(), "\"", ""));
                 value = value.Replace(x.ToString(), tokenname);
 
                 AnonymousTokenStack.Add(tstring);
@@ -181,7 +181,7 @@ namespace TastyScript.TastyScript.Parser
                 var nofail = double.TryParse(x.ToString(), out output);
                 if (nofail)
                 {
-                    AnonymousTokenStack.Add(new Token(tokenname, output.ToString(), Value));
+                    AnonymousTokenStack.Add(new Token(tokenname, output.ToString()));
                     //do this regex instead of a blind replace to fix the above issue. 
                     //NOTE this fix may break decimal use in some situations!!!!
                     var indvRegex = (@"\b-*" + x + @"\b");
@@ -204,7 +204,7 @@ namespace TastyScript.TastyScript.Parser
                     double? exp = MathExpression(input);
                     if (exp == null)
                         return null;
-                    AnonymousTokenStack.Add(new Token(tokenname, exp.ToString(), Value));
+                    AnonymousTokenStack.Add(new Token(tokenname, exp.ToString()));
                     value = value.Replace(x.ToString(), tokenname);
                 }
             }
@@ -240,7 +240,7 @@ namespace TastyScript.TastyScript.Parser
                 var compCheck = ComparisonCheck(param);
                 if (compCheck != "")
                 {
-                    AnonymousTokenStack.Add(new Token(tokenname, compCheck, val));
+                    AnonymousTokenStack.Add(new Token(tokenname, compCheck));
                 }
                 else
                 {
@@ -258,7 +258,7 @@ namespace TastyScript.TastyScript.Parser
                         }
                         param = string.Join(",", commaSplit);
                     }
-                    AnonymousTokenStack.Add(new Token(tokenname, param, val));
+                    AnonymousTokenStack.Add(new Token(tokenname, param));
                 }
                 val = val.Replace(a.ToString(), "->" + tokenname + "|");
             }
@@ -296,7 +296,7 @@ namespace TastyScript.TastyScript.Parser
                     var compCheck = ComparisonCheck(param);
                     if (compCheck != "")
                     {
-                        AnonymousTokenStack.Add(new Token(tokenname, compCheck, val));
+                        AnonymousTokenStack.Add(new Token(tokenname, compCheck));
                     }
                     else
                     {
@@ -314,7 +314,7 @@ namespace TastyScript.TastyScript.Parser
                             }
                             param = string.Join(",", commaSplit);
                         }
-                        AnonymousTokenStack.Add(new TArray(tokenname, commaSplit, val));
+                        AnonymousTokenStack.Add(new TArray(tokenname, commaSplit));
                     }
                     val = val.Replace(a.ToString(), "" + tokenname + "");
                 }
@@ -442,19 +442,19 @@ namespace TastyScript.TastyScript.Parser
                 var tryParams = _reference.ProvidedArgs.First(stripws);
                 if (tryParams != null)
                 {
-                    temp.Add(new Token(stripws, tryParams.ToString(), Value));
+                    temp.Add(new Token(stripws, tryParams.ToString()));
                     continue;
                 }
                 var tryLocal = _reference.LocalVariables.First(stripws);
                 if (tryLocal != null)
                 {
-                    temp.Add(new Token(stripws, tryLocal.ToString(), Value));
+                    temp.Add(new Token(stripws, tryLocal.ToString()));
                     continue;
                 }
                 var tryGlobal = GlobalVariableStack.First(stripws);
                 if (tryGlobal != null)
                 {
-                    temp.Add(new Token(stripws, tryGlobal.ToString(), Value));
+                    temp.Add(new Token(stripws, tryGlobal.ToString()));
                     continue;
                 }
                 if (stripws.Contains("{AnonGeneratedToken"))
@@ -462,7 +462,7 @@ namespace TastyScript.TastyScript.Parser
                     var tryAnon = AnonymousTokenStack.First(stripws);
                     if (tryAnon != null)
                     {
-                        temp.Add(new Token(stripws, tryAnon.ToString(), Value));
+                        temp.Add(new Token(stripws, tryAnon.ToString()));
                         continue;
                     }
                     else
@@ -477,11 +477,11 @@ namespace TastyScript.TastyScript.Parser
                     double number = 0;
                     bool isNumeric = double.TryParse(stripws, out number);
                     if (isNumeric)
-                        temp.Add(new Token(stripws, stripws, Value));
+                        temp.Add(new Token(stripws, stripws));
                     else if (stripws.Contains("\""))
-                        temp.Add(new Token(stripws, stripws, Value));
+                        temp.Add(new Token(stripws, stripws));
                     else
-                        temp.Add(new Token(stripws, "null", Value));
+                        temp.Add(new Token(stripws, "null"));
                 }
             }
 
@@ -805,7 +805,7 @@ namespace TastyScript.TastyScript.Parser
                 }
                 output += ntoken.ToString();
             }
-            token = new Token("concatination", output, Value);
+            token = new Token("concatination", output);
             rightHand = output;
             //}
             if (token == null)
@@ -856,7 +856,7 @@ namespace TastyScript.TastyScript.Parser
                     varRef.SetValue(token.ToString());
                 }
                 else
-                    varList.Add(new Token(leftHand, token.ToString(), Value));
+                    varList.Add(new Token(leftHand, token.ToString()));
                 return "";
             }
             Manager.Throw("[330]Unknown error with assignment.", ExceptionType.SyntaxException);

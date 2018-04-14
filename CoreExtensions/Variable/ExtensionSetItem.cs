@@ -30,7 +30,7 @@ namespace TastyScript.CoreExtensions.Variable
                     Manager.Throw($"{this.Name} arguments must be a whole number.");
             }
 
-            var inputAsTobj = new TArray("arr", input.Value, input.Line); ;
+            var inputAsTobj = new TArray("arr", input.Value); ;
             if (inputAsTobj == null)
                 Manager.Throw($"Cannot find Token [{input.Name}]");
             if (index == -1)

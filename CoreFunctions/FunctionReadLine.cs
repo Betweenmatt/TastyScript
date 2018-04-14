@@ -11,7 +11,7 @@ namespace TastyScript.CoreFunctions
         public override bool CallBase()
         {
             string input = Manager.ReadLine();
-            ReturnBubble = new Token("readline", input, "");
+            ReturnBubble = new Token("readline", input);
             return true;
         }
     }
