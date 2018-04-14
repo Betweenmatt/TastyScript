@@ -872,9 +872,10 @@ namespace TastyScript.TastyScript.Parser
                     if (_reference.Tracer == null || (!_reference.Tracer.Continue && !_reference.Tracer.Break))
                         return TryParseMember(t);
                 }
-                else if (Manager.IsScriptStopping && _reference.IsBlindExecute)
+                else if (_reference.IsBlindExecute)
                 {
-                    return TryParseMember(t);
+                    if (_reference.Tracer == null || (!_reference.Tracer.Continue && !_reference.Tracer.Break))
+                        return TryParseMember(t);
                 }
             }
             return null;

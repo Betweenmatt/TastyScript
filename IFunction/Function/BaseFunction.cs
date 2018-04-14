@@ -60,7 +60,7 @@ namespace TastyScript.IFunction.Function
         /// </summary>
         protected string[] InvokeProperties;
         public bool IsAnonymous { get; protected set; }
-        public bool IsBlindExecute { get; protected set; }
+        public bool IsBlindExecute { get; private set; }
         public bool IsInvoking { get; private set; }
         public bool IsLocked { get; private set; }
         public bool IsLoop { get; protected set; }
@@ -81,7 +81,7 @@ namespace TastyScript.IFunction.Function
         protected abstract void TryParse();
         protected abstract void TryParse(bool forFlag);
 
-        public void TryParse(CallerInheritObject inherit)
+        internal void TryParse(CallerInheritObject inherit)
         {
             InheritCaller(inherit);
             TryParse();
@@ -91,7 +91,7 @@ namespace TastyScript.IFunction.Function
          /// You should be using the overload with no parameters!
          /// </summary>
          /// <param name="forFlag"></param>
-        public void TryParse(CallerInheritObject inherit, bool forFlag)
+        internal void TryParse(CallerInheritObject inherit, bool forFlag)
         {
             InheritCaller(inherit);
             TryParse(forFlag);
@@ -167,26 +167,23 @@ namespace TastyScript.IFunction.Function
         {
             ReturnBubble = null;
             ReturnFlag = false;
-            if (inherit != null)
+            InvokeProperties = inherit.InvokeProperties;
+            Tracer = inherit.Tracer;
+            Caller = inherit.Caller;
+            Extensions = inherit.Extensions;
+            IsBlindExecute = Caller.IsParentBlindExecute();
+            if (Caller.IsParentInvoking())
             {
-                InvokeProperties = inherit.InvokeProperties;
-                //IsBlindExecute = caller.BlindExecute;
-                Tracer = inherit.Tracer;
-                Caller = inherit.Caller;
-                Extensions = inherit.Extensions;
-                IsBlindExecute = Caller.IsParentBlindExecute();
-                if (Caller.IsParentInvoking())
-                {
-                    List<Token> vars = Caller.GetParentOfParentLocalVariables()?.List ?? new List<Token>();
-                    List<Token> prov = Caller.GetParentOfParentLocalArguments()?.List ?? new List<Token>();
-                    LocalVariables = new TokenList();
-                    vars.RemoveAll(r => r.Name == "");
-                    prov.RemoveAll(r => r.Name == "");
-                    LocalVariables.AddRange(vars);
-                    LocalVariables.AddRange(prov);
-                }
+                List<Token> vars = Caller.GetParentOfParentLocalVariables()?.List ?? new List<Token>();
+                List<Token> prov = Caller.GetParentOfParentLocalArguments()?.List ?? new List<Token>();
+                LocalVariables = new TokenList();
+                vars.RemoveAll(r => r.Name == "");
+                prov.RemoveAll(r => r.Name == "");
+                LocalVariables.AddRange(vars);
+                LocalVariables.AddRange(prov);
             }
         }
+        
         public void SetProperties(string name, string[] args, bool invoking, bool isSealed, bool obsolete, string[] alias, bool anon)
         {
             Name = name;

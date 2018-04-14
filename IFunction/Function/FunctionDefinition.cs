@@ -72,7 +72,8 @@ namespace TastyScript.IFunction.Functions
 
                 else if (Manager.IsScriptStopping && IsBlindExecute)
                 {
-                    return CallBase();
+                    if (Tracer == null || (!Tracer.Continue && !Tracer.Break))
+                        return CallBase();
                 }
             }
             return false;

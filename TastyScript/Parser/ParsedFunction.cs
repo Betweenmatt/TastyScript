@@ -180,7 +180,7 @@ namespace TastyScript.TastyScript.Parser
             var guts = Value.Split('{')[1].Split('}');
             var lines = guts[0].Split(';');
             foreach (var l in lines)
-                if (!Manager.IsScriptStopping && !ReturnFlag)
+                if ((!Manager.IsScriptStopping || IsBlindExecute) && !ReturnFlag)
                     new Line(l, this);
             //clear local var stack after use
             LocalVariables = new TokenList();

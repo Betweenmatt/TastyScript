@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using TastyScript.IFunction.Containers;
 using TastyScript.IFunction.Function;
@@ -98,13 +99,12 @@ namespace TastyScript.IFunction.Tokens
 
         public bool IsParentInvoking() => IsParentNull() ? false : ParentFunction.IsInvoking;
 
-        public bool IsParentBlindExecute() => IsParentNull() ? false : ParentFunction.IsBlindExecute;
+        public bool IsParentBlindExecute() => IsParentNull() ? Function.IsBlindExecute : ParentFunction.IsBlindExecute;
 
         /// <summary>
         /// This redirect is when the called function is `Base` and needs to be redirected
         /// to the base of the parent function
         /// </summary>
-        /// <param name="b"></param>
         public void RedirectFunctionToParentBase() => Function = ParentFunction.Base;
 
         public void RedirectFunctionToNewFunction(BaseFunction func) => Function = func;
@@ -171,10 +171,10 @@ namespace TastyScript.IFunction.Tokens
     //the called function.
     public class CallerInheritObject
     {
-        public TFunction Caller;
-        public LoopTracer Tracer;
-        public ExtensionList Extensions;
-        public string[] InvokeProperties;
+        public TFunction Caller { get; }
+        public LoopTracer Tracer { get; }
+        public ExtensionList Extensions { get; }
+        public string[] InvokeProperties { get; }
 
         public CallerInheritObject(TFunction caller, LoopTracer tracer, ExtensionList extensions, string[] invokeProperties)
         {
