@@ -63,6 +63,7 @@ namespace TastyScript.TastyScript.Parser
             }
             Value = value;
             Name = "AnonymousFunction" + Manager.AnonymousFunctionIndex;
+            Manager.AnonymousFunctionValueHolder.Add(new ParserManager.ExceptionHandler.AnonymousFunctionValueHolder(Name, Value));
             ExpectedArgs = value.Split('(')[1].Split(')')[0].Split(',');
             ParseDirectives(value);
             //Name = value.Split('.')[1].Split('(')[0];

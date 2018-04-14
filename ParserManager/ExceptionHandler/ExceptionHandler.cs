@@ -115,10 +115,11 @@ namespace TastyScript.ParserManager.ExceptionHandler
             string line = Manager.CurrentParsedLine;
             if (line != null && line.Contains("AnonymousFunction"))
             {
-                var anonlist = Manager.AnonymousFunctionValueHolder.Where(w => w.Name.Contains("AnonymousFunction"));
+                var anonlist = Manager.AnonymousFunctionValueHolder;
                 foreach (var x in anonlist)
                 {
-                    line = line.Replace("\"" + x.Name + "\"", "=" + x.Value);
+                    if (line.Contains(x.Name))
+                        line = line.Replace("\"" + x.Name + "\"", "=" + x.Value);
                 }
             }
             Snippet = line;
@@ -154,6 +155,11 @@ namespace TastyScript.ParserManager.ExceptionHandler
     {
         public string Name { get; }
         public string Value { get; }
+        public AnonymousFunctionValueHolder(string name, string value)
+        {
+            Name = name;
+            Value = value;
+        }
     }
     public class TryCatchStack
     {
