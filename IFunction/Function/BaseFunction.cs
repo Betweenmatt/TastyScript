@@ -19,8 +19,6 @@ namespace TastyScript.IFunction.Function
         {
             get
             {
-                //if (IsAnonymous)
-                //    return Caller.CallingFunction.Base;
                 return _base;
             }
             protected set
@@ -28,7 +26,6 @@ namespace TastyScript.IFunction.Function
                 _base = value;
             }
         }
-        //public TFunctionOld Caller { get; protected set; }
         public TFunction Caller { get; protected set; }
         public Dictionary<string, string> Directives { get; protected set; }
         public string[] ExpectedArgs { get; protected set; }
@@ -58,12 +55,12 @@ namespace TastyScript.IFunction.Function
             }
         }
         
-        [Obsolete("Still trying to figure out why i implemented this")]
+        /// <summary>
+        /// Properties that are included in anonymous functions. In most cases this will be an empty array
+        /// </summary>
         protected string[] InvokeProperties;
         public bool IsAnonymous { get; protected set; }
         public bool IsBlindExecute { get; protected set; }
-        [Obsolete]
-        public bool IsGui { get; protected set; }
         public bool IsInvoking { get; private set; }
         public bool IsLocked { get; private set; }
         public bool IsLoop { get; protected set; }
@@ -80,11 +77,6 @@ namespace TastyScript.IFunction.Function
         private static int _uidIndex = -1;
         public string Value { get; protected set; }
 
-        public bool IsTopLevelFunction { get; private set; }
-        public void SetTopLevelFunction()
-        {
-            IsTopLevelFunction = true;
-        }
 
         protected abstract void TryParse();
         protected abstract void TryParse(bool forFlag);
@@ -153,7 +145,6 @@ namespace TastyScript.IFunction.Function
 
             if (IsAnonymous || IsInvoking)
             {
-                //Console.WriteLine(Name);
                 Caller.SetParentReturnToTopOfBubble(value);
             }
         }
@@ -186,7 +177,6 @@ namespace TastyScript.IFunction.Function
                 IsBlindExecute = Caller.IsParentBlindExecute();
                 if (Caller.IsParentInvoking())
                 {
-                    //Console.WriteLine("SetInvokeProperties[new]");
                     List<Token> vars = Caller.GetParentOfParentLocalVariables()?.List ?? new List<Token>();
                     List<Token> prov = Caller.GetParentOfParentLocalArguments()?.List ?? new List<Token>();
                     LocalVariables = new TokenList();
@@ -196,19 +186,6 @@ namespace TastyScript.IFunction.Function
                     LocalVariables.AddRange(prov);
                 }
             }
-        }
-        [Obsolete]
-        public void SetInvokeProperties(string[] args, List<Token> vars, List<Token> oldargs)
-        {/*
-            Console.WriteLine("SetInvokeProperties[old]");
-            
-            invokeProperties = args;
-            LocalVariables = new TokenList();
-            vars.RemoveAll(r => r.Name == "");
-            oldargs.RemoveAll(r => r.Name == "");
-            LocalVariables.AddRange(vars);
-            LocalVariables.AddRange(oldargs);//add the parameters from the calling function to this functions local var stack
-         */   
         }
         public void SetProperties(string name, string[] args, bool invoking, bool isSealed, bool obsolete, string[] alias, bool anon)
         {
