@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using TastyScript.IFunction.Containers;
-using TastyScript.IFunction.Extension;
 using TastyScript.IFunction.Function;
 using TastyScript.ParserManager.Looping;
 
@@ -28,42 +23,49 @@ namespace TastyScript.IFunction.Tokens
             DynamicDictionary = ParentFunction?.Caller.DynamicDictionary;
             Extensions = new ExtensionList();
         }
+
         public TFunction(BaseFunction function, BaseFunction parentFunction)
             : this(function)
         {
             ParentFunction = parentFunction;
         }
+
         public TFunction(BaseFunction function, BaseFunction parentFunction, ExtensionList extensions)
             : this(function, parentFunction)
         {
             Extensions = extensions;
         }
+
         public TFunction(BaseFunction function, BaseFunction parentFunction, ExtensionList extensions, string[] arguments)
             : this(function, parentFunction, extensions)
         {
             Arguments = arguments;
         }
+
         public TFunction(BaseFunction function, BaseFunction parentFunction, ExtensionList extensions, string arguments)
             : this(function, parentFunction, extensions)
         {
             Arguments = GetArgsArray(arguments);
         }
+
         public TFunction(BaseFunction function, string arguments)
             : this(function, null, new ExtensionList(), arguments) { }
+
         public TFunction(BaseFunction function, string[] arguments)
             : this(function, null, new ExtensionList(), arguments) { }
+
         public TFunction(BaseFunction function, BaseFunction parentFunction, string[] arguments)
-            : this(function, parentFunction, new ExtensionList(), arguments){ }
+            : this(function, parentFunction, new ExtensionList(), arguments) { }
+
         public TFunction(BaseFunction function, BaseFunction parentFunction, string arguments)
             : this(function, parentFunction, new ExtensionList(), arguments) { }
 
-
-        // MAYBE Use tryparse here instead on the function iteslf??
         public Token TryParse()
         {
             Function.TryParse(Inherit());
             return Function.ReturnBubble;
         }
+
         public Token TryParse(bool forflag)
         {
             Function.TryParse(Inherit(), forflag);
@@ -71,33 +73,32 @@ namespace TastyScript.IFunction.Tokens
         }
 
         public void SetInvokeProperties(string[] props) => InvokeProperties = props;
-        //caller.callingfunction.extensions
+
         public ExtensionList GetParentExtension() => ParentFunction?.Extensions;
-        //caller.callingfunction.caller.dynamicdictionary
+
         public Dictionary<string, object> GetParentDynamicDictionary() => ParentFunction?.Caller?.DynamicDictionary;
-        //caller.callingfunction.localvariables
+
         public TokenList GetParentLocalVariables() => ParentFunction?.LocalVariables;
-        //caller.callingfunction.providedargs
+
         public TokenList GetParentLocalArguments() => ParentFunction?.ProvidedArgs;
-        //caller.callingfunction.caller.callingfunction.providedargs
+
         public TokenList GetParentOfParentLocalArguments() => ParentFunction?.Caller.ParentFunction?.ProvidedArgs;
-        //caller.callingfunction.caller.callingfunction.localvariables
+
         public TokenList GetParentOfParentLocalVariables() => ParentFunction?.Caller.ParentFunction?.LocalVariables;
-        //caller.callingfunction.base
+
         public BaseFunction GetParentBase() => ParentFunction?.Base;
-        //caller.callingfunction.returntotopofbubble
+
         public void SetParentReturnToTopOfBubble(Token value) => ParentFunction?.ReturnToTopOfBubble(value);
 
         public void SetParentOfParentReturnToTopOfBubble(Token value) => ParentFunction?.Caller.ParentFunction?.ReturnToTopOfBubble(value);
-        //caller.callingfunction.isloop
+
         public bool IsParentLoop() => IsParentNull() ? false : ParentFunction.IsLoop;
-        //caller.callingfunction is null
+
         public bool IsParentNull() => ParentFunction == null ? true : false;
-        //caller.callingfunction.isinvoking
+
         public bool IsParentInvoking() => IsParentNull() ? false : ParentFunction.IsInvoking;
 
         public bool IsParentBlindExecute() => IsParentNull() ? false : ParentFunction.IsBlindExecute;
-        
 
         /// <summary>
         /// This redirect is when the called function is `Base` and needs to be redirected
@@ -113,7 +114,7 @@ namespace TastyScript.IFunction.Tokens
         public CallerInheritObject Inherit() => new CallerInheritObject(this, Tracer, Extensions, InvokeProperties);
 
         public void SetTracer(LoopTracer tracer) => Tracer = tracer;
-        
+
         private string[] GetArgsArray(string args)
         {
             if (args == null)
@@ -165,14 +166,16 @@ namespace TastyScript.IFunction.Tokens
             return splode;
         }
     }
-    //a temp object used for passing relevent information to 
-    //the called function. lets try this instead of making all TFunction properties public
+
+    //a temp object used for passing relevent information to
+    //the called function.
     public class CallerInheritObject
     {
         public TFunction Caller;
         public LoopTracer Tracer;
         public ExtensionList Extensions;
         public string[] InvokeProperties;
+
         public CallerInheritObject(TFunction caller, LoopTracer tracer, ExtensionList extensions, string[] invokeProperties)
         {
             Caller = caller;
