@@ -142,7 +142,9 @@ namespace TastyScript.TastyScript
             foreach (var s in scopes)
             {
                 Manager.SetCurrentParsedLine(s.ToString());
-                _functionStack.Add(new ParsedFunction(s.ToString()));
+                var func = new ParsedFunction(s.ToString());
+                func.SetTopLevelFunction();
+                _functionStack.Add(func);
             }
             //add inherits second
             var _inheritStack = new List<BaseFunction>();
@@ -156,6 +158,7 @@ namespace TastyScript.TastyScript
                 var inherit = inherits[i];
                 Manager.SetCurrentParsedLine(inherit.ToString());
                 var obj = new ParsedFunction(inherit.ToString(), tempfunctionstack);
+                obj.SetTopLevelFunction();
                 _inheritStack.Add(obj);
                 tempfunctionstack.Insert(0, obj);
             }
@@ -169,6 +172,7 @@ namespace TastyScript.TastyScript
                 var cext = new CustomExtension();
                 Manager.SetCurrentParsedLine(ext.ToString());
                 cext.FunctionReference = new ParsedFunction(ext.ToString(), cext);
+                cext.FunctionReference.SetTopLevelFunction();
                 _extStack.Add(cext);
             }
             ExtensionStack.AddRange(_extStack);
@@ -220,6 +224,7 @@ namespace TastyScript.TastyScript
                             var inst = Activator.CreateInstance(func) as BaseFunction;
                             var attt = type.GetCustomAttribute(typeof(Function), true) as Function;
                             inst.SetProperties(attt.Name, attt.ExpectedArgs, attt.Invoking, attt.Sealed, attt.Obsolete, attt.Alias, attt.IsAnonymous);
+                            inst.SetTopLevelFunction();
                             if (!attt.Depricated)
                                 temp.Add(inst);
                         }

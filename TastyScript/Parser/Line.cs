@@ -393,6 +393,7 @@ namespace TastyScript.TastyScript.Parser
                     return null;
                 }
             }
+            func = DeepCopy(func);
             //get args
             var param = GetTokens(new string[] { secondSplit[1] });
             if (param.Count != 1)
@@ -400,6 +401,7 @@ namespace TastyScript.TastyScript.Parser
                 Manager.Throw("[185]Extensions must provide arguments", ExceptionType.SyntaxException);
                 return null;
             }
+            var caller = new TFunction(func, _reference, new ExtensionList(ext), param[0].ToString());
             if (func.IsInvoking)
             {
                 var invokeFuncName = param[0].ToString();
@@ -414,11 +416,10 @@ namespace TastyScript.TastyScript.Parser
                         {
                             argsarr.Add(x.ToString());
                         }
-                        func.SetInvokeProperties(argsarr.ToArray(), _reference.LocalVariables.List, _reference.ProvidedArgs.List);
+                        caller.SetInvokeProperties(argsarr.ToArray());
                     }
                 }
             }
-            var caller = new TFunction(func, _reference, new ExtensionList(ext), param[0].ToString());
             //do the whole returning thing
             var getret = Parse(caller);
             if (getret != null)

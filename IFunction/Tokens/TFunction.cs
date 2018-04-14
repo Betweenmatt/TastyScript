@@ -87,6 +87,8 @@ namespace TastyScript.IFunction.Tokens
         public BaseFunction GetParentBase() => ParentFunction?.Base;
         //caller.callingfunction.returntotopofbubble
         public void SetParentReturnToTopOfBubble(Token value) => ParentFunction?.ReturnToTopOfBubble(value);
+
+        public void SetParentOfParentReturnToTopOfBubble(Token value) => ParentFunction?.Caller.ParentFunction?.ReturnToTopOfBubble(value);
         //caller.callingfunction.isloop
         public bool IsParentLoop() => IsParentNull() ? false : ParentFunction.IsLoop;
         //caller.callingfunction is null

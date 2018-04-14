@@ -62,9 +62,7 @@ namespace TastyScript.IFunction.Function
         protected string[] InvokeProperties;
         public bool IsAnonymous { get; protected set; }
         public bool IsBlindExecute { get; protected set; }
-        /// <summary>
-        /// Flag is defined on gui based functions, to separate gui behavior from normal script behavior 
-        /// </summary>
+        [Obsolete]
         public bool IsGui { get; protected set; }
         public bool IsInvoking { get; private set; }
         public bool IsLocked { get; private set; }
@@ -81,6 +79,12 @@ namespace TastyScript.IFunction.Function
         public int UID { get; private set; }
         private static int _uidIndex = -1;
         public string Value { get; protected set; }
+
+        public bool IsTopLevelFunction { get; private set; }
+        public void SetTopLevelFunction()
+        {
+            IsTopLevelFunction = true;
+        }
 
         protected abstract void TryParse();
         protected abstract void TryParse(bool forFlag);
@@ -146,8 +150,12 @@ namespace TastyScript.IFunction.Function
                 if (tracer != null)
                     tracer.SetBreak(true);
             }
+
             if (IsAnonymous || IsInvoking)
+            {
+                //Console.WriteLine(Name);
                 Caller.SetParentReturnToTopOfBubble(value);
+            }
         }
         public string[] GetInvokeProperties()
         {
