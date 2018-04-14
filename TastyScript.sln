@@ -128,12 +128,13 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {CF2C3D4C-E827-48FD-BD86-55D525D0BCDC}
-		BuildVersion_AssemblyInfoFilename = GlobalAssemblyInfo.cs
-		BuildVersion_BuildVersioningStyle = None.None.None.DeltaBaseDateInDays
-		BuildVersion_UseGlobalSettings = False
-		BuildVersion_StartDate = 2018/2/5
-		BuildVersion_UpdateFileVersion = True
+		BuildVersion_DetectChanges = False
 		BuildVersion_UpdateAssemblyVersion = True
+		BuildVersion_UpdateFileVersion = True
+		BuildVersion_StartDate = 2018/2/5
+		BuildVersion_UseGlobalSettings = False
+		BuildVersion_BuildVersioningStyle = None.None.None.DeltaBaseDateInDays
+		BuildVersion_AssemblyInfoFilename = GlobalAssemblyInfo.cs
+		SolutionGuid = {CF2C3D4C-E827-48FD-BD86-55D525D0BCDC}
 	EndGlobalSection
 EndGlobal

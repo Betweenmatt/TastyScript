@@ -13,8 +13,18 @@ namespace TastyScript.IFunction.Function
 {
     public abstract class BaseFunction
     {
-        public string[] Alias { get; private set; }
+        public ExtensionList _extensions;
         protected BaseFunction _base;
+
+        /// <summary>
+        /// Properties that are included in anonymous functions. In most cases this will be an empty array
+        /// </summary>
+        protected string[] InvokeProperties;
+
+        private static int _uidIndex = -1;
+        private int _generatedTokensIndex = -1;
+        public string[] Alias { get; private set; }
+
         public BaseFunction Base
         {
             get
@@ -26,10 +36,11 @@ namespace TastyScript.IFunction.Function
                 _base = value;
             }
         }
+
         public TFunction Caller { get; protected set; }
         public Dictionary<string, string> Directives { get; protected set; }
         public string[] ExpectedArgs { get; protected set; }
-        public ExtensionList _extensions;
+
         public ExtensionList Extensions
         {
             get
@@ -45,7 +56,7 @@ namespace TastyScript.IFunction.Function
                 _extensions = value;
             }
         }
-        private int _generatedTokensIndex = -1;
+
         public int GeneratedTokensIndex
         {
             get
@@ -54,11 +65,7 @@ namespace TastyScript.IFunction.Function
                 return _generatedTokensIndex;
             }
         }
-        
-        /// <summary>
-        /// Properties that are included in anonymous functions. In most cases this will be an empty array
-        /// </summary>
-        protected string[] InvokeProperties;
+
         public bool IsAnonymous { get; protected set; }
         public bool IsBlindExecute { get; private set; }
         public bool IsInvoking { get; private set; }
@@ -74,28 +81,79 @@ namespace TastyScript.IFunction.Function
         public bool ReturnFlag { get; set; }
         public LoopTracer Tracer { get; protected set; }
         public int UID { get; private set; }
-        private static int _uidIndex = -1;
         public string Value { get; protected set; }
 
+        public string[] GetInvokeProperties()
+        {
+            return InvokeProperties;
+        }
 
-        protected abstract void TryParse();
-        protected abstract void TryParse(bool forFlag);
+        //sets the return flag and the return value to bubble up.
+        //if this function is anonymously named, then it calls this method
+        //in the parent function as well all the way to the top named function
+        //i dont like the method name but at least its descriptive
+        public void ReturnToTopOfBubble(Token value)
+        {
+            ReturnBubble = value;
+            ReturnFlag = true;
+            if (Caller.IsParentLoop())
+            {
+                var tracer = Tracer;
+                if (tracer != null)
+                    tracer.SetBreak(true);
+            }
+
+            if (IsAnonymous || IsInvoking)
+            {
+                Caller.SetParentReturnToTopOfBubble(value);
+            }
+        }
+
+        public void SetBase(BaseFunction func)
+        {
+            if (func.IsSealed)
+                Manager.Throw($"Cannot override function [{func.Name}] because it is sealed.");
+            Base = func;
+        }
+
+        public void SetBlindExecute(bool flag)
+        {
+            IsBlindExecute = flag;
+        }
+
+        public void SetProperties(string name, string[] args, bool invoking, bool isSealed, bool obsolete, string[] alias, bool anon)
+        {
+            Name = name;
+            ExpectedArgs = args;
+            IsInvoking = invoking;
+            IsSealed = isSealed;
+            IsObsolete = obsolete;
+            Alias = alias;
+            IsAnonymous = anon;
+        }
+
+        public void SetSealed(bool flag)
+        {
+            IsSealed = flag;
+        }
 
         internal void TryParse(CallerInheritObject inherit)
         {
             InheritCaller(inherit);
             TryParse();
         }
-         /// <summary>
-         /// <param name="forFlag"></param> is an arbitrary bool used only to trigger this specific overload which omits the for loop check.
-         /// You should be using the overload with no parameters!
-         /// </summary>
-         /// <param name="forFlag"></param>
+
+        /// <summary>
+        /// forFlag is an arbitrary bool used only to trigger this specific overload which omits the
+        /// for loop check. You should be using the overload with no parameters!
+        /// </summary>
+        /// <param name="forFlag"></param>
         internal void TryParse(CallerInheritObject inherit, bool forFlag)
         {
             InheritCaller(inherit);
             TryParse(forFlag);
         }
+
         /// <summary>
         /// Assign ProvidedArgs values based on the expected args and the given args
         /// </summary>
@@ -119,87 +177,7 @@ namespace TastyScript.IFunction.Function
                 }
             }
         }
-        public void SetBlindExecute(bool flag)
-        {
-            IsBlindExecute = flag;
-        }
-        protected void GetUID()
-        {
-            _uidIndex++;
-            UID = _uidIndex;
-        }
-        //sets the return flag and the return value to bubble up.
-        //if this function is anonymously named, then it calls this method
-        //in the parent function as well all the way to the top named function
-        //i dont like the method name but at least its descriptive
-        public void ReturnToTopOfBubble(Token value)
-        {
-            ReturnBubble = value;
-            ReturnFlag = true;
-            if (Caller.IsParentLoop())
-            {
-                var tracer = Tracer;
-                if (tracer != null)
-                    tracer.SetBreak(true);
-            }
 
-            if (IsAnonymous || IsInvoking)
-            {
-                Caller.SetParentReturnToTopOfBubble(value);
-            }
-        }
-        public string[] GetInvokeProperties()
-        {
-            return InvokeProperties;
-        }
-        public void SetBase(BaseFunction func)
-        {
-            if (func.IsSealed)
-                Manager.Throw($"Cannot override function [{func.Name}] because it is sealed.");
-            Base = func;
-        }
-        /// <summary>
-        /// Inherit the required information from caller like the loop tracer and blind execute.
-        /// Also inherits variables on invoked functions
-        /// </summary>
-        /// <param name="caller"></param>
-        protected void InheritCaller(CallerInheritObject inherit)
-        {
-            ReturnBubble = null;
-            ReturnFlag = false;
-            InvokeProperties = inherit.InvokeProperties;
-            Tracer = inherit.Tracer;
-            Caller = inherit.Caller;
-            Extensions = inherit.Extensions;
-            IsBlindExecute = Caller.IsParentBlindExecute();
-            if (Caller.IsParentInvoking())
-            {
-                List<Token> vars = Caller.GetParentOfParentLocalVariables()?.List ?? new List<Token>();
-                List<Token> prov = Caller.GetParentOfParentLocalArguments()?.List ?? new List<Token>();
-                LocalVariables = new TokenList();
-                vars.RemoveAll(r => r.Name == "");
-                prov.RemoveAll(r => r.Name == "");
-                LocalVariables.AddRange(vars);
-                LocalVariables.AddRange(prov);
-            }
-        }
-        
-        public void SetProperties(string name, string[] args, bool invoking, bool isSealed, bool obsolete, string[] alias, bool anon)
-        {
-            Name = name;
-            ExpectedArgs = args;
-            IsInvoking = invoking;
-            IsSealed = isSealed;
-            IsObsolete = obsolete;
-            Alias = alias;
-            IsAnonymous = anon;
-        }
-        public void SetSealed(bool flag)
-        {
-            IsSealed = flag;
-        }
-
-        
         protected virtual void ForExtension(BaseExtension findFor)
         {
             this.IsLoop = true;
@@ -232,5 +210,41 @@ namespace TastyScript.IFunction.Function
             Manager.LoopTracerStack.Remove(tracer);
             tracer = null;
         }
+
+        protected void GetUID()
+        {
+            _uidIndex++;
+            UID = _uidIndex;
+        }
+
+        /// <summary>
+        /// Inherit the required information from caller like the loop tracer and blind execute. Also
+        /// inherits variables on invoked functions
+        /// </summary>
+        /// <param name="caller"></param>
+        protected void InheritCaller(CallerInheritObject inherit)
+        {
+            ReturnBubble = null;
+            ReturnFlag = false;
+            InvokeProperties = inherit.InvokeProperties;
+            Tracer = inherit.Tracer;
+            Caller = inherit.Caller;
+            Extensions = inherit.Extensions;
+            IsBlindExecute = Caller.IsParentBlindExecute();
+            if (Caller.IsParentInvoking())
+            {
+                List<Token> vars = Caller.GetParentOfParentLocalVariables()?.List ?? new List<Token>();
+                List<Token> prov = Caller.GetParentOfParentLocalArguments()?.List ?? new List<Token>();
+                LocalVariables = new TokenList();
+                vars.RemoveAll(r => r.Name == "");
+                prov.RemoveAll(r => r.Name == "");
+                LocalVariables.AddRange(vars);
+                LocalVariables.AddRange(prov);
+            }
+        }
+
+        protected abstract void TryParse();
+
+        protected abstract void TryParse(bool forFlag);
     }
 }

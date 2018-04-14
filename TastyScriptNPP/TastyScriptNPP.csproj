@@ -109,7 +109,7 @@
   <Import Project="$(MSBuildProjectDirectory)\PluginInfrastructure\DllExport\NppPlugin.DllExport.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties BuildVersion_UseGlobalSettings="True" BuildVersion_StartDate="2000/1/1" />
+      <UserProperties BuildVersion_DetectChanges="False" BuildVersion_IncrementBeforeBuild="False" BuildVersion_AssemblyInfoFilename="..\GlobalAssemblyInfo.cs" BuildVersion_StartDate="2000/1/1" BuildVersion_UseGlobalSettings="False" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
