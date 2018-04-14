@@ -17,10 +17,10 @@ namespace TastyScript.CoreFunctions.Internal
             var argsList = ProvidedArgs.First("value");
             if (argsList == null)
             {
-                Caller.CallingFunction.ReturnToTopOfBubble(new Token("null", "null", ""));
+                Caller.SetParentReturnToTopOfBubble(new Token("null", "null", ""));
                 return true;
             }
-            Caller.CallingFunction.ReturnToTopOfBubble(argsList);
+            Caller.SetParentReturnToTopOfBubble(argsList);
             return true;
         }
     }

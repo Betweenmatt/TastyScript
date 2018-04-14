@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TastyScript.IFunction.Function;
+using TastyScript.IFunction.Tokens;
 using TastyScript.ParserManager;
 using TastyScript.ParserManager.ExceptionHandler;
 
@@ -24,7 +25,8 @@ namespace TastyScript.IFunction
             TryBlock.ReturnFlag = true;
             string line = System.Text.RegularExpressions.Regex.Escape(ex.Line);
             string[] arg = new string[] { "[" + ex.Type.ToString().CleanString() + "," + ex.Message.CleanString() + "," + line.CleanString() + "," + ex.Snippet.CleanString() + "]" };
-            CatchBlock.TryParse(new Tokens.TFunction(CatchBlock, null, arg, TryBlock));
+            var tfunc = new TFunction(CatchBlock, TryBlock, arg);
+            tfunc.TryParse();
         }
     }
 }

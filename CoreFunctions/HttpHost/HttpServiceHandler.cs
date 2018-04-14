@@ -9,7 +9,7 @@ using TastyScript.IFunction.Tokens;
 using TastyScript.ParserManager;
 using TastyScript.IFunction.Containers;
 
-namespace TastyScript.CoreFunctions.Gui
+namespace TastyScript.CoreFunctions.HttpHost
 {
     class HttpServiceHandler
     {
@@ -51,8 +51,9 @@ namespace TastyScript.CoreFunctions.Gui
                 if (model.TryGetValue("Call", out dynamic callout))
                 {
                     var func = FunctionStack.First((String)callout);
-                    func.TryParse(new TFunction(func, new ExtensionList(), model.ToDictionary(), null, null));
-                    return func.ReturnBubble?.ToString().UnCleanString();
+                    var tfunc = new TFunction(func);
+                    tfunc.SetDynamicDictionary(model.ToDictionary());
+                    return tfunc.TryParse();
                 }
                 else
                 {

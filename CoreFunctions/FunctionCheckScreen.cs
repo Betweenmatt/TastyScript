@@ -35,8 +35,6 @@ namespace TastyScript.CoreFunctions
                 Manager.Throw($"[198]Invoke function cannot be found.");
                 return false;
             }
-            sf.SetInvokeProperties(new string[] { }, Caller.CallingFunction.LocalVariables.List, Caller.CallingFunction.ProvidedArgs.List);
-            ff.SetInvokeProperties(new string[] { }, Caller.CallingFunction.LocalVariables.List, Caller.CallingFunction.ProvidedArgs.List);
             //check for threshold extension
             var prop = CheckProperty();
             if (failPath != null)

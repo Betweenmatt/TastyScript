@@ -142,7 +142,8 @@ namespace TastyScript.TastyScript
             foreach (var s in scopes)
             {
                 Manager.SetCurrentParsedLine(s.ToString());
-                _functionStack.Add(new ParsedFunction(s.ToString()));
+                var func = new ParsedFunction(s.ToString());
+                _functionStack.Add(func);
             }
             //add inherits second
             var _inheritStack = new List<BaseFunction>();
@@ -190,7 +191,7 @@ namespace TastyScript.TastyScript
                 var awakecollection = FunctionStack.Where("Awake");
                 foreach (var x in awakecollection)
                 {
-                    x.TryParse(null);
+                    new TFunction(x).TryParse();
                 }
             }
             
@@ -202,7 +203,7 @@ namespace TastyScript.TastyScript
             var startIndex = FunctionStack.IndexOf(startScope);
             FunctionStack.RemoveAt(startIndex);
 
-            startScope.TryParse(new TFunction(startScope, new ExtensionList(), Manager.StartArgs, null));
+            new TFunction(startScope, Manager.StartArgs).TryParse();
         }
         //uses reflection to get all the BaseFunction classes with the attribute [Function]
         public static List<BaseFunction> GetPredefinedFunctions(Assembly[] asmbly = null)
@@ -220,6 +221,7 @@ namespace TastyScript.TastyScript
                             var inst = Activator.CreateInstance(func) as BaseFunction;
                             var attt = type.GetCustomAttribute(typeof(Function), true) as Function;
                             inst.SetProperties(attt.Name, attt.ExpectedArgs, attt.Invoking, attt.Sealed, attt.Obsolete, attt.Alias, attt.IsAnonymous);
+                            
                             if (!attt.Depricated)
                                 temp.Add(inst);
                         }

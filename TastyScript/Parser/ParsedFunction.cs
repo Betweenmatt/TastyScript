@@ -8,7 +8,6 @@ using TastyScript.IFunction;
 using TastyScript.IFunction.Containers;
 using TastyScript.IFunction.Extension;
 using TastyScript.IFunction.Function;
-using TastyScript.IFunction.Tokens;
 using TastyScript.ParserManager;
 
 namespace TastyScript.TastyScript.Parser
@@ -38,7 +37,7 @@ namespace TastyScript.TastyScript.Parser
             foreach (var a in anonRegexMatches)
             {
                 var func = new ParsedFunction(a.ToString(), true, _base);
-                func.Base = Base;
+                func.Base = _base;
                 FunctionStack.Add(func);
                 value = value.Replace(a.ToString(), $"\"{func.Name}\"");
             }
@@ -111,7 +110,7 @@ namespace TastyScript.TastyScript.Parser
             foreach (var a in anonRegexMatches)
             {
                 var func = new ParsedFunction(a.ToString(), true, _base);
-                func.Base = Base;
+                func.Base = _base;
                 FunctionStack.Add(func);
                 value = value.Replace(a.ToString(), $"\"{func.Name}\"");
             }
@@ -163,77 +162,20 @@ namespace TastyScript.TastyScript.Parser
                 }
             }
         }
-        public override void TryParse(TFunction caller)
+        protected override void TryParse()
         {
-            ResetReturn();
-            if (caller != null)
-            {
-                IsBlindExecute = caller.BlindExecute;
-                Tracer = caller.Tracer;
-                Caller = caller;
-            }
             var findFor = Extensions.First("For");
             if (findFor != null)
             {
                 //if for extension exists, reroutes this tryparse method to the loop version without the for check
-                ForExtension(caller, findFor);
+                ForExtension(findFor);
                 return;
             }
-            //combine expected args and given args and add them to variabel pool
-            if (caller != null && caller.Arguments != null && ExpectedArgs != null && ExpectedArgs.Length > 0)
-            {
-                ProvidedArgs = new TokenList();
-                var args = caller.ReturnArgsArray();
-                if (ExpectedArgs.Length > 0)
-                {
-                    for (var i = 0; i < ExpectedArgs.Length; i++)
-                    {
-                        var exp = ExpectedArgs[i].Replace("var ", "").Replace(" ", "");
-                        if (args.ElementAtOrDefault(i) == null)
-                            ProvidedArgs.Add(new Token(exp, "null", caller.Line));
-                        else
-                            ProvidedArgs.Add(new Token(exp, args[i], caller.Line));
-                    }
-                }
-            }
-            var guts = Value.Split('{')[1].Split('}');
-            var lines = guts[0].Split(';');
-            foreach (var l in lines)
-            {
-                if(!Manager.IsScriptStopping && !ReturnFlag)
-                    new Line(l, this);
-            }
-            //clear local var stack after use
-            LocalVariables = new TokenList();
+            TryParse(true);
         }
-        //this overload is when the function is called with the for extension
-        public override void TryParse(TFunction caller, bool forFlag)
+        protected override void TryParse(bool forFlag)
         {
-            ResetReturn();
-            if (caller != null)
-            {
-                IsBlindExecute = caller.BlindExecute;
-                Tracer = caller.Tracer;
-                Caller = caller;
-            }
-            //combine expected args and given args and add them to variabel pool
-            if (caller != null && caller.Arguments != null && ExpectedArgs != null && ExpectedArgs.Length > 0)
-            {
-                ProvidedArgs = new TokenList();
-                var args = caller.ReturnArgsArray();
-                if (ExpectedArgs.Length > 0)
-                {
-                    for (var i = 0; i < ExpectedArgs.Length; i++)
-                    {
-                        var exp = ExpectedArgs[i].Replace("var ", "").Replace(" ", "");
-                        if (args.ElementAtOrDefault(i) == null)
-                            ProvidedArgs.Add(new Token(exp, "null", caller.Line));
-                        else
-                            ProvidedArgs.Add(new Token(exp, args[i], caller.Line));
-                    }
-                }
-
-            }
+            AssignParameters();
             var guts = Value.Split('{')[1].Split('}');
             var lines = guts[0].Split(';');
             foreach (var l in lines)

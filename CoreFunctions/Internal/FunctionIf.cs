@@ -11,7 +11,7 @@ using TastyScript.ParserManager;
 
 namespace TastyScript.CoreFunctions
 {
-    [Function("If", new string[] { "bool" }, isSealed: true, alias:new string[] { "if" }, isanon: false)]
+    [Function("If", new string[] { "bool" }, isSealed: true, alias:new string[] { "if" }, isanon: false, invoking:true)]
     public class FunctionIf : FunctionDefinition
     {
         public override bool CallBase()
@@ -68,9 +68,7 @@ namespace TastyScript.CoreFunctions
                         Manager.Throw($"Cannot find the invoked function.");
                         return false;
                     }
-                    //pass in invoke properties. shouldnt break with null
-                    func.SetInvokeProperties(new string[] { }, Caller.CallingFunction.LocalVariables.List, Caller.CallingFunction.ProvidedArgs.List);
-                    func.TryParse(new TFunction(Caller.Function, new ExtensionList(), findThen.GetInvokeProperties(), Caller.CallingFunction));
+                    new TFunction(func, this, findThen.GetInvokeProperties()).TryParse();
                 }
                 else
                 {
@@ -91,8 +89,7 @@ namespace TastyScript.CoreFunctions
                         Manager.Throw($"Cannot find the invoked function.");
                         return false;
                     }
-                    func.SetInvokeProperties(new string[] { }, Caller.CallingFunction.LocalVariables.List, Caller.CallingFunction.ProvidedArgs.List);
-                    func.TryParse(new TFunction(Caller.Function, new ExtensionList(), findElse.GetInvokeProperties(), Caller.CallingFunction));
+                    new TFunction(func, this, findElse.GetInvokeProperties()).TryParse();
                 }
             }
             return true;

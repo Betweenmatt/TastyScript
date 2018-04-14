@@ -65,7 +65,7 @@ namespace TastyScript.TastyScript
             {
                 TastyScript.Main.CommandRun(run);
             }
-            catch(Exception e) { Manager.Print(e.Message); }
+            catch(Exception e) { Manager.Print(e);}
         }
     }
 }

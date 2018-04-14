@@ -379,7 +379,6 @@ namespace TastyScript.TastyScript.Parser
         }
         private string ParseFunctions(string value, List<BaseExtension> ext, bool safelook = false)
         {
-            TFunction temp = null;
             string val = value;
             var firstSplit = value.Split('|')[0];
             var secondSplit = firstSplit.Split(new string[] { "->" }, StringSplitOptions.None);
@@ -394,6 +393,7 @@ namespace TastyScript.TastyScript.Parser
                     return null;
                 }
             }
+            func = DeepCopy(func);
             //get args
             var param = GetTokens(new string[] { secondSplit[1] });
             if (param.Count != 1)
@@ -401,6 +401,7 @@ namespace TastyScript.TastyScript.Parser
                 Manager.Throw("[185]Extensions must provide arguments", ExceptionType.SyntaxException);
                 return null;
             }
+            var caller = new TFunction(func, _reference, new ExtensionList(ext), param[0].ToString());
             if (func.IsInvoking)
             {
                 var invokeFuncName = param[0].ToString();
@@ -415,14 +416,12 @@ namespace TastyScript.TastyScript.Parser
                         {
                             argsarr.Add(x.ToString());
                         }
-                        func.SetInvokeProperties(argsarr.ToArray(), _reference.LocalVariables.List, _reference.ProvidedArgs.List);
+                        caller.SetInvokeProperties(argsarr.ToArray());
                     }
                 }
             }
-            var returnObj = new TFunction(func, new ExtensionList(ext), param[0].ToString(), _reference);
-            temp = returnObj;
             //do the whole returning thing
-            var getret = Parse(temp);
+            var getret = Parse(caller);
             if (getret != null)
             {
                 string tokenname = "{AnonGeneratedToken" + AnonymousTokenStack.AnonymousTokenIndex + "}";
@@ -880,37 +879,22 @@ namespace TastyScript.TastyScript.Parser
             }
             return null;
         }
-        private Token TryParseMember(TFunction t)
+        private Token TryParseMember(TFunction tfunc)
         {
-            if (t == null)
+            if (tfunc == null)
                 return null;
-            if (_reference.IsBlindExecute)
-                t.BlindExecute = true;
-            if (t.Name == "Base")
+            if (tfunc.Name == "Base")
             {
-                var b = _reference.Base;
-                b.Extensions = new ExtensionList();
-                if (t.Extensions != null)
-                    b.Extensions = t.Extensions;
-                if (t.Function.IsBlindExecute)
-                    b.SetBlindExecute(true);
-                b.TryParse(t);
-                return b.ReturnBubble;
+                tfunc.RedirectFunctionToParentBase();
+                return tfunc.TryParse();
             }
-            //change this plz
-            if (t.Name == _reference.Name)
+            //self calling check to prevent stack overflow exception
+            if (tfunc.Name == _reference.Name)
             {
-                Manager.Throw("Cannot call function from itself. Please use `Base()` if this is an override.", ExceptionType.SyntaxException);
+                Manager.Throw("Cannot call function from itself. Please use `Base()` if this is an override.", ExceptionType.CompilerException);
                 return null;
             }
-            var z = t.Function;
-            if (t.Extensions != null)
-            {
-                z.Extensions = t.Extensions;
-            }
-
-            z.TryParse(t);
-            return z.ReturnBubble;
+            return tfunc.TryParse();
         }
 
         private string RuntimeDebugger(string value)

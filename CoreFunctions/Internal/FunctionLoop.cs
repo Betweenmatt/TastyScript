@@ -50,7 +50,7 @@ namespace TastyScript.CoreFunctions
                         {
                             tracer.SetContinue(false);//reset continue
                         }
-                        var passed = this.GetInvokeProperties();
+                        var passed = this.InvokeProperties;
                         if (passed != null)
                         {
                             var getFirstElement = passed.ElementAtOrDefault(0);
@@ -67,8 +67,10 @@ namespace TastyScript.CoreFunctions
                         {
                             passed = new string[] { x.ToString() };
                         }
-                        func.SetInvokeProperties(new string[] { }, Caller.CallingFunction.LocalVariables.List, Caller.CallingFunction.ProvidedArgs.List);
-                        func.TryParse(new TFunction(Caller.Function, new ExtensionList(), passed, this, tracer));
+
+                        var caller = new TFunction(func, this, passed);
+                        caller.SetTracer(tracer);
+                        caller.TryParse();
                     }
                     else
                     {
@@ -99,7 +101,7 @@ namespace TastyScript.CoreFunctions
                         {
                             tracer.SetContinue(false);//reset continue
                         }
-                        var passed = this.GetInvokeProperties();
+                        var passed = this.InvokeProperties;
                         if (passed != null)
                         {
                             var getFirstElement = passed.ElementAtOrDefault(0);
@@ -116,8 +118,9 @@ namespace TastyScript.CoreFunctions
                         {
                             passed = new string[] { x.ToString() };
                         }
-                        func.SetInvokeProperties(new string[] { }, Caller.CallingFunction.LocalVariables.List, Caller.CallingFunction.ProvidedArgs.List);
-                        func.TryParse(new TFunction(Caller.Function, new ExtensionList(), passed, this, tracer));
+                        var caller = new TFunction(func, this, passed);
+                        caller.SetTracer(tracer);
+                        caller.TryParse();
                         x++;
                     }
                     else
@@ -131,9 +134,9 @@ namespace TastyScript.CoreFunctions
             return true;
         }
         //stop the base for looping extension from overriding this custom looping function
-        protected override void ForExtension(TFunction caller, BaseExtension findFor)
+        protected override void ForExtension(BaseExtension findFor)
         {
-            TryParse(caller, true);
+            TryParse(true);
         }
     }
 }

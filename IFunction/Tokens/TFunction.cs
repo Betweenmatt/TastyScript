@@ -13,96 +13,111 @@ namespace TastyScript.IFunction.Tokens
 {
     public class TFunction : Token
     {
-        public BaseFunction Function { get; private set; }
-        public string[] Arguments { get; private set; }
-        public BaseFunction CallingFunction { get; private set; }
-        public bool BlindExecute { get; set; }
-        public LoopTracer Tracer { get; private set; }
-        public Dictionary<string, object> DynamicDictionary { get; private set; }
+        private LoopTracer Tracer;
+        public BaseFunction ParentFunction { get; }
+        private BaseFunction Function;
+        private string[] InvokeProperties;
+        public string[] Arguments { get; }
+        private Dictionary<string, object> DynamicDictionary;
+
+        public TFunction(BaseFunction function)
+        {
+            InvokeProperties = new string[] { };
+            Function = function;
+            Name = function.Name;
+            DynamicDictionary = ParentFunction?.Caller.DynamicDictionary;
+            Extensions = new ExtensionList();
+        }
+        public TFunction(BaseFunction function, BaseFunction parentFunction)
+            : this(function)
+        {
+            ParentFunction = parentFunction;
+        }
+        public TFunction(BaseFunction function, BaseFunction parentFunction, ExtensionList extensions)
+            : this(function, parentFunction)
+        {
+            Extensions = extensions;
+        }
+        public TFunction(BaseFunction function, BaseFunction parentFunction, ExtensionList extensions, string[] arguments)
+            : this(function, parentFunction, extensions)
+        {
+            Arguments = arguments;
+        }
+        public TFunction(BaseFunction function, BaseFunction parentFunction, ExtensionList extensions, string arguments)
+            : this(function, parentFunction, extensions)
+        {
+            Arguments = GetArgsArray(arguments);
+        }
+        public TFunction(BaseFunction function, string arguments)
+            : this(function, null, new ExtensionList(), arguments) { }
+        public TFunction(BaseFunction function, string[] arguments)
+            : this(function, null, new ExtensionList(), arguments) { }
+        public TFunction(BaseFunction function, BaseFunction parentFunction, string[] arguments)
+            : this(function, parentFunction, new ExtensionList(), arguments){ }
+        public TFunction(BaseFunction function, BaseFunction parentFunction, string arguments)
+            : this(function, parentFunction, new ExtensionList(), arguments) { }
+
+
+        // MAYBE Use tryparse here instead on the function iteslf??
+        public Token TryParse()
+        {
+            Function.TryParse(Inherit());
+            return Function.ReturnBubble;
+        }
+        public Token TryParse(bool forflag)
+        {
+            Function.TryParse(Inherit(), forflag);
+            return Function.ReturnBubble;
+        }
+
+        public void SetInvokeProperties(string[] props) => InvokeProperties = props;
+        //caller.callingfunction.extensions
+        public ExtensionList GetParentExtension() => ParentFunction?.Extensions;
+        //caller.callingfunction.caller.dynamicdictionary
+        public Dictionary<string, object> GetParentDynamicDictionary() => ParentFunction?.Caller?.DynamicDictionary;
+        //caller.callingfunction.localvariables
+        public TokenList GetParentLocalVariables() => ParentFunction?.LocalVariables;
+        //caller.callingfunction.providedargs
+        public TokenList GetParentLocalArguments() => ParentFunction?.ProvidedArgs;
+        //caller.callingfunction.caller.callingfunction.providedargs
+        public TokenList GetParentOfParentLocalArguments() => ParentFunction?.Caller.ParentFunction?.ProvidedArgs;
+        //caller.callingfunction.caller.callingfunction.localvariables
+        public TokenList GetParentOfParentLocalVariables() => ParentFunction?.Caller.ParentFunction?.LocalVariables;
+        //caller.callingfunction.base
+        public BaseFunction GetParentBase() => ParentFunction?.Base;
+        //caller.callingfunction.returntotopofbubble
+        public void SetParentReturnToTopOfBubble(Token value) => ParentFunction?.ReturnToTopOfBubble(value);
+
+        public void SetParentOfParentReturnToTopOfBubble(Token value) => ParentFunction?.Caller.ParentFunction?.ReturnToTopOfBubble(value);
+        //caller.callingfunction.isloop
+        public bool IsParentLoop() => IsParentNull() ? false : ParentFunction.IsLoop;
+        //caller.callingfunction is null
+        public bool IsParentNull() => ParentFunction == null ? true : false;
+        //caller.callingfunction.isinvoking
+        public bool IsParentInvoking() => IsParentNull() ? false : ParentFunction.IsInvoking;
+
+        public bool IsParentBlindExecute() => IsParentNull() ? false : ParentFunction.IsBlindExecute;
+        
+
         /// <summary>
-        /// callingFunction is the function that is calling(usually `this`), func is the function being called
+        /// This redirect is when the called function is `Base` and needs to be redirected
+        /// to the base of the parent function
         /// </summary>
-        /// <param name="func"></param>
-        /// <param name="ext"></param>
-        /// <param name="args"></param>
-        /// <param name="callingFunction"></param>
-        public TFunction(BaseFunction func, ExtensionList ext, string args, BaseFunction callingFunction, LoopTracer t = null)
-        {
-            Name = func.Name;
-            Function = func;
-            _value = "<Type.TFunction>";
-            Extensions = ext;
-            Arguments = ReturnArgsArray(args);
-            CallingFunction = callingFunction;
-            if (callingFunction?.Caller?.DynamicDictionary != null)
-            {
-                DynamicDictionary = callingFunction.Caller.DynamicDictionary;
-            }
-            if (t != null)
-                Tracer = t;
-            else
-                if (callingFunction != null)
-                Tracer = callingFunction.Tracer;
-            else
-                Tracer = null;
-        }
-        /// <summary>
-        /// callingFunction is the function that is calling(usually `this`), func is the function being called
-        /// </summary>
-        /// <param name="func"></param>
-        /// <param name="ext"></param>
-        /// <param name="args"></param>
-        /// <param name="callingFunction"></param>
-        public TFunction(BaseFunction func, ExtensionList ext, string[] args, BaseFunction callingFunction, LoopTracer t = null)
-        {
-            Name = func.Name;
-            Function = func;
-            _value = "<Type.TFunction>";
-            Extensions = ext;
-            Arguments = args;
-            CallingFunction = callingFunction;
-            if(callingFunction?.Caller?.DynamicDictionary != null)
-            {
-                DynamicDictionary = callingFunction.Caller.DynamicDictionary;
-            }
-            if (t != null)
-                Tracer = t;
-            else
-                if (callingFunction != null)
-                Tracer = callingFunction.Tracer;
-            else
-                Tracer = null;
-        }
-        public TFunction(BaseFunction func, ExtensionList ext, Dictionary<string, object> args, BaseFunction callingFunction, LoopTracer t = null)
-        {
-            Name = func.Name;
-            Function = func;
-            _value = "<Type.TFunction>";
-            Extensions = ext;
-            Arguments = new string[] { "<Type.Dynamic>" };
-            DynamicDictionary = args;
-            CallingFunction = callingFunction;
-            if (t != null)
-                Tracer = t;
-            else
-                if (callingFunction != null)
-                Tracer = callingFunction.Tracer;
-            else
-                Tracer = null;
-        }
-        public void SetTracer(LoopTracer t)
-        {
-            Tracer = t;
-        }
-        public string[] ReturnArgsArray()
-        {
-            return Arguments;
-        }
-        private string[] ReturnArgsArray(string args)
+        /// <param name="b"></param>
+        public void RedirectFunctionToParentBase() => Function = ParentFunction.Base;
+
+        public void RedirectFunctionToNewFunction(BaseFunction func) => Function = func;
+
+        public void SetDynamicDictionary(Dictionary<string, object> dyn) => DynamicDictionary = dyn;
+
+        public CallerInheritObject Inherit() => new CallerInheritObject(this, Tracer, Extensions, InvokeProperties);
+
+        public void SetTracer(LoopTracer tracer) => Tracer = tracer;
+        
+        private string[] GetArgsArray(string args)
         {
             if (args == null)
                 return new string[] { };
-            //Console.WriteLine(Arguments);
             var output = args;
             var index = 0;
             Dictionary<string, string> stringParts = new Dictionary<string, string>();
@@ -120,7 +135,6 @@ namespace TastyScript.IFunction.Tokens
             }
             if (args.Contains("[") && args.Contains("]"))
             {
-                //var reg = new Regex(@"(?:(?:{(?>[^{}]+|{(?<number>)|}(?<-number>))*(?(number)(?!))})|{^{}})+");
                 var reg = new Regex(@"(?:(?:\[(?>[^\[\]]+|\[(?<number>)|\](?<-number>))*(?(number)(?!))\])|[^[]])+");
                 foreach (var x in reg.Matches(output))
                 {
@@ -131,14 +145,13 @@ namespace TastyScript.IFunction.Tokens
                 }
             }
             var splode = output.Split(',');
-            //List<string> returnParens = new List<string>();
 
             for (var i = 0; i < splode.Length; i++)
             {
                 foreach (var p in parenParts)
                 {
                     if (splode[i].Contains(p.Key))
-                        splode[i] = splode[i].Replace(p.Key, p.Value);//.Substring(1,p.Value.Length-2));
+                        splode[i] = splode[i].Replace(p.Key, p.Value);
                 }
             }
             for (var i = 0; i < splode.Length; i++)
@@ -149,9 +162,23 @@ namespace TastyScript.IFunction.Tokens
                         splode[i] = splode[i].Replace(p.Key, p.Value).Replace("\"", "");
                 }
             }
-            //foreach (var x in splode)
-            //   Console.WriteLine("   " + x);
             return splode;
+        }
+    }
+    //a temp object used for passing relevent information to 
+    //the called function. lets try this instead of making all TFunction properties public
+    public class CallerInheritObject
+    {
+        public TFunction Caller;
+        public LoopTracer Tracer;
+        public ExtensionList Extensions;
+        public string[] InvokeProperties;
+        public CallerInheritObject(TFunction caller, LoopTracer tracer, ExtensionList extensions, string[] invokeProperties)
+        {
+            Caller = caller;
+            Tracer = tracer;
+            Extensions = extensions;
+            InvokeProperties = invokeProperties;
         }
     }
 }

@@ -33,7 +33,7 @@ namespace TastyScript.CoreFunctions.Internal
                 {
                     case ("Extension"):
                         List<string> output = new List<string>();
-                        foreach (var x in Caller.CallingFunction.Extensions.List)
+                        foreach (var x in Caller.GetParentExtension().List)
                             output.Add(x.Name);
                         ReturnBubble = new TArray("arr", output.ToArray(), "");
                         return true;
@@ -53,7 +53,7 @@ namespace TastyScript.CoreFunctions.Internal
                         ReturnBubble = new Token("isObsolete", (IsObsolete) ? "True" : "False", "");
                         return true;
                     case ("Dynamic"):
-                        var json = JsonConvert.SerializeObject(Caller.CallingFunction.Caller.DynamicDictionary, Formatting.Indented).CleanString();
+                        var json = JsonConvert.SerializeObject(Caller.GetParentDynamicDictionary(), Formatting.Indented).CleanString();
                         ReturnBubble = new Token("dict", json, "");
                         return true;
                 }
@@ -73,19 +73,19 @@ namespace TastyScript.CoreFunctions.Internal
                                 var sprop = properties.ElementAtOrDefault(1);
                                 if (sprop == null)
                                     Manager.Throw("Prop 'Args' must have a second parameter");
-                                var get = Caller.CallingFunction.Extensions.First(sprop);
+                                var get = Caller.GetParentExtension().First(sprop);
                                 if (get == null)
                                     ReturnBubble = new Token("null", "null", "");
                                 else
-                                    ReturnBubble = new TArray("arr", get.Extend(Caller.CallingFunction), "");
+                                    ReturnBubble = new TArray("arr", get.Extend(Caller.ParentFunction), "");
                             }
                             return true;
                         case ("Dynamic"):
                             if(fprop != "")
                             {
-                                if (Caller.CallingFunction.Caller.DynamicDictionary.ContainsKey(fprop))
+                                if (Caller.GetParentDynamicDictionary().ContainsKey(fprop))
                                 {
-                                    ReturnBubble = new Token("ret", Caller?.CallingFunction?.Caller?.DynamicDictionary?[fprop]?.ToString().CleanString(),"");
+                                    ReturnBubble = new Token("ret", Caller.GetParentDynamicDictionary()?[fprop]?.ToString().CleanString(),"");
                                 }
                                 else
                                 {
