@@ -12,17 +12,19 @@ namespace TastyScript.IFunction
 {
     public class TryCatchEvent : ITryCatchEvent
     {
-        internal BaseFunction TryBlock { get; }
         internal BaseFunction CatchBlock { get; }
+        internal BaseFunction TryBlock { get; }
+
         public TryCatchEvent(BaseFunction tryblock, BaseFunction catchblock)
         {
             TryBlock = tryblock;
             CatchBlock = catchblock;
         }
+
         public void TriggerCatchEvent(ExceptionObject ex)
         {
             Manager.ExceptionHandler.TryCatchEventStack.RemoveLast();
-            TryBlock.ReturnFlag = true;
+            TryBlock.SetReturnFlag(true);
             string line = System.Text.RegularExpressions.Regex.Escape(ex.Line);
             string[] arg = new string[] { "[" + ex.Type.ToString().CleanString() + "," + ex.Message.CleanString() + "," + line.CleanString() + "," + ex.Snippet.CleanString() + "]" };
             var tfunc = new TFunction(CatchBlock, TryBlock, arg);

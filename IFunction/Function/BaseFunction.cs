@@ -13,32 +13,15 @@ namespace TastyScript.IFunction.Function
 {
     public abstract class BaseFunction
     {
-        public ExtensionList _extensions;
-        protected BaseFunction _base;
-
-        /// <summary>
-        /// Properties that are included in anonymous functions. In most cases this will be an empty array
-        /// </summary>
-        protected string[] InvokeProperties;
-
         private static int _uidIndex = -1;
-        private int _generatedTokensIndex = -1;
+        private ExtensionList _extensions;
         public string[] Alias { get; private set; }
 
-        public BaseFunction Base
-        {
-            get
-            {
-                return _base;
-            }
-            protected set
-            {
-                _base = value;
-            }
-        }
-
+        public BaseFunction Base { get; protected set; }
         public TFunction Caller { get; protected set; }
+
         public Dictionary<string, string> Directives { get; protected set; }
+
         public string[] ExpectedArgs { get; protected set; }
 
         public ExtensionList Extensions
@@ -57,19 +40,9 @@ namespace TastyScript.IFunction.Function
             }
         }
 
-        public int GeneratedTokensIndex
-        {
-            get
-            {
-                _generatedTokensIndex++;
-                return _generatedTokensIndex;
-            }
-        }
-
         public bool IsAnonymous { get; protected set; }
         public bool IsBlindExecute { get; private set; }
         public bool IsInvoking { get; private set; }
-        public bool IsLocked { get; private set; }
         public bool IsLoop { get; protected set; }
         public bool IsObsolete { get; private set; }
         public bool IsOverride { get; protected set; }
@@ -77,16 +50,16 @@ namespace TastyScript.IFunction.Function
         public TokenList LocalVariables { get; protected set; }
         public string Name { get; protected set; }
         public TokenList ProvidedArgs { get; protected set; }
-        public Token ReturnBubble { get; set; }
-        public bool ReturnFlag { get; set; }
+        public Token ReturnBubble { get; protected set; }
+        public bool ReturnFlag { get; protected set; }
         public LoopTracer Tracer { get; protected set; }
         public int UID { get; private set; }
         public string Value { get; protected set; }
 
-        public string[] GetInvokeProperties()
-        {
-            return InvokeProperties;
-        }
+        /// <summary>
+        /// Properties that are included in anonymous functions. In most cases this will be an empty array
+        /// </summary>
+        protected string[] InvokeProperties { get; private set; }
 
         //sets the return flag and the return value to bubble up.
         //if this function is anonymously named, then it calls this method
@@ -130,6 +103,11 @@ namespace TastyScript.IFunction.Function
             IsObsolete = obsolete;
             Alias = alias;
             IsAnonymous = anon;
+        }
+
+        public void SetReturnFlag(bool flag)
+        {
+            ReturnFlag = flag;
         }
 
         public void SetSealed(bool flag)
@@ -209,6 +187,11 @@ namespace TastyScript.IFunction.Function
             }
             Manager.LoopTracerStack.Remove(tracer);
             tracer = null;
+        }
+
+        protected string[] GetInvokeProperties()
+        {
+            return InvokeProperties;
         }
 
         protected void GetUID()

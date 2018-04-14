@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TastyScript.ParserManager;
 using TastyScript.IFunction.Containers;
 using TastyScript.IFunction.Tokens;
@@ -19,10 +17,10 @@ namespace TastyScript.TastyScript
     public class ScriptParser
     {
         private FunctionList _compileStack;
-        private FunctionList importFStack = new FunctionList();
         private ExtensionList importEStack = new ExtensionList();
-        public static BaseFunction HaltFunction { get; private set; }
+        private FunctionList importFStack = new FunctionList();
         public static BaseFunction GuaranteedHaltFunction { get; private set; }
+        public static BaseFunction HaltFunction { get; private set; }
 
         public ScriptParser(string filename, string file)
         {
@@ -34,13 +32,12 @@ namespace TastyScript.TastyScript
             var onefile = ParseImports(file);
             ImportDlls("CoreFunctions.dll");
             ImportDlls("CoreExtensions.dll");
-            
+
             References.PredefinedList = importFStack.List;
 
             _compileStack = new FunctionList(ParseScopes(onefile, References.PredefinedList));
             _compileStack.AddRange(importFStack.List);
             ExtensionStack.AddRange(importEStack.List);
-
 
             Manager.SetCancellationTokenSource();
             FunctionStack.AddRange(_compileStack.List);
@@ -60,18 +57,57 @@ namespace TastyScript.TastyScript
             });
             StartParse();
         }
-        private string[] StrVersion()
+
+        private static List<BaseExtension> GetExtensions(Assembly[] asmbly = null)
         {
-            var vers = Assembly.GetExecutingAssembly().GetName().Version.ToString();
-            var spl = vers.Split('.');
-            return spl;
+            if (asmbly == null)
+                asmbly = AppDomain.CurrentDomain.GetAssemblies();
+            List<BaseExtension> temp = new List<BaseExtension>();
+            string definedIn = typeof(Extension).Assembly.GetName().Name;
+            foreach (Assembly assembly in asmbly)
+                if ((!assembly.GlobalAssemblyCache) && ((assembly.GetName().Name == definedIn) || assembly.GetReferencedAssemblies().Any(a => a.Name == definedIn)))
+                    foreach (System.Type type in assembly.GetTypes())
+                        if (type.GetCustomAttributes(typeof(Extension), true).Length > 0)
+                        {
+                            var func = assembly.GetType(type.ToString());
+                            var inst = Activator.CreateInstance(func) as BaseExtension;
+                            var attt = type.GetCustomAttribute(typeof(Extension), true) as Extension;
+                            inst.SetProperties(attt.Name, attt.ExpectedArgs, attt.Invoking, attt.Obsolete, attt.VariableExtension, attt.Alias);
+                            if (!attt.Depricated)
+                                temp.Add(inst);
+                        }
+            return temp;
         }
+
+        //uses reflection to get all the BaseFunction classes with the attribute [Function]
+        private static List<BaseFunction> GetPredefinedFunctions(Assembly[] asmbly = null)
+        {
+            if (asmbly == null)
+                asmbly = AppDomain.CurrentDomain.GetAssemblies();
+            List<BaseFunction> temp = new List<BaseFunction>();
+            string definedIn = typeof(Function).Assembly.GetName().Name;
+            foreach (Assembly assembly in asmbly)
+                if ((!assembly.GlobalAssemblyCache) && ((assembly.GetName().Name == definedIn) || assembly.GetReferencedAssemblies().Any(a => a.Name == definedIn)))
+                    foreach (System.Type type in assembly.GetTypes())
+                        if (type.GetCustomAttributes(typeof(Function), true).Length > 0)
+                        {
+                            var func = assembly.GetType(type.ToString());
+                            var inst = Activator.CreateInstance(func) as BaseFunction;
+                            var attt = type.GetCustomAttribute(typeof(Function), true) as Function;
+                            inst.SetProperties(attt.Name, attt.ExpectedArgs, attt.Invoking, attt.Sealed, attt.Obsolete, attt.Alias, attt.IsAnonymous);
+
+                            if (!attt.Depricated)
+                                temp.Add(inst);
+                        }
+            return temp;
+        }
+
         private void ImportDlls(string path)
         {
             try
             {
                 path = path.Replace("\r", "").Replace("\n", "");
-                Assembly dll = Assembly.LoadFrom(AppDomain.CurrentDomain.BaseDirectory + path);
+                Assembly dll = Assembly.LoadFrom(AppDomain.CurrentDomain.BaseDirectory + "lib/" + path);
                 importFStack.AddRange(GetPredefinedFunctions(new Assembly[] { dll }));
                 importEStack.AddRange(GetExtensions(new Assembly[] { dll }));
             }
@@ -80,6 +116,7 @@ namespace TastyScript.TastyScript
                 Manager.Throw($"There was an unexpected error importing {path}.", ExceptionType.SystemException);
             }
         }
+
         private string ParseImports(string file)
         {
             var output = file;
@@ -128,6 +165,7 @@ namespace TastyScript.TastyScript
             }
             return output;
         }
+
         private List<BaseFunction> ParseScopes(string file, List<BaseFunction> predefined)
         {
             var temp = new List<BaseFunction>();
@@ -194,58 +232,23 @@ namespace TastyScript.TastyScript
                     new TFunction(x).TryParse();
                 }
             }
-            
+
             if (startScope == null)
                 Manager.Throw($"Your script is missing a 'Start' function.", ExceptionType.SystemException);
             var startCollection = FunctionStack.Where("Start");
             if (startCollection.Count() != 2)
-                Manager.Throw($"There must be one `Start` function. There are {((startCollection.Count() - 2 < 0) ? 0 : startCollection.Count() -2)} `Start` functions in this script.", ExceptionType.SystemException);
+                Manager.Throw($"There must be one `Start` function. There are {((startCollection.Count() - 2 < 0) ? 0 : startCollection.Count() - 2)} `Start` functions in this script.", ExceptionType.SystemException);
             var startIndex = FunctionStack.IndexOf(startScope);
             FunctionStack.RemoveAt(startIndex);
 
             new TFunction(startScope, Manager.StartArgs).TryParse();
         }
-        //uses reflection to get all the BaseFunction classes with the attribute [Function]
-        public static List<BaseFunction> GetPredefinedFunctions(Assembly[] asmbly = null)
+
+        private string[] StrVersion()
         {
-            if (asmbly == null)
-                asmbly = AppDomain.CurrentDomain.GetAssemblies();
-            List<BaseFunction> temp = new List<BaseFunction>();
-            string definedIn = typeof(Function).Assembly.GetName().Name;
-            foreach (Assembly assembly in asmbly)
-                if ((!assembly.GlobalAssemblyCache) && ((assembly.GetName().Name == definedIn) || assembly.GetReferencedAssemblies().Any(a => a.Name == definedIn)))
-                    foreach (System.Type type in assembly.GetTypes())
-                        if (type.GetCustomAttributes(typeof(Function), true).Length > 0)
-                        {
-                            var func = assembly.GetType(type.ToString());
-                            var inst = Activator.CreateInstance(func) as BaseFunction;
-                            var attt = type.GetCustomAttribute(typeof(Function), true) as Function;
-                            inst.SetProperties(attt.Name, attt.ExpectedArgs, attt.Invoking, attt.Sealed, attt.Obsolete, attt.Alias, attt.IsAnonymous);
-                            
-                            if (!attt.Depricated)
-                                temp.Add(inst);
-                        }
-            return temp;
-        }
-        public static List<BaseExtension> GetExtensions(Assembly[] asmbly = null)
-        {
-            if (asmbly == null)
-                asmbly = AppDomain.CurrentDomain.GetAssemblies();
-            List<BaseExtension> temp = new List<BaseExtension>();
-            string definedIn = typeof(Extension).Assembly.GetName().Name;
-            foreach (Assembly assembly in asmbly)
-                if ((!assembly.GlobalAssemblyCache) && ((assembly.GetName().Name == definedIn) || assembly.GetReferencedAssemblies().Any(a => a.Name == definedIn)))
-                    foreach (System.Type type in assembly.GetTypes())
-                        if (type.GetCustomAttributes(typeof(Extension), true).Length > 0)
-                        {
-                            var func = assembly.GetType(type.ToString());
-                            var inst = Activator.CreateInstance(func) as BaseExtension;
-                            var attt = type.GetCustomAttribute(typeof(Extension), true) as Extension;
-                            inst.SetProperties(attt.Name, attt.ExpectedArgs, attt.Invoking, attt.Obsolete, attt.VariableExtension, attt.Alias);
-                            if (!attt.Depricated)
-                                temp.Add(inst);
-                        }
-            return temp;
+            var vers = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            var spl = vers.Split('.');
+            return spl;
         }
     }
 }
