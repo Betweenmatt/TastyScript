@@ -202,7 +202,7 @@ namespace TastyScript.TastyScript
             var startIndex = FunctionStack.IndexOf(startScope);
             FunctionStack.RemoveAt(startIndex);
 
-            startScope.TryParse(new TFunctionOld(startScope, new ExtensionList(), Manager.StartArgs, null));
+            new TFunction(startScope, Manager.StartArgs).TryParse();
         }
         //uses reflection to get all the BaseFunction classes with the attribute [Function]
         public static List<BaseFunction> GetPredefinedFunctions(Assembly[] asmbly = null)

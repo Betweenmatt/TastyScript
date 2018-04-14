@@ -61,9 +61,8 @@ namespace TastyScript.IFunction
             else
                 return "";
         }
-        public static void AnalyzeScreen(string success, BaseFunction successAction, BaseFunction failureAction, string[] prop, TFunctionOld caller = null)
+        public static void AnalyzeScreen(string success, BaseFunction successAction, BaseFunction failureAction, string[] prop, TFunction caller)
         {
-            var tfunc = new TFunctionOld(caller.Function, new ExtensionList(), string.Join(",", caller.Function.GetInvokeProperties()), caller.CallingFunction);
             try
             {
                 bool finished = false;
@@ -96,19 +95,26 @@ namespace TastyScript.IFunction
                 }
                 watch.Stop();
                 if (func)
-                    successAction.TryParse(tfunc);
+                {
+                    caller.RedirectFunctionToNewFunction(successAction);
+                    caller.TryParse();
+                }
                 else
-                    failureAction.TryParse(tfunc);
+                {
+                    caller.RedirectFunctionToNewFunction(failureAction);
+                    caller.TryParse();
+                }
             }
             catch
             {
                 Manager.ThrowSilent(("[63]Image check failed to execute. Continuing with failure function"));
-                failureAction.TryParse(tfunc);
+                caller.RedirectFunctionToNewFunction(failureAction);
+                caller.TryParse();
             }
         }
-        public static void AnalyzeScreen(string success, string failure, BaseFunction successAction, BaseFunction failureAction, string[] prop, TFunctionOld caller = null)
+        public static void AnalyzeScreen(string success, string failure, BaseFunction successAction, BaseFunction failureAction, string[] prop, TFunction caller)
         {
-            var tfunc = new TFunctionOld(caller.Function, new ExtensionList(), string.Join(",", caller.Function.GetInvokeProperties()), caller.CallingFunction);
+            
             try
             {
                 bool finished = false;
@@ -141,9 +147,15 @@ namespace TastyScript.IFunction
                 }
                 watch.Stop();
                 if (func)
-                    successAction.TryParse(tfunc);
+                {
+                    caller.RedirectFunctionToNewFunction(successAction);
+                    caller.TryParse();
+                }
                 else
-                    failureAction.TryParse(tfunc);
+                {
+                    caller.RedirectFunctionToNewFunction(failureAction);
+                    caller.TryParse();
+                }
             }
             catch
             {

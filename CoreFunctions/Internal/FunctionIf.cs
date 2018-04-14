@@ -68,9 +68,7 @@ namespace TastyScript.CoreFunctions
                         Manager.Throw($"Cannot find the invoked function.");
                         return false;
                     }
-                    //pass in invoke properties. shouldnt break with null
-                    func.SetInvokeProperties(new string[] { }, Caller.CallingFunction.LocalVariables.List, Caller.CallingFunction.ProvidedArgs.List);
-                    func.TryParse(new TFunctionOld(Caller.Function, new ExtensionList(), findThen.GetInvokeProperties(), this));
+                    new TFunction(func, this, findThen.GetInvokeProperties()).TryParse();
                 }
                 else
                 {
@@ -91,8 +89,7 @@ namespace TastyScript.CoreFunctions
                         Manager.Throw($"Cannot find the invoked function.");
                         return false;
                     }
-                    func.SetInvokeProperties(new string[] { }, Caller.CallingFunction.LocalVariables.List, Caller.CallingFunction.ProvidedArgs.List);
-                    func.TryParse(new TFunctionOld(Caller.Function, new ExtensionList(), findElse.GetInvokeProperties(), this));
+                    new TFunction(func, this, findElse.GetInvokeProperties()).TryParse();
                 }
             }
             return true;

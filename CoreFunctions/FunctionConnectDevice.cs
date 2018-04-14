@@ -21,7 +21,7 @@ namespace TastyScript.CoreFunctions
             ReturnBubble = new Token("serial", device, "");
             return true;
         }
-        protected override void ForExtension(TFunctionOld caller, BaseExtension findFor)
+        protected override void ForExtension(BaseExtension findFor)
         {
             Manager.Throw($"Cannot call 'For' on {this.Name}.");
         }

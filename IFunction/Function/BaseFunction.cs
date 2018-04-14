@@ -149,6 +149,10 @@ namespace TastyScript.IFunction.Function
             if (IsAnonymous || IsInvoking)
                 Caller.SetParentReturnToTopOfBubble(value);
         }
+        public string[] GetInvokeProperties()
+        {
+            return InvokeProperties;
+        }
         public void SetBase(BaseFunction func)
         {
             if (func.IsSealed)
@@ -171,6 +175,7 @@ namespace TastyScript.IFunction.Function
                 Tracer = inherit.Tracer;
                 Caller = inherit.Caller;
                 Extensions = inherit.Extensions;
+                IsBlindExecute = Caller.IsParentBlindExecute();
                 if (Caller.IsParentInvoking())
                 {
                     Console.WriteLine("SetInvokeProperties[new]");

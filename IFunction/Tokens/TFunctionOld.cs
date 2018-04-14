@@ -45,10 +45,10 @@ namespace TastyScript.IFunction.TokensOld
             Arguments = ReturnArgsArray(args);
             CallingFunction = callingFunction;
             
-            if (callingFunction?.Caller?.DynamicDictionary != null)
-            {
-                DynamicDictionary = callingFunction.Caller.DynamicDictionary;
-            }
+            //if (callingFunction?.Caller?.DynamicDictionary != null)
+            //{
+            //    DynamicDictionary = callingFunction.Caller.DynamicDictionary;
+            //}
             if (t != null)
                 Tracer = t;
             else
@@ -66,10 +66,10 @@ namespace TastyScript.IFunction.TokensOld
             Arguments = ReturnArgsArray(args);
             CallingFunction = callingFunction;
             CallingFunction = Function;
-            if (callingFunction?.Caller?.DynamicDictionary != null)
-            {
-                DynamicDictionary = callingFunction.Caller.DynamicDictionary;
-            }
+            //if (callingFunction?.Caller?.DynamicDictionary != null)
+            //{
+            //    DynamicDictionary = callingFunction.Caller.DynamicDictionary;
+            //}
             if (t != null)
                 Tracer = t;
             else
@@ -94,10 +94,10 @@ namespace TastyScript.IFunction.TokensOld
             Arguments = args;
             CallingFunction = callingFunction;
             CallingFunction = Function;
-            if (callingFunction?.Caller?.DynamicDictionary != null)
-            {
-                DynamicDictionary = callingFunction.Caller.DynamicDictionary;
-            }
+            //if (callingFunction?.Caller?.DynamicDictionary != null)
+            //{
+            //    DynamicDictionary = callingFunction.Caller.DynamicDictionary;
+            //}
             if (t != null)
                 Tracer = t;
             else

@@ -18,39 +18,62 @@ namespace TastyScript.IFunction.Tokens
         private BaseFunction Function;
         private string[] InvokeProperties;
         public string[] Arguments { get; }
-        private Dictionary<string, string> DynamicDictionary;
+        private Dictionary<string, object> DynamicDictionary;
 
         public TFunction(BaseFunction function)
         {
-
+            InvokeProperties = new string[] { };
+            Function = function;
+            Name = function.Name;
+            DynamicDictionary = ParentFunction?.Caller.DynamicDictionary;
         }
-        public TFunction(BaseFunction function, BaseFunction parentFunction, ExtensionList extensions, string[] arguments, LoopTracer tracer = null)
+        public TFunction(BaseFunction function, BaseFunction parentFunction)
+            : this(function)
         {
-
+            ParentFunction = parentFunction;
         }
-        public TFunction(BaseFunction function, BaseFunction parentFunction, ExtensionList extensions, string arguments, LoopTracer tracer = null)
+        public TFunction(BaseFunction function, BaseFunction parentFunction, ExtensionList extensions)
+            : this(function, parentFunction)
         {
-
+            Extensions = extensions;
         }
-        public TFunction(BaseFunction function, string arguments, LoopTracer tracer = null)
-            : this(function, null, new ExtensionList(), arguments, tracer) { }
-        public TFunction(BaseFunction function, string[] arguments, LoopTracer tracer = null)
-            : this(function, null, new ExtensionList(), arguments, tracer) { }
-        public TFunction(BaseFunction function, BaseFunction parentFunction, string[] arguments, LoopTracer tracer = null)
-            : this(function, parentFunction, new ExtensionList(), arguments, tracer){ }
-        public TFunction(BaseFunction function, BaseFunction parentFunction, string arguments, LoopTracer tracer = null)
-            : this(function, parentFunction, new ExtensionList(), arguments, tracer) { }
-        
+        public TFunction(BaseFunction function, BaseFunction parentFunction, ExtensionList extensions, string[] arguments)
+            : this(function, parentFunction, extensions)
+        {
+            Arguments = arguments;
+        }
+        public TFunction(BaseFunction function, BaseFunction parentFunction, ExtensionList extensions, string arguments)
+            : this(function, parentFunction, extensions)
+        {
+            Arguments = GetArgsArray(arguments);
+        }
+        public TFunction(BaseFunction function, string arguments)
+            : this(function, null, new ExtensionList(), arguments) { }
+        public TFunction(BaseFunction function, string[] arguments)
+            : this(function, null, new ExtensionList(), arguments) { }
+        public TFunction(BaseFunction function, BaseFunction parentFunction, string[] arguments)
+            : this(function, parentFunction, new ExtensionList(), arguments){ }
+        public TFunction(BaseFunction function, BaseFunction parentFunction, string arguments)
+            : this(function, parentFunction, new ExtensionList(), arguments) { }
+
 
         // MAYBE Use tryparse here instead on the function iteslf??
-        public void TryParse() => Function.TryParse(Inherit());
-        public void TryParse(bool forflag) => Function.TryParse(Inherit(), forflag);
+        public Token TryParse()
+        {
+            Function.TryParse(Inherit());
+            return Function.ReturnBubble;
+        }
+        public Token TryParse(bool forflag)
+        {
+            Function.TryParse(Inherit(), forflag);
+            return Function.ReturnBubble;
+        }
 
         public void SetInvokeProperties(string[] props) => InvokeProperties = props;
         //caller.callingfunction.extensions
         public ExtensionList GetParentExtension() => ParentFunction?.Extensions;
         //caller.callingfunction.caller.dynamicdictionary
-        public Dictionary<string, string> GetParentDynamicDictionary() => ParentFunction?.Caller?.DynamicDictionary;
+        public Dictionary<string, object> GetParentDynamicDictionary() => ParentFunction?.Caller?.DynamicDictionary;
         //caller.callingfunction.localvariables
         public TokenList GetParentLocalVariables() => ParentFunction?.LocalVariables;
         //caller.callingfunction.providedargs
@@ -70,6 +93,19 @@ namespace TastyScript.IFunction.Tokens
         //caller.callingfunction.isinvoking
         public bool IsParentInvoking() => IsParentNull() ? false : ParentFunction.IsInvoking;
 
+        public bool IsParentBlindExecute() => IsParentNull() ? false : ParentFunction.IsBlindExecute;
+        
+
+        /// <summary>
+        /// This redirect is when the called function is `Base` and needs to be redirected
+        /// to the base of the parent function
+        /// </summary>
+        /// <param name="b"></param>
+        public void RedirectFunctionToParentBase() => Function = ParentFunction.Base;
+
+        public void RedirectFunctionToNewFunction(BaseFunction func) => Function = func;
+
+        public void SetDynamicDictionary(Dictionary<string, object> dyn) => DynamicDictionary = dyn;
 
         public CallerInheritObject Inherit() => new CallerInheritObject(this, Tracer, Extensions, InvokeProperties);
 
