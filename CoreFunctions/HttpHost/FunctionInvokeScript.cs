@@ -60,7 +60,7 @@ namespace TastyScript.CoreFunctions.HttpHost
                 if (postfuncname != null)
                 {
                     var postfunc = FunctionStack.First(postfuncname.ToString());
-                    postfunc.TryParse(new TFunction(Caller.Function, new ExtensionList(), new string[] { }, this, null));
+                    postfunc.TryParse(new TFunctionOld(Caller.Function, new ExtensionList(), new string[] { }, this, null));
                 }
             });
             st.Start();
@@ -84,7 +84,7 @@ namespace TastyScript.CoreFunctions.HttpHost
                     foreach (var x in objs)
                     {
                         var func = FunctionStack.First("StdOut");
-                        func.TryParse(new TFunction(func, new ExtensionList(), new string[] 
+                        func.TryParse(new TFunctionOld(func, new ExtensionList(), new string[] 
                         {
                             x.text.CleanString(),//.Replace("[","").Replace("]","").Replace(",","."),
                             x.line,
@@ -100,7 +100,7 @@ namespace TastyScript.CoreFunctions.HttpHost
             else
             {
                 var func = FunctionStack.First("StdOut");
-                func.TryParse(new TFunction(func, new ExtensionList(), new string[] { msg, "true", "" }, this));
+                func.TryParse(new TFunctionOld(func, new ExtensionList(), new string[] { msg, "true", "" }, this));
             }
         }
     }

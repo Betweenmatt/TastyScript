@@ -37,7 +37,7 @@ namespace TastyScript.CoreFunctions.Internal
             catchfunc.SetInvokeProperties(new string[] { }, Caller.CallingFunction.LocalVariables.List, Caller.CallingFunction.ProvidedArgs.List);
             Manager.ExceptionHandler.TryCatchEventStack.Add(new TryCatchEvent(tryfunc, catchfunc));
             
-            tryfunc.TryParse(new TFunction(Caller.Function, new ExtensionList(), tryfunc.GetInvokeProperties(), Caller.CallingFunction));
+            tryfunc.TryParse(new TFunctionOld(Caller.Function, new ExtensionList(), tryfunc.GetInvokeProperties(), this));
 
 
             return true;

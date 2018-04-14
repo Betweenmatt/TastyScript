@@ -17,7 +17,7 @@ namespace TastyScript.CoreFunctions
             Manager.SleepDefaultTime = sleepnum;
             return true;
         }
-        protected override void ForExtension(TFunction caller, BaseExtension findFor)
+        protected override void ForExtension(TFunctionOld caller, BaseExtension findFor)
         {
             Manager.Throw($"Cannot call 'For' on {this.Name}.");
         }

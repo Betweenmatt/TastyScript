@@ -15,7 +15,7 @@ namespace TastyScript.CoreFunctions.Internal
             Manager.Throw($"{this.Name} can not be overrided.");
             return false;
         }
-        protected override void ForExtension(TFunction caller, BaseExtension findFor)
+        protected override void ForExtension(TFunctionOld caller, BaseExtension findFor)
         {
             Manager.Throw($"Cannot call 'For' on {this.Name}.");
         }

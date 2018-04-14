@@ -64,6 +64,7 @@
     <Compile Include="References.cs" />
     <Compile Include="Tokens\TArray.cs" />
     <Compile Include="Tokens\TFunction.cs" />
+    <Compile Include="Tokens\TFunctionOld.cs" />
     <Compile Include="Tokens\Token.cs" />
     <Compile Include="TryCatchEvent.cs" />
   </ItemGroup>

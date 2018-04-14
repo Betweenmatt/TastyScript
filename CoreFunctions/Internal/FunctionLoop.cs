@@ -68,7 +68,7 @@ namespace TastyScript.CoreFunctions
                             passed = new string[] { x.ToString() };
                         }
                         func.SetInvokeProperties(new string[] { }, Caller.CallingFunction.LocalVariables.List, Caller.CallingFunction.ProvidedArgs.List);
-                        func.TryParse(new TFunction(Caller.Function, new ExtensionList(), passed, this, tracer));
+                        func.TryParse(new TFunctionOld(Caller.Function, new ExtensionList(), passed, this, tracer));
                     }
                     else
                     {
@@ -117,7 +117,7 @@ namespace TastyScript.CoreFunctions
                             passed = new string[] { x.ToString() };
                         }
                         func.SetInvokeProperties(new string[] { }, Caller.CallingFunction.LocalVariables.List, Caller.CallingFunction.ProvidedArgs.List);
-                        func.TryParse(new TFunction(Caller.Function, new ExtensionList(), passed, this, tracer));
+                        func.TryParse(new TFunctionOld(Caller.Function, new ExtensionList(), passed, this, tracer));
                         x++;
                     }
                     else
@@ -131,7 +131,7 @@ namespace TastyScript.CoreFunctions
             return true;
         }
         //stop the base for looping extension from overriding this custom looping function
-        protected override void ForExtension(TFunction caller, BaseExtension findFor)
+        protected override void ForExtension(TFunctionOld caller, BaseExtension findFor)
         {
             TryParse(caller, true);
         }

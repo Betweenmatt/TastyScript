@@ -46,6 +46,7 @@ namespace TastyScript.TastyScript
                 //only for debugging srs issues
                 if (!(e is CompilerControlledException) || Settings.LogLevel == "throw")
                 {
+                    throw;
                     Manager.ExceptionHandler.LogThrow("Unexpected error", e);
                 }
                 //Console.WriteLine(e);

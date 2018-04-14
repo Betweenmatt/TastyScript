@@ -379,7 +379,7 @@ namespace TastyScript.TastyScript.Parser
         }
         private string ParseFunctions(string value, List<BaseExtension> ext, bool safelook = false)
         {
-            TFunction temp = null;
+            TFunctionOld temp = null;
             string val = value;
             var firstSplit = value.Split('|')[0];
             var secondSplit = firstSplit.Split(new string[] { "->" }, StringSplitOptions.None);
@@ -419,7 +419,7 @@ namespace TastyScript.TastyScript.Parser
                     }
                 }
             }
-            var returnObj = new TFunction(func, new ExtensionList(ext), param[0].ToString(), _reference);
+            var returnObj = new TFunctionOld(func, new ExtensionList(ext), param[0].ToString(), _reference);
             temp = returnObj;
             //do the whole returning thing
             var getret = Parse(temp);
@@ -864,7 +864,7 @@ namespace TastyScript.TastyScript.Parser
             return null;
         }
 
-        private Token Parse(TFunction t)
+        private Token Parse(TFunctionOld t)
         {
             if (!_reference.ReturnFlag)
             {
@@ -880,7 +880,7 @@ namespace TastyScript.TastyScript.Parser
             }
             return null;
         }
-        private Token TryParseMember(TFunction t)
+        private Token TryParseMember(TFunctionOld t)
         {
             if (t == null)
                 return null;

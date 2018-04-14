@@ -51,7 +51,7 @@ namespace TastyScript.CoreFunctions.HttpHost
                 if (model.TryGetValue("Call", out dynamic callout))
                 {
                     var func = FunctionStack.First((String)callout);
-                    func.TryParse(new TFunction(func, new ExtensionList(), model.ToDictionary(), null, null));
+                    func.TryParse(new TFunctionOld(func, new ExtensionList(), model.ToDictionary(), null, null));
                     return func.ReturnBubble?.ToString().UnCleanString();
                 }
                 else

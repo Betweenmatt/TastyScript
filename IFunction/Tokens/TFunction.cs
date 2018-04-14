@@ -11,124 +11,71 @@ using TastyScript.ParserManager.Looping;
 
 namespace TastyScript.IFunction.Tokens
 {
-    /// <summary>
-    /// TFunction overhaul: currently when a function is being invoked you must use func.SetInvokeProperties before the
-    /// TryParse(tfunc) call. This is to pass on local variables/provided args to invoked functions anonymous or otherwise.
-    /// The idea behind this overhaul is to encapsulate the SetInvokeProperties call inside the TFunction, letting TFunction
-    /// decide to send it or not. Too many times have I forgotten to use SetInvokeProperties and this should fix that in an autonomous way.
-    /// The current implementation of TFunction is super sloppy anyway so i will be cleaning that up too
-    /// </summary>
     public class TFunction : Token
     {
-        public BaseFunction Function { get; private set; }
-        public string[] Arguments { get; private set; }
-        public BaseFunction CallingFunction { get; private set; }
-        public bool BlindExecute { get; set; }
-        public LoopTracer Tracer { get; private set; }
-        public Dictionary<string, object> DynamicDictionary { get; private set; }
+        private LoopTracer Tracer;
+        public BaseFunction ParentFunction { get; }
+        private BaseFunction Function;
+        private string[] InvokeProperties;
+        public string[] Arguments { get; }
+        private Dictionary<string, string> DynamicDictionary;
 
-        /// <summary>
-        /// callFunction is the function being called for reference.
-        /// callingFunction is the function that is calling callFunction.
-        /// </summary>
-        /// <param name="callFunction"></param>
-        /// <param name="args"></param>
-        /// <param name="callingFunction"></param>
-        /// <param name="t"></param>
-        public TFunction(BaseFunction callFunction, string args, BaseFunction callingFunction, LoopTracer t = null)
+        public TFunction(BaseFunction function)
         {
-            Name = callFunction.Name;
-            Function = callFunction;
-            _value = "<Type.TFunction>";
-            Extensions = new ExtensionList();
-            Arguments = ReturnArgsArray(args);
-            CallingFunction = callingFunction;
-            
-            if (callingFunction?.Caller?.DynamicDictionary != null)
-            {
-                DynamicDictionary = callingFunction.Caller.DynamicDictionary;
-            }
-            if (t != null)
-                Tracer = t;
-            else
-                if (callingFunction != null)
-                Tracer = callingFunction.Tracer;
-            else
-                Tracer = null;
+
         }
-        public TFunction(BaseFunction callFunction, ExtensionList extensions, string args, BaseFunction callingFunction, LoopTracer t = null)
+        public TFunction(BaseFunction function, BaseFunction parentFunction, ExtensionList extensions, string[] arguments, LoopTracer tracer = null)
         {
-            Name = callFunction.Name;
-            Function = callFunction;
-            _value = "<Type.TFunction>";
-            Extensions = extensions;
-            Arguments = ReturnArgsArray(args);
-            CallingFunction = callingFunction;
-            if (callingFunction?.Caller?.DynamicDictionary != null)
-            {
-                DynamicDictionary = callingFunction.Caller.DynamicDictionary;
-            }
-            if (t != null)
-                Tracer = t;
-            else
-                if (callingFunction != null)
-                Tracer = callingFunction.Tracer;
-            else
-                Tracer = null;
+
         }
-        /// <summary>
-        /// callingFunction is the function that is calling(usually `this`), func is the function being called
-        /// </summary>
-        /// <param name="func"></param>
-        /// <param name="ext"></param>
-        /// <param name="args"></param>
-        /// <param name="callingFunction"></param>
-        public TFunction(BaseFunction func, ExtensionList ext, string[] args, BaseFunction callingFunction, LoopTracer t = null)
+        public TFunction(BaseFunction function, BaseFunction parentFunction, ExtensionList extensions, string arguments, LoopTracer tracer = null)
         {
-            Name = func.Name;
-            Function = func;
-            _value = "<Type.TFunction>";
-            Extensions = ext;
-            Arguments = args;
-            CallingFunction = callingFunction;
-            if(callingFunction?.Caller?.DynamicDictionary != null)
-            {
-                DynamicDictionary = callingFunction.Caller.DynamicDictionary;
-            }
-            if (t != null)
-                Tracer = t;
-            else
-                if (callingFunction != null)
-                Tracer = callingFunction.Tracer;
-            else
-                Tracer = null;
+
         }
-        public TFunction(BaseFunction func, ExtensionList ext, Dictionary<string, object> args, BaseFunction callingFunction, LoopTracer t = null)
-        {
-            Name = func.Name;
-            Function = func;
-            _value = "<Type.TFunction>";
-            Extensions = ext;
-            Arguments = new string[] { "<Type.Dynamic>" };
-            DynamicDictionary = args;
-            CallingFunction = callingFunction;
-            if (t != null)
-                Tracer = t;
-            else
-                if (callingFunction != null)
-                Tracer = callingFunction.Tracer;
-            else
-                Tracer = null;
-        }
-        public void SetTracer(LoopTracer t)
-        {
-            Tracer = t;
-        }
-        public string[] ReturnArgsArray()
-        {
-            return Arguments;
-        }
-        private string[] ReturnArgsArray(string args)
+        public TFunction(BaseFunction function, string arguments, LoopTracer tracer = null)
+            : this(function, null, new ExtensionList(), arguments, tracer) { }
+        public TFunction(BaseFunction function, string[] arguments, LoopTracer tracer = null)
+            : this(function, null, new ExtensionList(), arguments, tracer) { }
+        public TFunction(BaseFunction function, BaseFunction parentFunction, string[] arguments, LoopTracer tracer = null)
+            : this(function, parentFunction, new ExtensionList(), arguments, tracer){ }
+        public TFunction(BaseFunction function, BaseFunction parentFunction, string arguments, LoopTracer tracer = null)
+            : this(function, parentFunction, new ExtensionList(), arguments, tracer) { }
+        
+
+        // MAYBE Use tryparse here instead on the function iteslf??
+        public void TryParse() => Function.TryParse(Inherit());
+        public void TryParse(bool forflag) => Function.TryParse(Inherit(), forflag);
+
+        public void SetInvokeProperties(string[] props) => InvokeProperties = props;
+        //caller.callingfunction.extensions
+        public ExtensionList GetParentExtension() => ParentFunction?.Extensions;
+        //caller.callingfunction.caller.dynamicdictionary
+        public Dictionary<string, string> GetParentDynamicDictionary() => ParentFunction?.Caller?.DynamicDictionary;
+        //caller.callingfunction.localvariables
+        public TokenList GetParentLocalVariables() => ParentFunction?.LocalVariables;
+        //caller.callingfunction.providedargs
+        public TokenList GetParentLocalArguments() => ParentFunction?.ProvidedArgs;
+        //caller.callingfunction.caller.callingfunction.providedargs
+        public TokenList GetParentOfParentLocalArguments() => ParentFunction?.Caller.ParentFunction?.ProvidedArgs;
+        //caller.callingfunction.caller.callingfunction.localvariables
+        public TokenList GetParentOfParentLocalVariables() => ParentFunction?.Caller.ParentFunction?.LocalVariables;
+        //caller.callingfunction.base
+        public BaseFunction GetParentBase() => ParentFunction?.Base;
+        //caller.callingfunction.returntotopofbubble
+        public void SetParentReturnToTopOfBubble(Token value) => ParentFunction?.ReturnToTopOfBubble(value);
+        //caller.callingfunction.isloop
+        public bool IsParentLoop() => IsParentNull() ? false : ParentFunction.IsLoop;
+        //caller.callingfunction is null
+        public bool IsParentNull() => ParentFunction == null ? true : false;
+        //caller.callingfunction.isinvoking
+        public bool IsParentInvoking() => IsParentNull() ? false : ParentFunction.IsInvoking;
+
+
+        public CallerInheritObject Inherit() => new CallerInheritObject(this, Tracer, Extensions, InvokeProperties);
+
+        public void SetTracer(LoopTracer tracer) => Tracer = tracer;
+        
+        private string[] GetArgsArray(string args)
         {
             if (args == null)
                 return new string[] { };
@@ -177,6 +124,22 @@ namespace TastyScript.IFunction.Tokens
                 }
             }
             return splode;
+        }
+    }
+    //a temp object used for passing relevent information to 
+    //the called function. lets try this instead of making all TFunction properties public
+    public class CallerInheritObject
+    {
+        public TFunction Caller;
+        public LoopTracer Tracer;
+        public ExtensionList Extensions;
+        public string[] InvokeProperties;
+        public CallerInheritObject(TFunction caller, LoopTracer tracer, ExtensionList extensions, string[] invokeProperties)
+        {
+            Caller = caller;
+            Tracer = tracer;
+            Extensions = extensions;
+            InvokeProperties = invokeProperties;
         }
     }
 }

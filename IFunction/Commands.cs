@@ -61,9 +61,9 @@ namespace TastyScript.IFunction
             else
                 return "";
         }
-        public static void AnalyzeScreen(string success, BaseFunction successAction, BaseFunction failureAction, string[] prop, TFunction caller = null)
+        public static void AnalyzeScreen(string success, BaseFunction successAction, BaseFunction failureAction, string[] prop, TFunctionOld caller = null)
         {
-            var tfunc = new TFunction(caller.Function, new ExtensionList(), string.Join(",", caller.Function.GetInvokeProperties()), caller.CallingFunction);
+            var tfunc = new TFunctionOld(caller.Function, new ExtensionList(), string.Join(",", caller.Function.GetInvokeProperties()), caller.CallingFunction);
             try
             {
                 bool finished = false;
@@ -106,9 +106,9 @@ namespace TastyScript.IFunction
                 failureAction.TryParse(tfunc);
             }
         }
-        public static void AnalyzeScreen(string success, string failure, BaseFunction successAction, BaseFunction failureAction, string[] prop, TFunction caller = null)
+        public static void AnalyzeScreen(string success, string failure, BaseFunction successAction, BaseFunction failureAction, string[] prop, TFunctionOld caller = null)
         {
-            var tfunc = new TFunction(caller.Function, new ExtensionList(), string.Join(",", caller.Function.GetInvokeProperties()), caller.CallingFunction);
+            var tfunc = new TFunctionOld(caller.Function, new ExtensionList(), string.Join(",", caller.Function.GetInvokeProperties()), caller.CallingFunction);
             try
             {
                 bool finished = false;

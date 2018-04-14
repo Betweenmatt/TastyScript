@@ -14,6 +14,9 @@ namespace TastyScript.TastyScript
     {
         static void Main(string[] args)
         {
+            args = new string[] {
+                "-d", "../scripts/", "-r", "langex.ts"
+            };
             Manager.ExceptionHandler = new ExceptionHandler();
             Manager.Driver = new AndroidDriver();
             Manager.Init(new IOStream());
@@ -65,7 +68,9 @@ namespace TastyScript.TastyScript
             {
                 TastyScript.Main.CommandRun(run);
             }
-            catch(Exception e) { Manager.Print(e.Message); }
+            catch(Exception e) { Manager.Print(e);}
+            Console.ReadLine();
+            Console.ReadLine();
         }
     }
 }

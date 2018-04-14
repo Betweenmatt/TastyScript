@@ -19,8 +19,8 @@ namespace TastyScript.IFunction.Function
         {
             get
             {
-                if (IsAnonymous)
-                    return Caller.CallingFunction.Base;
+                //if (IsAnonymous)
+                //    return Caller.CallingFunction.Base;
                 return _base;
             }
             protected set
@@ -28,6 +28,7 @@ namespace TastyScript.IFunction.Function
                 _base = value;
             }
         }
+        //public TFunctionOld Caller { get; protected set; }
         public TFunction Caller { get; protected set; }
         public Dictionary<string, string> Directives { get; protected set; }
         public string[] ExpectedArgs { get; protected set; }
@@ -57,7 +58,8 @@ namespace TastyScript.IFunction.Function
             }
         }
         
-        protected string[] invokeProperties;
+        [Obsolete("Still trying to figure out why i implemented this")]
+        protected string[] InvokeProperties;
         public bool IsAnonymous { get; protected set; }
         public bool IsBlindExecute { get; protected set; }
         /// <summary>
@@ -80,18 +82,50 @@ namespace TastyScript.IFunction.Function
         private static int _uidIndex = -1;
         public string Value { get; protected set; }
 
-        public abstract void TryParse(TFunction caller);
-        public abstract void TryParse(TFunction caller, bool forFlag);
+        protected abstract void TryParse();
+        protected abstract void TryParse(bool forFlag);
+
+        public void TryParse(CallerInheritObject inherit)
+        {
+            InheritCaller(inherit);
+            TryParse();
+        }
+         /// <summary>
+         /// <param name="forFlag"></param> is an arbitrary bool used only to trigger this specific overload which omits the for loop check.
+         /// You should be using the overload with no parameters!
+         /// </summary>
+         /// <param name="forFlag"></param>
+        public void TryParse(CallerInheritObject inherit, bool forFlag)
+        {
+            InheritCaller(inherit);
+            TryParse(forFlag);
+        }
+        /// <summary>
+        /// Assign ProvidedArgs values based on the expected args and the given args
+        /// </summary>
+        protected void AssignParameters()
+        {
+            //combine expected args and given args and add them to variabel pool
+            if (Caller.Arguments != null && ExpectedArgs != null && ExpectedArgs.Length > 0)
+            {
+                ProvidedArgs = new TokenList();
+                var args = Caller.Arguments;
+                if (ExpectedArgs.Length > 0)
+                {
+                    for (var i = 0; i < ExpectedArgs.Length; i++)
+                    {
+                        var exp = ExpectedArgs[i].Replace("var ", "").Replace(" ", "");
+                        if (args.ElementAtOrDefault(i) == null)
+                            ProvidedArgs.Add(new Token(exp, "null", ""));
+                        else
+                            ProvidedArgs.Add(new Token(exp, args[i],""));
+                    }
+                }
+            }
+        }
         public void SetBlindExecute(bool flag)
         {
             IsBlindExecute = flag;
-        }
-        public string[] GetInvokeProperties()
-        {
-            if (invokeProperties == null)
-                return new string[] { };
-            else
-                return invokeProperties;
         }
         protected void GetUID()
         {
@@ -106,17 +140,14 @@ namespace TastyScript.IFunction.Function
         {
             ReturnBubble = value;
             ReturnFlag = true;
-            if (Caller != null && Caller.CallingFunction != null && Caller.CallingFunction.IsLoop)
+            if (Caller.IsParentLoop())
             {
                 var tracer = Tracer;
                 if (tracer != null)
                     tracer.SetBreak(true);
             }
-            if (Caller != null)
-            {
-                if (IsAnonymous || IsInvoking)
-                    Caller.CallingFunction.ReturnToTopOfBubble(value);
-            }
+            if (IsAnonymous || IsInvoking)
+                Caller.SetParentReturnToTopOfBubble(value);
         }
         public void SetBase(BaseFunction func)
         {
@@ -129,32 +160,34 @@ namespace TastyScript.IFunction.Function
         /// Also inherits variables on invoked functions
         /// </summary>
         /// <param name="caller"></param>
-        protected void InheritCaller(TFunction caller, bool test = false)
+        protected void InheritCaller(CallerInheritObject inherit)
         {
-            if (caller != null)
+            ReturnBubble = null;
+            ReturnFlag = false;
+            if (inherit != null)
             {
-                invokeProperties = new string[] { };
-                SetBlindExecute(caller.BlindExecute);
-                Tracer = caller.Tracer;
-                Caller = caller;
-                if(!test)
-                    Extensions = caller.Extensions;
-                if (caller.CallingFunction.IsInvoking)
-                {/*
-                    List<Token> vars = caller.CallingFunction.Caller.CallingFunction.LocalVariables.List;
-                    List<Token> prov = caller.CallingFunction.Caller.CallingFunction.ProvidedArgs.List;
+                InvokeProperties = inherit.InvokeProperties;
+                //IsBlindExecute = caller.BlindExecute;
+                Tracer = inherit.Tracer;
+                Caller = inherit.Caller;
+                Extensions = inherit.Extensions;
+                if (Caller.IsParentInvoking())
+                {
+                    Console.WriteLine("SetInvokeProperties[new]");
+                    List<Token> vars = Caller.GetParentOfParentLocalVariables()?.List ?? new List<Token>();
+                    List<Token> prov = Caller.GetParentOfParentLocalArguments()?.List ?? new List<Token>();
                     LocalVariables = new TokenList();
                     vars.RemoveAll(r => r.Name == "");
                     prov.RemoveAll(r => r.Name == "");
                     LocalVariables.AddRange(vars);
-                    LocalVariables.AddRange(prov);*/
+                    LocalVariables.AddRange(prov);
                 }
             }
         }
         [Obsolete]
         public void SetInvokeProperties(string[] args, List<Token> vars, List<Token> oldargs)
-        {
-            Console.WriteLine("SetInvokeProperties");
+        {/*
+            Console.WriteLine("SetInvokeProperties[old]");
             
             invokeProperties = args;
             LocalVariables = new TokenList();
@@ -162,7 +195,7 @@ namespace TastyScript.IFunction.Function
             oldargs.RemoveAll(r => r.Name == "");
             LocalVariables.AddRange(vars);
             LocalVariables.AddRange(oldargs);//add the parameters from the calling function to this functions local var stack
-            
+         */   
         }
         public void SetProperties(string name, string[] args, bool invoking, bool isSealed, bool obsolete, string[] alias, bool anon)
         {
@@ -174,18 +207,13 @@ namespace TastyScript.IFunction.Function
             Alias = alias;
             IsAnonymous = anon;
         }
-        protected void ResetReturn()
-        {
-            ReturnBubble = null;
-            ReturnFlag = false;
-        }
         public void SetSealed(bool flag)
         {
             IsSealed = flag;
         }
 
         
-        protected virtual void ForExtension(TFunction caller, BaseExtension findFor)
+        protected virtual void ForExtension(BaseExtension findFor)
         {
             this.IsLoop = true;
             string[] forNumber = findFor.Extend();
@@ -206,8 +234,8 @@ namespace TastyScript.IFunction.Function
                     {
                         tracer.SetContinue(false);//reset continue
                     }
-                    caller.SetTracer(tracer);
-                    TryParse(caller, true);
+                    Caller.SetTracer(tracer);
+                    Caller.TryParse(true);
                 }
                 else
                 {

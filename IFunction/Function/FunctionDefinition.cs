@@ -13,8 +13,8 @@ namespace TastyScript.IFunction.Functions
         public static void Sleep(double ms, TFunction caller)
         {
             var sleep = FunctionStack.First("Sleep");
-            var func = new TFunction(sleep, new ExtensionList(), ms.ToString() , caller.CallingFunction);
-            sleep.TryParse(func);
+            var func = new TFunction(sleep, caller.ParentFunction, ms.ToString());
+            func.TryParse();
         }
     }
     public abstract class FunctionDefinition : BaseFunction
@@ -38,60 +38,20 @@ namespace TastyScript.IFunction.Functions
         public void Print(string msg, ConsoleColor color, bool line = true) => Manager.Print(msg, color, line);
 
         public abstract bool CallBase();
-        public sealed override void TryParse(TFunction caller)
+        protected sealed override void TryParse()
         {
-            ResetReturn();
-            InheritCaller(caller);
             var findFor = Extensions.First("For");
             if (findFor != null)
             {
                 //if for extension exists, reroutes this tryparse method to the loop version without the for check
-                ForExtension(caller, findFor);
+                ForExtension(findFor);
                 return;
             }
-            if (caller != null && caller.Arguments != null && ExpectedArgs != null && ExpectedArgs.Length > 0)
-            {
-                
-                ProvidedArgs = new TokenList();
-                var args = caller.ReturnArgsArray();
-                if (args.Length > 0)
-                {
-                    if (args.Length > ExpectedArgs.Length)
-                    {
-                        Manager.Throw($"The arguments supplied do not match the arguments expected!");
-                        return;
-                    }
-                    for (var i = 0; i < args.Length; i++)
-                    {
-                        var exp = ExpectedArgs[i].Replace("var ", "").Replace(" ", "");
-                        ProvidedArgs.Add(new Token(exp, args[i], caller.Line));
-                    }
-                }
-            }
-            Parse();
+            TryParse(true);
         }
-        public sealed override void TryParse(TFunction caller, bool forFlag)
+        protected sealed override void TryParse(bool forFlag)
         {
-            ResetReturn();
-            InheritCaller(caller);
-            if (caller != null && caller.Arguments != null && ExpectedArgs != null && ExpectedArgs.Length > 0)
-            {
-                ProvidedArgs = new TokenList();
-                var args = caller.ReturnArgsArray();
-                if (args.Length > 0)
-                {
-                    if (args.Length > ExpectedArgs.Length)
-                    {
-                        Manager.Throw($"The arguments supplied do not match the arguments expected!");
-                        return;
-                    }
-                    for (var i = 0; i < args.Length; i++)
-                    {
-                        var exp = ExpectedArgs[i].Replace("var ", "").Replace(" ", "");
-                        ProvidedArgs.Add(new Token(exp, args[i], caller.Line));
-                    }
-                }
-            }
+            AssignParameters();
             Parse();
         }
 

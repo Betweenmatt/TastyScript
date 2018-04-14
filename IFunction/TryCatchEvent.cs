@@ -24,7 +24,7 @@ namespace TastyScript.IFunction
             TryBlock.ReturnFlag = true;
             string line = System.Text.RegularExpressions.Regex.Escape(ex.Line);
             string[] arg = new string[] { "[" + ex.Type.ToString().CleanString() + "," + ex.Message.CleanString() + "," + line.CleanString() + "," + ex.Snippet.CleanString() + "]" };
-            CatchBlock.TryParse(new Tokens.TFunction(CatchBlock, null, arg, TryBlock));
+            CatchBlock.TryParse(new Tokens.TFunctionOld(CatchBlock, null, arg, TryBlock));
         }
     }
 }

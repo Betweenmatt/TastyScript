@@ -16,7 +16,7 @@ namespace TastyScript.IFunction.Extension
             List<string> temp = new List<string>();
             temp.Add(input.Name);
             temp.AddRange(base.Extend());
-            FunctionReference.TryParse(new TFunction(FunctionReference, null, temp.ToArray(), null));
+            FunctionReference.TryParse(new TFunctionOld(FunctionReference, null, temp.ToArray(), null));
             return Execute(FunctionReference.ReturnBubble.ToString());
         }
         public override Token Extend(Token input)
@@ -24,7 +24,7 @@ namespace TastyScript.IFunction.Extension
             List<string> temp = new List<string>();
             temp.Add(input.ToString());
             temp.AddRange(base.Extend());
-            FunctionReference.TryParse(new TFunction(FunctionReference, null, temp.ToArray(), null));
+            FunctionReference.TryParse(new TFunctionOld(FunctionReference, null, temp.ToArray(), null));
             return FunctionReference.ReturnBubble;
         }
     }
