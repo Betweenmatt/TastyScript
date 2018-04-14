@@ -190,7 +190,7 @@ namespace TastyScript.TastyScript
                 var awakecollection = FunctionStack.Where("Awake");
                 foreach (var x in awakecollection)
                 {
-                    x.TryParse(null);
+                    new TFunction(x).TryParse();
                 }
             }
             

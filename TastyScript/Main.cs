@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
+using TastyScript.IFunction.Tokens;
 using TastyScript.ParserManager;
 using TastyScript.ParserManager.Driver.Android;
 using TastyScript.ParserManager.ExceptionHandler;
@@ -82,12 +83,12 @@ namespace TastyScript.TastyScript
                 if (ScriptParser.HaltFunction != null)
                 {
                     ScriptParser.HaltFunction.SetBlindExecute(true);
-                    ScriptParser.HaltFunction.TryParse(null);
+                    new TFunction(ScriptParser.HaltFunction).TryParse();
                 }
                 if (ScriptParser.GuaranteedHaltFunction != null)
                 {
                     ScriptParser.GuaranteedHaltFunction.SetBlindExecute(true);
-                    ScriptParser.GuaranteedHaltFunction.TryParse(null);
+                    new TFunction(ScriptParser.GuaranteedHaltFunction).TryParse();
                 }
             }
             catch

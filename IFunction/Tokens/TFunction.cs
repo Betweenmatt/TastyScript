@@ -26,6 +26,7 @@ namespace TastyScript.IFunction.Tokens
             Function = function;
             Name = function.Name;
             DynamicDictionary = ParentFunction?.Caller.DynamicDictionary;
+            Extensions = new ExtensionList();
         }
         public TFunction(BaseFunction function, BaseFunction parentFunction)
             : this(function)

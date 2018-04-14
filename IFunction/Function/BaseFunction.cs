@@ -178,7 +178,7 @@ namespace TastyScript.IFunction.Function
                 IsBlindExecute = Caller.IsParentBlindExecute();
                 if (Caller.IsParentInvoking())
                 {
-                    Console.WriteLine("SetInvokeProperties[new]");
+                    //Console.WriteLine("SetInvokeProperties[new]");
                     List<Token> vars = Caller.GetParentOfParentLocalVariables()?.List ?? new List<Token>();
                     List<Token> prov = Caller.GetParentOfParentLocalArguments()?.List ?? new List<Token>();
                     LocalVariables = new TokenList();
