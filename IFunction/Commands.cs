@@ -17,43 +17,55 @@ namespace TastyScript.IFunction
     public static class Commands
     {
         public static string GetScreenHeight() => Manager.Driver.ScreenHeight;
+
         public static string GetScreenWidth() => Manager.Driver.ScreenWidth;
+
         public static string Connect() => Manager.Driver.Connect();
+
         public static string Connect(string i) => Manager.Driver.Connect(i);
+
         public static void Tap(int x, int y)
         {
             Manager.Driver.SendCommand($"input tap {x} {y}");
         }
+
         public static void LongTap(int x, int y, int duration)
         {
             Manager.Driver.SendCommand($"input swipe {x} {y} {x} {y} {duration}");
         }
+
         public static void Swipe(int x1, int y1, int x2, int y2, int duration)
         {
             Manager.Driver.SendCommand($"input swipe {x1} {y1} {x2} {y2} {duration}");
         }
+
         public static void KeyEvent(AndroidKeyCode code)
         {
             Manager.Driver.SendCommand($"input keyevent {(int)code}");
         }
+
         public static void SendText(string text)
         {
             Manager.Driver.SendCommand($"input text {text.UnCleanString().Replace(" ", "%s")}");
         }
+
         public static Image GetScreenshot()
         {
             return Manager.Driver.GetScreenshot().Result;
         }
+
         public static string SetAppPackage(string pkg)
         {
             return Manager.Driver.SetAppPackage(pkg.UnCleanString());
         }
+
         public static double[] GetImageCoordinates(string path, string[] prop)
         {
             AnalyzeScreen a = new AnalyzeScreen();
             var ret = a.GetScreenCoords(path.UnCleanString(), prop);
             return ret;
         }
+
         public static string GetDeviceSerial()
         {
             if (!Manager.Driver.IsConnected())
@@ -61,6 +73,7 @@ namespace TastyScript.IFunction
             else
                 return "";
         }
+
         public static void AnalyzeScreen(string success, BaseFunction successAction, BaseFunction failureAction, string[] prop, TFunction caller)
         {
             try
@@ -112,9 +125,9 @@ namespace TastyScript.IFunction
                 caller.TryParse();
             }
         }
+
         public static void AnalyzeScreen(string success, string failure, BaseFunction successAction, BaseFunction failureAction, string[] prop, TFunction caller)
         {
-            
             try
             {
                 bool finished = false;
@@ -161,7 +174,6 @@ namespace TastyScript.IFunction
             {
                 Manager.Throw(("[63]Image check failed to execute. Continuing with failure function"));
             }
-
         }
     }
 }

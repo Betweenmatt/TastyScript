@@ -61,6 +61,11 @@ namespace TastyScript.IFunction.Function
         /// </summary>
         protected string[] InvokeProperties { get; private set; }
 
+        public string[] GetInvokeProperties()
+        {
+            return InvokeProperties;
+        }
+
         //sets the return flag and the return value to bubble up.
         //if this function is anonymously named, then it calls this method
         //in the parent function as well all the way to the top named function
@@ -187,11 +192,6 @@ namespace TastyScript.IFunction.Function
             }
             Manager.LoopTracerStack.Remove(tracer);
             tracer = null;
-        }
-
-        protected string[] GetInvokeProperties()
-        {
-            return InvokeProperties;
         }
 
         protected void GetUID()

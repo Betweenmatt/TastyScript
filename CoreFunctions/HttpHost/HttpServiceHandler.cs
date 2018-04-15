@@ -11,7 +11,7 @@ using TastyScript.IFunction.Containers;
 
 namespace TastyScript.CoreFunctions.HttpHost
 {
-    class HttpServiceHandler
+    internal class HttpServiceHandler
     {
         public static string IndexPath;
     }
@@ -20,13 +20,13 @@ namespace TastyScript.CoreFunctions.HttpHost
     {
         public IndexModule() : base("")
         {
-            Get(@"/", _ => 
+            Get(@"/", _ =>
             {
                 return View[HttpServiceHandler.IndexPath];
             });
         }
     }
-    
+
     public class PostTestModule : NancyModule
     {
         public PostTestModule() : base("")
@@ -39,6 +39,7 @@ namespace TastyScript.CoreFunctions.HttpHost
             });
         }
     }
+
     public class GetTestModule : NancyModule
     {
         public GetTestModule() : base("")
@@ -53,7 +54,7 @@ namespace TastyScript.CoreFunctions.HttpHost
                     var func = FunctionStack.First((String)callout);
                     var tfunc = new TFunction(func);
                     tfunc.SetDynamicDictionary(model.ToDictionary());
-                    return tfunc.TryParse();
+                    return tfunc.TryParse()?.ToString().UnCleanString();
                 }
                 else
                 {
@@ -72,7 +73,7 @@ namespace TastyScript.CoreFunctions.HttpHost
                 GetDataFields(context);
 
             var model =
-                DynamicDictionary.Create(data,null);
+                DynamicDictionary.Create(data, null);
 
             return model;
         }

@@ -23,7 +23,7 @@ namespace TastyScript.CoreFunctions
             var failFunc = ProvidedArgs.First("failFunc");
             var succPath = ProvidedArgs.First("succPath");
             var failPath = ProvidedArgs.First("failPath");
-            if (succFunc == null || failFunc == null || succPath == null)
+            if (succFunc == null || failFunc == null || succPath == null || succPath.ToString() == "null")
             {
                 Manager.Throw($"Invoke function cannot be null.");
                 return false;
@@ -37,7 +37,7 @@ namespace TastyScript.CoreFunctions
             }
             //check for threshold extension
             var prop = CheckProperty();
-            if (failPath != null)
+            if (failPath != null && failPath.ToString() != "null")
             {
                 try
                 {
@@ -74,6 +74,7 @@ namespace TastyScript.CoreFunctions
 
             return true;
         }
+
         private string[] CheckProperty()
         {
             var prop = Extensions.First("Prop");
