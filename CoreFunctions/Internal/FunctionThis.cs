@@ -9,16 +9,16 @@ using TastyScript.ParserManager;
 
 namespace TastyScript.CoreFunctions.Internal
 {
-    [Function("This", new string[] { "type" }, alias:new string[] { "this" })]
+    [Function("This", new string[] { "type" }, alias: new string[] { "this" })]
     public class FunctionThis : FunctionDefinition
     {
         public override bool CallBase()
         {
             /*
-             * 
+             *
              * Since u always seem to forget, Caller.CallingFunction.Extensions to get the
              * Extensions hooked to the top level function this is being called from
-             * 
+             *
              * */
             var prop = Extensions.First("Prop");
             var arg = ProvidedArgs.First("type");
@@ -37,21 +37,31 @@ namespace TastyScript.CoreFunctions.Internal
                             output.Add(x.Name);
                         ReturnBubble = new TArray("arr", output.ToArray());
                         return true;
+
                     case ("UID")://ReadOnly
                         ReturnBubble = new Token("uid", UID.ToString());
                         return true;
+
                     case ("IsAnonymous")://ReadOnly
-                        ReturnBubble = new Token("isAnonymous", (IsAnonymous) ? "True" : "False");
+                        ReturnBubble = new Token("isAnonymous", (Caller.ParentFunction.IsAnonymous) ? "True" : "False");
                         return true;
+
                     case ("IsOverride")://ReadOnly
-                        ReturnBubble = new Token("isOverride", (IsOverride) ? "True" : "False");
+                        ReturnBubble = new Token("isOverride", (Caller.ParentFunction.IsOverride) ? "True" : "False");
                         return true;
+
                     case ("IsSealed")://ReadOnly
-                        ReturnBubble = new Token("isSealed", (IsSealed) ? "True" : "False");
+                        ReturnBubble = new Token("isSealed", (Caller.ParentFunction.IsSealed) ? "True" : "False");
                         return true;
+
                     case ("IsObsolete")://ReadOnly
-                        ReturnBubble = new Token("isObsolete", (IsObsolete) ? "True" : "False");
+                        ReturnBubble = new Token("isObsolete", (Caller.ParentFunction.IsObsolete) ? "True" : "False");
                         return true;
+
+                    case ("Name")://ReadOnly
+                        ReturnBubble = new Token("name", Caller.ParentFunction.Name);
+                        return true;
+
                     case ("Dynamic"):
                         var json = JsonConvert.SerializeObject(Caller.GetParentDynamicDictionary(), Formatting.Indented).CleanString();
                         ReturnBubble = new Token("dict", json);
@@ -64,11 +74,12 @@ namespace TastyScript.CoreFunctions.Internal
                 var fprop = properties.ElementAtOrDefault(0);
                 if (fprop == null)
                     Manager.Throw("Prop extension must have arguments");
-                if (arg != null) {
+                if (arg != null)
+                {
                     switch (arg.ToString())
                     {
                         case ("Extension"):
-                            if(fprop == "Args")
+                            if (fprop == "Args")
                             {
                                 var sprop = properties.ElementAtOrDefault(1);
                                 if (sprop == null)
@@ -80,8 +91,9 @@ namespace TastyScript.CoreFunctions.Internal
                                     ReturnBubble = new TArray("arr", get.Extend(Caller.ParentFunction));
                             }
                             return true;
+
                         case ("Dynamic"):
-                            if(fprop != "")
+                            if (fprop != "")
                             {
                                 if (Caller.GetParentDynamicDictionary().ContainsKey(fprop))
                                 {

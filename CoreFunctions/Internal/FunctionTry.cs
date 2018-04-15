@@ -12,7 +12,7 @@ using TastyScript.ParserManager;
 
 namespace TastyScript.CoreFunctions.Internal
 {
-    [Function("Try", new string[] { "invoke" }, invoking: true, alias: new string[]{ "try" })]
+    [Function("Try", new string[] { "invoke" }, invoking: true, alias: new string[] { "try" })]
     public class FunctionTry : FunctionDefinition
     {
         public override bool CallBase()
@@ -33,8 +33,9 @@ namespace TastyScript.CoreFunctions.Internal
             var catchfunc = FunctionStack.First(catchBlock[0].ToString());
             if (catchfunc == null)
                 Manager.Throw($"Cannot find the invoked function.");
-            Manager.ExceptionHandler.TryCatchEventStack.Add(new TryCatchEvent(tryfunc, catchfunc));
-            
+            var catchtfunc = new TFunction(catchfunc, this, tryfunc.GetInvokeProperties());
+            Manager.ExceptionHandler.TryCatchEventStack.Add(new TryCatchEvent(tryfunc, catchtfunc));
+
             new TFunction(tryfunc, this, tryfunc.GetInvokeProperties()).TryParse();
 
             return true;

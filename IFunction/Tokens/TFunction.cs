@@ -13,7 +13,7 @@ namespace TastyScript.IFunction.Tokens
         public BaseFunction ParentFunction { get; }
         private BaseFunction Function;
         private string[] InvokeProperties;
-        public string[] Arguments { get; }
+        public string[] Arguments { get; private set; }
         private Dictionary<string, object> DynamicDictionary;
 
         public TFunction(BaseFunction function)
@@ -101,9 +101,11 @@ namespace TastyScript.IFunction.Tokens
 
         public bool IsParentBlindExecute() => IsParentNull() ? Function.IsBlindExecute : ParentFunction.IsBlindExecute;
 
+        public void SetArguments(string[] newargs) => Arguments = newargs;
+
         /// <summary>
-        /// This redirect is when the called function is `Base` and needs to be redirected
-        /// to the base of the parent function
+        /// This redirect is when the called function is `Base` and needs to be redirected to the
+        /// base of the parent function
         /// </summary>
         public void RedirectFunctionToParentBase() => Function = ParentFunction.Base;
 

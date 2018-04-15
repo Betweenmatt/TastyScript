@@ -12,10 +12,12 @@ namespace TastyScript.IFunction
 {
     public class TryCatchEvent : ITryCatchEvent
     {
-        internal BaseFunction CatchBlock { get; }
+        //internal BaseFunction CatchBlock { get; }
         internal BaseFunction TryBlock { get; }
 
-        public TryCatchEvent(BaseFunction tryblock, BaseFunction catchblock)
+        internal TFunction CatchBlock { get; }
+
+        public TryCatchEvent(BaseFunction tryblock, TFunction catchblock)
         {
             TryBlock = tryblock;
             CatchBlock = catchblock;
@@ -27,8 +29,10 @@ namespace TastyScript.IFunction
             TryBlock.SetReturnFlag(true);
             string line = System.Text.RegularExpressions.Regex.Escape(ex.Line);
             string[] arg = new string[] { "[" + ex.Type.ToString().CleanString() + "," + ex.Message.CleanString() + "," + line.CleanString() + "," + ex.Snippet.CleanString() + "]" };
-            var tfunc = new TFunction(CatchBlock, TryBlock, arg);
-            tfunc.TryParse();
+            //var tfunc = new TFunction(CatchBlock, TryBlock, arg);
+            //tfunc.TryParse();
+            CatchBlock.SetArguments(arg);
+            CatchBlock.TryParse();
         }
     }
 }
