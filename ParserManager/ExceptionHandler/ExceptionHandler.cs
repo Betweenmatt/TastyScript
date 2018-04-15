@@ -13,6 +13,7 @@ namespace TastyScript.ParserManager.ExceptionHandler
         public string CurrentLine { get { return _currentLine; } }
         private List<ExceptionObject> _onceList = new List<ExceptionObject>();
         public TryCatchStack TryCatchEventStack { get; }
+
         //i think this fixes my stupid mistake that was breaking as an assembly
         public static bool stupidFix;
 
@@ -26,21 +27,25 @@ namespace TastyScript.ParserManager.ExceptionHandler
             if (!stupidFix)
                 log.Debug(message);
         }
+
         public void LogInfo(string message)
         {
             if (!stupidFix)
                 log.Info(message);
         }
+
         public void LogWarn(string message)
         {
             if (!stupidFix)
                 log.Warn(message);
         }
+
         public void LogError(string message)
         {
             if (!stupidFix)
                 log.Error(message);
         }
+
         public void LogThrow(string message, Exception e)
         {
             if (!stupidFix)
@@ -48,19 +53,22 @@ namespace TastyScript.ParserManager.ExceptionHandler
             else
                 Manager.Print(message + e, ConsoleColor.DarkRed);
         }
+
         public void ThrowDebug(string msg)
         {
             LogDebug(msg);
             Manager.Print(msg, ConsoleColor.DarkYellow);
         }
+
         public void Throw(string message) => Throw(message, ExceptionType.CompilerException);
+
         public void Throw(string message, ExceptionType type = ExceptionType.CompilerException)
         {
             var ex = new ExceptionObject(message, type);
             if (TryCatchEventStack == null || TryCatchEventStack.Last() == null)
             {
                 Manager.IsScriptStopping = true;
-                string msg = $"\n[ERROR] ({ex.Type.ToString()}) {ex.Message} File: {ex.Line}\nCode Snippet:\n{ex.Snippet}";
+                string msg = $"\n[ERROR] ({ex.Type.ToString()}) {ex.Message.UnCleanString()} File: {ex.Line}\nCode Snippet:\n{ex.Snippet}";
                 LogError(msg);
                 if (Settings.LogLevel == "warn" || Settings.LogLevel == "error" || Settings.LogLevel == "throw")
                 {
@@ -73,7 +81,9 @@ namespace TastyScript.ParserManager.ExceptionHandler
                 TryCatchEventStack.Last().TriggerCatchEvent(ex);
             }
         }
+
         public void ThrowSilent(string message, bool once = false) => ThrowSilent(message, ExceptionType.CompilerException, once);
+
         public void ThrowSilent(string message, ExceptionType type = ExceptionType.CompilerException, bool once = false)
         {
             var ex = new ExceptionObject(message, type);
@@ -92,10 +102,12 @@ namespace TastyScript.ParserManager.ExceptionHandler
             }
         }
     }
+
     public interface ITryCatchEvent
     {
         void TriggerCatchEvent(ExceptionObject ex);
     }
+
     /// <summary>
     /// Contains relevent data pertaining to the thrown exception
     /// </summary>
@@ -110,6 +122,7 @@ namespace TastyScript.ParserManager.ExceptionHandler
         {
             Message = msg; Type = type; SetLine();
         }
+
         private void SetLine()
         {
             string line = Manager.CurrentParsedLine;
@@ -148,6 +161,7 @@ namespace TastyScript.ParserManager.ExceptionHandler
             }
         }
     }
+
     /// <summary>
     /// Holds the value of anonymous functions so that the exception handler can grab it
     /// </summary>
@@ -155,27 +169,33 @@ namespace TastyScript.ParserManager.ExceptionHandler
     {
         public string Name { get; }
         public string Value { get; }
+
         public AnonymousFunctionValueHolder(string name, string value)
         {
             Name = name;
             Value = value;
         }
     }
+
     public class TryCatchStack
     {
         private List<ITryCatchEvent> _tlist;
+
         public TryCatchStack()
         {
             _tlist = new List<ITryCatchEvent>();
         }
+
         public void Add(ITryCatchEvent item)
         {
             _tlist.Add(item);
         }
+
         public void RemoveLast()
         {
             _tlist.RemoveAt(_tlist.Count - 1);
         }
+
         public ITryCatchEvent Last()
         {
             return _tlist.LastOrDefault();
