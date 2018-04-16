@@ -20,13 +20,15 @@ namespace TastyScript.CoreFunctions
                 Manager.Throw($"The function [{this.Name}] requires [{ExpectedArgs.Length}] arguments");
                 return false;
             }
-            double intX = 0;
-            bool tryX = double.TryParse(x.ToString(), out intX);
-            double intY = 0;
-            bool tryY = double.TryParse(y.ToString(), out intY);
-            if (!tryX || !tryY)
+
+            if (!double.TryParse(x.ToString(), out double intX))
             {
-                Manager.Throw($"Cannot get numbers from [{x.ToString()},{y.ToString()}]");
+                Throw($"Cannot get number from [{x.ToString()}]");
+                return false;
+            }
+            if (!double.TryParse(y.ToString(), out double intY))
+            {
+                Throw($"Cannot get number from [{y.ToString()}]");
                 return false;
             }
             if (!Manager.Driver.IsConnected())
@@ -34,11 +36,9 @@ namespace TastyScript.CoreFunctions
             else
                 Commands.Tap((int)intX, (int)intY);
             double sleep = Manager.SleepDefaultTime;
-            if (ProvidedArgs.List.Count > 2)
+            if (ProvidedArgs.List.Count > 2 && ProvidedArgs.First("sleep")?.ToString() != "null")
             {
-                sleep = 0;
-                bool trySleep = double.TryParse(ProvidedArgs.First("sleep").ToString(), out sleep);
-                if (!trySleep)
+                if (!double.TryParse(ProvidedArgs.First("sleep").ToString(), out sleep))
                 {
                     Manager.Throw($"Cannot get numbers from [{ProvidedArgs.First("sleep").ToString()}]");
                     return false;

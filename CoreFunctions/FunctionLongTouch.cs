@@ -23,17 +23,32 @@ namespace TastyScript.CoreFunctions
                 Manager.Throw($"The function [{this.Name}] requires [{ExpectedArgs.Length}] TNumber arguments");
                 return false;
             }
-            double intX = double.Parse(x.ToString());
-            double intY = double.Parse(y.ToString());
-            double duration = double.Parse(dur.ToString());
+            if (!double.TryParse(x.ToString(), out double intX))
+            {
+                Throw($"Cannot get number from [{x.ToString()}]");
+                return false;
+            }
+            if (!double.TryParse(y.ToString(), out double intY))
+            {
+                Throw($"Cannot get number from [{y.ToString()}]");
+                return false;
+            }
+            if (!double.TryParse(dur.ToString(), out double duration))
+            {
+                Throw($"Cannot get number from [{dur.ToString()}]");
+            }
             if (!Manager.Driver.IsConnected())
                 Manager.Print($"[DRIVERLESS] LongTouch x:{intX} y:{intY} duration:{duration}");
             else
                 Commands.LongTap((int)intX, (int)intY, (int)duration);
             double sleep = Manager.SleepDefaultTime;
-            if (ProvidedArgs.List.Count > 3)
+            if (ProvidedArgs.List.Count > 2 && ProvidedArgs.First("sleep")?.ToString() != "null")
             {
-                sleep = double.Parse((ProvidedArgs.First("sleep").ToString()));
+                if (!double.TryParse(ProvidedArgs.First("sleep").ToString(), out sleep))
+                {
+                    Manager.Throw($"Cannot get numbers from [{ProvidedArgs.First("sleep").ToString()}]");
+                    return false;
+                }
             }
             FunctionHelpers.Sleep(sleep, Caller);
             return true;
