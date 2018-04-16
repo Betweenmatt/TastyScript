@@ -1,12 +1,13 @@
-﻿using System;
+﻿using Kbg.NppPluginNET;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
-using TastyScriptNPP;
+using TastyScript.TastyScriptNPP;
 
-namespace Kbg.NppPluginNET
+namespace TastyScript.TastyScriptNPP
 {
     public partial class Output : Form
     {
@@ -15,6 +16,7 @@ namespace Kbg.NppPluginNET
             InitializeComponent();
             LoadSettings();
         }
+
         public void LoadSettings()
         {
             this.outTextBox.BackColor = Settings.OutputPanel.DefaultBGColor;
@@ -26,11 +28,13 @@ namespace Kbg.NppPluginNET
                 ((Settings.OutputPanel.Italic) ? FontStyle.Italic : FontStyle.Regular))))
                 );
         }
+
         public void Pipe(string msg, bool nline = true)
         {
             if (nline)
                 msg = msg + "\n";
-            this.outTextBox.Invoke((MethodInvoker)delegate {
+            this.outTextBox.Invoke((MethodInvoker)delegate
+            {
                 this.outTextBox.AppendText(msg);
                 if (this.outTextBox.Visible && nline)
                 {
@@ -38,6 +42,7 @@ namespace Kbg.NppPluginNET
                 }
             });
         }
+
         public void Pipe(string msg, Color color, bool nline = true)
         {
             if (nline)
@@ -53,15 +58,16 @@ namespace Kbg.NppPluginNET
                     this.outTextBox.ScrollToCaret();
                 }
                 int end = this.outTextBox.TextLength;
-                
+
                 this.outTextBox.Select(start, end - start);
-                
+
                 this.outTextBox.SelectionColor = color;
-                
+
                 this.outTextBox.SelectionLength = 0; // clear
                 outTextBox.Selectable = true;
             });
         }
+
         public void Clear()
         {
             this.outTextBox.Clear();
@@ -71,14 +77,17 @@ namespace Kbg.NppPluginNET
         {
             Clear();
         }
+
         private void SendLine()
         {
             var str = this.inputBox.Text.Replace("\r", "").Replace("\n", "").Replace("\t", "");
-            IOStream.Instance.InputTextRecieved(str);
+            IOStream.Instance.SendStdIn(str);
         }
+
         private void sendButton_Click(object sender, EventArgs e)
         {
             SendLine();
+            this.inputBox.Text = "";
         }
 
         private void inputBox_TextChanged(object sender, KeyPressEventArgs e)
@@ -92,6 +101,11 @@ namespace Kbg.NppPluginNET
         private void startStopButton_Click(object sender, EventArgs e)
         {
             Main.RunStopTS();
+        }
+
+        private void clear_output_CheckedChanged(object sender, EventArgs e)
+        {
+            Settings.OutputPanel.ClearOutputOnRun = this.clear_output.Checked;
         }
     }
 }

@@ -1,0 +1,115 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{C03AE3AD-8A10-48EE-AB00-1B302285A051}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>TastyScript.CoreFunctions</RootNamespace>
+    <AssemblyName>CoreFunctions</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\TSConsole\bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Nancy, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Nancy.2.0.0-clinteastwood\lib\net452\Nancy.dll</HintPath>
+    </Reference>
+    <Reference Include="Nancy.Hosting.Self, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Nancy.Hosting.Self.2.0.0-clinteastwood\lib\net452\Nancy.Hosting.Self.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\GlobalAssemblyInfo.cs">
+      <Link>GlobalAssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="FunctionAppPackage.cs" />
+    <Compile Include="FunctionCheckScreen.cs" />
+    <Compile Include="FunctionConnectDevice.cs" />
+    <Compile Include="HttpHost\FunctionStdOut.cs" />
+    <Compile Include="Internal\FunctionIf.cs" />
+    <Compile Include="FunctionImageLocation.cs" />
+    <Compile Include="FunctionKeyEvent.cs" />
+    <Compile Include="FunctionLongTouch.cs" />
+    <Compile Include="Internal\FunctionLoop.cs" />
+    <Compile Include="FunctionPrint.cs" />
+    <Compile Include="FunctionPrintLine.cs" />
+    <Compile Include="FunctionReadLine.cs" />
+    <Compile Include="FunctionScreenSize.cs" />
+    <Compile Include="FunctionSendText.cs" />
+    <Compile Include="FunctionSetDefaultSleep.cs" />
+    <Compile Include="FunctionSetTemplateDefaultOptions.cs" />
+    <Compile Include="FunctionSleep.cs" />
+    <Compile Include="FunctionSwipe.cs" />
+    <Compile Include="FunctionTakeScreenshot.cs" />
+    <Compile Include="FunctionTimer.cs" />
+    <Compile Include="FunctionTouch.cs" />
+    <Compile Include="HttpHost\FunctionHttpStart.cs" />
+    <Compile Include="HttpHost\FunctionInvokeScript.cs" />
+    <Compile Include="HttpHost\FunctionStopInvokeScript.cs" />
+    <Compile Include="HttpHost\HttpServiceHandler.cs" />
+    <Compile Include="Internal\FunctionBase.cs" />
+    <Compile Include="Internal\FunctionBreak.cs" />
+    <Compile Include="Internal\FunctionContinue.cs" />
+    <Compile Include="Internal\FunctionGuaranteedHalt.cs" />
+    <Compile Include="Internal\FunctionHalt.cs" />
+    <Compile Include="Internal\FunctionReturn.cs" />
+    <Compile Include="Internal\FunctionStart.cs" />
+    <Compile Include="Internal\FunctionThis.cs" />
+    <Compile Include="Internal\FunctionThrow.cs" />
+    <Compile Include="Internal\FunctionTry.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\IFunction\IFunction.csproj">
+      <Project>{5626784C-59F0-4F27-9CB3-5A65D0129C5B}</Project>
+      <Name>IFunction</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ParserManager\ParserManager.csproj">
+      <Project>{6BFBC999-6062-4D51-B1D9-B6E97C8B6466}</Project>
+      <Name>ParserManager</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Analyzer Include="..\packages\AsyncUsageAnalyzers.1.0.0-alpha003\analyzers\dotnet\AsyncUsageAnalyzers.dll" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties BuildVersion_DetectChanges="False" BuildVersion_IncrementBeforeBuild="False" BuildVersion_UseGlobalSettings="False" BuildVersion_AssemblyInfoFilename="..\GlobalAssemblyInfo.cs" BuildVersion_StartDate="2000/1/1" />
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>

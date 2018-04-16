@@ -1,5 +1,4 @@
-﻿using Kbg.NppPluginNET;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -7,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("TastyScriptNPP")]
-[assembly: AssemblyDescription("A Notepad++ extension for the TastyScript framework")]
+[assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("TastyGod")]
+[assembly: AssemblyCompany("MyName")]
 [assembly: AssemblyProduct("TastyScriptNPP")]
-[assembly: AssemblyCopyright("Copyright © TastyGod 2011")]
+[assembly: AssemblyCopyright("Copyright © MyName 2011")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -23,15 +22,3 @@ using System.Runtime.InteropServices;
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("31492674-6fe0-485c-91f0-2e17244588ff")]
 
-// Version information for an assembly consists of the following four values:
-//
-//      Major Version
-//      Minor Version 
-//      Build Number
-//      Revision
-//
-// You can specify all the values or you can default the Build and Revision Numbers 
-// by using the '*' as shown below:
-// [assembly: AssemblyVersion("1.0.*")]
-//[assembly: AssemblyVersion(Main.Version)]
-//[assembly: AssemblyFileVersion(Main.Version)]

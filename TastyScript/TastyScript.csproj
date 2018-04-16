@@ -1,109 +1,46 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{C70629EC-08C3-4616-BABB-B18613C42434}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <ProjectGuid>{83EEA21E-3B52-4459-B3F9-9B8FD3CD4439}</ProjectGuid>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TastyScript</RootNamespace>
+    <RootNamespace>TastyScript.TastyScript</RootNamespace>
     <AssemblyName>TastyScript</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <PublishUrl>publish\</PublishUrl>
-    <Install>true</Install>
-    <InstallFrom>Disk</InstallFrom>
-    <UpdateEnabled>false</UpdateEnabled>
-    <UpdateMode>Foreground</UpdateMode>
-    <UpdateInterval>7</UpdateInterval>
-    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
-    <UpdatePeriodically>false</UpdatePeriodically>
-    <UpdateRequired>false</UpdateRequired>
-    <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>0</ApplicationRevision>
-    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
-    <UseApplicationTrust>false</UseApplicationTrust>
-    <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\TSConsole\bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <UseVSHostingProcess>false</UseVSHostingProcess>
-  </PropertyGroup>
-  <PropertyGroup>
-    <ApplicationIcon>icon.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject />
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AForge, Version=2.2.5.0, Culture=neutral, PublicKeyToken=c1db6ff4eaa06aeb, processorArchitecture=MSIL">
-      <HintPath>..\packages\AForge.2.2.5\lib\AForge.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="AForge.Imaging, Version=2.2.5.0, Culture=neutral, PublicKeyToken=ba8ddea9676ca48b, processorArchitecture=MSIL">
-      <HintPath>..\packages\AForge.Imaging.2.2.5\lib\AForge.Imaging.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="AForge.Math, Version=2.2.5.0, Culture=neutral, PublicKeyToken=abba2e25397ee8c9, processorArchitecture=MSIL">
-      <HintPath>..\packages\AForge.Math.2.2.5\lib\AForge.Math.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
-      <HintPath>..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Microsoft.Owin, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Owin.4.0.0\lib\net451\Microsoft.Owin.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Microsoft.Owin.Host.HttpListener, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Owin.Host.HttpListener.4.0.0\lib\net451\Microsoft.Owin.Host.HttpListener.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Microsoft.Owin.Hosting, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Owin.Hosting.4.0.0\lib\net451\Microsoft.Owin.Hosting.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Nancy, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Nancy.2.0.0-clinteastwood\lib\net452\Nancy.dll</HintPath>
-    </Reference>
-    <Reference Include="Nancy.Hosting.Self, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Nancy.Hosting.Self.2.0.0-clinteastwood\lib\net452\Nancy.Hosting.Self.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.11.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Owin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f0ebd12fd5e55cc5, processorArchitecture=MSIL">
-      <HintPath>..\packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="SharpAdbClient, Version=2.1.0.0, Culture=neutral, PublicKeyToken=d728076f5d82a2e8, processorArchitecture=MSIL">
-      <HintPath>..\packages\SharpAdbClient.2.1.0\lib\net451\SharpAdbClient.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -115,140 +52,50 @@
     <Compile Include="..\GlobalAssemblyInfo.cs">
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="Android\AnalyzeScreen.cs" />
-    <Compile Include="Android\AnalyzeScreenOLD.cs" />
-    <Compile Include="Android\AndroidKeyCode.cs" />
-    <Compile Include="Android\Driver.cs" />
-    <Compile Include="IIOStream.cs" />
-    <Compile Include="Lang\Extensions\ExtensionCatch.cs" />
-    <Compile Include="Lang\Extensions\ExtensionProp.cs" />
-    <Compile Include="Lang\Extensions\ExtensionRemoveAt.cs" />
-    <Compile Include="Lang\Extensions\ExtensionSave.cs" />
-    <Compile Include="Lang\Extensions\ExtensionToJson.cs" />
-    <Compile Include="Lang\Extensions\ExtensionToString.cs" />
-    <Compile Include="Lang\Functions\FunctionImageLocation.cs" />
-    <Compile Include="Lang\Functions\FunctionReadLine.cs" />
-    <Compile Include="Lang\Functions\FunctionScreenSize.cs" />
-    <Compile Include="Lang\Functions\FunctionSetTemplateDefaultOptions.cs" />
-    <Compile Include="Lang\Functions\Gui\FunctionGuiLoad.cs" />
-    <Compile Include="Lang\Functions\Gui\FunctionInvoke.cs" />
-    <Compile Include="Lang\Functions\Gui\FunctionStopInvoke.cs" />
-    <Compile Include="Lang\Functions\Gui\ServiceHandler.cs" />
-    <Compile Include="Lang\Functions\Internal\FunctionThrow.cs" />
-    <Compile Include="Lang\Functions\Internal\FunctionThis.cs" />
-    <Compile Include="Lang\Functions\Internal\FunctionTry.cs" />
-    <Compile Include="Reader.cs" />
-    <Compile Include="Lang\Attributes.cs" />
-    <Compile Include="Lang\Commands.cs" />
-    <Compile Include="Lang\Compiler.cs" />
-    <Compile Include="Lang\Containers\ExtensionStack.cs" />
-    <Compile Include="Lang\Containers\FunctionStack.cs" />
-    <Compile Include="Lang\Containers\TokenStack.cs" />
-    <Compile Include="Lang\Containers\StaticList.cs" />
-    <Compile Include="Lang\Directives.cs" />
-    <Compile Include="Lang\Exceptions\ExceptionHandler.cs" />
-    <Compile Include="Lang\Exceptions\IExceptionListener.cs" />
-    <Compile Include="Lang\Extensions\ExtensionAnd.cs" />
-    <Compile Include="Lang\Extensions\ExtensionColor.cs" />
-    <Compile Include="Lang\Extensions\ExtensionConcat.cs" />
-    <Compile Include="Lang\Extensions\ExtensionElse.cs" />
-    <Compile Include="Lang\Extensions\ExtensionFor.cs" />
-    <Compile Include="Lang\Extensions\ExtensionGetIndex.cs" />
-    <Compile Include="Lang\Extensions\ExtensionGetItem.cs" />
-    <Compile Include="Lang\Extensions\ExtensionLength.cs" />
-    <Compile Include="Lang\Extensions\ExtensionOr.cs" />
-    <Compile Include="Lang\Extensions\ExtensionPrint.cs" />
-    <Compile Include="Lang\Extensions\ExtensionReplace.cs" />
-    <Compile Include="Lang\Extensions\ExtensionSetItem.cs" />
-    <Compile Include="Lang\Extensions\ExtensionSplit.cs" />
-    <Compile Include="Lang\Extensions\ExtensionStart.cs" />
-    <Compile Include="Lang\Extensions\ExtensionStop.cs" />
-    <Compile Include="Lang\Extensions\ExtensionThen.cs" />
-    <Compile Include="Lang\Extensions\ExtensionThreshold.cs" />
-    <Compile Include="Lang\Functions\FunctionAppPackage.cs" />
-    <Compile Include="Lang\Functions\FunctionStartAsync.cs" />
-    <Compile Include="Lang\Functions\Internal\FunctionAwake.cs" />
-    <Compile Include="Lang\Functions\Internal\FunctionBase.cs" />
-    <Compile Include="Lang\Functions\Internal\FunctionBreak.cs" />
-    <Compile Include="Lang\Functions\FunctionCheckScreen.cs" />
-    <Compile Include="Lang\Functions\FunctionConnectDevice.cs" />
-    <Compile Include="Lang\Functions\Internal\FunctionContinue.cs" />
-    <Compile Include="Lang\Functions\Internal\FunctionGuaranteedHalt.cs" />
-    <Compile Include="Lang\Functions\Internal\FunctionHalt.cs" />
-    <Compile Include="Lang\Functions\FunctionIf.cs" />
-    <Compile Include="Lang\Functions\FunctionKeyEvent.cs" />
-    <Compile Include="Lang\Functions\FunctionLongTouch.cs" />
-    <Compile Include="Lang\Functions\FunctionLoop.cs" />
-    <Compile Include="Lang\Functions\FunctionPrint.cs" />
-    <Compile Include="Lang\Functions\FunctionPrintLine.cs" />
-    <Compile Include="Lang\Functions\Internal\FunctionReturn.cs" />
-    <Compile Include="Lang\Functions\FunctionSendText.cs" />
-    <Compile Include="Lang\Functions\FunctionSetDefaultSleep.cs" />
-    <Compile Include="Lang\Functions\FunctionSleep.cs" />
-    <Compile Include="Lang\Functions\Internal\FunctionStart.cs" />
-    <Compile Include="Lang\Functions\FunctionSwipe.cs" />
-    <Compile Include="Lang\Functions\FunctionTakeScreenshot.cs" />
-    <Compile Include="Lang\Functions\FunctionTimer.cs" />
-    <Compile Include="Lang\Functions\FunctionTouch.cs" />
-    <Compile Include="Lang\Extensions\EDefinition.cs" />
-    <Compile Include="Lang\Functions\FDefinition.cs" />
-    <Compile Include="Lang\IFunction.cs" />
-    <Compile Include="Lang\Line.cs" />
-    <Compile Include="Lang\TokenParser.cs" />
-    <Compile Include="Lang\Token\IToken.cs" />
+    <Compile Include="Directives.cs" />
+    <Compile Include="IOStream.cs" />
     <Compile Include="Main.cs" />
-    <Compile Include="ObjectExtensions.cs" />
-    <Compile Include="Utilities.cs" />
+    <Compile Include="Parser\Line.cs" />
+    <Compile Include="Parser\ParsedFunction.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <Compile Include="Settings.cs" />
+    <Compile Include="ScriptParser.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\IFunction\IFunction.csproj">
+      <Project>{5626784C-59F0-4F27-9CB3-5A65D0129C5B}</Project>
+      <Name>IFunction</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ParserManager\ParserManager.csproj">
+      <Project>{6BFBC999-6062-4D51-B1D9-B6E97C8B6466}</Project>
+      <Name>ParserManager</Name>
+      <Private>True</Private>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="Lang\Functions\README.md" />
-    <None Include="log4net.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="README.md" />
+    <None Include="app.manifest" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <Content Include="icon.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <BootstrapperPackage Include=".NETFramework,Version=v4.5.2">
-      <Visible>False</Visible>
-      <ProductName>Microsoft .NET Framework 4.5.2 %28x86 and x64%29</ProductName>
-      <Install>true</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
-  </ItemGroup>
-  <ItemGroup>
-    <Analyzer Include="..\packages\AsyncUsageAnalyzers.1.0.0-alpha003\analyzers\dotnet\AsyncUsageAnalyzers.dll" />
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties BuildVersion_StartDate="2018/2/5" BuildVersion_UseGlobalSettings="False" BuildVersion_BuildVersioningStyle="None.None.None.DeltaBaseDateInDays" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_UpdateFileVersion="True" BuildVersion_AssemblyInfoFilename="..\GlobalAssemblyInfo.cs" />
+      <UserProperties BuildVersion_UseGlobalSettings="False" BuildVersion_StartDate="2018/2/5" BuildVersion_AssemblyInfoFilename="..\GlobalAssemblyInfo.cs" BuildVersion_IncrementBeforeBuild="True" BuildVersion_DetectChanges="False" BuildVersion_BuildVersioningStyle="None.None.None.DeltaBaseDateInDays" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_UpdateFileVersion="True" />
     </VisualStudio>
   </ProjectExtensions>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
   <Target Name="AfterBuild">
+    <ItemGroup>
+      <MoveToLibFolder Include="$(OutputPath)*.dll ; $(OutputPath)*.pdb ; $(OutputPath)*.xml" />
+    </ItemGroup>
+    <Move SourceFiles="@(MoveToLibFolder)" DestinationFolder="$(OutputPath)lib" OverwriteReadOnlyFiles="true" />
   </Target>
-  -->
 </Project>

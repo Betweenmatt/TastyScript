@@ -1,105 +1,72 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
+using System.IO;
 using System.Threading;
-using System.Threading.Tasks;
-using TastyScript.Android;
-using TastyScript.Lang;
-using TastyScript.Lang.Exceptions;
+using TastyScript.IFunction.Tokens;
+using TastyScript.ParserManager;
+using TastyScript.ParserManager.Driver.Android;
+using TastyScript.ParserManager.ExceptionHandler;
+using TastyScript.ParserManager.IOStream;
 
-namespace TastyScript
+namespace TastyScript.TastyScript
 {
     public static class Main
     {
-        public static Driver AndroidDriver;
-        private static List<IBaseFunction> predefinedFunctions;
-        public static string Title = $"TastyScript v{Assembly.GetExecutingAssembly().GetName().Version.ToString()} Beta";
-        public static IIOStream IO;
         public static bool IsConsole = true;
         
-        public static void Init()
-        {
-
-            Settings.LoadSettings();
-            //on load set predefined functions and extensions to mitigate load from reflection
-            predefinedFunctions = Utilities.GetPredefinedFunctions();
-            Compiler.PredefinedList = predefinedFunctions;
-            ExtensionStack.Clear();
-            ExtensionStack.AddRange(Utilities.GetExtensions());
-            Compiler.ExceptionListener = new ExceptionListener();
-            //
-        }
-        public static void Init(IExceptionListener el)
-        {
-
-            Settings.LoadSettings();
-            //on load set predefined functions and extensions to mitigate load from reflection
-            predefinedFunctions = Utilities.GetPredefinedFunctions();
-            Compiler.PredefinedList = predefinedFunctions;
-            ExtensionStack.Clear();
-            ExtensionStack.AddRange(Utilities.GetExtensions());
-            Compiler.ExceptionListener = el;
-            ExceptionListener.stupidFix = true;
-            //
-        }
-        public static void Throw(ExceptionHandler e)
-        {
-            Compiler.ExceptionListener.Throw(e);
-        }
-        public static void ThrowSilent(ExceptionHandler e)
-        {
-            Compiler.ExceptionListener.ThrowSilent(e);
-        }
         public static void CommandExec(string r)
         {
             try
             {
-                Init();
                 var cmd = r.Replace("exec ", "").Replace("-e ", "");
                 var file = "override.Start(){\n" + cmd + "}";
                 var path = "AnonExecCommand.ts";
-                TokenParser.SleepDefaultTime = 1200;
-                TokenParser.Stop = false;
+                Manager.SleepDefaultTime = 1200;
+                Manager.IsScriptStopping = false;
                 StartScript(path, file);
             }
-            catch (Exception e) { if (!(e is CompilerControledException) || Settings.LogLevel == "throw") { ExceptionListener.LogThrow("Unexpected error", e); } }
-            
+            catch (Exception e) { if (!(e is CompilerControlledException) || Settings.LogLevel == "throw") { Manager.ExceptionHandler.LogThrow("Unexpected error", e); } }
+
         }
         public static void CommandRun(string r)
         {
             try
             {
-                Init();
                 var path = r.Replace("\'", "").Replace("\"", "");
                 var file = Utilities.GetFileFromPath(path);
-                TokenParser.SleepDefaultTime = 1200;
-                TokenParser.Stop = false;
-                Thread esc = new Thread(ListenForEscape);
+                Manager.SleepDefaultTime = 1200;
+                Manager.IsScriptStopping = false;
+                CancellationTokenSource source = new CancellationTokenSource();
+                Thread esc = new Thread(()=> { ListenForEscape(source.Token); });
                 esc.Start();
                 StartScript(path, file);
-
+                source.Cancel();
             }
             catch (Exception e)
             {
                 //if loglevel is throw, then compilerControledException gets printed as well
                 //only for debugging srs issues
-                if (!(e is CompilerControledException) || Settings.LogLevel == "throw")
+                if (!(e is CompilerControlledException) || Settings.LogLevel == "throw")
                 {
-                    ExceptionListener.LogThrow("Unexpected error", e);
+                    throw;
+                    Manager.ExceptionHandler.LogThrow("Unexpected error", e);
                 }
+                //Console.WriteLine(e);
             }
         }
-        public static void ListenForEscape()
+        public static void ListenForEscape(CancellationToken _cancelSource)
         {
-            TastyScript.Main.IO.Print("Press ENTER to stop");
-            while (IO.ReadKey(true).Key != ConsoleKey.Enter)
+            Manager.Print("Press ENTER to stop");
+            
+            var r = Reader.ReadLine(_cancelSource);
+
+            //halt the script running in a child process
+            if (Manager.GuiInvokeProcess != null)
             {
-                if (TokenParser.Stop)
-                    break;
+                StreamWriter streamWriter = Manager.GuiInvokeProcess.StandardInput;
+                streamWriter.WriteLine("");
+                //Manager.GuiInvokeProcess.Kill();
             }
-            if (!TokenParser.Stop)
+            if (!Manager.IsScriptStopping)
             {
                 SendStopScript();
             }
@@ -109,33 +76,33 @@ namespace TastyScript
         {
             try
             {
+                
                 //halt the script
-                TokenParser.Stop = true;
-                TastyScript.Main.IO.Print("\nScript execution is halting. Please wait.\n", ConsoleColor.Yellow);
-                if (TokenParser.HaltFunction != null)
+                Manager.IsScriptStopping = true;
+                Manager.Print("\nScript execution is halting. Please wait.\n", ConsoleColor.Yellow);
+                if (ScriptParser.HaltFunction != null)
                 {
-                    TokenParser.HaltFunction.BlindExecute = true;
-                    TokenParser.HaltFunction.TryParse(null);
+                    ScriptParser.HaltFunction.SetBlindExecute(true);
+                    new TFunction(ScriptParser.HaltFunction).TryParse();
                 }
-                if (TokenParser.GuaranteedHaltFunction != null)
+                if (ScriptParser.GuaranteedHaltFunction != null)
                 {
-                    TokenParser.GuaranteedHaltFunction.BlindExecute = true;
-                    TokenParser.GuaranteedHaltFunction.TryParse(null);
+                    ScriptParser.GuaranteedHaltFunction.SetBlindExecute(true);
+                    new TFunction(ScriptParser.GuaranteedHaltFunction).TryParse();
                 }
             }
             catch
             {
-                TastyScript.Main.ThrowSilent(new ExceptionHandler(ExceptionType.SystemException,
-                    $"Unknown error with halt thread, aborting all execution."));
-                TokenParser.Stop = true;
+                Manager.ThrowSilent($"Unknown error with halt thread, aborting all execution.");
+                Manager.IsScriptStopping = true;
             }
 
         }
 
         public static bool StartScript(string path, string file)
         {
-            Compiler c = new Compiler(path, file, predefinedFunctions);
-            if (!TokenParser.Stop)
+            ScriptParser c = new ScriptParser(path, file);
+            if (!Manager.IsScriptStopping)
                 SendStopScript();
             Thread.Sleep(2000);//sleep for 2 seconds after finishing the script
             return true;
@@ -143,39 +110,38 @@ namespace TastyScript
 
         //these are for starting and stoppign the script from an external source like
         //notepad++
-        public static void DirectInit(string f, string dir, string ll, IIOStream io, IExceptionListener listener)
+        public static void DirectInit(string f, string dir, string ll, IIOStream io, IExceptionHandler listener)
         {
             IsConsole = false;
-            IO = io;
-            Init(listener);
+            Manager.Init(io);
             Settings.SetQuickDirectory(dir);
             Settings.SetLogLevel(ll);
             DirectRun(f);
         }
         private static void DirectRun(string r)
         {
-            
+
             try
             {
                 var path = r.Replace("\'", "").Replace("\"", "");
                 var file = Utilities.GetFileFromPath(path);
-                TokenParser.SleepDefaultTime = 1200;
-                TokenParser.Stop = false;
+                Manager.SleepDefaultTime = 1200;
+                Manager.IsScriptStopping = false;
                 StartScript(path, file);
             }
             catch (Exception e)
             {
                 //if loglevel is throw, then compilerControledException gets printed as well
                 //only for debugging srs issues
-                if (!(e is CompilerControledException) || Settings.LogLevel == "throw")
+                if (!(e is CompilerControlledException) || Settings.LogLevel == "throw")
                 {
-                    ExceptionListener.LogThrow("Unexpected error", e);
+                    Manager.ExceptionHandler.LogThrow("Unexpected error", e);
                 }
             }
         }
         public static void DirectStop()
         {
-            if (!TokenParser.Stop)
+            if (!Manager.IsScriptStopping)
             {
                 SendStopScript();
             }

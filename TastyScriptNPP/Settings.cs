@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TastyScriptNPP
+namespace TastyScript.TastyScriptNPP
 {
     internal class Settings
     {
@@ -16,9 +16,12 @@ namespace TastyScriptNPP
             public static bool Bold;
             public static bool Italic;
             public static int FontSize;
+            public static bool ClearOutputOnRun = true;
             public static string LogLevel;
             public static string FontName;
             private static string _colorOverrides;
+            public static string TSFolder;
+
             public static string ColorOverrides
             {
                 get
@@ -36,11 +39,11 @@ namespace TastyScriptNPP
             {
                 DefaultTextColor = Color.FromArgb(argb);
             }
+
             public static void SetDefaultBGColor(int argb)
             {
                 DefaultBGColor = Color.FromArgb(argb);
             }
         }
-        
     }
 }

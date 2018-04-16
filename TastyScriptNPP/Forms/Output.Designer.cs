@@ -1,6 +1,4 @@
-﻿using TastyScriptNPP;
-
-namespace Kbg.NppPluginNET
+﻿namespace TastyScript.TastyScriptNPP
 {
     partial class Output
     {
@@ -30,11 +28,12 @@ namespace Kbg.NppPluginNET
         /// </summary>
         private void InitializeComponent()
         {
-            this.outTextBox = new TastyScriptNPP.RTBToggleSelect();
+            this.outTextBox = new TastyScript.TastyScriptNPP.RTBToggleSelect();
             this.inputBox = new System.Windows.Forms.TextBox();
             this.sendButton = new System.Windows.Forms.Button();
             this.startStopButton = new System.Windows.Forms.Button();
             this.clearButton = new System.Windows.Forms.Button();
+            this.clear_output = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // outTextBox
@@ -47,14 +46,14 @@ namespace Kbg.NppPluginNET
             this.outTextBox.Location = new System.Drawing.Point(0, 29);
             this.outTextBox.Name = "outTextBox";
             this.outTextBox.ReadOnly = true;
-            this.outTextBox.Size = new System.Drawing.Size(351, 427);
+            this.outTextBox.Size = new System.Drawing.Size(437, 427);
             this.outTextBox.TabIndex = 0;
             this.outTextBox.Text = "";
             // 
             // inputBox
             // 
             this.inputBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.inputBox.Location = new System.Drawing.Point(168, 3);
+            this.inputBox.Location = new System.Drawing.Point(254, 3);
             this.inputBox.Name = "inputBox";
             this.inputBox.Size = new System.Drawing.Size(122, 20);
             this.inputBox.TabIndex = 1;
@@ -64,7 +63,7 @@ namespace Kbg.NppPluginNET
             // sendButton
             // 
             this.sendButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.sendButton.Location = new System.Drawing.Point(296, 3);
+            this.sendButton.Location = new System.Drawing.Point(382, 3);
             this.sendButton.Name = "sendButton";
             this.sendButton.Size = new System.Drawing.Size(46, 23);
             this.sendButton.TabIndex = 2;
@@ -92,11 +91,24 @@ namespace Kbg.NppPluginNET
             this.clearButton.UseVisualStyleBackColor = true;
             this.clearButton.Click += new System.EventHandler(this.clearButton_Click);
             // 
+            // clear_output
+            // 
+            this.clear_output.Checked = true;
+            this.clear_output.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.clear_output.Location = new System.Drawing.Point(128, 2);
+            this.clear_output.Name = "clear_output";
+            this.clear_output.Size = new System.Drawing.Size(104, 24);
+            this.clear_output.TabIndex = 5;
+            this.clear_output.Text = "Clear every run";
+            this.clear_output.UseVisualStyleBackColor = true;
+            this.clear_output.CheckedChanged += new System.EventHandler(this.clear_output_CheckedChanged);
+            // 
             // Output
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(348, 453);
+            this.ClientSize = new System.Drawing.Size(434, 453);
+            this.Controls.Add(this.clear_output);
             this.Controls.Add(this.clearButton);
             this.Controls.Add(this.startStopButton);
             this.Controls.Add(this.sendButton);
@@ -116,5 +128,6 @@ namespace Kbg.NppPluginNET
         private System.Windows.Forms.Button sendButton;
         private System.Windows.Forms.Button startStopButton;
         private System.Windows.Forms.Button clearButton;
+        private System.Windows.Forms.CheckBox clear_output;
     }
 }
