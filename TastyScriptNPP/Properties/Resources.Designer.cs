@@ -63,9 +63,9 @@ namespace TastyScript.TastyScriptNPP.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap star {
+        internal static System.Drawing.Bitmap console_24 {
             get {
-                object obj = ResourceManager.GetObject("star", resourceCulture);
+                object obj = ResourceManager.GetObject("console_24", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -73,9 +73,9 @@ namespace TastyScript.TastyScriptNPP.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap star_bmp {
+        internal static System.Drawing.Bitmap icoRaw {
             get {
-                object obj = ResourceManager.GetObject("star_bmp", resourceCulture);
+                object obj = ResourceManager.GetObject("icoRaw", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
