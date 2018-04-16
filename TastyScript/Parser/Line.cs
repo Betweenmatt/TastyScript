@@ -25,8 +25,8 @@ namespace TastyScript.TastyScript.Parser
             Value = val;
             _reference = reference;
             WalkTree(val);
-
         }
+
         private string ReplaceAllNotInStringWhiteSpace(string value)
         {
             bool level = false;
@@ -45,63 +45,83 @@ namespace TastyScript.TastyScript.Parser
                         case ('+'):
                             output += "&plus;";
                             break;
+
                         case ('-'):
                             output += "&neg;";
                             break;
+
                         case ('='):
                             output += "&eq;";
                             break;
+
                         case ('%'):
                             output += "&per;";
                             break;
+
                         case ('$'):
                             output += "&dollar;";
                             break;
+
                         case ('!'):
                             output += "&expl;";
                             break;
+
                         case ('('):
                             output += "&lparen;";
                             break;
+
                         case (')'):
                             output += "&rparen;";
                             break;
+
                         case ('['):
                             output += "&lbrack;";
                             break;
+
                         case (']'):
                             output += "&rbrack;";
                             break;
+
                         case ('{'):
                             output += "&lbrace;";
                             break;
+
                         case ('}'):
                             output += "&rbrace;";
                             break;
+
                         case ('<'):
                             output += "&lchev;";
                             break;
+
                         case ('>'):
                             output += "&rchev;";
                             break;
+
                         case ('.'):
                             output += "&period;";
                             break;
-                        case ('&'):
-                            output += "&amp;";
-                            break;
+
                         case (','):
                             output += "&coma;";
                             break;
+
                         case ('\r'):
                             output += "&CR;";
                             break;
+
                         case ('\n'):
                             output += "&LF;";
                             break;
+
                         case ('\t'):
                             output += "&tab;";
                             break;
+
+                        case ('?'):
+                            output += "&question;";
+                            break;
+
                         default:
                             output += value[i];
                             break;
@@ -117,6 +137,7 @@ namespace TastyScript.TastyScript.Parser
             }
             return output;
         }
+
         private void WalkTree(string value)
         {
             value = RuntimeDebugger(value);
@@ -138,7 +159,6 @@ namespace TastyScript.TastyScript.Parser
                        //
                        //get var extensions before normal extensions
 
-
             //vars here
             if (value.Contains("var%"))
             {
@@ -156,6 +176,7 @@ namespace TastyScript.TastyScript.Parser
             ParseFunctions(value, ext);
             return;// temp;
         }
+
         private string ParseStrings(string value)
         {
             var stringTokenRegex = new Regex("\"([^\"\"]*)\"", RegexOptions.Multiline);
@@ -170,6 +191,7 @@ namespace TastyScript.TastyScript.Parser
             }
             return value;
         }
+
         private string ParseNumbers(string value)
         {
             var numberTokenRegex = new Regex(@"\b-*[0-9\.]+\b", RegexOptions.Multiline);
@@ -182,7 +204,7 @@ namespace TastyScript.TastyScript.Parser
                 if (nofail)
                 {
                     AnonymousTokenStack.Add(new Token(tokenname, output.ToString()));
-                    //do this regex instead of a blind replace to fix the above issue. 
+                    //do this regex instead of a blind replace to fix the above issue.
                     //NOTE this fix may break decimal use in some situations!!!!
                     var indvRegex = (@"\b-*" + x + @"\b");
                     var regex = new Regex(indvRegex);
@@ -191,6 +213,7 @@ namespace TastyScript.TastyScript.Parser
             }
             return value;
         }
+
         private string ParseMathExpressions(string value)
         {
             var mathexpRegex = new Regex(@"\[([^\[\]]*)\]", RegexOptions.Multiline);
@@ -210,6 +233,7 @@ namespace TastyScript.TastyScript.Parser
             }
             return value;
         }
+
         private string ParseParameters(string value)
         {
             string val = value;
@@ -233,7 +257,6 @@ namespace TastyScript.TastyScript.Parser
                     var fcheck = FunctionStack.First(fcheckSplit[0]);
                     if (fcheck != null)
                         param = ParseFunctions(param, fext);
-
                 }
                 string tokenname = "{AnonGeneratedToken" + AnonymousTokenStack.AnonymousTokenIndex + "}";
 
@@ -264,6 +287,7 @@ namespace TastyScript.TastyScript.Parser
             }
             return val;
         }
+
         private string ParseArrays(string value)
         {
             string val = value;
@@ -289,7 +313,6 @@ namespace TastyScript.TastyScript.Parser
                         var fcheck = FunctionStack.First(fcheckSplit[0]);
                         if (fcheck != null)
                             param = ParseFunctions(param, fext);
-
                     }
                     string tokenname = "{AnonGeneratedToken" + AnonymousTokenStack.AnonymousTokenIndex + "}";
                     //var param = a.ToString().Replace("array(", "").Replace(")", "");
@@ -321,6 +344,7 @@ namespace TastyScript.TastyScript.Parser
             }
             return val;
         }
+
         private List<BaseExtension> ParseExtensions(string value)
         {
             List<BaseExtension> temp = new List<BaseExtension>();
@@ -349,7 +373,7 @@ namespace TastyScript.TastyScript.Parser
                     var param = GetTokens(new string[] { secondSplit[1].Replace("|", "") });
                     if (param.Count != 1)
                     {
-                        Manager.Throw("[166]Extensions must provide arguments",ExceptionType.SyntaxException);
+                        Manager.Throw("[166]Extensions must provide arguments", ExceptionType.SyntaxException);
                         return null;
                     }
                     if (clone.IsInvoking)
@@ -377,6 +401,7 @@ namespace TastyScript.TastyScript.Parser
             }
             return temp;
         }
+
         private string ParseFunctions(string value, List<BaseExtension> ext, bool safelook = false)
         {
             string val = value;
@@ -389,7 +414,7 @@ namespace TastyScript.TastyScript.Parser
                     return "";
                 else
                 {
-                    Manager.Throw($"[181]Cannot find function [{secondSplit[0]}]",ExceptionType.SyntaxException);
+                    Manager.Throw($"[181]Cannot find function [{secondSplit[0]}]", ExceptionType.SyntaxException);
                     return null;
                 }
             }
@@ -493,6 +518,7 @@ namespace TastyScript.TastyScript.Parser
             }
             return temp;
         }
+
         private double? MathExpression(string expression)
         {
             string exp = expression;
@@ -524,8 +550,12 @@ namespace TastyScript.TastyScript.Parser
                 return null;
             }
         }
+
         #region Comparison
-        enum Operator { EQ, NOTEQ, GT, LT, GTEQ, LTEQ, NOT, NULL, NOTNULL }
+
+        private enum Operator
+        { EQ, NOTEQ, GT, LT, GTEQ, LTEQ, NOT, NULL, NOTNULL }
+
         private string SingleSideComparisonCheck(string line)
         {
             string output = "";
@@ -537,6 +567,7 @@ namespace TastyScript.TastyScript.Parser
                 output = FindSingleSideComparisonOperation(Operator.NULL, line);
             return output;
         }
+
         private string FindSingleSideComparisonOperation(Operator op, string line)
         {
             string output = "";
@@ -546,9 +577,11 @@ namespace TastyScript.TastyScript.Parser
                 case (Operator.NOTNULL):
                     opString = "!?";
                     break;
+
                 case (Operator.NOT):
                     opString = "!";
                     break;
+
                 case (Operator.NULL):
                     opString = "?";
                     break;
@@ -569,10 +602,12 @@ namespace TastyScript.TastyScript.Parser
                         output = (token != null && token.ToString() != "" && token.ToString() != "null")
                             ? "True" : "False";
                         break;
+
                     case (Operator.NULL):
                         output = (token == null || token.ToString() == "" || token.ToString() == "null")
                             ? "True" : "False";
                         break;
+
                     case (Operator.NOT):
                         output = (token != null && (token.ToString() == "false" || token.ToString() == "False"))
                             ? "True" : "False";
@@ -582,6 +617,7 @@ namespace TastyScript.TastyScript.Parser
             catch { Manager.Throw($"Unexpected input: {line}", ExceptionType.SyntaxException); return null; }
             return output;
         }
+
         private string ComparisonCheck(string line)
         {
             string output = "";
@@ -601,6 +637,7 @@ namespace TastyScript.TastyScript.Parser
                 output = SingleSideComparisonCheck(line);
             return output;
         }
+
         //the heavy lifting for comparison check
         private string FindOperation(Operator op, string line)
         {
@@ -611,18 +648,23 @@ namespace TastyScript.TastyScript.Parser
                 case (Operator.EQ):
                     opString = "==";
                     break;
+
                 case (Operator.NOTEQ):
                     opString = "!=";
                     break;
+
                 case (Operator.GT):
                     opString = ">";
                     break;
+
                 case (Operator.LT):
                     opString = "<";
                     break;
+
                 case (Operator.GTEQ):
                     opString = ">=";
                     break;
+
                 case (Operator.LTEQ):
                     opString = "<=";
                     break;
@@ -644,22 +686,27 @@ namespace TastyScript.TastyScript.Parser
                         output = (left == right)
                             ? "True" : "False";
                         break;
+
                     case (Operator.NOTEQ):
                         output = (left != right)
                             ? "True" : "False";
                         break;
+
                     case (Operator.GT):
                         output = (double.Parse(left) > double.Parse(right))
                             ? "True" : "False";
                         break;
+
                     case (Operator.LT):
                         output = (double.Parse(left) < double.Parse(right))
                             ? "True" : "False";
                         break;
+
                     case (Operator.GTEQ):
                         output = (double.Parse(left) >= double.Parse(right))
                             ? "True" : "False";
                         break;
+
                     case (Operator.LTEQ):
                         output = (double.Parse(left) <= double.Parse(right))
                             ? "True" : "False";
@@ -674,13 +721,15 @@ namespace TastyScript.TastyScript.Parser
 
             return output;
         }
+
         //this rips off the comparison check, since the concept is the same.
         private void CompareFail(string line)
         {
             Manager.Throw($"Can not compare more or less than 2 values", ExceptionType.SyntaxException);
             return;
         }
-        #endregion
+
+        #endregion Comparison
 
         public static T DeepCopy<T>(T obj) => obj.Copy<T>();
 
@@ -719,6 +768,7 @@ namespace TastyScript.TastyScript.Parser
             }
             return value;
         }
+
         private string EvaluateVar(string value)
         {
             //get the var scope
@@ -749,7 +799,7 @@ namespace TastyScript.TastyScript.Parser
 
             //get the left hand
             var leftHand = assign[0].Replace(" ", "");
-            var varRef = varList.FirstOrDefault(f=>f.Name == leftHand);
+            var varRef = varList.FirstOrDefault(f => f.Name == leftHand);
             if (varRef != null && varRef.IsLocked)
             {
                 Manager.Throw($"[282]Cannot re-assign a sealed variable!", ExceptionType.SyntaxException);
@@ -880,6 +930,7 @@ namespace TastyScript.TastyScript.Parser
             }
             return null;
         }
+
         private Token TryParseMember(TFunction tfunc)
         {
             if (tfunc == null)
@@ -988,6 +1039,7 @@ namespace TastyScript.TastyScript.Parser
             }
             return val;
         }
+
         private static object GetPropValue(object src, string propName)
         {
             return src.GetType().GetProperty(propName).GetValue(src, null);

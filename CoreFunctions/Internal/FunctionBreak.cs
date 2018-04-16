@@ -10,7 +10,6 @@ namespace TastyScript.CoreFunctions.Internal
     {
         public override bool CallBase()
         {
-            Console.WriteLine(Tracer?.ID);
             var tracer = Tracer;
             if (tracer != null)
                 tracer.SetBreak(true);

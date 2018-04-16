@@ -19,6 +19,7 @@ namespace TastyScript.ParserManager
             }
             return text.Substring(0, pos) + replace + text.Substring(pos + search.Length);
         }
+
         public static string UnCleanString(this string input)
         {
             if (input == null)
@@ -43,9 +44,11 @@ namespace TastyScript.ParserManager
                 .Replace("&CR;", "\r")
                 .Replace("&LF;", "\n")
                 .Replace("&tab;", "\t")
+                .Replace("&question;", "?")
                 .Replace("&period;", ".");
             //.Replace("&amp;", "&");
         }
+
         public static string CleanString(this string input)
         {
             if (input == null)
@@ -70,14 +73,17 @@ namespace TastyScript.ParserManager
                 .Replace("\r", "&CR;")
                 .Replace("\n", "&LF;")
                 .Replace("\t", "&tab;")
+                .Replace("?", "&question;")
                 .Replace(".", "&period;");
             //.Replace("&", "&amp;");
         }
     }
+
     /*
      * Credits
      * https://github.com/Burtsev-Alexey/net-object-deep-copy/
      * */
+
     public static class ObjectExtensions
     {
         private static readonly MethodInfo CloneMethod = typeof(Object).GetMethod("MemberwiseClone", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -92,6 +98,7 @@ namespace TastyScript.ParserManager
         {
             return InternalCopy(originalObject, new Dictionary<Object, Object>(new ReferenceEqualityComparer()));
         }
+
         private static Object InternalCopy(Object originalObject, IDictionary<Object, Object> visited)
         {
             if (originalObject == null) return null;
@@ -108,7 +115,6 @@ namespace TastyScript.ParserManager
                     Array clonedArray = (Array)cloneObject;
                     clonedArray.ForEach((array, indices) => array.SetValue(InternalCopy(clonedArray.GetValue(indices), visited), indices));
                 }
-
             }
             visited.Add(originalObject, cloneObject);
             CopyFields(originalObject, visited, cloneObject, typeToReflect);
@@ -136,6 +142,7 @@ namespace TastyScript.ParserManager
                 fieldInfo.SetValue(cloneObject, clonedFieldValue);
             }
         }
+
         public static T Copy<T>(this T original)
         {
             return (T)Copy((Object)original);
@@ -148,6 +155,7 @@ namespace TastyScript.ParserManager
         {
             return ReferenceEquals(x, y);
         }
+
         public override int GetHashCode(object obj)
         {
             if (obj == null) return 0;
