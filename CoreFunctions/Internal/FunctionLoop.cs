@@ -10,7 +10,7 @@ using TastyScript.ParserManager.Looping;
 
 namespace TastyScript.CoreFunctions
 {
-    [Function("Loop", new string[] { "invoke" }, isSealed: true, invoking: true, isanon: false, alias:new string[] { "loop" })]
+    [Function("Loop", new string[] { "invoke" }, isSealed: true, invoking: true, isanon: false, alias: new string[] { "loop" })]
     public class FunctionLoop : FunctionDefinition
     {
         public override bool CallBase()
@@ -33,8 +33,6 @@ namespace TastyScript.CoreFunctions
             {
                 string[] forNumber = findFor.Extend();
                 int forNumberAsNumber = int.Parse(forNumber[0].ToString());
-                //if (forNumberAsNumber == 0)
-                //    forNumberAsNumber = int.MaxValue;
                 var tracer = new LoopTracer();
                 Manager.LoopTracerStack.Add(tracer);
                 for (var x = 0; x <= forNumberAsNumber; x++)
@@ -67,7 +65,6 @@ namespace TastyScript.CoreFunctions
                         {
                             passed = new string[] { x.ToString() };
                         }
-
                         var caller = new TFunction(func, this, passed);
                         caller.SetTracer(tracer);
                         caller.TryParse();
@@ -82,9 +79,6 @@ namespace TastyScript.CoreFunctions
             }
             else
             {
-                //LoopTracer tracer = new LoopTracer();
-                //Compiler.LoopTracerStack.Add(tracer);
-                //Tracer = tracer;
                 var tracer = new LoopTracer();
                 Manager.LoopTracerStack.Add(tracer);
                 var x = 0;
@@ -128,11 +122,12 @@ namespace TastyScript.CoreFunctions
                         break;
                     }
                 }
-                Manager.LoopTracerStack.Remove(tracer);;
+                Manager.LoopTracerStack.Remove(tracer); ;
                 tracer = null;
             }
             return true;
         }
+
         //stop the base for looping extension from overriding this custom looping function
         protected override void ForExtension(BaseExtension findFor)
         {

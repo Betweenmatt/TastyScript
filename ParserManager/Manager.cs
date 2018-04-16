@@ -18,6 +18,7 @@ namespace TastyScript.ParserManager
         public static IDriver Driver { get; set; }
 
         public static string Title = $"TastyScript v{Assembly.GetExecutingAssembly().GetName().Version.ToString()} Beta";
+
         public static int AnonymousFunctionIndex
         {
             get
@@ -26,18 +27,21 @@ namespace TastyScript.ParserManager
                 return _anonymousFunctionIndex;
             }
         }
+
         public static CancellationTokenSource CancellationTokenSource;
 
         public static string[] StartArgs = new string[] { };
 
         public static Process GuiInvokeProcess;
-        
+
+        public static Process DebuggerProcess;
+
         public static LoopTracerList LoopTracerStack;
 
         public static string CurrentParsedLine { get; private set; }
 
         public static double SleepDefaultTime { get; set; }
-        
+
         public static bool IsScriptStopping
         {
             get
@@ -51,9 +55,9 @@ namespace TastyScript.ParserManager
                 _isScriptStopping = value;
             }
         }
-        
+
         public static IIOStream IOStream { get; private set; }
-        
+
         public static IExceptionHandler ExceptionHandler;
 
         public static Dictionary<string, string> LoadedFileReference;
@@ -62,10 +66,9 @@ namespace TastyScript.ParserManager
 
         private static List<AnonymousFunctionValueHolder> anonymousFunctionValueHolder = new List<AnonymousFunctionValueHolder>();
 
-
         public static void Throw(string msg) => ExceptionHandler.Throw(msg);
 
-        public static void Throw(string msg, ExceptionType type) => ExceptionHandler.Throw(msg,type);
+        public static void Throw(string msg, ExceptionType type) => ExceptionHandler.Throw(msg, type);
 
         public static void ThrowSilent(string msg, bool once = true) => ExceptionHandler.ThrowSilent(msg, once);
 
@@ -73,7 +76,7 @@ namespace TastyScript.ParserManager
 
         public static void ThrowDebug(string msg) => ExceptionHandler.ThrowDebug(msg);
 
-        public static void Print(object msg, bool line = true) => IOStream.Print(msg,line);
+        public static void Print(object msg, bool line = true) => IOStream.Print(msg, line);
 
         public static void Print(object msg, ConsoleColor color, bool line = true) => IOStream.Print(msg, color, line);
 
@@ -82,11 +85,11 @@ namespace TastyScript.ParserManager
         public static void SetCurrentParsedLine(string line) => CurrentParsedLine = line;
 
         public static void SetCancellationTokenSource() => CancellationTokenSource = new CancellationTokenSource();
-        
+
         public static void Init(IIOStream io)
         {
             Settings.LoadSettings();
-            
+
             IOStream = io;
         }
     }

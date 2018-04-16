@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using TastyScript.ParserManager;
 using TastyScript.ParserManager.Driver.Android;
@@ -12,12 +13,11 @@ namespace TastyScript.TastyScript
 {
     internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             Manager.ExceptionHandler = new ExceptionHandler();
             Manager.Driver = new AndroidDriver();
             Manager.Init(new IOStream());
-            
             string run = "";
             try
             {
@@ -39,7 +39,8 @@ namespace TastyScript.TastyScript
                     {
                         if (args.ElementAtOrDefault(i + 1) != null && args[i + 1] != "")
                             Manager.Driver.Connect(args[i + 1]);
-                    }else if(args[i] == "-a")
+                    }
+                    else if (args[i] == "-a")
                     {
                         Manager.StartArgs = args[i + 1].Split(',');
                     }
@@ -49,14 +50,13 @@ namespace TastyScript.TastyScript
                         return;
                     }
                 }
-
             }
             catch
             {
                 Console.WriteLine($"Unknown error parsing arguments: [{string.Join(",", args)}]");
                 return;
             }
-            if(run == "")
+            if (run == "")
             {
                 Console.WriteLine("Run path cannot be empty.");
                 return;
@@ -65,7 +65,7 @@ namespace TastyScript.TastyScript
             {
                 TastyScript.Main.CommandRun(run);
             }
-            catch(Exception e) { Manager.Print(e);}
+            catch (Exception e) { Manager.Print(e); }
         }
     }
 }

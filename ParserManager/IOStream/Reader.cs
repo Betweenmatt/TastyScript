@@ -56,17 +56,19 @@ namespace TastyScript.ParserManager.IOStream
             {
                 Debug.WriteLine("[56]Operation cancelled");
             }
-            catch(TimeoutException e)
+            catch (TimeoutException e)
             {
                 Debug.WriteLine("[60]Timeout reached");
             }
             return string.Empty;
         }
+
         public static void Poke()
         {
             gotInput.Set();
         }
     }
+
     internal static class WaitExtensions
     {
         public static bool WaitOne(this WaitHandle handle, int millisecondsTimeout, CancellationToken cancellationToken)
@@ -76,13 +78,16 @@ namespace TastyScript.ParserManager.IOStream
             {
                 case WaitHandle.WaitTimeout:
                     return false;
+
                 case 0:
                     return true;
+
                 default:
                     cancellationToken.ThrowIfCancellationRequested();
                     return false; // never reached
             }
         }
+
         public static bool WaitOne(this WaitHandle handle, TimeSpan timeout, CancellationToken cancellationToken)
         {
             return handle.WaitOne((int)timeout.TotalMilliseconds, cancellationToken);

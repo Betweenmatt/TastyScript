@@ -16,12 +16,11 @@ namespace TastyScript.TSConsole
 {
     internal class Program
     {
-        
         private static CancellationTokenSource _cancelSource;
         private static string _consoleCommand = "";
         private static string Title = Manager.Title;
 
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             Manager.ExceptionHandler = new ExceptionHandler();
             Manager.Driver = new AndroidDriver();
@@ -31,6 +30,7 @@ namespace TastyScript.TSConsole
             Manager.Print(WelcomeMessage());
             NewWaitForCommand();
         }
+
         public static void NewWaitForCommand()
         {
             while (true)
@@ -62,32 +62,40 @@ namespace TastyScript.TSConsole
                     case ("adb"):
                         //CommandADB(userInput);
                         break;
+
                     case ("app"):
                         CommandApp(userInput);
                         break;
+
                     case ("-c"):
                     case ("connect"):
                         CommandConnect(userInput);
                         break;
+
                     case ("-d"):
                     case ("devices"):
                         CommandDevices(userInput);
                         break;
+
                     case ("dir"):
                         CommandDir(userInput);
                         break;
+
                     case ("-e"):
                     case ("exec"):
                         //TastyScript.Main.CommandExec(userInput);
                         break;
+
                     case ("-h"):
                     case ("help"):
                         CommandHelp(userInput);
                         break;
+
                     case ("-ll"):
                     case ("loglevel"):
                         CommandLogLevel(userInput);
                         break;
+
                     case ("-r"):
                     case ("run"):
                         var waitcancel = new CancellationTokenSource();
@@ -102,22 +110,27 @@ namespace TastyScript.TSConsole
                         myStreamWriter.WriteLine("");
                         process.WaitForExit();
                         break;
+
                     case ("-ss"):
                     case ("screenshot"):
                         CommandScreenshot(userInput);
                         break;
+
                     case ("-sh"):
                     case ("shell"):
                         //CommandShell(userInput);
                         break;
+
                     default:
                         Manager.Print("Enter '-h' for a list of commands!");
                         break;
                 }
             }
         }
-        static Process process;
-        static void StartProcess(string r)
+
+        private static Process process;
+
+        private static void StartProcess(string r)
         {
             process = new Process();
 
@@ -153,6 +166,7 @@ namespace TastyScript.TSConsole
                 Manager.ExceptionHandler.LogThrow("Unexpected error", e);
             }
         }
+
         private static void CommandApp(string r)
         {
             try
@@ -168,6 +182,7 @@ namespace TastyScript.TSConsole
             }
             catch (Exception e) { if (!(e is CompilerControlledException) || Settings.LogLevel == "throw") { Manager.ExceptionHandler.LogThrow("Unexpected error", e); } }
         }
+
         private static void CommandConnect(string r)
         {
             try
@@ -176,16 +191,17 @@ namespace TastyScript.TSConsole
             }
             catch (Exception e) { if (!(e is CompilerControlledException) || Settings.LogLevel == "throw") { Manager.ExceptionHandler.LogThrow("Unexpected error", e); } }
         }
+
         private static void CommandDevices(string r)
         {
             Manager.Driver.PrintAllDevices();
         }
+
         private static void CommandDir(string r)
         {
             if (r != "")
             {
                 Settings.SetQuickDirectory(r);
-
             }
             Manager.Print("Directory: " + Settings.QuickDirectory);
         }
@@ -200,6 +216,7 @@ namespace TastyScript.TSConsole
                 $"app 'appPackage'\t\t|\tSets the current app package.";
             Manager.Print(output);
         }
+
         private static void CommandLogLevel(string r)
         {
             try
@@ -225,7 +242,6 @@ namespace TastyScript.TSConsole
             }
         }
 
-
         private static void CommandScreenshot(string r)
         {
             try
@@ -242,8 +258,10 @@ namespace TastyScript.TSConsole
             }
             catch (Exception e) { if (!(e is CompilerControlledException) || Settings.LogLevel == "throw") { Manager.ExceptionHandler.LogThrow("Unexpected error", e); } }
         }
+
         private static void CommandShell(string r)
-        {}
+        { }
+
         private static string WelcomeMessage()
         {
             return $"Welcome to {Title}!\nCredits:\n@TastyGod - https://github.com/TastyGod " +

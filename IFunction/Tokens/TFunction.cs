@@ -10,6 +10,7 @@ namespace TastyScript.IFunction.Tokens
     public class TFunction : Token
     {
         private LoopTracer Tracer;
+
         public BaseFunction ParentFunction { get; }
         private BaseFunction Function;
         private string[] InvokeProperties;
@@ -22,6 +23,7 @@ namespace TastyScript.IFunction.Tokens
             Function = function;
             Name = function.Name;
             DynamicDictionary = ParentFunction?.Caller.DynamicDictionary;
+
             Extensions = new ExtensionList();
         }
 
@@ -29,6 +31,8 @@ namespace TastyScript.IFunction.Tokens
             : this(function)
         {
             ParentFunction = parentFunction;
+            DynamicDictionary = ParentFunction?.Caller.DynamicDictionary;
+            Tracer = ParentFunction?.Tracer;
         }
 
         public TFunction(BaseFunction function, BaseFunction parentFunction, ExtensionList extensions)

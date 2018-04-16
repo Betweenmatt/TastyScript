@@ -120,9 +120,12 @@ namespace TastyScript.IFunction.Function
             IsSealed = flag;
         }
 
+        public void SetTracer(LoopTracer tracer) => Tracer = tracer;
+
         internal void TryParse(CallerInheritObject inherit)
         {
             InheritCaller(inherit);
+
             TryParse();
         }
 
@@ -211,6 +214,7 @@ namespace TastyScript.IFunction.Function
             ReturnFlag = false;
             InvokeProperties = inherit.InvokeProperties;
             Tracer = inherit.Tracer;
+
             Caller = inherit.Caller;
             Extensions = inherit.Extensions;
             IsBlindExecute = Caller.IsParentBlindExecute();
