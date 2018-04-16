@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -115,7 +116,11 @@ namespace TastyScript.TastyScriptNPP
                 Console.WriteLine(msg);
             }
         }
-
+        internal void SendStdIn(string str)
+        {
+            StreamWriter streamWriter = Main.TsProcess.StandardInput;
+            streamWriter.WriteLine(str);
+        }
         internal void InputTextRecieved(string str)
         {
             InputText = str;

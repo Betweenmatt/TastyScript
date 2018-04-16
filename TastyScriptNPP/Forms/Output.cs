@@ -81,12 +81,13 @@ namespace TastyScript.TastyScriptNPP
         private void SendLine()
         {
             var str = this.inputBox.Text.Replace("\r", "").Replace("\n", "").Replace("\t", "");
-            IOStream.Instance.InputTextRecieved(str);
+            IOStream.Instance.SendStdIn(str);
         }
 
         private void sendButton_Click(object sender, EventArgs e)
         {
             SendLine();
+            this.inputBox.Text = "";
         }
 
         private void inputBox_TextChanged(object sender, KeyPressEventArgs e)
@@ -100,6 +101,11 @@ namespace TastyScript.TastyScriptNPP
         private void startStopButton_Click(object sender, EventArgs e)
         {
             Main.RunStopTS();
+        }
+
+        private void clear_output_CheckedChanged(object sender, EventArgs e)
+        {
+            Settings.OutputPanel.ClearOutputOnRun = this.clear_output.Checked;
         }
     }
 }

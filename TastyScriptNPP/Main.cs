@@ -23,7 +23,6 @@ namespace Kbg.NppPluginNET
         public static string IniPath { get; private set; }
         private static int outputDialogId = -1;
         private static int settingsDialogId = -1;
-        private static int funcTipsDialogId = -1;
 
         private static Bitmap playButton = TastyScript.TastyScriptNPP.Properties.Resources.icoRaw;
 
@@ -53,21 +52,28 @@ namespace Kbg.NppPluginNET
             Settings.OutputPanel.Bold = (Win32.GetPrivateProfileInt("OutputPanel", "BoldStyle", 0, iniFilePath) != 0);
             Settings.OutputPanel.Italic = (Win32.GetPrivateProfileInt("OutputPanel", "ItalicStyle", 0, iniFilePath) != 0);
             Settings.OutputPanel.FontSize = (Win32.GetPrivateProfileInt("OutputPanel", "FontSize", 12, iniFilePath));
+            Settings.OutputPanel.ClearOutputOnRun = (Win32.GetPrivateProfileInt("OutputPanel", "AutoClearOutput", 1, iniFilePath) != 0);
+            //
             StringBuilder fontNameBuilder = new StringBuilder(32767);
             Win32.GetPrivateProfileString("OutputPanel", "FontName", "Consolas", fontNameBuilder, 32767, iniFilePath);
             Settings.OutputPanel.FontName = fontNameBuilder.ToString();
+            //
+            StringBuilder tsFolderBuilder = new StringBuilder(32767);
+            Win32.GetPrivateProfileString("OutputPanel", "TSFolder", "", tsFolderBuilder, 32767, iniFilePath);
+            Settings.OutputPanel.TSFolder = tsFolderBuilder.ToString();
+            //
             StringBuilder colorOverrides = new StringBuilder(32767);
             string coloroverridedefault = "Black,LightGray;Blue,Blue;Cyan,Cyan;DarkBlue,DarkBlue;DarkCyan,DarkCyan;DarkGray,DarkGray;DarkGreen,DarkGreen;" +
                 "DarkMagenta,DarkMagenta;DarkRed,DarkRed;DarkYellow,YellowGreen;Green,Green;Magenta,Magenta;Red,Red;White,White;Yellow,Yellow;";
             Win32.GetPrivateProfileString("OutputPanel", "ColorOverrides", coloroverridedefault, colorOverrides, 32767, iniFilePath);
             Settings.OutputPanel.ColorOverrides = colorOverrides.ToString();
+            //
             StringBuilder llStrBuilder = new StringBuilder(32767);
             Win32.GetPrivateProfileString("OutputPanel", "LogLevel", "warn", llStrBuilder, 32767, iniFilePath);
             Settings.OutputPanel.LogLevel = llStrBuilder.ToString();
 
             PluginBase.SetCommand(0, "Run/Stop Script", RunStopTS, new ShortcutKey(false, false, false, Keys.None));
             PluginBase.SetCommand(1, "Output Panel", OutputDockableDialog); outputDialogId = 1;
-            PluginBase.SetCommand(2, "---", null); funcTipsDialogId = 2;//function tips not implemented yet
             PluginBase.SetCommand(3, "---", null);
             PluginBase.SetCommand(4, "Settings", SettingsDialog); settingsDialogId = 4;
         }
@@ -92,9 +98,11 @@ namespace Kbg.NppPluginNET
             Win32.WritePrivateProfileString("OutputPanel", "FontName", Settings.OutputPanel.FontName, iniFilePath);
             Win32.WritePrivateProfileString("OutputPanel", "ColorOverrides", Settings.OutputPanel.ColorOverrides, iniFilePath);
             Win32.WritePrivateProfileString("OutputPanel", "LogLevel", Settings.OutputPanel.LogLevel, iniFilePath);
+            Win32.WritePrivateProfileString("OutputPanel", "TSFolder", Settings.OutputPanel.TSFolder, iniFilePath);
+            Win32.WritePrivateProfileString("OutputPanel", "AutoClearOutput", Settings.OutputPanel.ClearOutputOnRun ? "1" : "0", iniFilePath);
         }
 
-        private static Process tsProcess;
+        internal static Process TsProcess;
 
         internal static void RunStopTS()
         {
@@ -104,7 +112,8 @@ namespace Kbg.NppPluginNET
                 if (output != null)
                 {
                     var str = new IOStream(output);
-                    output.Clear();
+                    if(Settings.OutputPanel.ClearOutputOnRun)
+                        output.Clear();
                     //check for correct extension before continuing
                     StringBuilder ext = new StringBuilder(Win32.MAX_PATH);
                     Win32.SendMessage(PluginBase.nppData._nppHandle, (uint)NppMsg.NPPM_GETEXTPART, 0, ext);
@@ -120,6 +129,19 @@ namespace Kbg.NppPluginNET
                             return;
                         }
                     }
+                    if(Settings.OutputPanel.TSFolder == "" || !File.Exists(Settings.OutputPanel.TSFolder + @"\TastyScript.exe"))
+                    {
+                        DialogResult dialogResult = MessageBox.Show("Your TastyScript folder has not been set yet! Would you like to go to settings now to set it?", "TS Folder Not Set", MessageBoxButtons.YesNo);
+                        if (dialogResult == DialogResult.Yes)
+                        {
+                            SettingsDialog();
+                            return;
+                        }
+                        else if (dialogResult == DialogResult.No)
+                        {
+                            return;
+                        }
+                    }
                     IsRunning = true;
                     StringBuilder path = new StringBuilder(Win32.MAX_PATH);
                     Win32.SendMessage(PluginBase.nppData._nppHandle, (uint)NppMsg.NPPM_GETFULLCURRENTPATH, 0, path);
@@ -129,8 +151,7 @@ namespace Kbg.NppPluginNET
                     str.Print("Directory : " + dir, ConsoleColor.DarkGray);
                     Thread th = new Thread(() =>
                     {
-                        //TastyScript.Main.DirectInit(path.ToString(), dir.ToString(), Settings.OutputPanel.LogLevel, str, new ExceptionListener());
-                        try
+                       try
                         {
                             StartTsProcess(dir.ToString(), path.ToString(), str);
                             StopTsProcess();
@@ -138,7 +159,7 @@ namespace Kbg.NppPluginNET
                         {
                             MessageBox.Show(e.ToString());
                         }
-                        tsProcess.WaitForExit();
+                        TsProcess.WaitForExit();
                         str.Print("Execution is complete.", ConsoleColor.Green);
                         IsRunning = false;
                     });
@@ -154,31 +175,31 @@ namespace Kbg.NppPluginNET
 
         private static void StartTsProcess(string dir, string path, IOStream iostream)
         {
-            tsProcess = new Process();
+            TsProcess = new Process();
 
             // Stop the process from opening a new window
-            tsProcess.StartInfo.RedirectStandardOutput = true;
-            tsProcess.StartInfo.RedirectStandardInput = true;
-            tsProcess.StartInfo.UseShellExecute = false;
-            tsProcess.StartInfo.CreateNoWindow = true;
+            TsProcess.StartInfo.RedirectStandardOutput = true;
+            TsProcess.StartInfo.RedirectStandardInput = true;
+            TsProcess.StartInfo.UseShellExecute = false;
+            TsProcess.StartInfo.CreateNoWindow = true;
 
             // Setup executable and parameters
-            tsProcess.StartInfo.FileName = @"C:\Users\Matthew\Documents\Visual Studio 2015\Projects\TastyScript\TSConsole\bin\Debug\TastyScript.exe";
-            tsProcess.StartInfo.Arguments = $"-r \"{path}\" -d \"{dir}\" -ll {Settings.OutputPanel.LogLevel}";
+            TsProcess.StartInfo.FileName = Settings.OutputPanel.TSFolder + @"\TastyScript.exe";
+            TsProcess.StartInfo.Arguments = $"-r \"{path}\" -d \"{dir}\" -ll {Settings.OutputPanel.LogLevel}";
 
             // Go
-            tsProcess.Start();
-            TastyScript.ParserManager.ChildProcessTracker.AddProcess(tsProcess);
-            while (!tsProcess.StandardOutput.EndOfStream)
+            TsProcess.Start();
+            TastyScript.ParserManager.ChildProcessTracker.AddProcess(TsProcess);
+            while (!TsProcess.StandardOutput.EndOfStream)
             {
-                string line = tsProcess.StandardOutput.ReadLine();
+                string line = TsProcess.StandardOutput.ReadLine();
                 iostream.PrintXml(line);
             }
         }
 
         private static void StopTsProcess()
         {
-            StreamWriter streamWriter = tsProcess.StandardInput;
+            StreamWriter streamWriter = TsProcess.StandardInput;
             streamWriter.WriteLine("");
         }
 

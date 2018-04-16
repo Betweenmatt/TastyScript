@@ -45,6 +45,10 @@
             this.label5 = new System.Windows.Forms.Label();
             this.loglevelCombo = new System.Windows.Forms.ComboBox();
             this.label6 = new System.Windows.Forms.Label();
+            this.label7 = new System.Windows.Forms.Label();
+            this.tsfolder_input = new System.Windows.Forms.TextBox();
+            this.browse_button = new System.Windows.Forms.Button();
+            this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
             ((System.ComponentModel.ISupportInitialize)(this.bgColorPicture)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.defaultTextPicture)).BeginInit();
             this.SuspendLayout();
@@ -52,7 +56,7 @@
             // aboutLabel
             // 
             this.aboutLabel.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.aboutLabel.Location = new System.Drawing.Point(2, 174);
+            this.aboutLabel.Location = new System.Drawing.Point(2, 222);
             this.aboutLabel.Name = "aboutLabel";
             this.aboutLabel.Size = new System.Drawing.Size(183, 77);
             this.aboutLabel.TabIndex = 0;
@@ -102,7 +106,7 @@
             // boldCheck
             // 
             this.boldCheck.AutoSize = true;
-            this.boldCheck.Location = new System.Drawing.Point(301, 33);
+            this.boldCheck.Location = new System.Drawing.Point(340, 38);
             this.boldCheck.Name = "boldCheck";
             this.boldCheck.Size = new System.Drawing.Size(47, 17);
             this.boldCheck.TabIndex = 5;
@@ -112,7 +116,7 @@
             // italicCheck
             // 
             this.italicCheck.AutoSize = true;
-            this.italicCheck.Location = new System.Drawing.Point(301, 56);
+            this.italicCheck.Location = new System.Drawing.Point(340, 61);
             this.italicCheck.Name = "italicCheck";
             this.italicCheck.Size = new System.Drawing.Size(48, 17);
             this.italicCheck.TabIndex = 6;
@@ -121,14 +125,14 @@
             // 
             // fontSize
             // 
-            this.fontSize.Location = new System.Drawing.Point(191, 37);
+            this.fontSize.Location = new System.Drawing.Point(230, 42);
             this.fontSize.Name = "fontSize";
             this.fontSize.Size = new System.Drawing.Size(33, 20);
             this.fontSize.TabIndex = 7;
             // 
             // fontName
             // 
-            this.fontName.Location = new System.Drawing.Point(191, 7);
+            this.fontName.Location = new System.Drawing.Point(230, 12);
             this.fontName.Name = "fontName";
             this.fontName.Size = new System.Drawing.Size(130, 20);
             this.fontName.TabIndex = 8;
@@ -136,7 +140,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(130, 10);
+            this.label3.Location = new System.Drawing.Point(169, 15);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(55, 13);
             this.label3.TabIndex = 9;
@@ -146,7 +150,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(130, 40);
+            this.label4.Location = new System.Drawing.Point(169, 45);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(54, 13);
             this.label4.TabIndex = 10;
@@ -155,7 +159,7 @@
             // 
             // saveButton
             // 
-            this.saveButton.Location = new System.Drawing.Point(263, 228);
+            this.saveButton.Location = new System.Drawing.Point(313, 276);
             this.saveButton.Name = "saveButton";
             this.saveButton.Size = new System.Drawing.Size(75, 23);
             this.saveButton.TabIndex = 11;
@@ -165,17 +169,17 @@
             // 
             // colorOverrideBox
             // 
-            this.colorOverrideBox.Location = new System.Drawing.Point(178, 122);
+            this.colorOverrideBox.Location = new System.Drawing.Point(172, 119);
             this.colorOverrideBox.Multiline = true;
             this.colorOverrideBox.Name = "colorOverrideBox";
             this.colorOverrideBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.colorOverrideBox.Size = new System.Drawing.Size(170, 86);
+            this.colorOverrideBox.Size = new System.Drawing.Size(215, 86);
             this.colorOverrideBox.TabIndex = 12;
             // 
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(175, 106);
+            this.label5.Location = new System.Drawing.Point(169, 103);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(85, 13);
             this.label5.TabIndex = 13;
@@ -185,7 +189,7 @@
             // loglevelCombo
             // 
             this.loglevelCombo.FormattingEnabled = true;
-            this.loglevelCombo.Location = new System.Drawing.Point(191, 74);
+            this.loglevelCombo.Location = new System.Drawing.Point(231, 79);
             this.loglevelCombo.Name = "loglevelCombo";
             this.loglevelCombo.Size = new System.Drawing.Size(121, 21);
             this.loglevelCombo.TabIndex = 14;
@@ -193,18 +197,48 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(130, 77);
+            this.label6.Location = new System.Drawing.Point(170, 82);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(54, 13);
             this.label6.TabIndex = 15;
             this.label6.Text = "LogLevel:";
             this.label6.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(191, 222);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(101, 13);
+            this.label7.TabIndex = 17;
+            this.label7.Text = "Tasty Script Folder: ";
+            this.label7.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // tsfolder_input
+            // 
+            this.tsfolder_input.Location = new System.Drawing.Point(194, 238);
+            this.tsfolder_input.Name = "tsfolder_input";
+            this.tsfolder_input.Size = new System.Drawing.Size(130, 20);
+            this.tsfolder_input.TabIndex = 16;
+            // 
+            // browse_button
+            // 
+            this.browse_button.Location = new System.Drawing.Point(330, 236);
+            this.browse_button.Name = "browse_button";
+            this.browse_button.Size = new System.Drawing.Size(57, 23);
+            this.browse_button.TabIndex = 18;
+            this.browse_button.Text = "Browse";
+            this.browse_button.UseVisualStyleBackColor = true;
+            this.browse_button.Click += new System.EventHandler(this.browse_button_Click);
+            // 
             // SettingsPanel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(351, 263);
+            this.ClientSize = new System.Drawing.Size(399, 308);
+            this.Controls.Add(this.browse_button);
+            this.Controls.Add(this.label7);
+            this.Controls.Add(this.tsfolder_input);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.loglevelCombo);
             this.Controls.Add(this.label5);
@@ -249,5 +283,9 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.ComboBox loglevelCombo;
         private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.TextBox tsfolder_input;
+        private System.Windows.Forms.Button browse_button;
+        private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
     }
 }

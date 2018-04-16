@@ -34,29 +34,38 @@ namespace TastyScript.TastyScriptNPP
             this.fontSize.Text = Settings.OutputPanel.FontSize.ToString();
             this.loglevelCombo.SelectedIndex = this.loglevelCombo.FindStringExact(Settings.OutputPanel.LogLevel);
             this.colorOverrideBox.Text = Settings.OutputPanel.ColorOverrides;
+            this.tsfolder_input.Text = Settings.OutputPanel.TSFolder;
         }
 
         private void saveButton_Click(object sender, EventArgs e)
         {
-            Settings.OutputPanel.DefaultBGColor = currentBgColor;
-            Settings.OutputPanel.DefaultTextColor = currentTextColor;
-            Settings.OutputPanel.Bold = this.boldCheck.Checked;
-            Settings.OutputPanel.Italic = this.italicCheck.Checked;
-            Settings.OutputPanel.LogLevel = this.loglevelCombo.Text;
             try
             {
-                Settings.OutputPanel.FontSize = int.Parse(this.fontSize.Text);
-            }
-            catch
+                Settings.OutputPanel.DefaultBGColor = currentBgColor;
+                Settings.OutputPanel.DefaultTextColor = currentTextColor;
+                Settings.OutputPanel.Bold = this.boldCheck.Checked;
+                Settings.OutputPanel.Italic = this.italicCheck.Checked;
+                Settings.OutputPanel.LogLevel = this.loglevelCombo.Text;
+                Settings.OutputPanel.TSFolder = this.tsfolder_input.Text;
+                try
+                {
+                    Settings.OutputPanel.FontSize = int.Parse(this.fontSize.Text);
+                }
+                catch
+                {
+                    MessageBox.Show("Font size must be an integer");
+                    return;
+                }
+                Settings.OutputPanel.FontName = this.fontName.Text;
+                Settings.OutputPanel.ColorOverrides = this.colorOverrideBox.Text;
+                //reload settings if output is not null
+                if (Main.output != null)
+                    Main.output.LoadSettings();
+                Main.HideSettings();
+            }catch(Exception ex)
             {
-                MessageBox.Show("Font size must be an integer");
+                MessageBox.Show($"There was an error saving settings: {ex}");
             }
-            Settings.OutputPanel.FontName = this.fontName.Text;
-            Settings.OutputPanel.ColorOverrides = this.colorOverrideBox.Text;
-            //reload settings if output is not null
-            if (Main.output != null)
-                Main.output.LoadSettings();
-            Main.HideSettings();
         }
 
         private void bgColorPicture_Click(object sender, EventArgs e)
@@ -80,6 +89,21 @@ namespace TastyScript.TastyScriptNPP
                 // Set form background to the selected color.
                 currentTextColor = colorDialog1.Color;
                 this.defaultTextPicture.BackColor = currentTextColor;
+            }
+        }
+
+        private void browse_button_Click(object sender, EventArgs e)
+        {
+            if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    this.tsfolder_input.Text = folderBrowserDialog1.SelectedPath;
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"There was an error selecting a folder: {ex}");
+                }
             }
         }
     }
