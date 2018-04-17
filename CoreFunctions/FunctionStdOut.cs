@@ -2,7 +2,7 @@
 using TastyScript.IFunction.Attributes;
 using TastyScript.IFunction.Functions;
 
-namespace TastyScript.CoreFunctions.HttpHost
+namespace TastyScript.CoreFunctions
 {
     [Function("StdOut", new string[] { "Text", "Line", "Color", "Id" })]
     public class FunctionStdOut : FunctionDefinition

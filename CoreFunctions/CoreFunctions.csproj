@@ -56,7 +56,9 @@
     <Compile Include="FunctionAppPackage.cs" />
     <Compile Include="FunctionCheckScreen.cs" />
     <Compile Include="FunctionConnectDevice.cs" />
-    <Compile Include="HttpHost\FunctionStdOut.cs" />
+    <Compile Include="FunctionRandom.cs" />
+    <Compile Include="FunctionStdIn.cs" />
+    <Compile Include="FunctionStdOut.cs" />
     <Compile Include="Internal\FunctionIf.cs" />
     <Compile Include="FunctionImageLocation.cs" />
     <Compile Include="FunctionKeyEvent.cs" />
@@ -109,7 +111,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties BuildVersion_DetectChanges="False" BuildVersion_IncrementBeforeBuild="False" BuildVersion_UseGlobalSettings="False" BuildVersion_AssemblyInfoFilename="..\GlobalAssemblyInfo.cs" BuildVersion_StartDate="2000/1/1" />
+      <UserProperties BuildVersion_StartDate="2000/1/1" BuildVersion_AssemblyInfoFilename="..\GlobalAssemblyInfo.cs" BuildVersion_UseGlobalSettings="False" BuildVersion_IncrementBeforeBuild="False" BuildVersion_DetectChanges="False" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>
