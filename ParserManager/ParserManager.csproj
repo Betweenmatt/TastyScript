@@ -73,6 +73,7 @@
     <Compile Include="Extensions.cs" />
     <Compile Include="IOStream\IIOStream.cs" />
     <Compile Include="IOStream\Reader.cs" />
+    <Compile Include="IOStream\XmlStreamObj.cs" />
     <Compile Include="Looping\LoopTracerList.cs" />
     <Compile Include="Looping\LoopTracer.cs" />
     <Compile Include="Manager.cs" />
@@ -96,7 +97,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties BuildVersion_DetectChanges="False" BuildVersion_IncrementBeforeBuild="False" BuildVersion_UseGlobalSettings="False" BuildVersion_AssemblyInfoFilename="..\GlobalAssemblyInfo.cs" BuildVersion_StartDate="2000/1/1" />
+      <UserProperties BuildVersion_StartDate="2000/1/1" BuildVersion_AssemblyInfoFilename="..\GlobalAssemblyInfo.cs" BuildVersion_UseGlobalSettings="False" BuildVersion_IncrementBeforeBuild="False" BuildVersion_DetectChanges="False" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

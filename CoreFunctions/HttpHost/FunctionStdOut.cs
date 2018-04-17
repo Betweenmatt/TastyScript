@@ -4,7 +4,7 @@ using TastyScript.IFunction.Functions;
 
 namespace TastyScript.CoreFunctions.HttpHost
 {
-    [Function("StdOut", new string[] { "Text", "Line", "Color" })]
+    [Function("StdOut", new string[] { "Text", "Line", "Color", "Id" })]
     public class FunctionStdOut : FunctionDefinition
     {
         public override bool CallBase()

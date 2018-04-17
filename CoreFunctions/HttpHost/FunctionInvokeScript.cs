@@ -81,7 +81,8 @@ namespace TastyScript.CoreFunctions.HttpHost
                                {
                                    color = lv1.Attribute("color").Value,
                                    text = lv1.Attribute("text").Value,
-                                   line = lv1.Attribute("line").Value
+                                   line = lv1.Attribute("line").Value,
+                                   id = lv1.Attribute("id").Value
                                };
                     foreach (var x in objs)
                     {
@@ -90,7 +91,8 @@ namespace TastyScript.CoreFunctions.HttpHost
                         {
                             x.text.CleanString(),
                             x.line,
-                            x.color
+                            x.color,
+                            x.id
                         });
                         tfunc.TryParse();
                     }

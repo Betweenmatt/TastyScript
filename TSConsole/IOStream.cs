@@ -12,14 +12,14 @@ namespace TastyScript.TSConsole
 {
     internal class IOStream : IIOStream
     {
-        public void Print(object o, bool line = true)
+        public void Print(object o, bool line = true, string id = "")
         {
             if (line)
                 Console.WriteLine(o);
             else
                 Console.Write(o);
         }
-        public void Print(object o, ConsoleColor color, bool line = true)
+        public void Print(object o, ConsoleColor color, bool line = true, string id = "")
         {
             Console.ForegroundColor = color;
             if (line)
@@ -40,40 +40,14 @@ namespace TastyScript.TSConsole
         {
             Console.Title = $"{Manager.Title} || {append}";
         }
-        public void PrintXml(string msg)
+        public void PrintXml(XmlStreamObj msg)
         {
-            if (msg.Contains("<obj"))
-            {
-                try
-                {
-                    XDocument xdoc = XDocument.Parse(msg);
-                    
-                    var objs = from lv1 in xdoc.Descendants("obj")
-                               select new
-                               {
-                                   color = lv1.Attribute("color").Value,
-                                   text = lv1.Attribute("text").Value,
-                                   line = lv1.Attribute("line").Value
-                               };
-                    foreach (var x in objs)
-                    {
-                        if (Enum.TryParse<ConsoleColor>(x.color, out ConsoleColor newcol))
-                            Console.ForegroundColor = newcol;
-                        if ((x.line == "True" || x.line == "true") ? true : false)
-                            Console.WriteLine(x.text);
-                        else
-                            Console.Write(x.text);
-                        Console.ResetColor();
-                    }
-                }catch(Exception e)
-                {
-                    Manager.ThrowSilent($"Unknown error writing to stdout: {e.Message}", ExceptionType.SystemException);
-                }
-            }
+            Console.ForegroundColor = msg.Color;
+            if (msg.Line)
+                Console.WriteLine(msg.Text);
             else
-            {
-                Console.WriteLine(msg);
-            }
+                Console.Write(msg.Text);
+            Console.ResetColor();
         }
     }
 }

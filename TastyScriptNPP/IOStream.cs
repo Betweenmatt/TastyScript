@@ -42,17 +42,17 @@ namespace TastyScript.TastyScriptNPP
             }
         }
 
-        public void Print(object o, bool line = true)
+        public void Print(object o, bool line = true, string id = "")
         {
             _ref.Pipe(o.ToString(), line);
         }
 
-        public void Print(object o, ConsoleColor color, bool line = true)
+        public void Print(object o, ConsoleColor color, bool line = true, string id = "")
         {
             _ref.Pipe(o.ToString(), GetColorFromConsoleEnum(color), line);
         }
 
-        public void Print(object o, Color color, bool line = true)
+        public void Print(object o, Color color, bool line = true, string id = "")
         {
             _ref.Pipe(o.ToString(), color, line);
         }
@@ -76,50 +76,21 @@ namespace TastyScript.TastyScriptNPP
 
         public string Read()
         {
-            //throw new NotImplementedException();
+            throw new NotImplementedException();
             WaitingForInput = true;
             while (WaitingForInput)
             { }
             return InputText;
         }
 
-        public void PrintXml(string msg)
+        public void PrintXml(XmlStreamObj x)
         {
-            if (msg.Contains("<obj"))
-            {
-                try
-                {
-                    XDocument xdoc = XDocument.Parse(msg);
-
-                    var objs = from lv1 in xdoc.Descendants("obj")
-                               select new
-                               {
-                                   color = lv1.Attribute("color").Value,
-                                   text = lv1.Attribute("text").Value,
-                                   line = lv1.Attribute("line").Value
-                               };
-                    foreach (var x in objs)
-                    {
-                        if (Enum.TryParse<ConsoleColor>(x.color, out ConsoleColor newcol))
-                            Print(x.text, newcol, (x.line == "True" || x.line == "true") ? true : false);
-                        else
-                            Print(x.text, (x.line == "True" || x.line == "true") ? true : false);
-                    }
-                }
-                catch (Exception e)
-                {
-                    Manager.ThrowSilent($"Unknown error writing to stdout: {e.Message}", ExceptionType.SystemException);
-                }
-            }
-            else
-            {
-                Console.WriteLine(msg);
-            }
+            Print(x.Text, x.Color, x.Line);
         }
         internal void SendStdIn(string str)
         {
             StreamWriter streamWriter = Main.TsProcess.StandardInput;
-            streamWriter.WriteLine(str);
+            streamWriter.WriteLine(str.ToStreamXml());
         }
         internal void InputTextRecieved(string str)
         {
@@ -134,6 +105,7 @@ namespace TastyScript.TastyScriptNPP
 
         public string ReadLine()
         {
+            throw new NotImplementedException();
             return Read();
         }
     }

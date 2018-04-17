@@ -29,42 +29,47 @@ namespace TastyScript.TastyScript
         }
         public static void CommandRun(string r)
         {
+            CancellationTokenSource source = new CancellationTokenSource();
             try
             {
                 var path = r.Replace("\'", "").Replace("\"", "");
                 var file = Utilities.GetFileFromPath(path);
                 Manager.SleepDefaultTime = 1200;
                 Manager.IsScriptStopping = false;
-                CancellationTokenSource source = new CancellationTokenSource();
-                Thread esc = new Thread(()=> { ListenForEscape(source.Token); });
-                esc.Start();
+                new Thread(()=> { ListenForEscape(source.Token); }).Start();
                 StartScript(path, file);
                 source.Cancel();
             }
             catch (Exception e)
             {
+                source.Cancel();
+                Manager.CancellationTokenSource.Cancel();
                 //if loglevel is throw, then compilerControledException gets printed as well
                 //only for debugging srs issues
                 if (!(e is CompilerControlledException) || Settings.LogLevel == "throw")
                 {
-                    throw;
                     Manager.ExceptionHandler.LogThrow("Unexpected error", e);
                 }
-                //Console.WriteLine(e);
             }
         }
         public static void ListenForEscape(CancellationToken _cancelSource)
         {
             Manager.Print("Press ENTER to stop");
-            
-            var r = Reader.ReadLine(_cancelSource);
-
-            //halt the script running in a child process
-            if (Manager.GuiInvokeProcess != null)
+            while (!_cancelSource.IsCancellationRequested)
             {
-                StreamWriter streamWriter = Manager.GuiInvokeProcess.StandardInput;
-                streamWriter.WriteLine("");
-                //Manager.GuiInvokeProcess.Kill();
+                var r = Reader.ReadLine(_cancelSource);
+                var xml = XmlStreamObj.ReadStreamXml(r);
+                if(xml != null)
+                {
+                    if (xml.Id == "PROCESS_SCRIPT_ESCAPE")
+                        break;
+                    else
+                        Manager.StdInLine = xml.Text;
+                }
+                else if(r != "")//ignore this because when readline is canceled an empty string will get through
+                {
+                    Manager.ThrowSilent($"Input stream is not in the correct format and will be ignored: {r}");
+                }
             }
             if (!Manager.IsScriptStopping)
             {
@@ -108,43 +113,6 @@ namespace TastyScript.TastyScript
             return true;
         }
 
-        //these are for starting and stoppign the script from an external source like
-        //notepad++
-        public static void DirectInit(string f, string dir, string ll, IIOStream io, IExceptionHandler listener)
-        {
-            IsConsole = false;
-            Manager.Init(io);
-            Settings.SetQuickDirectory(dir);
-            Settings.SetLogLevel(ll);
-            DirectRun(f);
-        }
-        private static void DirectRun(string r)
-        {
-
-            try
-            {
-                var path = r.Replace("\'", "").Replace("\"", "");
-                var file = Utilities.GetFileFromPath(path);
-                Manager.SleepDefaultTime = 1200;
-                Manager.IsScriptStopping = false;
-                StartScript(path, file);
-            }
-            catch (Exception e)
-            {
-                //if loglevel is throw, then compilerControledException gets printed as well
-                //only for debugging srs issues
-                if (!(e is CompilerControlledException) || Settings.LogLevel == "throw")
-                {
-                    Manager.ExceptionHandler.LogThrow("Unexpected error", e);
-                }
-            }
-        }
-        public static void DirectStop()
-        {
-            if (!Manager.IsScriptStopping)
-            {
-                SendStopScript();
-            }
-        }
+       
     }
 }

@@ -42,6 +42,8 @@ namespace TastyScript.ParserManager
 
         public static double SleepDefaultTime { get; set; }
 
+        public static string StdInLine { get; set; }
+
         public static bool IsScriptStopping
         {
             get
@@ -76,9 +78,9 @@ namespace TastyScript.ParserManager
 
         public static void ThrowDebug(string msg) => ExceptionHandler.ThrowDebug(msg);
 
-        public static void Print(object msg, bool line = true) => IOStream.Print(msg, line);
+        public static void Print(object msg, bool line = true, string id = "") => IOStream.Print(msg, line, id);
 
-        public static void Print(object msg, ConsoleColor color, bool line = true) => IOStream.Print(msg, color, line);
+        public static void Print(object msg, ConsoleColor color, bool line = true, string id = "") => IOStream.Print(msg, color, line, id);
 
         public static string ReadLine() => IOStream.ReadLine();
 

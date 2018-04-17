@@ -99,16 +99,26 @@ namespace TastyScript.TSConsole
                     case ("-r"):
                     case ("run"):
                         var waitcancel = new CancellationTokenSource();
-                        Thread th = new Thread(() =>
-                        {
-                            StartProcess(userInput);
-                            waitcancel.Cancel();
-                        });
-                        th.Start();
-                        Reader.ReadLine(waitcancel.Token);
-                        StreamWriter myStreamWriter = process.StandardInput;
-                        myStreamWriter.WriteLine("");
+                        
+                        new Thread(() => {
+                            while (!waitcancel.IsCancellationRequested)
+                            {
+                                var read = Reader.ReadLine(waitcancel.Token);
+                                if (read == "")
+                                {
+                                    SendToProcess();
+                                    waitcancel.Cancel();
+                                    break;
+                                }
+                                else
+                                {
+                                    SendToProcess(read);
+                                }
+                            }
+                        }).Start();
+                        StartProcess(userInput);
                         process.WaitForExit();
+                        waitcancel.Cancel();
                         break;
 
                     case ("-ss"):
@@ -127,7 +137,17 @@ namespace TastyScript.TSConsole
                 }
             }
         }
-
+        private static void SendToProcess(string msg = "")
+        {
+            if (process != null)
+            {
+                StreamWriter streamWriter = process.StandardInput;
+                if (msg == "")
+                    streamWriter.WriteLine(msg.ToStreamXml(id: "PROCESS_SCRIPT_ESCAPE"));
+                else
+                    streamWriter.WriteLine(msg.ToStreamXml());
+            }
+        }
         private static Process process;
 
         private static void StartProcess(string r)
@@ -150,7 +170,15 @@ namespace TastyScript.TSConsole
             while (!process.StandardOutput.EndOfStream)
             {
                 string line = process.StandardOutput.ReadLine();
-                (Manager.IOStream as IOStream).PrintXml(line);
+                var xml = XmlStreamObj.ReadStreamXml(line);
+                if(xml == null)
+                {
+                    Manager.Print(line);
+                }
+                else
+                {
+                    (Manager.IOStream as IOStream).PrintXml(xml);
+                }
             }
         }
 

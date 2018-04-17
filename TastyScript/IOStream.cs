@@ -12,23 +12,13 @@ namespace TastyScript.TastyScript
 {
     public class IOStream : IIOStream
     {
-        public void Print(object o, bool line = true)
+        public void Print(object o, bool line = true, string id = "")
         {
-            XmlDocument doc = new XmlDocument();
-            XmlElement element = doc.CreateElement("obj");
-            element.SetAttribute("color", "");
-            element.SetAttribute("text", o.ToString());
-            element.SetAttribute("line", line.ToString());
-            Console.WriteLine(element.OuterXml);
+            Console.WriteLine(o.ToString().ToStreamXml(line, ConsoleColor.Gray, id));
         }
-        public void Print(object o, ConsoleColor color, bool line = true)
+        public void Print(object o, ConsoleColor color, bool line = true, string id = "")
         {
-            XmlDocument doc = new XmlDocument();
-            XmlElement element = doc.CreateElement("obj");
-            element.SetAttribute("color", color.ToString());
-            element.SetAttribute("text", o.ToString());
-            element.SetAttribute("line", line.ToString());
-            Console.WriteLine(element.OuterXml);
+            Console.WriteLine(o.ToString().ToStreamXml(line, color, id));
         }
         public string ReadLine()
         {

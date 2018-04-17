@@ -12,7 +12,7 @@ namespace TastyScript.CoreFunctions.HttpHost
         public override bool CallBase()
         {
             StreamWriter streamWriter = Manager.GuiInvokeProcess.StandardInput;
-            streamWriter.WriteLine("");
+            streamWriter.WriteLine("".ToStreamXml(id: "PROCESS_SCRIPT_ESCAPE"));
             return true;
         }
     }

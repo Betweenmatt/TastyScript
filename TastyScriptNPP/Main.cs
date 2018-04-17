@@ -12,6 +12,7 @@ using System.Diagnostics;
 
 //using TastyScript.ParserManager;
 using TastyScript.TastyScriptNPP;
+using TastyScript;
 
 namespace Kbg.NppPluginNET
 {
@@ -193,14 +194,22 @@ namespace Kbg.NppPluginNET
             while (!TsProcess.StandardOutput.EndOfStream)
             {
                 string line = TsProcess.StandardOutput.ReadLine();
-                iostream.PrintXml(line);
+                var xml = TastyScript.ParserManager.IOStream.XmlStreamObj.ReadStreamXml(line);
+                if (xml == null)
+                {
+                    iostream.Print(line);
+                }
+                else
+                {
+                    iostream.PrintXml(xml);
+                }
             }
         }
 
         private static void StopTsProcess()
         {
             StreamWriter streamWriter = TsProcess.StandardInput;
-            streamWriter.WriteLine("");
+            streamWriter.WriteLine("".ToStreamXml(id: "PROCESS_SCRIPT_ESCAPE"));
         }
 
         internal static void OutputDockableDialog()

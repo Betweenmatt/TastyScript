@@ -4,12 +4,23 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using TastyScript.ParserManager.ArrayExtensions;
+using System.Xml;
+using TastyScript.ArrayExtensions;
 
-namespace TastyScript.ParserManager
+namespace TastyScript
 {
     public static class Extensions
     {
+        public static string ToStreamXml(this string text, bool line = true, ConsoleColor color = ConsoleColor.Gray, string id = "")
+        {
+            XmlDocument doc = new XmlDocument();
+            XmlElement element = doc.CreateElement("obj");
+            element.SetAttribute("color", color.ToString());
+            element.SetAttribute("text", text.ToString());
+            element.SetAttribute("line", line.ToString());
+            element.SetAttribute("id", id);
+            return element.OuterXml;
+        }
         public static string ReplaceFirst(this string text, string search, string replace)
         {
             int pos = text.IndexOf(search);
