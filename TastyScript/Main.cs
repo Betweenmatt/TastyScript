@@ -11,14 +11,12 @@ namespace TastyScript.TastyScript
 {
     public static class Main
     {
-        public static bool IsConsole = true;
-        
         public static void CommandExec(string r)
         {
             try
             {
                 var cmd = r.Replace("exec ", "").Replace("-e ", "");
-                var file = "override.Start(){\n" + cmd + "}";
+                var file = "override.Start(){\n" + cmd + "\n}";
                 var path = "AnonExecCommand.ts";
                 Manager.SleepDefaultTime = 1200;
                 Manager.IsScriptStopping = false;
@@ -36,7 +34,7 @@ namespace TastyScript.TastyScript
                 var file = Utilities.GetFileFromPath(path);
                 Manager.SleepDefaultTime = 1200;
                 Manager.IsScriptStopping = false;
-                new Thread(()=> { ListenForEscape(source.Token); }).Start();
+                new Thread(()=> { ListenForStdIn(source.Token); }).Start();
                 StartScript(path, file);
                 source.Cancel();
             }
@@ -52,9 +50,12 @@ namespace TastyScript.TastyScript
                 }
             }
         }
-        public static void ListenForEscape(CancellationToken _cancelSource)
+        /// <summary>
+        /// Listens for the stdin and handles the data recieved.
+        /// </summary>
+        /// <param name="_cancelSource"></param>
+        private static void ListenForStdIn(CancellationToken _cancelSource)
         {
-            Manager.Print("Press ENTER to stop");
             while (!_cancelSource.IsCancellationRequested)
             {
                 var r = Reader.ReadLine(_cancelSource);
@@ -66,9 +67,13 @@ namespace TastyScript.TastyScript
                     else
                         Manager.StdInLine = xml.Text;
                 }
-                else if(r != "")//ignore this because when readline is canceled an empty string will get through
+                else if(r != "")
                 {
                     Manager.ThrowSilent($"Input stream is not in the correct format and will be ignored: {r}");
+                }
+                else
+                {
+                    break;
                 }
             }
             if (!Manager.IsScriptStopping)
@@ -81,7 +86,6 @@ namespace TastyScript.TastyScript
         {
             try
             {
-                
                 //halt the script
                 Manager.IsScriptStopping = true;
                 Manager.Print("\nScript execution is halting. Please wait.\n", ConsoleColor.Yellow);

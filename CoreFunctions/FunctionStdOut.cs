@@ -1,6 +1,7 @@
 ﻿using System;
 using TastyScript.IFunction.Attributes;
 using TastyScript.IFunction.Functions;
+using TastyScript.ParserManager;
 
 namespace TastyScript.CoreFunctions
 {
@@ -13,15 +14,16 @@ namespace TastyScript.CoreFunctions
             var line = ProvidedArgs.First("Line");
             string linetext = "";
             var text = ProvidedArgs.First("Text");
+            var id = ProvidedArgs.First("Id")?.ToString();
             if (line == null)
                 linetext = "True";
             else
                 linetext = line.ToString();
             var checkcol = Enum.TryParse<ConsoleColor>(color.ToString(), out ConsoleColor outcol);
             if (!checkcol)
-                Print(text?.ToString() ?? "", (linetext == "true" || linetext == "True") ? true : false);
+                Manager.Print(text?.ToString() ?? "", (linetext == "true" || linetext == "True") ? true : false, id ?? "");
             else
-                Print(text?.ToString() ?? "", outcol, (linetext == "true" || linetext == "True") ? true : false);
+                Manager.Print(text?.ToString() ?? "", outcol, (linetext == "true" || linetext == "True") ? true : false, id ?? "");
 
             return true;
         }

@@ -99,7 +99,8 @@ namespace TastyScript.TSConsole
                     case ("-r"):
                     case ("run"):
                         var waitcancel = new CancellationTokenSource();
-                        
+
+                        Manager.Print("Press ENTER to stop");
                         new Thread(() => {
                             while (!waitcancel.IsCancellationRequested)
                             {
