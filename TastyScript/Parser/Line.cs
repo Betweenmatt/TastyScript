@@ -141,6 +141,7 @@ namespace TastyScript.TastyScript.Parser
         private void WalkTree(string value)
         {
             value = RuntimeDebugger(value);
+            value = SyntaxSugar(value);
             value = value.ReplaceFirst("var ", "var%");
             value = ReplaceAllNotInStringWhiteSpace(value);
             value = ParseMathExpressions(value);
@@ -175,6 +176,20 @@ namespace TastyScript.TastyScript.Parser
             //temp =
             ParseFunctions(value, ext);
             return;// temp;
+        }
+
+        //makes the syntax a little lighter on certain functions
+        //i may revisit this solution later
+        private string SyntaxSugar(string value)
+        {
+            var val = value;
+            if (val.EndsWith("return", StringComparison.OrdinalIgnoreCase))
+                val = val.Replace("return", "return()");
+            if (val.EndsWith("break", StringComparison.OrdinalIgnoreCase))
+                val = val.Replace("break", "break()");
+            if (val.EndsWith("continue", StringComparison.OrdinalIgnoreCase))
+                val = val.Replace("continue", "continue()");
+            return val;
         }
 
         private string ParseStrings(string value)
